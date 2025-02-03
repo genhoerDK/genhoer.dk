@@ -11,6 +11,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        lato: ["var(--font-lato)", "sans-serif"],
+        rem: ["var(--font-rem)", "monospace"],
+      }
     },
   },
   plugins: [],

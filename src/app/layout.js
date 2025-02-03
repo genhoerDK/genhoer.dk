@@ -1,14 +1,15 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { REM, Lato } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const rem = REM({
+  variable: "--font-rem",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const lato = Lato({
+  variable: "--font-lato",
   subsets: ["latin"],
+  weight: ["100", "400", "700"],
 });
 
 export const metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body
-        className={`w-screen h-screen flex justify-center items-center ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`py-24 ${rem.variable} ${lato.variable} antialiased`}
       >
         {children}
       </body>
