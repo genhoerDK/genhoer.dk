@@ -1,41 +1,23 @@
 export default function Home() {
   return (
     <>
-      <div 
-        className="flex justify-center items-center py-24"
-      >
-        <img 
-          className="size-1/2 lg:size-1/3"
-          src="/images/logo.svg"
-          alt="Genhør Logo"
-        />
+      <div className="flex justify-center items-center py-24">
+        <img className="size-1/2 lg:size-1/3" src="/images/logo.svg" alt="Genhør Logo" />
       </div>
 
-      <div 
-        className="bg-black px-48 py-24"
-      >
-        <p 
-          className="text-white text-xl text-center"
-        >Genhør er en nonprofitorganisation, der i samarbejde med kommuner, arkiver og museer engagerer unge i lokal kulturskabelse og udstiller offentlig tilgængelig lydkunst, der styrker kendskabet til den stedbundne kulturarv og den lokale kulturhistorie.</p>
+      <div className="bg-black px-4 md:px-24 lg:px-48 py-24">
+        <p className="text-white md:text-xl text-center">Genhør er en nonprofitorganisation, der i samarbejde med kommuner, arkiver og museer engagerer unge i lokal kulturskabelse og udstiller offentlig tilgængelig lydkunst, der styrker kendskabet til den stedbundne kulturarv og den lokale kulturhistorie.</p>
       </div>
 
-      <div 
-      className="flex flex-col justify-center gap-4 px-48 py-24"
-      >
-        <h2
-        className="text-4xl"
-        >Projekter</h2>
+      <div className="flex flex-col justify-center gap-4 px-4 md:px-24 lg:px-48 py-24">
+        <h2 className="text-4xl">Projekter</h2>
         <div className="flex gap-4">
           <h3 className="text-orange-400">2024</h3>
           <h3 className="text-green-400">2025</h3>
           <h3 className="text-blue-400">2026</h3>
         </div>
         
-        <img 
-          className="max-h-screen"
-          src="/images/map.svg"
-          alt="Denmark Map"
-        />
+        <img className="max-h-screen" src="/images/map.svg" alt="Denmark Map" />
         <div className="flex flex-col flex-wrap gap-4">
           <div className="flex flex-wrap gap-4">
             <h3 className="text-orange-400 inline-block">Grindsted</h3>
