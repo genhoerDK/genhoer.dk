@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body
-        className={`py-24 ${rem.variable} ${lato.variable} antialiased`}
+        className={`${rem.variable} ${lato.variable} antialiased`}
       >
         {children}
       </body>
