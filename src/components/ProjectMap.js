@@ -3,25 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
+import projects from "../data/projects.json";
 
 const ProjectMap = () => {
     const svgRef = useRef(null);
     const [dimensions, setDimensions] = useState({ w: 0, h: 0 });
 
-    // Update dimensions to window size (initial and on resizing)
+    // Set dimensions to window size (initial and on resizing)
     useEffect(() => {
         const handleResize = () => {
             const w = window.innerWidth;
             const h = window.innerHeight;
             setDimensions({ w, h });
         };
-
+        
         handleResize(); // Initialize dimensions
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-            window.removeEventListener('resize', handleResize); // Cleanup on unmount
-        };
+        window.addEventListener('resize', handleResize); // Listen for resize events
+        return () => { window.removeEventListener('resize', handleResize); }; // Cleanup on unmount
     }, []);
 
     // Create d3 map on mount and update on dimensions change
@@ -56,30 +54,22 @@ const ProjectMap = () => {
 
         // Zoom behavior setup
         const zoom = d3.zoom()
-            .scaleExtent([1, 10]) // Set zoom limits
+            .scaleExtent([1, 50]) // Set zoom limits
             .on("zoom", function (event) {
                 svg.select("g").attr("transform", event.transform); // Apply zoom & pan transform to the map group
             });
 
         // User zoom behavior on the SVG element
-        svg.call(zoom);
+        // svg.call(zoom);
         
         // City list with coordinates and kommunekoder
-        const cities = [
-            { name: "Grindsted", coordinates: [8.9222, 55.7579], komkode: "0530", position: "left" },
-            { name: "Vordingborg", coordinates: [11.9167, 55.0167], komkode: "0390", position: "right" },
-            { name: "Haderslev", coordinates: [9.4891, 55.2493], komkode: "0510", position: "left" },
-            { name: "Faaborg", coordinates: [10.2394, 55.0958], komkode: "0430", position: "right" },
-            { name: "Fredericia", coordinates: [9.7482, 55.5657], komkode: "0607", position: "left" },
-            { name: "Holbæk", coordinates: [11.7167, 55.7167], komkode: "0316", position: "right" },
-            { name: "Køge", coordinates: [12.1821, 55.4561], komkode: "0259", position: "right" },
-            { name: "Dianalund", coordinates: [11.4861, 55.5275], komkode: "0340", position: "left" },
-            { name: "Hvide Sande", coordinates: [8.1291, 56.0037], komkode: "0760", position: "left" },
-            { name: "Kolding", coordinates: [9.4742, 55.4904], komkode: "0621", position: "left" },
-            { name: "Skagen", coordinates: [10.58394, 57.72093], komkode: "0813", position: "left" },
-            { name: "Nexø", coordinates: [15.13492, 55.06175], komkode: "0400", position: "right" },
-            { name: "Rønne", coordinates: [14.70577, 55.10109], komkode: "0400", position: "right" }
-        ];
+        const cities = projects.data.map(project => ({
+            name: project.name,
+            coordinates: [project.coordinates[0], project.coordinates[1]],
+            komkode: project.komkode,
+            screenPosition: project.screenPosition,
+            zoom: project.zoom
+        }));
 
         // Load and render map data
         d3.json('/map.json').then((data) => {
@@ -167,6 +157,22 @@ const ProjectMap = () => {
                     .attr("stroke", "#020202")
                     .attr("stroke-width", 1)
                     .style("cursor", "pointer")
+                    .on("click", function () {
+                        // Determine the new view position
+                        const newX = city.screenPosition === "left" ? dimensions.w * 0.25 : dimensions.w * 0.75;
+                        const newY = dimensions.h / 2; // Centered vertically
+            
+                        // Compute the transformation
+                        const transform = d3.zoomIdentity
+                            .translate(newX, newY) // Move the view to the new position
+                            .scale(city.zoom) // Zoom in on the city
+                            .translate(-x, -y); // Center the city
+            
+                        // Apply the zoom transformation smoothly
+                        svg.transition()
+                            .duration(750)
+                            .call(zoom.transform, transform);
+                    });
             });
 
         });
