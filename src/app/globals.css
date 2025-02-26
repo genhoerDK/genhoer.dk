@@ -25,3 +25,7 @@ h1, h2, h3 {
   font-weight: 700;
   text-transform: uppercase;
 }
+
+.land {
+  transition: all 0.2s ease-in-out;
+}
