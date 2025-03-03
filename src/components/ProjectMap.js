@@ -67,7 +67,7 @@ const ProjectMap = () => {
             .attr("fill", "#020202")
             .attr("stroke", "#ffffff")
             .attr("stroke-opacity", 0)
-            .attr("stroke-width", "0")
+            .attr("stroke-width", 0)
             .attr("data-komkode", d => d.properties.KOMKODE);
     };
     
