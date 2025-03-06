@@ -26,6 +26,47 @@ h1, h2, h3 {
   text-transform: uppercase;
 }
 
-.land {
-  transition: all 0.2s ease-in-out;
+.municipality {
+  fill: #020202;
+  stroke: #ffffff;
+  stroke-opacity: 0;
+  stroke-width: 0;
+  transition: all 0.25s ease-in-out;
+}
+
+.municipality.highlight {
+  fill: #ffffff;
+  fill-opacity: 0.75;
+  stroke-width: 0;
+}
+
+.municipality.dim {
+  fill-opacity: 0;
+  stroke-width: 0.25;
+  stroke-opacity: 0.25;
+}
+
+.marker {
+  r: 6;
+  fill: #87ae73;
+  stroke: #020202;
+  stroke-width: 1;
+  cursor: pointer;
+  transition: all 0.25s ease-in-out;
+}
+
+.marker.shrink {
+  r: 1;
+  fill: #020202;
+}
+
+.marker.hide {
+  r: 0;
+  opacity: 0;
+}
+
+.inset-box {
+  fill: none;
+  stroke: #020202;
+  stroke-width: 1;
 }

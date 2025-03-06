@@ -1,20 +1,15 @@
 [
-      { "city": "Grindsted", 
-        "coordinates": [8.9222, 55.7579], 
-        "komkode": "0530", 
-        "screenPosition": "left", 
-        "zoom": 4 
-      },
-      { "city": "Vordingborg", "coordinates": [11.9167, 55.0167], "komkode": "0390", "screenPosition": "right", "zoom": 4 },
-      { "city": "Haderslev", "coordinates": [9.4891, 55.2493], "komkode": "0510", "screenPosition": "left", "zoom": 4 },
-      { "city": "Faaborg", "coordinates": [10.2394, 55.0958], "komkode": "0430", "screenPosition": "left", "zoom": 4 },
-      { "city": "Fredericia", "coordinates": [9.7482, 55.5657], "komkode": "0607", "screenPosition": "left", "zoom": 4 },
-      { "city": "Holbæk", "coordinates": [11.7167, 55.7167], "komkode": "0316", "screenPosition": "right", "zoom": 4 },
-      { "city": "Køge", "coordinates": [12.1821, 55.4561], "komkode": "0259", "screenPosition": "right", "zoom": 4 },
-      { "city": "Dianalund", "coordinates": [11.4861, 55.5275], "komkode": "0340", "screenPosition": "left", "zoom": 4 },
-      { "city": "Hvide Sande", "coordinates": [8.1291, 56.0037], "komkode": "0760", "screenPosition": "left", "zoom": 4 },
-      { "city": "Kolding", "coordinates": [9.4742, 55.4904], "komkode": "0621", "screenPosition": "left", "zoom": 4 },
-      { "city": "Skagen", "coordinates": [10.58394, 57.72093], "komkode": "0813", "screenPosition": "left", "zoom": 4 },
-      { "city": "Nexø", "coordinates": [15.13492, 55.06175], "komkode": "0400", "screenPosition": "right", "zoom": 5 },
-      { "city": "Rønne", "coordinates": [14.70577, 55.10109], "komkode": "0400", "screenPosition": "right", "zoom": 4 }
+  { "city": "Grindsted", "coordinates": [8.9222, 55.7579], "komkode": "0530", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Vordingborg", "coordinates": [11.9167, 55.0167], "komkode": "0390", "screenPosition": 0.75, "zoom": 4 },
+  { "city": "Haderslev", "coordinates": [9.4891, 55.2493], "komkode": "0510", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Faaborg", "coordinates": [10.2394, 55.0958], "komkode": "0430", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Fredericia", "coordinates": [9.7482, 55.5657], "komkode": "0607", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Holbæk", "coordinates": [11.7167, 55.7167], "komkode": "0316", "screenPosition": 0.75, "zoom": 4 },
+  { "city": "Køge", "coordinates": [12.1821, 55.4561], "komkode": "0259", "screenPosition": 0.75, "zoom": 4 },
+  { "city": "Dianalund", "coordinates": [11.4861, 55.5275], "komkode": "0340", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Hvide Sande", "coordinates": [8.1291, 56.0037], "komkode": "0760", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Kolding", "coordinates": [9.4742, 55.4904], "komkode": "0621", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Skagen", "coordinates": [10.58394, 57.72093], "komkode": "0813", "screenPosition": 0.25, "zoom": 4 },
+  { "city": "Nexø", "coordinates": [15.13492, 55.06175], "komkode": "0400", "screenPosition": 0.75, "zoom": 5 },
+  { "city": "Rønne", "coordinates": [14.70577, 55.10109], "komkode": "0400", "screenPosition": 0.75, "zoom": 4 }
 ]

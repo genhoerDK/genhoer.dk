@@ -165,7 +165,7 @@ const ProjectMap = () => {
 
     return (
         <section className={`w-full min-h-screen transition duration-700 ease-in-out ${focusProject ? 'bg-black' : 'bg-white'}`}>
-            <svg ref={svgRef}/>
+            <svg className="z-1 relative"ref={svgRef}/>
         </section>
     );
 };
