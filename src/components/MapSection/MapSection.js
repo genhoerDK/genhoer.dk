@@ -34,7 +34,7 @@ const MapSection = () => {
     }, [isPortrait]);
 
     return (
-        <section className={`transition duration-700 ${activeProject !== null ? "bg-black" : "bg-white"}`}>
+        <section className={`size-full transition duration-700 ${activeProject !== null ? "bg-black" : "bg-white"}`}>
             <InteractiveMap dimensions={dimensions} isPortrait={isPortrait} projects={projects} setActiveProject={setActiveProject} />
         </section>
     );
