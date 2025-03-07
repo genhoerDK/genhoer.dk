@@ -2,13 +2,15 @@ import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
-const InteractiveMap = ({ dimensions, projects, isPortrait }) => {
+const InteractiveMap = ({ dimensions, isPortrait, projects, setActiveProject }) => {
     const svgRef = useRef(null);
 
     const svg = d3.select(svgRef.current)
             .attr("viewBox", `0 0 ${dimensions.width} ${dimensions.height}`)
             .style("width", `${dimensions.width}px`)
             .style("height", `${dimensions.height}px`);
+
+    svg.on("click", () => resetZoom());
 
     const ratio = Math.min(dimensions.width / dimensions.height, 2.75);
     const scaleFactor = Math.min(dimensions.width, dimensions.height) * (isPortrait ? 10.5 - ratio : 6.75 + ratio);
@@ -50,12 +52,11 @@ const InteractiveMap = ({ dimensions, projects, isPortrait }) => {
             drawMap(g, mapData);
             drawMarkers(g);
             
-            svg.on("click", () => resetZoom());
         });
     }, [dimensions]);
 
     // Reset zoom on resize
-    useEffect(() => { svg.transition().call(zoom.transform, d3.zoomIdentity); }, [dimensions]);
+    useEffect(() => { resetZoom(); }, [dimensions]);
 
     const drawInsetBox = (g, offset) => {
         const [cx, cy] = projection([14.91701 + offset[0], 55.14497 + offset[1]]);
@@ -78,7 +79,7 @@ const InteractiveMap = ({ dimensions, projects, isPortrait }) => {
     };
 
     const drawMarkers = (g) => {
-        projects.forEach((project) => {
+        projects.forEach((project, i) => {
             const [x, y] = projection(project.coordinates);
             g.append("circle")
                 .attr("cx", x)
@@ -86,18 +87,20 @@ const InteractiveMap = ({ dimensions, projects, isPortrait }) => {
                 .attr("class", "marker")
                 .on("click", (e) => {
                     e.stopPropagation();
-                    zoomToProject(x, y, project, e.target);
+                    zoomToProject(x, y, project, e.target, i);
                 });
         });
     };
 
-    const zoomToProject = (x, y, project, clickedMarker) => {
+    const zoomToProject = (x, y, project, clickedMarker, i) => {
         const newX = dimensions.width * project.screenPosition;
         const newY = dimensions.height / 2;
         const transform = d3.zoomIdentity.translate(newX, newY).scale(project.zoom).translate(-x, -y);
         
         svg.transition().duration(700).call(zoom.transform, transform);
     
+        setActiveProject(i);
+
         d3.selectAll(".municipality")
             .classed("dim", true);
     
@@ -117,6 +120,8 @@ const InteractiveMap = ({ dimensions, projects, isPortrait }) => {
     const resetZoom = () => {
         svg.transition().duration(700).call(zoom.transform, d3.zoomIdentity);
     
+        setActiveProject(null);
+
         d3.selectAll(".municipality")
             .classed("dim", false)
             .classed("highlight", false);

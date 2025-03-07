@@ -48,16 +48,23 @@ h1, h2, h3 {
 
 .marker {
   r: 6;
-  fill: #87ae73;
+  fill: #fff;
   stroke: #020202;
-  stroke-width: 1;
+  stroke-width: 2;
   cursor: pointer;
-  transition: all 0.25s ease-in-out;
+  transition: all 0.2s ease-in;
+}
+
+.marker:hover {
+  r: 8;
 }
 
 .marker.shrink {
   r: 1;
   fill: #020202;
+  stroke: #fff;
+  stroke-width: 1;
+  cursor: default;
 }
 
 .marker.hide {

@@ -7,7 +7,7 @@ import projectData from "../../data/projects.json";
 const MapSection = () => {
     const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
     const [isPortrait, setIsPortrait] = useState(false);
-    const [projectView, setProjectView] = useState(null);
+    const [activeProject, setActiveProject] = useState(null);
     const [projects, setProjects] = useState([]);
 
     const updateDimensions = () => {
@@ -34,8 +34,8 @@ const MapSection = () => {
     }, [isPortrait]);
 
     return (
-        <section className="bg-blue-300">
-            <InteractiveMap dimensions={dimensions} projects={projects} isPortrait={isPortrait} />
+        <section className={`transition duration-700 ${activeProject !== null ? "bg-black" : "bg-white"}`}>
+            <InteractiveMap dimensions={dimensions} isPortrait={isPortrait} projects={projects} setActiveProject={setActiveProject} />
         </section>
     );
 };
