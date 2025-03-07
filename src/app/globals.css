@@ -56,7 +56,7 @@ h1, h2, h3 {
 }
 
 .marker:hover {
-  r: 8;
+  r: 10;
 }
 
 .marker.shrink {

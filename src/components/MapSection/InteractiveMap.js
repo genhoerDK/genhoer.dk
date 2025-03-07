@@ -85,6 +85,7 @@ const InteractiveMap = ({ dimensions, isPortrait, projects, setActiveProject }) 
                 .attr("cx", x)
                 .attr("cy", y)
                 .attr("class", "marker")
+                .attr("r", 6)
                 .on("click", (e) => {
                     e.stopPropagation();
                     zoomToProject(x, y, project, e.target, i);
