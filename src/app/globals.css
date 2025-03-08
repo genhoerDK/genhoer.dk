@@ -28,9 +28,9 @@ h1, h2, h3 {
 
 .municipality {
   fill: #020202;
-  stroke: #ffffff;
-  stroke-opacity: 0;
-  stroke-width: 0;
+  stroke: #020202;
+  stroke-opacity: 1;
+  stroke-width: 1;
   transition: all 0.25s ease-in-out;
 }
 
@@ -42,12 +42,12 @@ h1, h2, h3 {
 
 .municipality.dim {
   fill-opacity: 0;
+  stroke: #fff;
   stroke-width: 0.25;
   stroke-opacity: 0.25;
 }
 
 .marker {
-  r: 6;
   fill: #fff;
   stroke: #020202;
   stroke-width: 2;
@@ -56,19 +56,17 @@ h1, h2, h3 {
 }
 
 .marker:hover {
-  r: 10;
+  fill: blue;
 }
 
 .marker.shrink {
-  r: 1;
-  fill: #020202;
+  fill: none;
   stroke: #fff;
-  stroke-width: 1;
+  stroke-width: .5;
   cursor: default;
 }
 
 .marker.hide {
-  r: 0;
   opacity: 0;
 }
 
