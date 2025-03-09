@@ -36,7 +36,7 @@ h1, h2, h3 {
 
 .municipality.highlight {
   fill: #ffffff;
-  fill-opacity: 0.75;
+  fill-opacity: 0.8;
   stroke-width: 0;
 }
 
@@ -56,12 +56,12 @@ h1, h2, h3 {
 }
 
 .marker:hover {
-  fill: blue;
+  fill: #EE964B;
 }
 
 .marker.shrink {
   fill: none;
-  stroke: #fff;
+  stroke: #020202;
   stroke-width: .5;
   cursor: default;
 }

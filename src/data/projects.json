@@ -8,8 +8,5 @@
   { "city": "Køge", "coordinates": [12.1821, 55.4561], "komkode": "0259", "screenPosition": 0.75, "zoom": 4 },
   { "city": "Dianalund", "coordinates": [11.4861, 55.5275], "komkode": "0340", "screenPosition": 0.25, "zoom": 4 },
   { "city": "Hvide Sande", "coordinates": [8.1291, 56.0037], "komkode": "0760", "screenPosition": 0.25, "zoom": 4 },
-  { "city": "Kolding", "coordinates": [9.4742, 55.4904], "komkode": "0621", "screenPosition": 0.25, "zoom": 4 },
-  { "city": "Skagen", "coordinates": [10.58394, 57.72093], "komkode": "0813", "screenPosition": 0.25, "zoom": 4 },
-  { "city": "Nexø", "coordinates": [15.13492, 55.06175], "komkode": "0400", "screenPosition": 0.75, "zoom": 5 },
-  { "city": "Rønne", "coordinates": [14.70577, 55.10109], "komkode": "0400", "screenPosition": 0.75, "zoom": 4 }
+  { "city": "Kolding", "coordinates": [9.4742, 55.4904], "komkode": "0621", "screenPosition": 0.25, "zoom": 4 }
 ]
