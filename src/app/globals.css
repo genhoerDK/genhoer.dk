@@ -44,7 +44,7 @@ h1, h2, h3 {
   fill-opacity: 0;
   stroke: #fff;
   stroke-width: 0.25;
-  stroke-opacity: 0.25;
+  stroke-opacity: 0.1;
 }
 
 .marker {
@@ -52,7 +52,7 @@ h1, h2, h3 {
   stroke: #020202;
   stroke-width: 2;
   cursor: pointer;
-  transition: all 0.2s ease-in;
+  transition: r 0.2s ease-in;
 }
 
 .marker:hover {

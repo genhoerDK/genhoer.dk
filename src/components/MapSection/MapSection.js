@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import InteractiveMap from "./InteractiveMap";
+import MapBackground from "./MapBackground";
 import projectData from "../../data/projects.json";
 
 const MapSection = () => {
@@ -34,7 +35,8 @@ const MapSection = () => {
     }, [isPortrait]);
 
     return (
-        <section className={`size-full transition duration-700 ${activeProject !== null ? "bg-black" : "bg-white"}`}>
+        <section className={'relative size-full'}>
+            <MapBackground dimensions={dimensions} activeProject={activeProject} />
             <InteractiveMap dimensions={dimensions} isPortrait={isPortrait} projects={projects} setActiveProject={setActiveProject} />
         </section>
     );

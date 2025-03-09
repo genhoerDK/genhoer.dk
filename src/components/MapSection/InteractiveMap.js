@@ -137,7 +137,7 @@ const InteractiveMap = ({ dimensions, isPortrait, projects, setActiveProject }) 
     };
 
     return (
-        <svg ref={svgRef}>
+        <svg ref={svgRef} className={'relative z-10'}>
             <g ref={gRef} />
         </svg>
     );
