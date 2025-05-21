@@ -14,7 +14,7 @@ const lato = Lato({
 
 export const metadata = {
   title: "Genhør",
-  description: "Engagere unge i lokal kulturskabelse og udstiller lydkunst i det offentlige rum.",
+  description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i det offentlige rum.",
 };
 
 export default function RootLayout({ children }) {
