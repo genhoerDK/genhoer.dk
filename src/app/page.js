@@ -2,7 +2,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex justify-center items-center py-24">
+      <div className="flex justify-center items-center h-screen bg-gray-200">
         <img className="size-1/2 lg:size-1/3" src="/images/logo.svg" alt="Genhør Logo" />
       </div>
 

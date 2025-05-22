@@ -22,8 +22,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body className={`${rem.variable} ${lato.variable} antialiased`}>
-
-        <Header />
+        
+          <Header />
 
         {children}
       </body>

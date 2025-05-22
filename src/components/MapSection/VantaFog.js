@@ -1,5 +1,4 @@
-"use client"; // If using App Router
-
+"use client";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
