@@ -1,5 +1,6 @@
 import { REM, Lato } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/UI/Header";
 
 const rem = REM({
   variable: "--font-rem",
@@ -20,9 +21,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="da">
-      <body
-        className={`${rem.variable} ${lato.variable} antialiased`}
-      >
+      <body className={`${rem.variable} ${lato.variable} antialiased`}>
+
+        <Header />
+
         {children}
       </body>
     </html>
