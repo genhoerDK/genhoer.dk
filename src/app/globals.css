@@ -1,6 +1,8 @@
 @import "tailwindcss";
-
+  
 :root {
+  --font-lato: "Lato", sans-serif;
+  --font-rem: "Rem", monospace;
   --background: #ffffff;
   --foreground: #171717;
 }
