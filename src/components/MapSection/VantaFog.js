@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -19,33 +20,27 @@ export default function VantaFog({ dimensions }) {
             el: vantaRef.current,
             mouseControls: true,
             touchControls: true,
-            gyroControls: false,
+            gyroControls: true,
             minHeight: dimensions.height,
             minWidth: dimensions.width,
-            highlightColor: 0xffffff,
-            midtoneColor: 0x0,
-            lowlightColor: 0x0,
-            baseColor: 0xffffff,
+            highlightColor: 0x27272a,
+            midtoneColor: 0xe4e4e7,
+            lowlightColor: 0x52525b,
+            baseColor: 0xfafafa,
             blurFactor: 0.5,
-            speed: 0.75,
+            speed: 0.5,
             zoom: 0.5,
             THREE,
           })
         );
-
-        // Apply opacity to the canvas element
-        const canvas = vantaRef.current.querySelector("canvas");
-        if (canvas) {
-          canvas.style.opacity = "0.5";
-        }
       }
     };
 
     return () => {
-      if (vantaEffect) vantaEffect.destroy();
+      vantaEffect && vantaEffect.destroy();
       document.body.removeChild(script);
     };
   }, [vantaEffect]);
 
-  return <div ref={vantaRef} className="absolute inset-0 z-0 size-full" />;
+  return <div ref={vantaRef} className="absolute inset-0 -z-10 size-full opacity-75" />;
 }

@@ -14,8 +14,12 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative w-svw h-svh overflow-hidden -mt-20">
-      <VantaFog dimensions={dimensions} />
+    <section className="relative flex justify-center items-end w-screen h-svh overflow-hidden -mt-20">
+        <VantaFog dimensions={dimensions} />
+        <div className="md:container md:mx-auto">
+            <h2 className="font-rem font-thin text-4xl">Et lydligt vindue til den nære Danmarkshistorie</h2>
+        </div>
+      
     </section>
   );
 }
