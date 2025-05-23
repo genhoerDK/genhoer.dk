@@ -2,9 +2,6 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex justify-center items-center h-screen bg-gray-200">
-        <img className="size-1/2 lg:size-1/3" src="/images/logo.svg" alt="Genhør Logo" />
-      </div>
 
       <div className="bg-black px-4 md:px-24 lg:px-48 py-24">
         <p className="text-white md:text-xl text-center">Genhør er en nonprofitorganisation, der i samarbejde med kommuner, arkiver og museer engagerer unge i lokal kulturskabelse og udstiller offentlig tilgængelig lydkunst, der styrker kendskabet til den stedbundne kulturarv og den lokale kulturhistorie.</p>
