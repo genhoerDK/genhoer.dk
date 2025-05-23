@@ -8,16 +8,28 @@ const Header = () => {
     const [isSticky, setIsSticky] = useState(false);
 
     useEffect(() => {
-        const onScroll = () => setIsSticky(headerRef.current.getBoundingClientRect().top <= 0);
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll(); // Check initial position of the header
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
+  let ticking = false;
+
+  const onScroll = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        setIsSticky(headerRef.current.getBoundingClientRect().top <= 0);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll(); // initial check
+
+  return () => window.removeEventListener('scroll', onScroll);
+}, []);
 
   return (
-    <header ref={headerRef} className={`sticky top-0 flex justify-between items-center w-full h-14 mt-6 -mb-20 px-8 transition-colors ${isSticky ? 'bg-zinc-50' : 'bg-none'}`}>
+    <header ref={headerRef} className={`sticky top-0 flex justify-between items-center w-full h-14 mt-6 px-8 transition-colors ${isSticky ? 'bg-zinc-50' : 'bg-none'}`}>
         <div>
-            <div className={`absolute top-0 flex items-center h-14 overflow-hidden transition-opacity ${!isSticky ? 'opacity-0' : 'opacity-100 duration-600'}`}>
+            <div className={`absolute top-0 flex items-center h-14 transition-opacity ${!isSticky ? 'opacity-0' : 'opacity-100 duration-600'}`}>
                 <h1 className="text-[42px] leading-10">GENHØR</h1>
             </div>
             <svg className={`transition-opacity duration-300 ${isSticky ? 'opacity-0' : 'opacity-100'}`} width="190" height="48" viewBox="0 0 190 48" fill="none" xmlns="http://www.w3.org/2000/svg">
