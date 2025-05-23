@@ -14,7 +14,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative w-screen h-screen overflow-hidden -mt-20">
+    <section className="relative w-svw h-svh overflow-hidden -mt-20">
       <VantaFog dimensions={dimensions} />
     </section>
   );
