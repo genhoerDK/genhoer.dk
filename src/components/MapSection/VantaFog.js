@@ -42,5 +42,5 @@ export default function VantaFog({ dimensions }) {
     };
   }, [vantaEffect]);
 
-  return <div ref={vantaRef} className="absolute inset-0 -z-10 size-full opacity-75" />;
+  return <div ref={vantaRef} className="absolute inset-0 -z-10 size-full opacity-50" />;
 }
