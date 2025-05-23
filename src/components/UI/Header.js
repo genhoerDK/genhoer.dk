@@ -30,7 +30,7 @@ const Header = () => {
             </svg>
         </div>
         <nav>
-          <ul className="flex gap-4">
+          <ul className="hidden">
             <li><Link href="/deltag" className="hover:underline">Deltag</Link></li>
             <li><Link href="/projekter" className="hover:underline">Projekter</Link></li>
             <li><Link href="/organisationen" className="hover:underline">Organisationen</Link></li>
