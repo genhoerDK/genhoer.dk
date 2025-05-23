@@ -32,11 +32,11 @@ const Nav = () => {
         ))}
       </ul>
 
-      <button onClick={toggleMenu} className="md:hidden relative p-2 focus:outline-none z-50" aria-label="Toggle menu">
+      <button onClick={toggleMenu} className="md:hidden relative p-2 focus:outline-none z-40" aria-label="Toggle menu">
         {isOpen ? ( <XMarkIcon className="h-8 w-8 text-zinc-800" /> ) : ( <Bars3Icon className="h-8 w-8 text-zinc-800" /> )}
       </button>
 
-      <div className={`fixed inset-0 bg-zinc-50 z-40 flex flex-col items-center justify-center gap-8 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <div className={`fixed inset-0 bg-zinc-50 z-30 flex flex-col items-center justify-center gap-8 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
         {navItems.map(({ href, label }) => (
           <Link key={href} href={href} onClick={closeMenu} className="font-rem font-semibold text-xl uppercase hover:underline">{label}</Link>
         ))}
