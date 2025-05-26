@@ -3,10 +3,6 @@ export default function Home() {
   return (
     <>
 
-      <div className="bg-black px-4 md:px-24 lg:px-48 py-24">
-        <p className="text-white md:text-xl text-center">Genhør er en nonprofitorganisation, der i samarbejde med kommuner, arkiver og museer engagerer unge i lokal kulturskabelse og udstiller offentlig tilgængelig lydkunst, der styrker kendskabet til den stedbundne kulturarv og den lokale kulturhistorie.</p>
-      </div>
-
       <div className="flex flex-col justify-center gap-4 px-4 md:px-24 lg:px-48 py-24">
         <h2 className="text-4xl">Projekter</h2>
         <div className="flex gap-4">
