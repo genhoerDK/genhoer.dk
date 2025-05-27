@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
-const navItems = [
+const headerNavItems = [
   { href: "/projekter", label: "Projekter" },
   { href: "/deltag", label: "Deltag" },
   { href: "/organisationen", label: "Organisationen" },
   { href: "/kontakt", label: "Kontakt" },
 ];
 
-const Nav = () => {
+export default function HeaderNav() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -25,8 +25,8 @@ const Nav = () => {
   return (
     <nav>
       <ul className="hidden md:flex">
-        {navItems.map(({ href, label }) => (
-          <li key={href}>
+        {headerNavItems.map(({ href, label }, i) => (
+          <li key={`footer-nav-item-${i}`}>
             <Link href={href} className="font-rem font-semibold text-sm uppercase px-4 py-2 hover:underline">{label}</Link>
           </li>
         ))}
@@ -37,12 +37,10 @@ const Nav = () => {
       </button>
 
       <div className={`fixed inset-0 bg-zinc-50 z-30 flex flex-col items-center justify-center gap-8 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        {navItems.map(({ href, label }) => (
-          <Link key={href} href={href} onClick={closeMenu} className="font-rem font-semibold text-xl uppercase hover:underline">{label}</Link>
+        {headerNavItems.map(({ href, label }, i) => (
+          <Link key={`footer-nav-item-${i}`} href={href} onClick={closeMenu} className="font-rem font-semibold text-xl uppercase hover:underline">{label}</Link>
         ))}
       </div>
     </nav>
   );
 };
-
-export default Nav;

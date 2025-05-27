@@ -1,7 +1,8 @@
 import { REM, Lato } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/UI/Header";
-import Hero from "@/components/UI/Hero";
+import HeroFog from "@/components/UI/HeroFog";
+import Footer from "@/components/UI/Footer";
 
 const rem = REM({
   variable: "--font-rem",
@@ -23,10 +24,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body className={`${rem.variable} ${lato.variable} antialiased`}>
-        
-          <Header />
-          <Hero />
-        {children}
+        <Header />
+        <HeroFog />
+        <main className="w-screen min-h-svh -mt-20">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );
