@@ -18,12 +18,13 @@ const lato = Lato({
 export const metadata = {
   title: "Genhør",
   description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i det offentlige rum.",
+  themeColor: '#27272a',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="da">
-      <body className={`${rem.variable} ${lato.variable} antialiased`}>
+      <body className={`${rem.variable} ${lato.variable} antialiased bg-zinc-800`}>
         <Header />
         <HeroFog />
         <main className="w-screen min-h-svh -mt-20">
