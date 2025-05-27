@@ -8,18 +8,6 @@ export default function HeroFog() {
   const effectRef = useRef(null);
 
   useEffect(() => {
-    const updateSize = () => {
-      if (effectRef.current?.setOptions) {
-        effectRef.current.setOptions({
-          minHeight: window.innerHeight,
-          minWidth: window.innerWidth,
-        });
-      }
-    };
-
-    const handleResize = () => updateSize();
-    window.addEventListener("resize", handleResize);
-
     const script = document.createElement("script");
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.fog.min.js";
     script.async = true;
@@ -32,8 +20,6 @@ export default function HeroFog() {
           mouseControls: true,
           touchControls: true,
           gyroControls: true,
-          minHeight: window.innerHeight,
-          minWidth: window.innerWidth,
           highlightColor: 0x27272a,
           midtoneColor: 0xe4e4e7,
           lowlightColor: 0x52525b,
@@ -47,7 +33,6 @@ export default function HeroFog() {
     };
 
     return () => {
-      window.removeEventListener("resize", handleResize);
       if (effectRef.current) {
         effectRef.current.destroy();
       }
@@ -55,5 +40,10 @@ export default function HeroFog() {
     };
   }, []);
 
-  return <div ref={vantaRef} className="absolute inset-0 -z-10 w-screen h-svh opacity-25" />;
+  return (
+    <div
+      ref={vantaRef}
+      className="absolute inset-0 -z-10 w-screen h-svh opacity-25"
+    />
+  );
 }
