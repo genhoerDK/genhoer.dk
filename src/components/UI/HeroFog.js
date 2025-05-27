@@ -33,12 +33,10 @@ export default function HeroFog() {
     };
 
     return () => {
-      if (effectRef.current) {
-        effectRef.current.destroy();
-      }
+      effectRef.current && effectRef.current.destroy();
       document.body.removeChild(script);
     };
   }, []);
 
-  return <div ref={vantaRef} className="absolute inset-0 -z-10 w-screen h-svh opacity-100"></div>
+  return <div ref={vantaRef} className="absolute inset-0 -z-10 w-screen h-svh"></div>
 }

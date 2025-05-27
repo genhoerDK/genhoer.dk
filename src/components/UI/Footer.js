@@ -1,14 +1,16 @@
 import Link from "next/link";
 
 const footerNavItems = [
-  { href: "/", label: "Vedtægter" },
-  { href: "/", label: "Cookies" },
-  { href: "/", label: "Privatlivspolitik" },
+    { href: "/", label: "Privatlivspolitik" },
+    { href: "/", label: "Vedtægter" },
+    { href: "/", label: "Cookies" },
 ];
 
 export default function Footer() {
   return (
-    <footer className='flex flex-col md:flex-row-reverse items-center gap-8 md:gap-4 p-8 bg-zinc-800'>
+    <footer className='flex flex-col md:flex-row-reverse items-center gap-6 md:gap-4 p-8'>
+
+        {/* Social Media Buttons */}
         <div className="flex flex-1 justify-end items-center md:h-14 gap-6">
             <a href="https://www.facebook.com/people/Genh%C3%B8r/61559553821169/" className="group w-12 h-12 rounded-full border-2 border-zinc-50 bg-zinc-50 hover:bg-zinc-800 flex items-center justify-center" target="_blank" rel="noopener noreferrer" aria-label="Besøg Genhør på Facebook">
                 <svg className="w-6 h-6 fill-zinc-800 group-hover:fill-zinc-50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -26,6 +28,8 @@ export default function Footer() {
                 </svg>
             </a>
         </div>
+
+        {/* Footer Logo */}
         <svg className='w-[121px] h-[56px]' viewBox="0 0 121 56" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path className='fill-zinc-50' d="M10.5237 56C8.32449 56 6.44974 55.6034 4.89947 54.8103C3.34919 54.0171 2.15945 52.8904 1.33023 51.4303C0.501015 49.9702 0.086407 48.2576 0.086407 46.2928C0.086407 44.6884 0.356804 43.2824 0.897597 42.0746C1.43839 40.8668 2.18649 39.8573 3.14189 39.0461C4.11532 38.2349 5.24197 37.622 6.52185 37.2074C7.80173 36.7928 9.18075 36.5855 10.6589 36.5855C11.5602 36.5855 12.4526 36.6757 13.3358 36.8559C14.2372 37.0182 15.1205 37.2795 15.9857 37.6401L16.851 37.9916L15.9857 42.0205L14.8771 41.8312C14.12 41.687 13.408 41.5789 12.741 41.5067C12.074 41.4346 11.4431 41.3986 10.8482 41.3986C9.76661 41.3986 8.83825 41.5608 8.06311 41.8853C7.306 42.1917 6.72014 42.7055 6.30553 43.4266C5.89092 44.1476 5.68362 45.121 5.68362 46.3468C5.68362 47.5186 5.8729 48.474 6.25145 49.2131C6.63001 49.9341 7.19784 50.4569 7.95495 50.7814C8.71206 51.1058 9.63141 51.2681 10.713 51.2681C11.1817 51.2681 11.6504 51.25 12.1191 51.214C12.6058 51.1599 13.0925 51.0878 13.5792 50.9977V48.6993H9.22582V44.8867H18.2571V53.972C17.6442 54.3686 16.9141 54.7201 16.0669 55.0266C15.2376 55.315 14.3453 55.5493 13.3899 55.7296C12.4345 55.9099 11.4791 56 10.5237 56Z" fill="#FAFAFA"/>
             <path className='fill-zinc-50' d="M20.8825 55.7567V36.8289H36.0517V41.5067H26.3445V44.0755H34.9701V48.2126H26.3445V51.0517H36.241V55.7567H20.8825Z" fill="#FAFAFA"/>
@@ -40,6 +44,8 @@ export default function Footer() {
             <path className='fill-zinc-50' d="M99.1389 5.99865C92.1042 10.0601 92.1042 20.2139 99.1389 24.2754L100.865 25.2721C98.1042 28.2848 93.4297 29.3727 89.4112 27.0526L82.4864 23.0546C76.331 19.5008 76.331 10.6163 82.4864 7.06246L89.4112 3.06442C93.4753 0.718021 98.2102 1.85735 100.958 4.94811L99.1389 5.99865Z" fill="#FAFAFA"/>
             <path className='fill-zinc-50' d="M100.623 23.6386C94.0276 19.8309 94.0276 10.3118 100.623 6.50414L105.569 3.6484C112.164 -0.159254 120.408 4.60032 120.408 12.2156V17.9271C120.408 25.5424 112.164 30.3019 105.569 26.4943L100.623 23.6386Z" fill="#FAFAFA"/>
         </svg>
+
+        {/* Footer Navigation */}
         <div className="flex flex-1 items-end md:h-14">
             <ul className="flex flex-col items-center md:flex-row md:items-start gap-4">
                 {footerNavItems.map(({ href, label }, i) => (
