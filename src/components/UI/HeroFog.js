@@ -55,5 +55,5 @@ export default function HeroFog() {
     };
   }, []);
 
-  return <div ref={vantaRef} className="absolute inset-0 -z-10 size-full opacity-25" />;
+  return <div ref={vantaRef} className="absolute inset-0 -z-10 w-screen h-svh opacity-25" />;
 }
