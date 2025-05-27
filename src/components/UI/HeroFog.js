@@ -17,9 +17,9 @@ export default function HeroFog() {
       if (!effectRef.current && window.VANTA?.FOG) {
         effectRef.current = window.VANTA.FOG({
           el: vantaRef.current,
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: true,
+          mouseControls: false,
+          touchControls: false,
+          gyroControls: false,
           highlightColor: 0x27272a,
           midtoneColor: 0xe4e4e7,
           lowlightColor: 0x52525b,
