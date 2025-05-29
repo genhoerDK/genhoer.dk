@@ -1,34 +1,21 @@
-export default function Projects() {
+import Link from 'next/link';
+import { projects } from '@/data/projects';
+
+export default function ProjectsPage() {
   return (
-    <>
-      <div className="flex flex-col justify-center gap-4 px-4 md:px-24 lg:px-48 py-24">
-        <h2 className="text-4xl">Projekter</h2>
-        <div className="flex gap-4">
-          <h3 className="text-orange-400">2024</h3>
-          <h3 className="text-green-400">2025</h3>
-          <h3 className="text-blue-400">2026</h3>
-        </div>
-        
-        <img className="max-h-screen" src="/images/map.svg" alt="Denmark Map" />
-        <div className="flex flex-col flex-wrap gap-4">
-          <div className="flex flex-wrap gap-4">
-            <h3 className="text-orange-400 inline-block">Grindsted</h3>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <h3 className="text-green-400 inline-block">Vordingborg</h3>
-            <h3 className="text-green-400 inline-block">Faaborg</h3>
-            <h3 className="text-green-400 inline-block">Haderslev</h3>
-            <h3 className="text-green-400 inline-block">Holbæk</h3>
-            <h3 className="text-green-400 inline-block">Køge</h3>
-            <h3 className="text-green-400 inline-block">Fredericia</h3>
-          </div>
-          <div className="flex flex-wrap gap-4">
-            <h3 className="text-blue-400 inline-block">Hvide Sande</h3>
-            <h3 className="text-blue-400 inline-block">Dianalund</h3>
-            <h3 className="text-blue-400 inline-block">Kolding</h3>
-          </div>
-        </div>
+    <div className="flex flex-col justify-center items-center p-16 bg-zinc-50 ">
+      <p className="mb-4 font-bold text-xl">PROJEKTER</p>
+      <div className="flex flex-col gap-2">
+        {Object.entries(projects).map(([slug, project]) => (
+          <Link
+            key={`project-link-${slug}`}
+            href={`/projekter/${slug}`}
+            className="px-4 py-2 bg-white text-black rounded shadow hover:bg-gray-100 transition"
+          >
+            {project.title}
+          </Link>
+        ))}
       </div>
-    </>
+    </div>
   );
-} 
+}

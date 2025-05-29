@@ -1,146 +1,166 @@
+"use client";
+
 import { useRef, useEffect, useState } from "react";
+import { useWindowSize } from "react-use";
+import { usePathname, useRouter } from "next/navigation";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
-const InteractiveMap = ({ dimensions, isPortrait, projects, setActiveProject }) => {
-    const [mapData, setMapData] = useState(null);
-    const svgRef = useRef(null);
-    const gRef = useRef(null);
+export default function Map({ projects }) {
+  const svgRef = useRef(null);
+  const gRef = useRef(null);
+  const { width, height } = useWindowSize();
+  const router = useRouter();
+  const pathname = usePathname();
+  const activeSlug = pathname.split("/").pop();
 
-    const svg = d3.select(svgRef.current)
-            .attr("viewBox", `0 0 ${dimensions.width} ${dimensions.height}`)
-            .style("width", `${dimensions.width}px`)
-            .style("height", `${dimensions.height}px`)
-            .on("click", () => resetZoom());
+  const [mapData, setMapData] = useState(null);
+
+  const isPortrait = width < height;
+  const ratio = Math.min(width / height, 2.75);
+  const defaultScale = Math.min(width, height) * (isPortrait ? 10.5 - ratio : 6.75 + ratio);
+  const defaultCenter = isPortrait ? [10.45, 56.19] : [11.62, 56.19];
+
+  // Zoom parameters
+  const zoomScaleFactor = 4;
+
+  // Current projection & path generator (recalculated on render)
+  const projection = d3.geoMercator()
+    .scale(defaultScale)
+    .center(defaultCenter)
+    .translate([width / 2, height / 2]);
+
+  const path = d3.geoPath().projection(projection);
+
+  // D3 zoom behavior
+  const zoom = d3.zoom()
+    .scaleExtent([1, 20])
+    .on("zoom", (event) => {
+      d3.select(gRef.current).attr("transform", event.transform);
+    });
+
+  // Load map data
+  useEffect(() => {
+    d3.json("/map.json").then((data) => {
+      const features = topojson.feature(data, data.objects[Object.keys(data.objects)[0]]).features;
+
+      if (isPortrait) {
+        features.forEach(({ properties: { KOMKODE }, geometry }) => {
+          if (KOMKODE === "0400" || KOMKODE === "0411") {
+            geometry.coordinates = geometry.coordinates.map(polygon =>
+              polygon.map(([x, y]) => [x - 2.5, y + 2])
+            );
+          }
+        });
+      }
+      setMapData(features);
+    });
+  }, [isPortrait]);
+
+  // Initialize zoom on SVG element
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    svg.call(zoom);
+  }, [width, height]);
+
+  // Draw map and markers when data or dimensions change
+  useEffect(() => {
+    if (!mapData || !width || !height) return;
 
     const g = d3.select(gRef.current);
+    g.selectAll("*").remove();
 
-    const ratio = Math.min(dimensions.width / dimensions.height, 2.75);
-    const scaleFactor = Math.min(dimensions.width, dimensions.height) * (isPortrait ? 10.5 - ratio : 6.75 + ratio);
-    const centerPoint = isPortrait ? [10.45, 56.19] : [11.62, 56.19];
+    // Redefine projection & path for current zoom level
+    const proj = d3.geoMercator()
+      .scale(defaultScale)
+      .center(defaultCenter)
+      .translate([width / 2, height / 2]);
 
-    const projection = d3.geoMercator()
-            .scale(scaleFactor)
-            .center(centerPoint)
-            .translate([dimensions.width / 2, dimensions.height / 2]);
+    const pathGen = d3.geoPath().projection(proj);
 
-    const pathGenerator = d3.geoPath().projection(projection);
+    // Draw map
+    g.selectAll("path")
+      .data(mapData)
+      .enter()
+      .append("path")
+      .attr("d", pathGen)
+      .attr("class", "municipality")
+      .attr("data-komkode", d => d.properties.KOMKODE);
 
-    const zoom = d3.zoom()
-            .scaleExtent([1, 10])
-            .on("zoom", (e) => svg.select("g").attr("transform", e.transform));
+    // Draw markers
+    Object.entries(projects).forEach(([slug, project]) => {
+      const [lon, lat] = project.coordinates;
+      const [x, y] = proj([lon, lat]);
 
-    useEffect(() => {
-        d3.json('/map.json').then((data) => {
-            let geoData = topojson.feature(data, data.objects[Object.keys(data.objects)[0]]);
-            let updatedMapData = geoData.features;
-            
-            if (isPortrait) {
-                updatedMapData.forEach(d => {
-                    if (["0400", "0411"].includes(d.properties.KOMKODE)) {
-                        d.geometry.coordinates = d.geometry.coordinates.map(polygon =>
-                            polygon.map(ring => [ring[0] - 2.5, ring[1] + 2])
-                        );
-                    }
-                });
-            }
-            setMapData(updatedMapData);
+      g.append("circle")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("r", slug === activeSlug ? 10 : 6)
+        .attr("fill", slug === activeSlug ? "#2563eb" : "#ef4444")
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 2)
+        .attr("cursor", "pointer")
+        .on("click", (event) => {
+          event.stopPropagation();
+          router.push(`/projekter/${slug}`);
+          zoomToProject([lon, lat]);
         });
-    }, [isPortrait]);
-            
-    useEffect(() => {
-        if (!dimensions.width || !dimensions.height || !mapData) return;
-        g.selectAll("*").remove();
-        drawMap();
-        drawMarkers();
-        isPortrait && drawInsetBox();
-    }, [dimensions, mapData]);
+    });
+  }, [mapData, width, height, projects, activeSlug]);
 
-    // Reset zoom on resize
-    useEffect(() => { resetZoom(); }, [dimensions]);
+  // Zoom and center on project coordinates with transition
+  const zoomToProject = (coordinates) => {
+    if (!svgRef.current) return;
 
-    const drawInsetBox = () => {
-        const [cx, cy] = projection([12.41701, 57.14497]);
-        const boxSize = scaleFactor / 60;
-        g.append("rect")
-            .attr("x", cx - boxSize / 2)
-            .attr("y", cy - boxSize / 2)
-            .attr("width", boxSize)
-            .attr("height", boxSize)
-            .attr("class", "inset-box");
+    const svg = d3.select(svgRef.current);
+    const g = d3.select(gRef.current);
+
+    // Create a new projection with zoomed scale and center on project coords
+    const scale = defaultScale * zoomScaleFactor;
+    const proj = d3.geoMercator()
+      .scale(scale)
+      .center(coordinates)
+      .translate([width / 2, height / 2]);
+
+    // Calculate the transform to center the project coords
+    const [x, y] = proj(coordinates);
+
+    // Construct transform
+    // We want to move the group so the marker is centered in the SVG
+    const translateX = width / 2 - x;
+    const translateY = height / 2 - y;
+
+    // Compose the transform string
+    const transform = d3.zoomIdentity.translate(translateX, translateY).scale(scale / defaultScale);
+
+    // Animate zoom transition
+    svg.transition()
+      .duration(1000)
+      .call(zoom.transform, transform);
+  };
+
+  // Reset zoom on background click
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    const onClick = () => {
+      svg.transition()
+        .duration(1000)
+        .call(zoom.transform, d3.zoomIdentity);
     };
 
-    const drawMap = () => {
-        g.selectAll("path")
-            .data(mapData)
-            .enter().append("path")
-            .attr("d", pathGenerator)
-            .attr("class", "municipality")
-            .attr("data-komkode", d => d.properties.KOMKODE);
+    svg.on("click", onClick);
+
+    return () => {
+      svg.on("click", null);
     };
+  }, []);
 
-    const drawMarkers = () => {
-        projects.forEach((project, index) => {
-            const [x, y] = projection(project.coordinates);
-            g.append("circle")
-                .attr("cx", x)
-                .attr("cy", y)
-                .attr("r", 6)
-                .attr("class", "marker")
-                .on("click", (e) => {
-                    e.stopPropagation();
-                    zoomToProject(x, y, project, index, e.target);
-                });
-        });
-    };
-
-    const zoomToProject = (x, y, project, projectIndex, clickedMarker) => {
-        const newX = dimensions.width * project.screenPosition;
-        const newY = dimensions.height / 2;
-        const transform = d3.zoomIdentity.translate(newX, newY).scale(project.zoom).translate(-x, -y);
-        
-        svg.transition().duration(1000).call(zoom.transform, transform);
-    
-        setActiveProject(projectIndex);
-
-        d3.selectAll(".municipality")
-            .classed("dim", true);
-    
-        d3.selectAll(`[data-komkode='${project.komkode}']`)
-            .classed("dim", false)
-            .classed("highlight", true);
-
-        d3.selectAll(".marker")
-            .attr("r", 0)
-            .classed("shrink", false)
-            .classed("hide", true);
-        
-        d3.select(clickedMarker)
-            .attr("r", 1)
-            .classed("hide", false)
-            .classed("shrink", true);
-    };
-
-    const resetZoom = () => {
-        svg.transition().duration(1000).call(zoom.transform, d3.zoomIdentity);
-    
-        setActiveProject(null);
-
-        d3.selectAll(".municipality")
-            .classed("dim", false)
-            .classed("highlight", false);
-    
-        d3.selectAll(".marker")
-            .attr("r", 6)
-            .classed("hide", false)
-            .classed("shrink", false);
-    };
-
-    return (
-        <svg ref={svgRef} className={'relative z-10'}>
-            <g ref={gRef} />
-        </svg>
-    );
-};
-
-export default InteractiveMap;
+  return (
+    <svg ref={svgRef} width={width} height={height} style={{ display: "block" }}>
+      <g ref={gRef} />
+    </svg>
+  );
+}

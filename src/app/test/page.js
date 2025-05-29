@@ -1,4 +1,3 @@
-import ProjectMap from "@/components/ProjectMap";
 import MapSection from "@/components/MapSection/MapSection";
 
 export default function Home() {

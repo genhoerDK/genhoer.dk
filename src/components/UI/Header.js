@@ -16,7 +16,7 @@ export default function Header() {
 
   return (
     <>
-      <div ref={topSpacerRef} className={`h-6 transition-colors ${isSticky ? 'bg-zinc-50' : 'bg-none'}`}></div> {/* top-spacer */}
+      <div ref={topSpacerRef} className={`h-6 transition-colors ${isSticky ? 'bg-zinc-50' : 'bg-transparent'}`}></div> {/* top-spacer */}
       <header className={`sticky top-0 z-30 flex justify-between items-center h-14 px-4 md:px-8 transition-colors ${isSticky ? 'bg-zinc-50' : 'bg-none'}`}>
         <Link href="/" className="relative z-40 flex items-center">
           <svg className={`absolute w-[142.5px] h-[24px] md:w-[190px] md:h-[32px] transition-opacity ${!isSticky ? 'opacity-0' : 'opacity-100 duration-600'}`} viewBox="0 0 190 32" fill="none" xmlns="http://www.w3.org/2000/svg">
