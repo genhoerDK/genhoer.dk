@@ -16,7 +16,6 @@ p {
   stroke: #27272A;
   stroke-opacity: 1;
   stroke-width: 1;
-  transition: all 0.25s ease-in-out;
 }
 
 .municipality.highlight {
@@ -37,7 +36,6 @@ p {
   stroke: #020202;
   stroke-width: 2;
   cursor: pointer;
-  transition: r 0.2s ease-in;
 }
 
 .marker:hover {
@@ -57,6 +55,7 @@ p {
 
 .inset-box {
   fill: none;
-  stroke: #020202;
+  stroke: #27272A;
   stroke-width: 1;
 }
+
