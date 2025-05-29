@@ -2,13 +2,11 @@
 
 import { useRef, useEffect, useState } from "react";
 import { usePathname, useRouter } from 'next/navigation';
-import { useWindowSize } from 'react-use';
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
-export default function Map({ projects }) {
+export default function Map({ projects, width, height }) {
     const svgRef = useRef(null);
-    const { width, height } = useWindowSize();
     const router = useRouter();
     const pathname = usePathname();
     const activeProject = pathname.split('/').pop();
