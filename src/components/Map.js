@@ -23,7 +23,7 @@ export default function Map({ projects, width, height }) {
 
     // Load and adjust map data
     useEffect(() => {
-        d3.json('/map_comp.json').then((data) => {
+        d3.json('/map_low.json').then((data) => {
             const features = topojson.feature(data, data.objects[Object.keys(data.objects)[0]]).features;
             
             // Offset Bornholm map data if in portrait
