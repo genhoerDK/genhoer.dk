@@ -62,4 +62,11 @@ export const projects = {
     coordinates: [9.4742, 55.4904],
     komkode: "0621",
   },
+  "bornholm": {
+    title: "Bornholm",
+    description: "Info om Bornholm",
+    city: "Bornholm",
+    coordinates: [14.9000, 55.1330],
+    komkode: "0400",
+  },
 };

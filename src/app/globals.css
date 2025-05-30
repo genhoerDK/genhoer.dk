@@ -11,26 +11,6 @@ p {
   line-height: 1.25rem;
 }
 
-.municipality {
-  fill: #27272A;
-  stroke: #27272A;
-  stroke-opacity: 1;
-  stroke-width: 1;
-}
-
-.municipality.highlight {
-  fill: #fafafa;
-  fill-opacity: 0.8;
-  stroke-width: 0;
-}
-
-.municipality.dim {
-  fill-opacity: 0;
-  stroke: #fafafa;
-  stroke-width: 0.25;
-  stroke-opacity: 0.1;
-}
-
 .marker-label {
     font-family: var(--font-rem);
     font-size: .75rem;
@@ -38,11 +18,5 @@ p {
     fill: #fafafa;
     text-transform: uppercase;
     pointer-events: none;
-}
-
-.inset-box {
-  fill: none;
-  stroke: #27272A;
-  stroke-width: 1;
 }
 

@@ -25,7 +25,8 @@ export default function Map({ projects, width, height }) {
     useEffect(() => {
         d3.json('/map_comp.json').then((data) => {
             const features = topojson.feature(data, data.objects[Object.keys(data.objects)[0]]).features;
-
+            
+            // Offset Bornholm map data if in portrait
             if (isPortrait) {
                 features.forEach(({ properties: { KOMKODE }, geometry }) => {
                     if (KOMKODE === "0400" || KOMKODE === "0411") {
@@ -64,27 +65,51 @@ export default function Map({ projects, width, height }) {
                 .attr("y", cy - boxSize / 2)
                 .attr("width", boxSize)
                 .attr("height", boxSize)
-                .attr("class", "inset-box");
+                .attr("fill", "none")
+                .attr("stroke", "#27272A")
+                .attr("stroke-width", isProjectActive ? 0 : 1);
         }
 
-        // Base map paths
-        g.selectAll("path")
+        // Append all paths
+        const paths = g.selectAll("path")
             .data(mapData)
             .enter()
             .append("path")
             .attr("d", path)
-            .attr("class", "municipality")
-            .attr("data-komkode", d => d.properties.KOMKODE);
+            .attr("fill", "#27272A")
+            .attr("fill-opacity", 1)
+            .attr("stroke", "#27272A")
+            .attr("stroke-opacity", 1)
+            .attr("stroke-width", 1);
+
+        // Apply path transitions
+        setTimeout(() => {
+            if (!isProjectActive) return;
+
+            const currentKomkode = projects[currentSlug]?.komkode;
+
+            paths.transition()
+                .duration(600)
+                .attr("fill", "#fafafa")
+                .attr("stroke", "#fafafa")
+                .attr("fill-opacity", d => d.properties.KOMKODE === currentKomkode ? 0.8 : 0)
+                .attr("stroke-opacity", 0.1)
+                .attr("stroke-width", d => d.properties.KOMKODE === currentKomkode ? 0 : 0.25);
+        }, 0);
 
         // Project markers and labels
         const markerArray = [];
 
         Object.entries(projects).forEach(([slug, project]) => {
-            const [lon, lat] = project.coordinates;
-            const [x, y] = projection([lon, lat]);
+            // Offset Bornholm marker if in portrait
+            const offset = [-2.5, 2];
+            const adjustedCoordinates = (["0400", "0411"].includes(project.komkode) && isPortrait)
+                ? project.coordinates.map((coord, i) => coord + offset[i])
+                : project.coordinates;
 
+            // Apply markers
+            const [x, y] = projection(adjustedCoordinates);
             const markerGroup = g.append('g');
-
             const marker = markerGroup.append('circle')
                 .attr('cx', x)
                 .attr('cy', y)
@@ -194,10 +219,18 @@ export default function Map({ projects, width, height }) {
 
         // Zoom to project on slug change
         if (currentSlug && isProjectActive) {
-            const [lon, lat] = projects[currentSlug].coordinates;
-            const [x, y] = projection([lon, lat]);
+            // Offset Bornholm zoom if in portrait
+            const offset = [-2.5, 2];
+            const project = projects[currentSlug];
+            const isOffsetNeeded = ["0400", "0411"].includes(project.komkode) && isPortrait;
+            const adjustedCoordinates = isOffsetNeeded
+                ? project.coordinates.map((coord, i) => coord + offset[i])
+                : project.coordinates;
+
+            // Apply zoom
+            const [x, y] = projection(adjustedCoordinates);
             const zoomLevel = 4;
-            const targetX = isPortrait ? width / 2 : width / 3;
+            const targetX = isPortrait ? width / 2 : width / 4;
             const targetY = isPortrait ? height / 3 : height / 2;
             const transform = d3.zoomIdentity.translate(targetX - x * zoomLevel, targetY - y * zoomLevel).scale(zoomLevel);
 
