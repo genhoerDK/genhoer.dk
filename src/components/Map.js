@@ -9,9 +9,11 @@ export default function Map({ projects, width, height }) {
     const router = useRouter();
     const pathname = usePathname();
     const currentSlug = pathname.split('/').pop();
+    const isProjectActive = !!projects[currentSlug];
     const svgRef = useRef(null);
     const [mapData, setMapData] = useState(null);
 
+    // Map settings
     const isPortrait = width < height;
     const ratio = Math.min(width / height, 2.75);
     const scale = Math.min(width, height) * (isPortrait ? 10.5 - ratio : 6.75 + ratio);
@@ -19,7 +21,7 @@ export default function Map({ projects, width, height }) {
     const projection = d3.geoMercator().scale(scale).center(center).translate([width / 2, height / 2]);
     const path = d3.geoPath().projection(projection);
 
-    // Load and transform map data
+    // Load and adjust map data
     useEffect(() => {
         d3.json('/map_comp.json').then((data) => {
             const features = topojson.feature(data, data.objects[Object.keys(data.objects)[0]]).features;
@@ -38,7 +40,11 @@ export default function Map({ projects, width, height }) {
         });
     }, [isPortrait]);
 
-    // Draw the map and project markers
+
+    ///////////////////////////////////////////////////
+    // Draw map, markers, labels and add transitions //
+    ///////////////////////////////////////////////////
+
     useEffect(() => {
         if (!svgRef.current || !width || !height || !mapData) return;
 
@@ -70,60 +76,124 @@ export default function Map({ projects, width, height }) {
             .attr("class", "municipality")
             .attr("data-komkode", d => d.properties.KOMKODE);
 
-        // Project markers
+        // Project markers and labels
+        const markerArray = [];
+
         Object.entries(projects).forEach(([slug, project]) => {
             const [lon, lat] = project.coordinates;
             const [x, y] = projection([lon, lat]);
 
-            g.append('circle')
+            const markerGroup = g.append('g');
+
+            const marker = markerGroup.append('circle')
                 .attr('cx', x)
                 .attr('cy', y)
-                .attr('r', 8)
-                .attr("class", "marker")
-                .on('click', (event) => {
+                .attr('r', isProjectActive ? 8 : 2)
+                .attr('fill', '#fafafa')
+                .attr('stroke', '#27272A')
+                .attr('stroke-width', 2)
+                .style('cursor', isProjectActive ? 'default' : 'pointer')
+                .style('pointer-events', isProjectActive ? 'none' : 'auto')
+                .on('click', function (event) {
                     event.stopPropagation();
                     router.push(`/projekter/${slug}`);
+                })
+                .on('mouseover', function () {
+                    if (isPortrait || isProjectActive) return;
+
+                    d3.select(this)
+                        .attr('fill', '#52525b')
+                        .attr('stroke', '#fafafa');
+
+                    const labelText = project.city.toUpperCase();
+                    const text = markerGroup.append("text")
+                        .attr("x", x)
+                        .attr("y", y - 16)
+                        .attr("text-anchor", "middle")
+                        .attr("class", "marker-label")
+                        .text(labelText);
+                    const bbox = text.node().getBBox();
+
+                    markerGroup.insert("rect", "text")
+                        .attr("x", bbox.x - 4)
+                        .attr("y", bbox.y - 2)
+                        .attr("width", bbox.width + 8)
+                        .attr("height", bbox.height + 4)
+                        .attr("fill", "#52525b")
+                        .attr("rx", 4);
+                })
+                .on('mouseout', function () {
+                    if (isPortrait || isProjectActive) return;
+
+                    d3.select(this)
+                        .attr('fill', '#fafafa')
+                        .attr('stroke', '#27272A');
+
+                    markerGroup.select("text").remove();
+                    markerGroup.select("rect").remove();
                 });
+
+            // Collect markers for slug update
+            markerArray.push({ marker, slug });
+
+            // Style markers for active projects
+            setTimeout(() => {
+                markerArray.forEach(({ marker, slug }) => {
+                    const hide = isProjectActive && slug !== currentSlug;
+                    marker.transition()
+                        .duration(150)
+                        .attr('r', hide ? 0 : (slug === currentSlug ? 2 : 8))
+                        .style('opacity', hide ? 0 : 1)
+                });
+            }, 0);
         });
+    }, [width, height, mapData, projects, isProjectActive, currentSlug]);
 
-    }, [width, height, mapData, projects]);
 
-    // Set up zoom and interaction
+    ////////////////////////////////////////////////
+    // Setup zoom, panning and slug reponsitivity //
+    ////////////////////////////////////////////////
+
     useEffect(() => {
         if (!svgRef.current || !mapData) return;
 
         const svg = d3.select(svgRef.current);
         const g = svg.select("g");
 
+        // Zoom and pan settings
         const zoom = d3.zoom()
             .scaleExtent([1, 4])
             .translateExtent([[0, height * 0.05], [width, height * 0.95]])
             .filter((event) => {
                 if (event.type === 'zoom') return true;
                 const isTwoFinger = event.type === 'touchstart' && event.touches?.length === 2;
-                return isPortrait && isTwoFinger && !projects[currentSlug];
+                return isPortrait && isTwoFinger && !isProjectActive;
             })
             .on("zoom", (event) => {
                 g.attr("transform", event.transform);
             });
 
+        // Apply zoom
         svg.call(zoom)
             .on("wheel.zoom", null)
             .on("dblclick.zoom", null);
 
+        // Allow two-finger zoom
         svg.on('touchstart.custom', (event) => {
             const isTwoFinger = event.touches?.length === 2;
-            if (isPortrait && isTwoFinger && projects[currentSlug]) {
+            if (isPortrait && isTwoFinger && isProjectActive) {
                 event.preventDefault();
                 router.push('/projekter');
             }
         });
 
+        // Reset on single click
         svg.on('click', () => {
-            if (projects[currentSlug]) router.push('/projekter');
+            if (isProjectActive) router.push('/projekter');
         });
 
-        if (currentSlug && projects[currentSlug]) {
+        // Zoom to project on slug change
+        if (currentSlug && isProjectActive) {
             const [lon, lat] = projects[currentSlug].coordinates;
             const [x, y] = projection([lon, lat]);
             const zoomLevel = 4;
@@ -136,7 +206,7 @@ export default function Map({ projects, width, height }) {
             svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
         }
 
-    }, [width, height, mapData, projects, currentSlug, isPortrait]);
+    }, [width, height, mapData, projects, currentSlug, isProjectActive, isPortrait]);
 
     return <svg ref={svgRef} />;
 }

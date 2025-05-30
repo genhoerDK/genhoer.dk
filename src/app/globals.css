@@ -19,38 +19,25 @@ p {
 }
 
 .municipality.highlight {
-  fill: #ffffff;
+  fill: #fafafa;
   fill-opacity: 0.8;
   stroke-width: 0;
 }
 
 .municipality.dim {
   fill-opacity: 0;
-  stroke: #fff;
+  stroke: #fafafa;
   stroke-width: 0.25;
   stroke-opacity: 0.1;
 }
 
-.marker {
-  fill: #fff;
-  stroke: #020202;
-  stroke-width: 2;
-  cursor: pointer;
-}
-
-.marker:hover {
-  fill: #EE964B;
-}
-
-.marker.shrink {
-  fill: none;
-  stroke: #020202;
-  stroke-width: .5;
-  cursor: default;
-}
-
-.marker.hide {
-  opacity: 0;
+.marker-label {
+    font-family: var(--font-rem);
+    font-size: .75rem;
+    font-weight: 600;
+    fill: #fafafa;
+    text-transform: uppercase;
+    pointer-events: none;
 }
 
 .inset-box {
