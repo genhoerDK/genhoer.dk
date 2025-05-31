@@ -13,6 +13,8 @@ export default function Map({ projects, width, height }) {
     const svgRef = useRef(null);
     const [mapData, setMapData] = useState(null);
 
+    const [bgLoaded, setBgLoaded] = useState(false);
+
     // Map settings
     const isPortrait = width < height;
     const ratio = Math.min(width / height, 2.75);
@@ -25,7 +27,7 @@ export default function Map({ projects, width, height }) {
     useEffect(() => {
         d3.json('/map_low.json').then((data) => {
             const features = topojson.feature(data, data.objects[Object.keys(data.objects)[0]]).features;
-            
+
             // Offset Bornholm map data if in portrait
             if (isPortrait) {
                 features.forEach(({ properties: { KOMKODE }, geometry }) => {
@@ -89,7 +91,7 @@ export default function Map({ projects, width, height }) {
             const currentKomkode = projects[currentSlug]?.komkode;
 
             paths.transition()
-                .duration(600)
+                .duration(700)
                 .attr("fill", "#fafafa")
                 .attr("stroke", "#fafafa")
                 .attr("fill-opacity", d => d.properties.KOMKODE === currentKomkode ? 0.8 : 0)
@@ -166,7 +168,7 @@ export default function Map({ projects, width, height }) {
                 markerArray.forEach(({ marker, slug }) => {
                     const hide = isProjectActive && slug !== currentSlug;
                     marker.transition()
-                        .duration(150)
+                        .duration(300)
                         .attr('r', hide ? 0 : (slug === currentSlug ? 2 : 8))
                         .style('opacity', hide ? 0 : 1)
                 });
@@ -187,7 +189,7 @@ export default function Map({ projects, width, height }) {
 
         // Zoom and pan settings
         const zoom = d3.zoom()
-            .scaleExtent([1, 4])
+            .scaleExtent([1, 3])
             .translateExtent([[0, height * 0.05], [width, height * 0.95]])
             .filter((event) => {
                 if (event.type === 'zoom') return true;
@@ -229,17 +231,43 @@ export default function Map({ projects, width, height }) {
 
             // Apply zoom
             const [x, y] = projection(adjustedCoordinates);
-            const zoomLevel = 4;
+            const zoomLevel = 5;
             const targetX = isPortrait ? width / 2 : width / 4;
             const targetY = isPortrait ? height / 3 : height / 2;
             const transform = d3.zoomIdentity.translate(targetX - x * zoomLevel, targetY - y * zoomLevel).scale(zoomLevel);
 
-            svg.transition().duration(600).call(zoom.transform, transform);
+            svg.transition().duration(700).call(zoom.transform, transform);
         } else {
-            svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity);
+            svg.transition().duration(700).call(zoom.transform, d3.zoomIdentity);
         }
 
     }, [width, height, mapData, projects, currentSlug, isProjectActive, isPortrait]);
 
-    return <svg ref={svgRef} />;
+    useEffect(() => {
+        if (!isProjectActive) return;
+
+        const imageUrl = projects[currentSlug]?.coverImage;
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => setBgLoaded(true);
+    }, [currentSlug, isProjectActive]);
+
+
+    return (
+        <>
+            {/* Project Cover Image */}
+            {isProjectActive && (
+                <div
+                    className="absolute inset-0 size-full -z-10 bg-cover bg-center opacity-25 transition-opacity duration-700"
+                    style={{
+                        backgroundImage: `url(${projects[currentSlug]?.coverImage})`,
+                    }}
+                />
+            )}
+            {/* Hero Underlay */}
+            <div className={`absolute inset-0 size-full -z-10 transition-all duration-700 ${isProjectActive ? 'opacity-25 bg-zinc-800' : 'opacity-75 bg-zinc-50'}`}></div>
+            {/* Map */}
+            <svg ref={svgRef} />)
+        </>
+    );
 }

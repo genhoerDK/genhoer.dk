@@ -9,7 +9,7 @@ export default function ProjectPage({ params }) {
   const project = projects[params.project];
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center p-4">
+    <section className="h-screen flex flex-col items-center justify-center px-4 md:px-8">
       <h1 className="text-2xl font-bold mb-4 text-zinc-50">{project.title}</h1>
       <p className="mb-8 text-zinc-50">{project.description}</p>
       <Link
@@ -18,6 +18,6 @@ export default function ProjectPage({ params }) {
       >
         Close
       </Link>
-    </div>
+    </section>
   );
 }
