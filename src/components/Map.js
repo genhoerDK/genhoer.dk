@@ -13,8 +13,6 @@ export default function Map({ projects, width, height }) {
     const svgRef = useRef(null);
     const [mapData, setMapData] = useState(null);
 
-    const [bgLoaded, setBgLoaded] = useState(false);
-
     // Map settings
     const isPortrait = width < height;
     const ratio = Math.min(width / height, 2.75);
@@ -243,31 +241,14 @@ export default function Map({ projects, width, height }) {
 
     }, [width, height, mapData, projects, currentSlug, isProjectActive, isPortrait]);
 
-    useEffect(() => {
-        if (!isProjectActive) return;
-
-        const imageUrl = projects[currentSlug]?.coverImage;
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = () => setBgLoaded(true);
-    }, [currentSlug, isProjectActive]);
-
-
     return (
         <>
             {/* Project Cover Image */}
-            {isProjectActive && (
-                <div
-                    className="absolute inset-0 size-full -z-10 bg-cover bg-center opacity-25 transition-opacity duration-700"
-                    style={{
-                        backgroundImage: `url(${projects[currentSlug]?.coverImage})`,
-                    }}
-                />
-            )}
+            {isProjectActive && <div className="absolute inset-0 size-full -z-10 bg-cover bg-center opacity-25 transition-opacity duration-700" style={{ backgroundImage: `url(${projects[currentSlug]?.coverImage})` }} /> }
             {/* Hero Underlay */}
             <div className={`absolute inset-0 size-full -z-10 transition-all duration-700 ${isProjectActive ? 'opacity-25 bg-zinc-800' : 'opacity-75 bg-zinc-50'}`}></div>
             {/* Map */}
-            <svg ref={svgRef} />)
+            <svg ref={svgRef} />
         </>
     );
 }
