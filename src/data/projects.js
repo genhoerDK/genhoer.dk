@@ -7,8 +7,8 @@ export const projects = {
     coordinates: [9.7482, 55.5657],
     komkode: "0607",
     coverImage: "/images/placeholder.png",
-    startDate: "2024-11-07",
-    endDate: "2024-12-15",
+    startDate: "2025-11-07",
+    endDate: "2025-12-15",
   },
   "kirkestraede": {
     title: "Kirkestræde",
