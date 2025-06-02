@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
       <body className={`${rem.variable} ${lato.variable} antialiased bg-zinc-800`}>
         <Header />
         <HeroFog />
-        <main className="w-screen min-h-svh px-4 md:px-8 -mt-20 ">
+        <main className="w-screen min-h-svh -mt-20 ">
           {children}
         </main>
         <Footer />
