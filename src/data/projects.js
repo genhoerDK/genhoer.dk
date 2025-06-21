@@ -32,8 +32,8 @@ export const projects = {
     startDate: "2025-10-04",
     endDate: "2025-11-28",
   },
-  "slagteribygningen": {
-    title: "Slagteribygningen",
+  "vi-vokser-og-flytter-os": {
+    title: "Vi vokser og flytter os",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Faaborg",
     area: "Faaborg Kommune",
