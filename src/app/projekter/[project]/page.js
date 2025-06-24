@@ -14,9 +14,9 @@ export default function ProjectPage({ params }) {
       <div className="absolute inset-0 bg-cover bg-center opacity-25 -z-10" style={{ backgroundImage: `url(${project.coverImage})` }} />
       {/* Project Description */}
       <div className="absolute inset-0 size-full flex flex-col justify-center items-end px-4 md:px-8 pointer-events-none">
-        <div className="w-1/2">
+        <div className="w-sm">
           <h1 className="font-rem text-2xl font-bold uppercase text-zinc-50">{project.title}</h1>
-          <p className=" text-zinc-50">{project.description}</p>
+          <p className=" text-zinc-50 text-sm">{project.description}</p>
         </div>
       </div>
       {/* Project Details */}
