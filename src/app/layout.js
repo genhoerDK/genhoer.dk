@@ -1,36 +1,26 @@
-import { REM, Lato } from "next/font/google";
+import { REM } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/UI/Header";
-import HeroFog from "@/components/UI/HeroFog";
-import Footer from "@/components/UI/Footer";
+import Header from "@/components/Header";
 
 const rem = REM({
   variable: "--font-rem",
   subsets: ["latin"],
 });
 
-const lato = Lato({
-  variable: "--font-lato",
-  subsets: ["latin"],
-  weight: ["100", "400", "700"],
-});
-
 export const metadata = {
   title: "Genhør",
   description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i det offentlige rum.",
-  themeColor: '#27272a',
+  themeColor: '#FAFAFA',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="da">
-      <body className={`${rem.variable} ${lato.variable} antialiased bg-zinc-800`}>
+      <body className={`${rem.className} antialiased bg-zinc-50`}>
         <Header />
-        <HeroFog />
-        <main className="w-screen min-h-svh -mt-20 ">
+        <main className="w-screen min-h-svh">
           {children}
         </main>
-        <Footer />
       </body>
     </html>
   );
