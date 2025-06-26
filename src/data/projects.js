@@ -1,97 +1,79 @@
-export const projects = [
-  {
-    slug: "bulows-kaserne",
+export const projects = {
+  "bulows-kaserne": {
     title: "Bülows Kaserne",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Fredericia",
-    location: "Bülows Kaserne, Fredericia Kommune",
+    area: "Fredericia Kommune",
     coordinates: [9.7482, 55.5657],
     komkode: "0607",
-    coverImage: "/images/bulows-kaserne-cover-image.webp",
+    coverImage: "/images/placeholder.png",
     startDate: "2025-11-07",
     endDate: "2025-12-15",
-    partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace"]
   },
-  {
-    slug: "kirkestraede",
+  "kirkestraede": {
     title: "Kirkestræde",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Køge",
-    location: "Kirkestræde, Køge Kommune",
+    area: "Køge Kommune",
     coordinates: [12.1821, 55.4561],
     komkode: "0259",
-    coverImage: "/images/kirkestraede-cover-image.webp",
+    coverImage: "/images/placeholder.png",
     startDate: "2025-10-11",
     endDate: "2025-11-22",
-    partners: ["Køge Arkiverne", "Køge Ungdomsskole", "KøgeBibliotekerne"]
   },
-  {
-    slug: "ungdommens-stemmer",
-    title: "Ungdommens stemmer",
+  "holbaek": {
+    title: "Holbæk",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Holbæk",
-    location: "Gangtunnelen, Holbæk Kommune",
+    area: "Holbæk Kommune",
     coordinates: [11.7167, 55.7167],
     komkode: "0316",
-    coverImage: "/images/ungdommens-stemmer-cover-image.webp",
+    coverImage: "/images/placeholder.png",
     startDate: "2025-10-04",
     endDate: "2025-11-28",
-    partners: ["Holbæk Stadsarkiv", "UngHolbæk"]
   },
-  {
-    slug: "vi-vokser-og-flytter-os",
+  "vi-vokser-og-flytter-os": {
     title: "Vi vokser og flytter os",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Faaborg",
-    location: "Slagteribygningen, Faaborg Kommune",
+    area: "Faaborg Kommune",
     coordinates: [10.2394, 55.0958],
     komkode: "0430",
-    coverImage: "/images/vi-vokser-og-flytter-os-cover-image.webp",
-    coverVideo: "/images/test-video.mp4",
+    coverImage: "/images/placeholder.png",
     startDate: "2025-06-20",
     endDate: "2025-09-27",
-    partners: ["Slagteribygningen", "Faaborg Ungdomsskole"]
   },
-  {
-    slug: "slotsgade-20",
+  "slotsgade-20": {
     title: "Slotsgade 20",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Haderslev",
-    location: "Ehlers Samlingen (Baghuset), Haderslev Kommune",
+    area: "Haderslev Kommune",
     coordinates: [9.4891, 55.2493],
     komkode: "0510",
-    coverImage: "/images/slotsgade-20-cover-image.webp",
-    coverVideo: "/images/test-video.mp4",
+    coverImage: "/images/placeholder.png",
     startDate: "2025-06-19",
     endDate: "2025-08-01",
-    partners: ["Historie Haderslev"]
   },
-  {
-    slug: "vordingborg-station",
+  "vordingborg-station": {
     title: "Vordingborg Station",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Vordingborg",
-    location: "Vordingborg Station, Vordingborg Kommune",
+    area: "Vordingborg Kommune",
     coordinates: [11.9167, 55.0167],
     komkode: "0390",
-    coverImage: "/images/vordingborg-station-cover-image.webp",
-    coverVideo: "/images/test-video.mp4",
+    coverImage: "/images/placeholder.png",
     startDate: "2025-04-05",
     endDate: "2025-06-21",
-    partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"]
   },
-  {
-    slug: "grindsted-station",
+  "grindsted-station": {
     title: "Grindsted Station",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
     city: "Grindsted",
-    location: "Grindsted Station, Billund Kommune",
+    area: "Billund Kommune",
     coordinates: [8.9222, 55.7579],
     komkode: "0530",
-    coverImage: "/images/grindsted-station-cover-image.webp",
-    coverVideo: "/images/test-video.mp4",
+    coverImage: "/images/placeholder.png",
     startDate: "2024-06-14",
     endDate: "2024-10-31",
-    partners: ["UKH Grindsted", "Mark | Museet for en Ny Danmarkshistorie"]
   },
-];
+};

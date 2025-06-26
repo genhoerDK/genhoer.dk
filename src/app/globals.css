@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-lato: "Lato", sans-serif;
   --font-rem: "Rem", monospace;
 }
 
