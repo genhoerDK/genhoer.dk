@@ -2,7 +2,7 @@ export const projects = [
   {
     slug: "bulows-kaserne",
     title: "Bülows Kaserne",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie,  indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
     city: "Fredericia",
     location: "Bülows Kaserne, Fredericia Kommune",
     coordinates: [9.7482, 55.5657],
@@ -10,12 +10,13 @@ export const projects = [
     coverImage: "/images/bulows-kaserne-cover-image.webp",
     startDate: "2025-11-07",
     endDate: "2025-12-15",
-    partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace"]
+    partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace"],
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },
   {
     slug: "kirkestraede",
     title: "Kirkestræde",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie,  indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
     city: "Køge",
     location: "Kirkestræde, Køge Kommune",
     coordinates: [12.1821, 55.4561],
@@ -23,12 +24,13 @@ export const projects = [
     coverImage: "/images/kirkestraede-cover-image.webp",
     startDate: "2025-10-11",
     endDate: "2025-11-22",
-    partners: ["Køge Arkiverne", "Køge Ungdomsskole", "KøgeBibliotekerne"]
+    partners: ["Køge Arkiverne", "Køge Ungdomsskole", "KøgeBibliotekerne"],
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },
   {
     slug: "ungdommens-stemmer",
     title: "Ungdommens stemmer",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
     city: "Holbæk",
     location: "Gangtunnelen, Holbæk Kommune",
     coordinates: [11.7167, 55.7167],
@@ -36,12 +38,13 @@ export const projects = [
     coverImage: "/images/ungdommens-stemmer-cover-image.webp",
     startDate: "2025-10-04",
     endDate: "2025-11-28",
-    partners: ["Holbæk Stadsarkiv", "UngHolbæk"]
+    partners: ["Holbæk Stadsarkiv", "UngHolbæk"],
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },
   {
     slug: "vi-vokser-og-flytter-os",
     title: "Vi vokser og flytter os",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
     city: "Faaborg",
     location: "Slagteribygningen, Faaborg Kommune",
     coordinates: [10.2394, 55.0958],
@@ -50,12 +53,13 @@ export const projects = [
     coverVideo: "/images/test-video.mp4",
     startDate: "2025-06-20",
     endDate: "2025-09-27",
-    partners: ["Slagteribygningen", "Faaborg Ungdomsskole"]
+    partners: ["Slagteribygningen", "Faaborg Ungdomsskole"],
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },
   {
     slug: "slotsgade-20",
     title: "Slotsgade 20",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
     city: "Haderslev",
     location: "Ehlers Samlingen (Baghuset), Haderslev Kommune",
     coordinates: [9.4891, 55.2493],
@@ -64,12 +68,13 @@ export const projects = [
     coverVideo: "/images/test-video.mp4",
     startDate: "2025-06-19",
     endDate: "2025-08-01",
-    partners: ["Historie Haderslev"]
+    partners: ["Historie Haderslev"],
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },
   {
     slug: "vordingborg-station",
     title: "Vordingborg Station",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
     city: "Vordingborg",
     location: "Vordingborg Station, Vordingborg Kommune",
     coordinates: [11.9167, 55.0167],
@@ -78,12 +83,13 @@ export const projects = [
     coverVideo: "/images/test-video.mp4",
     startDate: "2025-04-05",
     endDate: "2025-06-21",
-    partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"]
+    partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },
   {
     slug: "grindsted-station",
     title: "Grindsted Station",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen – en violin fra Filskov og en mandolin fra Hejnsvig – samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv."],
     city: "Grindsted",
     location: "Grindsted Station, Billund Kommune",
     coordinates: [8.9222, 55.7579],
@@ -92,6 +98,7 @@ export const projects = [
     coverVideo: "/images/test-video.mp4",
     startDate: "2024-06-14",
     endDate: "2024-10-31",
-    partners: ["UKH Grindsted", "Mark | Museet for en Ny Danmarkshistorie"]
+    partners: ["UKH Grindsted", "Mark | Museet for en Ny Danmarkshistorie"],
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },
 ];

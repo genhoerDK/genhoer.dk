@@ -2,28 +2,12 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-
-// Format dates to string-like presentation
-const formatDates = (startStr, endStr) => {
-  const options = { day: 'numeric', month: 'long' };
-  const formatter = new Intl.DateTimeFormat('da-DK', options);
-  const start = new Date(startStr);
-  const end = new Date(endStr);
-  const sameYear = start.getFullYear() === end.getFullYear();
-  const startText = formatter.format(start);
-  const endText = formatter.format(end);
-
-  return sameYear ? `${startText} - ${endText} ${end.getFullYear()}` : `${startText} ${start.getFullYear()} - ${endText} ${end.getFullYear()}`;
-};
-
-// Format partners with commas and 'og' between last two
-const formatPartners = (partners = []) =>
-  partners.length ? new Intl.ListFormat('da', { style: 'long', type: 'conjunction', }).format(partners) : '';
+import { formatDates, formatPartners } from '@/app/utilities/formatters';
 
 export default function ProjectCard({ project }) {
   const { title, slug, coverImage, coverVideo, startDate, endDate, location, partners } = project;
 
-  const infoRows = [
+  const cardInfoRows = [
     { label: 'Udstilling', info: formatDates(startDate, endDate) },
     { label: 'Lokalitet', info: location },
     { label: 'Partnere', info: formatPartners(partners) },
@@ -59,9 +43,9 @@ export default function ProjectCard({ project }) {
         )}
       </Link>
 
-      {infoRows.map(({ label, info }) => (
-        <div key={label} className="grid grid-cols-6 gap-x-2 items-end pb-2 pointer-events-none">
-          <p className="col-span-1 text-[0.5rem] uppercase leading-none mb-[2.5px]">{label}</p>
+      {cardInfoRows.map(({ label, info }) => (
+        <div key={`${project.title}-card-info-${label}`} className="grid grid-cols-6 gap-x-2 pb-2 pointer-events-none">
+          <p className="col-span-1 text-[0.5rem] uppercase leading-none mt-[4px]">{label}</p>
           <p className="col-start-2 col-span-full font-light text-xs truncate">{info}</p>
         </div>
       ))}

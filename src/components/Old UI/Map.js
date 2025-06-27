@@ -255,3 +255,5 @@ export default function Map({ projects, width, height }) {
         </>
     );
 }
+
+// Store the map component in a map container div that send the dimensions
