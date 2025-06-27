@@ -1,5 +1,5 @@
 import { projects } from '@/data/projects';
-import { formatDates, formatPartners } from '@/app/utilities/formatters';
+import { formatDates, formatPartners } from '@/utilities/formatters';
 
 // Generate static for static site generation with dynamic routes
 export async function generateStaticParams() {

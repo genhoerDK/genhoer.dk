@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { formatDates, formatPartners } from '@/app/utilities/formatters';
+import { formatDates, formatPartners } from '@/utilities/formatters';
 
 export default function ProjectCard({ project }) {
   const { title, slug, coverImage, coverVideo, startDate, endDate, location, partners } = project;
