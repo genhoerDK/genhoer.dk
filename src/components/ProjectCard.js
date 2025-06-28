@@ -33,7 +33,7 @@ export default function ProjectCard({ project }) {
 
       <Link href={`/${slug}`} className="relative block aspect-video overflow-hidden my-3 group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <figure className={`absolute inset-0 transition duration-200 ${isHovered ? 'opacity-0' : 'opacity-100' }`}>
-          <img src={coverImage} loading="lazy" alt={title} className="object-cover" />
+          <img src={coverImage} loading="lazy" alt={title} className="object-cover transition duration-300 lg:group-hover:scale-105" />
         </figure>
 
         {coverVideo && (
