@@ -49,7 +49,7 @@ export const projects = [
   {
     slug: "vi-vokser-og-flytter-os",
     title: "Vi vokser og flytter os",
-    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
+    description: ["Med elektronisk musik og reallyde fortolker værket slagteriets transformation fra åbningen af Fåborg Andels-svineslagteri i 1888 til lukningen af Tulip Slagteriet i 2016. En mangesidet historie der på alle tider synes at indeholde komplekse aspekter om alt fra arbejdsglæde og -vilkår til håndværk, teknologisk udvikling, dyrevelfærd, økonomi, forurening, magt og demokrati.", "Værket fortolker lokalhistorisk materiale, borgeres beretninger og er desuden inspireret af bogen “Magtspillet i Provinsbyen” skrevet af Flemming Seiersen og Karsten Lindhardt. Produktionen tager afsæt i lydoptagelser foretaget i og omkring det tidligere slagteri.", "I dag er Slagteribygningen igen under transformation. De tomme industrilokaler omdannes til et fremtidigt kulturelt samlingssted."],
     city: "Faaborg",
     location: "Slagteribygningen, Faaborg-Midtfyn Kommune",
     coordinates: [10.2394, 55.0958],
@@ -64,7 +64,7 @@ export const projects = [
   {
     slug: "slotsgade-20",
     title: "Slotsgade 20",
-    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
+    description: ["I Baghuset ved Ehlers Samlingen kan du i disse dage opleve lydlandskabet omkring Slotsgade gennem 500 år. Genhør Slotsgade 20 åbner et lydligt vindue til den stedbundne kulturhistorie der knytter sig til bygningen. Gennem fem historiske nedslag undersøger lydværket den historiske udvikling huset har været vidne til.", "Fra skiferdækkeren Philip af Neuss og hertug Hans den Ældres slot Hansborg, over krigsødelæggelser, herberg og hestevognskørsel, til arbejderfamilier i tætpakkede lejligheder. Værket væver stemmer, reallyde og musik sammen i et 12 minutter og 30 sekunder langt forløb."],
     city: "Haderslev",
     location: "Ehlers Samlingen, Haderslev Kommune",
     coordinates: [9.4891, 55.2493],
@@ -79,7 +79,7 @@ export const projects = [
   {
     slug: "vordingborg-station",
     title: "Vordingborg Station",
-    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
+    description: ["Siden 1937 har rejsende, borgere og ansatte haft deres daglige gang i dette rum. Stationen har udviklet sig med tiden, og hvor der tidligere har været billetsalg, rejsegodshåndtering og restauration, er der i dag plads til kunst, musikliv og en ungdomscafé.", "Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.", "Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny."],
     city: "Vordingborg",
     location: "Vordingborg Station, Vordingborg Kommune",
     coordinates: [11.9167, 55.0167],
@@ -87,7 +87,7 @@ export const projects = [
     coverImage: "https://cdn.genhoer.dk/media/images/vordingborg-station-cover-image.webp",
     coverVideo: "/images/test-video.mp4",
     startDate: "2025-04-05",
-    endDate: "2025-06-21",
+    endDate: "2025-09-06",
     partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
     sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
   },

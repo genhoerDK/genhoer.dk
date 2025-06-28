@@ -13,18 +13,22 @@ export default function ProjectCard({ project }) {
     { label: 'Partnere', info: formatPartners(partners) },
   ];
 
-  // Play video on hover (if there is one)
+  // Play video on hover (if there is one and the screen is large)
   const videoRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseEnter = () => {
-    coverVideo && setIsHovered(true);
-    videoRef.current && videoRef.current.play();
+    if (window.innerWidth >= 1024 && coverVideo) {
+      setIsHovered(true);
+      videoRef.current?.play();
+    }
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
-    videoRef.current && videoRef.current.pause();
+    if (window.innerWidth >= 1024) {
+      setIsHovered(false);
+      videoRef.current?.pause();
+    }
   };
 
   return (
@@ -32,12 +36,12 @@ export default function ProjectCard({ project }) {
       <h2 className="font-light uppercase text-md leading-none">{title}</h2>
 
       <Link href={`/${slug}`} className="relative block aspect-video overflow-hidden my-3 group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        <figure className={`absolute inset-0 transition duration-200 ${isHovered ? 'opacity-0' : 'opacity-100' }`}>
+        <figure className={`absolute inset-0 transition duration-200 ${isHovered ? 'lg:opacity-0' : 'opacity-100'}`}>
           <img src={coverImage} loading="lazy" alt={title} className="object-cover transition duration-300 lg:group-hover:scale-105" />
         </figure>
 
         {coverVideo && (
-          <figure className={`absolute inset-0 transition duration-300 ${isHovered ? 'opacity-100' : 'opacity-0' }`}>
+          <figure className={`hidden lg:block absolute inset-0 transition duration-300 ${isHovered ? 'lg:opacity-100' : 'opacity-0'}`}>
             <video ref={videoRef} src={coverVideo} playsInline muted loop className="object-cover" />
           </figure>
         )}
