@@ -49,7 +49,7 @@ export default function ProjectCard({ project }) {
 
       {cardInfoRows.map(({ label, info }) => (
         <div key={`${project.title}-card-info-${label}`} className="grid grid-cols-6 gap-x-2 pb-2 pointer-events-none">
-          <p className="col-span-1 text-[0.5rem] uppercase leading-none mt-[4px]">{label}</p>
+          <p className="col-span-1 text-[0.5rem] uppercase leading-none mt-[5px]">{label}</p>
           <p className="col-start-2 col-span-full font-light text-xs truncate">{info}</p>
         </div>
       ))}
