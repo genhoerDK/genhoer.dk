@@ -15,7 +15,7 @@ export const projects = [
     pageMedia: [
       { type: 'img', src: 'https://cdn.genhoer.dk/media/images/bulows-kaserne-cover-image.webp' },
       { type: 'vid', src: '/images/test-video.mp4' },
-      { type: 'img', src: '/images/kirkestraede-cover-image.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/images/bulows-kaserne-cover-image.webp' },
     ]
   },
   {
@@ -55,7 +55,7 @@ export const projects = [
     coordinates: [10.2394, 55.0958],
     komkode: "0430",
     coverImage: "https://cdn.genhoer.dk/media/images/vi-vokser-og-flytter-os-cover-image.webp",
-    coverVideo: "/images/test-video.mp4",
+    coverVideo: "https://cdn.genhoer.dk/media/videos/vi-vokser-og-flytter-os-cover-video.mp4",
     startDate: "2025-06-20",
     endDate: "2025-09-27",
     partners: ["Slagteribygningen", "Faaborg Ungdomsskole"],
