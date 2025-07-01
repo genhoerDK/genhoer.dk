@@ -44,12 +44,12 @@ export default function ProjectPage({ params }) {
       </section>
 
       {pageMedia &&
-        <section className='flex flex-col gap-2 md:gap-4 p-2 md:p-4'>
+        <section className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4'>
           {pageMedia.map(({ type, src }, i) => (
-            <figure key={`${slug}-media-${i}`} className="relative overflow-hidden">
+            <figure key={`${slug}-media-${i}`} className="relative aspect-square overflow-hidden">
               {type === 'img'
-                ? (<img src={src} alt={`${title} image ${i}`} className="object-cover w-full" loading="lazy" />)
-                : (<video src={src} playsInline muted loop autoPlay className="object-cover w-full" />)}
+                ?  ( <img src={src} alt={`${title} image ${i}`} className="object-cover w-full h-full" loading="lazy" />) 
+                : ( <video src={src} playsInline muted loop autoPlay className="object-cover w-full h-full" /> )}
             </figure>
           ))}
         </section>

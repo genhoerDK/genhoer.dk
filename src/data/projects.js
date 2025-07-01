@@ -2,7 +2,7 @@ export const projects = [
   {
     slug: "bulows-kaserne",
     title: "Bülows Kaserne",
-    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie,  indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
+    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie, indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
     city: "Fredericia",
     location: "Kulturkasernen, Fredericia Kommune",
     coordinates: [9.7482, 55.5657],
@@ -12,16 +12,11 @@ export const projects = [
     endDate: "2025-12-15",
     partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace"],
     sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"],
-    pageMedia: [
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/images/bulows-kaserne-cover-image.webp' },
-      { type: 'vid', src: '/images/test-video.mp4' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/images/bulows-kaserne-cover-image.webp' },
-    ]
   },
   {
     slug: "kirkestraede",
     title: "Kirkestræde",
-    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie,  indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
+    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie, indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
     city: "Køge",
     location: "Kirkestræde, Køge Kommune",
     coordinates: [12.1821, 55.4561],
@@ -94,16 +89,31 @@ export const projects = [
   {
     slug: "grindsted-station",
     title: "Grindsted Station",
-    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen – en violin fra Filskov og en mandolin fra Hejnsvig – samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv."],
+    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for omkring 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv."],
     city: "Grindsted",
     location: "Grindsted Station, Billund Kommune",
     coordinates: [8.9222, 55.7579],
     komkode: "0530",
-    coverImage: "https://cdn.genhoer.dk/media/images/grindsted-station-cover-image.webp",
-    coverVideo: "https://cdn.genhoer.dk/media/videos/grindsted-station-cover-video.mp4",
+    coverImage: "https://cdn.genhoer.dk/media/grindsted-station/cover-image.webp",
+    coverVideo: "https://cdn.genhoer.dk/media/grindsted-station/cover-video.mp4",
     startDate: "2024-06-14",
     endDate: "2024-10-31",
     partners: ["UKH Grindsted", "Mark | Museet for en Ny Danmarkshistorie"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"],
+    pageMedia: [
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-06.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-01.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-04.webp' },
+      { type: 'vid', src: 'https://cdn.genhoer.dk/media/grindsted-station/video-towers-01.mp4' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/text-tile-light-01.svg' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-03.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-squares-01.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-02.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-towers-01.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/text-tile-dark-01.svg' },
+      { type: 'vid', src: 'https://cdn.genhoer.dk/media/grindsted-station/video-01.mp4' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-05.webp' },
+
+    ]
   },
 ];
