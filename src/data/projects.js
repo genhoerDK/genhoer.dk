@@ -74,17 +74,37 @@ export const projects = [
   {
     slug: "vordingborg-station",
     title: "Vordingborg Station",
-    description: ["Siden 1937 har rejsende, borgere og ansatte haft deres daglige gang i dette rum. Stationen har udviklet sig med tiden, og hvor der tidligere har været billetsalg, rejsegodshåndtering og restauration, er der i dag plads til kunst, musikliv og en ungdomscafé.", "Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.", "Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny."],
+    description: ["Siden 1937 har rejsende, borgere og ansatte haft deres daglige gang på Vordingborg Station. Bygningen har udviklet sig med tiden, og hvor der tidligere har været billetsalg, rejsegodshåndtering og restauration, er der i dag plads til kunst, musikliv og en ungdomscafé.", "Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.", "Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny."],
     city: "Vordingborg",
     location: "Vordingborg Station, Vordingborg Kommune",
     coordinates: [11.9167, 55.0167],
     komkode: "0390",
-    coverImage: "https://cdn.genhoer.dk/media/images/vordingborg-station-cover-image.webp",
-    coverVideo: "https://cdn.genhoer.dk/media/videos/vordingborg-station-cover-video.mp4",
+    coverImage: "https://cdn.genhoer.dk/media/vordingborg-station/cover-image.webp",
+    coverVideo: "https://cdn.genhoer.dk/media/vordingborg-station/cover-video.mp4",
     startDate: "2025-04-05",
     endDate: "2025-09-06",
     partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
+    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"],
+    pageMedia: [
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-04.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-05.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/text-tile-dark-01.svg' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-towers-01.webp' },
+      { type: 'vid', src: 'https://cdn.genhoer.dk/media/vordingborg-station/video-01.mp4' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-towers-02.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-09.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/text-tile-light-01.svg' },
+      { type: 'vid', src: 'https://cdn.genhoer.dk/media/vordingborg-station/video-02.mp4' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-10.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-08.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-01.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-02.webp' },
+      { type: 'vid', src: 'https://cdn.genhoer.dk/media/vordingborg-station/video-towers-01.mp4' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-06.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-07.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-11.webp' },
+      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-03.webp' },
+    ]
   },
   {
     slug: "grindsted-station",
@@ -113,7 +133,6 @@ export const projects = [
       { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/text-tile-dark-01.svg' },
       { type: 'vid', src: 'https://cdn.genhoer.dk/media/grindsted-station/video-01.mp4' },
       { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-05.webp' },
-
     ]
   },
 ];
