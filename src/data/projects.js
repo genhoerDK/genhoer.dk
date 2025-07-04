@@ -30,7 +30,7 @@ export const projects = [
   {
     slug: "ekkoung",
     title: "Ekkoung",
-    description: ["Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under de kreative workshops for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider.],
+    description: ["Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under de kreative workshops for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."],
     city: "Holbæk",
     location: "Gangtunnelen, Holbæk Kommune",
     coordinates: [11.7167, 55.7167],
