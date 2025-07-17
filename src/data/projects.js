@@ -2,7 +2,7 @@ export const projects = [
   {
     slug: "bulows-kaserne",
     title: "Bülows Kaserne",
-    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie, indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
+    description: ["Genhør indtager til november en opgang i Kulturkasernen i Fredericia. Udstillingen tager udgangspunkt i kasernens historie og indeholder musikalske indslag skabt med unge musikere fra Fredericia. Den lydlige oplevelse begynder i stueetagen hvorfra publikum bevæger sig op gennem opgangen og værket som sammensættes af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af kasernens fortid. Undervejs kan publikum standse ved lyttestationer, hvor de kan fordybe sig i beretninger og lydbilleder. Interaktive elementer udviklet under workshoppen for unge på Bülows Makerspace, inviterer publikum til at påvirke eller aktivere nye lag i lydbilledet. Oplevelsen kulminerer på det øverste repos, hvor en Kulturhønnør kan aktiveres – et kort lydindslag, der både kan høres i opgangen og Kulturkasernens gårdrum, som afslutter den lydlige rejse."],
     city: "Fredericia",
     location: "Kulturkasernen, Fredericia Kommune",
     coordinates: [9.7482, 55.5657],
@@ -16,7 +16,7 @@ export const projects = [
   {
     slug: "kirkestraede",
     title: "Kirkestræde",
-    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.", "I dagene op til udstillingen deltog en gruppe lokale unge i en række kreative workshops. Her udforskede vi stationens historie, indspillede reallyde og producerede lydlige scenarier. En del af disse elementer indgik i det færdige lydværk."],
+    description: ["På Kirkestræde-dagen opsættes et udendørs og rumligt lydværk der skal præsentere fortidens lydmiljø på stedet. Publikum inviteres på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv vil igen udspille sig, og klinge mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækker lydinstallationen et område på cirka 50 meter, hvilket nogenlunde svarer til området fra Kirkestræde 6 til 16.", "Efter Kirkestræde-dagen flyttes værket indendørs i et udstillingslokale på Kirkestræde en periode så flere borgere og besøgende kan opleve det."],
     city: "Køge",
     location: "Kirkestræde, Køge Kommune",
     coordinates: [12.1821, 55.4561],
@@ -30,7 +30,7 @@ export const projects = [
   {
     slug: "ekkoung",
     title: "Ekkoung",
-    description: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."],
+    description: ["Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under de kreative workshops for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."],
     city: "Holbæk",
     location: "Gangtunnelen, Holbæk Kommune",
     coordinates: [11.7167, 55.7167],
