@@ -23,7 +23,7 @@ export default function ProjectPage({ params }) {
           <img src={coverImage} alt={title} className="size-full object-cover" loading="lazy" />
         </figure>
 
-        <div className="absolute inset-0 bg-zinc-800 opacity-80" />
+        <div className="absolute inset-0 bg-zinc-800 opacity-75" />
 
         <div className="relative h-full flex flex-col justify-center text-zinc-50 pointer-events-none">
           <div className="grid grid-cols-12 xl:grid-cols-16 gap-x-4 px-2 lg:px-4 pb-4">
@@ -44,7 +44,7 @@ export default function ProjectPage({ params }) {
       </section>
 
       {pageMedia &&
-        <section className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4'>
+        <section className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 mb-8'>
           {pageMedia.map(({ type, src }, i) => (
             <figure key={`${slug}-media-${i}`} className="relative aspect-square overflow-hidden">
               {type === 'img'
