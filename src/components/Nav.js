@@ -4,9 +4,9 @@ import Link from 'next/link';
 export default function Nav() {
 
     const navLinks = [
-        { label: 'Projekter', slug: '' },
-        { label: 'Deltag', slug: '' },
-        { label: 'Info', slug: '' }
+        { label: 'Projekter', slug: '/' },
+        { label: 'Deltag', slug: '/deltag' },
+        { label: 'Info', slug: '/info' }
     ];
 
     return (
