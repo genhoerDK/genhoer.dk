@@ -1,6 +1,7 @@
 import { REM } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import Nav from "@/components/Nav";
 
 const rem = REM({
   variable: "--font-rem",
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
         <main className="w-screen min-h-svh">
           {children}
         </main>
+        <Nav />
       </body>
     </html>
   );
