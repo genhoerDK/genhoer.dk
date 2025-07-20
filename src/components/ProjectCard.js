@@ -35,7 +35,7 @@ export default function ProjectCard({ project }) {
     <li className="pb-24">
       <h2 className="font-light uppercase text-md leading-none">{title}</h2>
 
-      <Link href={`/${slug}`} className="relative block aspect-video overflow-hidden my-3 group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      <Link href={`/${slug}`} className="relative block aspect-video overflow-hidden my-2 group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <figure className={`absolute inset-0 transition duration-200 ${isHovered ? 'lg:opacity-0' : 'opacity-100'}`}>
           <img src={coverImage} loading="lazy" alt={title} className="object-cover transition duration-300 lg:group-hover:scale-105" />
         </figure>

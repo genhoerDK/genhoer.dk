@@ -139,7 +139,7 @@ export default function FullscreenMap() {
     <div ref={mapContainerRef} className="relative w-full h-screen">
       {/* ✅ Hover background image layer */}
       <div
-        className="absolute inset-0 z-0 transition-opacity duration-300 bg-center bg-cover filter grayscale contrast-125"
+        className="absolute inset-0 -z-10 transition-opacity duration-300 bg-center bg-cover filter grayscale contrast-125"
         style={{
           backgroundImage: hoveredImage ? `url(${hoveredImage})` : "none",
           opacity: hoveredImage ? 0.3 : 0,

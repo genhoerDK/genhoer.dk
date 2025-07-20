@@ -1,31 +1,33 @@
 'use client';
 import Link from 'next/link';
-import { MapPinIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { usePathname } from 'next/navigation';
+import { MapIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 
 export default function Footer() {
+    const pathname = usePathname();
+    const isMap = pathname === '/kort';
+
+    const buttonClass = 'flex items-center gap-1 border border-zinc-800 px-3 py-2 transition-colors';
+    const annotationClass = 'text-xs uppercase leading-none font-light';
+
     return (
-        <div className="fixed bottom-0 flex items-center w-full bg-zinc-50 py-3 px-2 md:px-4">
-            <button className="bg-zinc-800 px-4 py-1">
-                <Link 
-                    href="/kort" 
-                    className="group inline-flex items-center gap-1 text-zinc-50 uppercase font-light" 
-                    aria-label="Se kort"
-                >
-                    {/* Default icon (visible normally) */}
-                    <MapPinIcon 
-                        className="w-4 h-4 transition-opacity duration-200 opacity-100 group-hover:opacity-0" 
-                        aria-hidden="true" 
-                    />
-
-                    {/* Hover icon (chevron shown on hover) */}
-                    <ChevronUpIcon 
-                        className="w-4 h-4 absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100" 
-                        aria-hidden="true" 
-                    />
-
-                    Kort
-                </Link>
-            </button>
+        <div className="fixed bottom-0 w-full bg-zinc-50 py-2 px-2 md:px-4 flex gap-2 md:gap-2">
+            <Link
+                href="/"
+                aria-label="Se projektgalleri"
+                className={`${buttonClass} ${isMap ? 'hover:bg-zinc-100 hover:text-zinc-500 hover:border-zinc-500 text-zinc-800' : 'bg-zinc-800 text-zinc-50'}`}
+            >
+                <Squares2X2Icon className="h-4 w-4" />
+                <p className={`${annotationClass}`}>Galleri</p>
+            </Link>
+            <Link
+                href="/kort"
+                aria-label="Se projektkort"
+                className={`${buttonClass} ${isMap ? 'bg-zinc-800 text-zinc-50' : 'hover:bg-zinc-100 hover:text-zinc-500 hover:border-zinc-500 text-zinc-800'}`}
+            >
+                <MapIcon className="h-4 w-4" />
+                <p className={`${annotationClass}`}>Kort</p>
+            </Link>
         </div>
     );
 }
