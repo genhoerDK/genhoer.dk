@@ -11,7 +11,7 @@ export default function Footer() {
     const annotationClass = 'text-xs uppercase leading-none font-light';
 
     return (
-        <div className="fixed bottom-0 w-full bg-zinc-50 py-2 px-2 md:px-4 flex gap-2 md:gap-2">
+        <div className="fixed bottom-0 w-full bg-zinc-50 py-2 px-2 md:px-4 flex gap-2 md:gap-4">
             <Link
                 href="/"
                 aria-label="Se projektgalleri"
