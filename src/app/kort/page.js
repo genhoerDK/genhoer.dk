@@ -2,9 +2,11 @@
 
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useControlBar } from "@/context/ControlBarContext";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import { projects } from "@/data/projects";
+import { Squares2X2Icon } from "@heroicons/react/24/outline";
 
 export default function FullscreenMap() {
   const mapContainerRef = useRef(null);
@@ -13,6 +15,13 @@ export default function FullscreenMap() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [mapData, setMapData] = useState(null);
   const [hoveredImage, setHoveredImage] = useState(null); // ✅ State for hovered background image
+
+  // Set button
+  const { setButtons } = useControlBar();
+  useEffect(() => {
+    setButtons([{ label: "Galleri", icon: <Squares2X2Icon />, onClick: () => router.push("/"), }, ]);
+    return () => setButtons([]);
+  }, []);
 
   // Update container size
   useEffect(() => {
@@ -61,8 +70,8 @@ export default function FullscreenMap() {
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
     svg.attr("viewBox", `0 0 ${width} ${height}`)
-       .style("width", `${width}px`)
-       .style("height", `${height}px`);
+      .style("width", `${width}px`)
+      .style("height", `${height}px`);
 
     const g = svg.append("g");
 
