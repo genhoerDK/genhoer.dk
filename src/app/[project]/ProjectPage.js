@@ -55,7 +55,7 @@ export default function ProjectPage({ project }) {
 
       {/* Project media */}
       {pageMedia &&
-        <section className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 mb-8'>
+        <section className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 mb-12 md:mb-10'>
           {pageMedia.map(({ type, src }, i) => (
             <figure key={`${slug}-media-${i}`} className="relative aspect-square overflow-hidden">
               {type === 'img'
