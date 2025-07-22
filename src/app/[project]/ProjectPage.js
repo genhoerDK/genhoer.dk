@@ -24,7 +24,7 @@ export default function ProjectPage({ project }) {
 
   return (
     <article>
-      <section className='relative w-full h-screen overflow-hidden'>
+      <section className='relative w-full h-svh overflow-hidden'>
 
         {/* Background image */}
         <figure className="absolute inset-0">
@@ -67,7 +67,7 @@ export default function ProjectPage({ project }) {
       }
 
       {/* Project credits */}
-      <div className={`fixed bottom-0 left-0 w-full h-svh bg-zinc-50 transition-transform duration-500 ease-in-out ${showCredits ? 'translate-y-0' : 'translate-y-full'}`}>
+      <div className={`fixed bottom-0 left-0 w-full h-screen bg-zinc-50 transition-transform duration-500 ease-in-out ${showCredits ? 'translate-y-0' : 'translate-y-full'}`}>
         {/* credits */}
       </div>
     </article>
