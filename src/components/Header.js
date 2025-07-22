@@ -17,8 +17,8 @@ export default function Header() {
       </Link>
 
       <nav className="flex gap-4 md:gap-6 font-light text-lg md:text-xl">
-          <Link href='/deltag'>Deltag</Link>
-          <Link href='/info'>Info</Link>
+        <Link href='/deltag'>Deltag</Link>
+        <Link href='/info'>Info</Link>
       </nav>
     </header>
   );

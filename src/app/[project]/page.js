@@ -1,5 +1,6 @@
 import { projects } from '@/data/projects';
 import { formatDates, formatPartners } from '@/utilities/formatters';
+import ProjectControls from "@/components/ProjectControls";
 
 // Generate static for static site generation with dynamic routes
 export async function generateStaticParams() {
@@ -19,12 +20,16 @@ export default function ProjectPage({ params }) {
   return (
     <article>
       <section className='relative w-full h-screen overflow-hidden'>
+
+        {/* Background image */}
         <figure className="absolute inset-0">
           <img src={coverImage} alt={title} className="size-full object-cover" loading="lazy" />
         </figure>
 
+        {/* Background overlay */}
         <div className="absolute inset-0 bg-zinc-800 opacity-75" />
 
+        {/* Project description and info */}
         <div className="relative h-full flex flex-col justify-center text-zinc-50 pointer-events-none">
           <div className="grid grid-cols-12 xl:grid-cols-16 gap-x-4 px-2 lg:px-4 pb-4">
             <div className="col-span-10 sm:col-span-8 sm:col-start-2 md:col-span-8 md:col-start-3 xl:col-span-6 xl:col-start-4">
@@ -43,6 +48,7 @@ export default function ProjectPage({ params }) {
         </div>
       </section>
 
+      {/* Project media */}
       {pageMedia &&
         <section className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 mb-8'>
           {pageMedia.map(({ type, src }, i) => (
@@ -54,6 +60,9 @@ export default function ProjectPage({ params }) {
           ))}
         </section>
       }
+
+      {/* Project controls */}
+      <ProjectControls />
     </article>
   );
 }
