@@ -16,9 +16,9 @@ export default function Participate() {
 
   return (
     <>
-      {/* Contact info */}
+      {/* Membership info */}
       <div className={`fixed bottom-0 left-0 w-full h-screen bg-zinc-200 transition-transform duration-500 ease-in-out ${showMembership ? 'translate-y-0' : 'translate-y-full'}`}>
-        {/* contact */}
+        {/* membership */}
       </div>
     </>
   );
