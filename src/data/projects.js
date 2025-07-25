@@ -11,7 +11,13 @@ export const projects = [
     startDate: "2025-11-07",
     endDate: "2025-12-15",
     partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"],
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
+      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
+    ],
   },
   {
     slug: "kirkestraede",
@@ -25,7 +31,13 @@ export const projects = [
     startDate: "2025-10-11",
     endDate: "2025-11-22",
     partners: ["Køge Arkiverne", "Køge Ungdomsskole", "KøgeBibliotekerne"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
+      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
+    ],
   },
   {
     slug: "ekkoung",
@@ -39,7 +51,13 @@ export const projects = [
     startDate: "2025-10-04",
     endDate: "2025-11-28",
     partners: ["Holbæk Stadsarkiv", "UngHolbæk"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
+      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
+    ],
   },
   {
     slug: "vi-vokser-og-flytter-os",
@@ -54,7 +72,13 @@ export const projects = [
     startDate: "2025-06-20",
     endDate: "2025-09-27",
     partners: ["Slagteribygningen", "Faaborg Ungdomsskole"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
+      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
+    ],
   },
   {
     slug: "slotsgade-20",
@@ -69,7 +93,13 @@ export const projects = [
     startDate: "2025-06-19",
     endDate: "2025-08-01",
     partners: ["Historie Haderslev"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"]
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
+      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
+    ],
   },
   {
     slug: "vordingborg-station",
@@ -84,7 +114,13 @@ export const projects = [
     startDate: "2025-04-05",
     endDate: "2025-09-06",
     partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"],
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
+      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
+    ],
     pageMedia: [
       { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-04.webp' },
       { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-05.webp' },
@@ -119,7 +155,13 @@ export const projects = [
     startDate: "2024-06-14",
     endDate: "2024-10-31",
     partners: ["UKH Grindsted", "Mark | Museet for en Ny Danmarkshistorie"],
-    sponsors: ["Den Jyske Sparekasses Støttefond", "Kulturvirket", "Billund Kommune"],
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
+      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
+    ],
     pageMedia: [
       { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-06.webp' },
       { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-01.webp' },

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useControlBar } from "@/context/ControlBarContext";
 import { formatDates, formatPartners } from "@/utilities/formatters";
-import { UserGroupIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { StarIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import ProjectCredits from "@/components/ProjectCredits";
 
 export default function ProjectPage({ project }) {
   const { title, slug, coverImage, startDate, endDate, location, partners, description, pageMedia } = project;
@@ -12,7 +13,7 @@ export default function ProjectPage({ project }) {
 
   // ControlBar button
   useEffect(() => {
-    setButtons([{ label: "Kreditering", icon: !showCredits ? <UserGroupIcon /> : <ChevronDownIcon />, onClick: () => setShowCredits((prev) => !prev), }, ]);
+    setButtons([{ label: "Tak til", icon: !showCredits ? <StarIcon /> : <ChevronDownIcon />, onClick: () => setShowCredits((prev) => !prev), }, ]);
     return () => setButtons([]);
   }, [showCredits]);
 
@@ -67,9 +68,7 @@ export default function ProjectPage({ project }) {
       }
 
       {/* Project credits */}
-      <div className={`fixed bottom-0 left-0 w-full h-screen bg-zinc-200 transition-transform duration-500 ease-in-out ${showCredits ? 'translate-y-0' : 'translate-y-full'}`}>
-        {/* credits */}
-      </div>
+      <ProjectCredits slug={slug} show={showCredits} />
     </article>
   );
 }
