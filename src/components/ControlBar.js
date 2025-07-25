@@ -21,12 +21,14 @@ export default function ControlBar() {
             </button>
 
             {/* Page buttons */}
-            {buttons.map((btn) => (
-                <button key={`page-button-${btn.label}`} onClick={btn.onClick} className="flex justify-center items-center h-10 px-3 border border-zinc-800 cursor-pointer">
-                    {btn.icon && <span className="size-5 mr-1">{btn.icon}</span>}
-                    <p className="text-xs uppercase leading-none">{btn.label}</p>
-                </button>
-            ))}
+            <div className='flex gap-2'>
+                {buttons.map((btn) => (
+                    <button key={`page-button-${btn.label}`} onClick={btn.onClick} className="flex justify-center items-center h-10 px-3 border border-zinc-800 cursor-pointer">
+                        {btn.icon && <span className="size-5 mr-1">{btn.icon}</span>}
+                        <p className="text-xs uppercase leading-none">{btn.label}</p>
+                    </button>
+                ))}
+            </div>
 
         </footer>
     );

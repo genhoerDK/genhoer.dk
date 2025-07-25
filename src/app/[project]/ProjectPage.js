@@ -3,19 +3,41 @@
 import { useEffect, useState } from "react";
 import { useControlBar } from "@/context/ControlBarContext";
 import { formatDates, formatPartners } from "@/utilities/formatters";
-import { StarIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { UserGroupIcon, StarIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import ProjectJoin from "@/components/ProjectJoin";
 import ProjectCredits from "@/components/ProjectCredits";
 
 export default function ProjectPage({ project }) {
   const { title, slug, coverImage, startDate, endDate, location, partners, description, pageMedia } = project;
   const [showCredits, setShowCredits] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
   const { setButtons } = useControlBar();
 
   // ControlBar button
   useEffect(() => {
-    setButtons([{ label: "Tak til", icon: !showCredits ? <StarIcon /> : <ChevronDownIcon />, onClick: () => setShowCredits((prev) => !prev), }, ]);
+    const buttons = [];
+
+    // Credits button
+    if (project.credits?.length) {
+      buttons.push({
+        label: "Tak til",
+        icon: !showCredits ? <StarIcon /> : <ChevronDownIcon />,
+        onClick: () => setShowCredits((prev) => !prev),
+      });
+    }
+
+    // Join button
+    if (project.workshop) {
+      buttons.push({
+        label: "Vær med",
+        icon: !showJoin ? <UserGroupIcon /> : <ChevronDownIcon />,
+        onClick: () => setShowJoin((prev) => !prev),
+      });
+    }
+
+    setButtons(buttons);
     return () => setButtons([]);
-  }, [showCredits]);
+  }, [showCredits, showJoin, project.credits]);
 
   const pageInfoRows = [
     { label: 'Udstilling', info: formatDates(startDate, endDate) },
@@ -67,8 +89,15 @@ export default function ProjectPage({ project }) {
         </section>
       }
 
+      {/* Project join */}
+      {project.workshop && (
+        <ProjectJoin slug={slug} show={showJoin} />
+      )}
+
       {/* Project credits */}
-      <ProjectCredits slug={slug} show={showCredits} />
+      {project.credits?.length > 0 && (
+        <ProjectCredits slug={slug} show={showCredits} />
+      )}
     </article>
   );
 }
