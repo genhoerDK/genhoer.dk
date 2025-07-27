@@ -16,7 +16,7 @@ export default function ProjectCredits({ slug, show }) {
       <div className="h-full overflow-y-auto">
         
         {/* Flex container to vertically center if content is short */}
-        <div className="min-h-svh flex flex-col justify-center pt-10 pb-14 pointer-events-none">
+        <div className="min-h-dvh flex flex-col justify-center pt-10 pb-14 pointer-events-none">
           
           <div className="grid grid-cols-12 xl:grid-cols-16 px-2 lg:px-4 gap-x-4">
             <div className="col-span-full sm:col-start-2 md:col-start-3 xl:col-start-4 space-y-4">
