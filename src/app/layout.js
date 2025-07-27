@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
     <html lang="da">
       <body className={`${rem.className} antialiased bg-zinc-50`}>
         <ControlBarProvider>
-          
+          <Header />
           <main className="w-screen min-h-svh">
             {children}
           </main>

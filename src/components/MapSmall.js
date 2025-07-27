@@ -18,7 +18,9 @@ export default function MapSmall() {
 
             const width = container.offsetWidth;
             const height = container.offsetHeight;
-            const padding = 8;
+            const paddingTop = 48;
+            const paddingBottom = 64;
+            const paddingX = 16;
 
             svg
                 .attr("viewBox", `0 0 ${width} ${height}`)
@@ -26,10 +28,10 @@ export default function MapSmall() {
 
             if (!geoData) return;
 
-            const projection = d3.geoMercator().fitExtent(
-                [[padding, padding], [width - padding, height - padding]],
-                geoData
-            );
+            const projection = d3
+                .geoMercator()
+                .fitExtent([[paddingX, paddingTop], [width -paddingX, height - paddingBottom]], geoData);
+            
 
             const path = d3.geoPath().projection(projection);
 
@@ -51,7 +53,7 @@ export default function MapSmall() {
     }, []);
 
     return (
-        <div className="relative w-full h-dvh">
+        <div className="relative w-full min-h-lvh">
             <svg ref={svgRef} className="size-full" />
         </div>
     );
