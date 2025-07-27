@@ -43,9 +43,12 @@ export default function MapLarge({ projects }) {
                 .join("path")
                 .attr("d", path)
                 .attr("fill", "#27272A")
-                .attr("stroke", "#27272A");
+                .attr("fill-opacity", 1)
+                .attr("stroke", "#27272A")
+                .attr("stroke-width", .25)
+                .attr("stroke-opacity", 1);
 
-            const zoomScale = 3;
+            const zoomScale = 4;
 
             // Draw the markers
             projects.forEach((project) => {
@@ -56,40 +59,37 @@ export default function MapLarge({ projects }) {
                     .attr("cx", x)
                     .attr("cy", y)
                     .attr("r", 6)
-                    .attr("fill", "#f43f5e")
+                    .attr("fill", "#52525b")
                     .attr("stroke", "#fff")
                     .attr("stroke-width", 2)
                     .style("cursor", "pointer")
                     .on("mouseenter", function (event) {
                         const [mouseX, mouseY] = d3.pointer(event);
 
-                        // Compute transform so marker ends up centered under the cursor
                         const translateX = mouseX - x * zoomScale;
                         const translateY = mouseY - y * zoomScale;
 
-                        // Zoom in
                         g.transition()
-                            .duration(1000)
+                            .duration(600)
                             .attr("transform", `translate(${translateX},${translateY}) scale(${zoomScale})`);
 
-                        // Set opacity
                         g.selectAll("path")
                             .transition()
-                            .duration(1000)
-                            .style("opacity", d => d.properties.KOMKODE === project.komkode || 0);
+                            .duration(600)
+                            .attr("stroke-opacity", d => d.properties.KOMKODE === project.komkode ? 1 : 0.1)
+                            .attr("fill-opacity", d => d.properties.KOMKODE === project.komkode ? 1 : 0);
                     })
                     .on("mouseleave", function () {
-
-                        // Zoom out
                         g.transition()
                             .duration(600)
                             .attr("transform", `translate(0,0) scale(1)`);
 
-                        // Reset opacity
                         g.selectAll("path")
                             .transition()
                             .duration(600)
-                            .style("opacity", 1);
+                            .style("opacity", 1)
+                            .attr("stroke-opacity", 1)
+                            .attr("fill-opacity", 1);
                     });
             });
         };
