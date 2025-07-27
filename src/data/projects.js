@@ -58,7 +58,7 @@ export const projects = [
     credits: [
       { label: 'Samarbejdspartner', input: ['Fonden Slagteribygningen'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Faaborg-Midtfyn Ungdomsskole'] },
-      { label: 'Kulturhistorisk sparringspartner', input: ['Øhavsmuseet'] },
+      { label: 'Kulturhistorisk sparringspartner', input: ['Peter Thor Andersen, Øhavsmuseet'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Faaborg-Midtfyn Kommune'] },
     ],
@@ -143,7 +143,7 @@ export const projects = [
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },
-      { label: 'Workshop-deltagere', input: ['Christian, Bastian, Tobias og Frederik'] },
+      { label: 'Workshop-deltagere', input: ['Kristian, Bastian, Tobias og Frederik'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
     ],

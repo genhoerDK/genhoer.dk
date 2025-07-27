@@ -2,7 +2,7 @@ import { REM } from "next/font/google";
 import "./globals.css";
 import { ControlBarProvider } from "@/context/ControlBarContext";
 import Header from "@/components/Header";
-import ControlBar from "@/components/ControlBar";
+import Footer from "@/components/Footer";
 
 const rem = REM({
   variable: "--font-rem",
@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
           <main className="w-screen min-h-svh">
             {children}
           </main>
-          <ControlBar />
+          <Footer />
         </ControlBarProvider>
       </body>
     </html>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useControlBar } from "@/context/ControlBarContext";
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
 
-export default function ControlBar() {
+export default function Footer() {
     const { buttons } = useControlBar();
     const [isPlaying, setIsPlaying] = useState(false);
 

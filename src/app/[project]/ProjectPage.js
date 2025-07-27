@@ -22,7 +22,10 @@ export default function ProjectPage({ project }) {
       buttons.push({
         label: "Tak til",
         icon: !showCredits ? <StarIcon /> : <ChevronDownIcon />,
-        onClick: () => setShowCredits((prev) => !prev),
+        onClick: () => {
+          setShowJoin(false);
+          setShowCredits((prev) => !prev);
+        },
       });
     }
 
@@ -31,7 +34,10 @@ export default function ProjectPage({ project }) {
       buttons.push({
         label: "Vær med",
         icon: !showJoin ? <UserGroupIcon /> : <ChevronDownIcon />,
-        onClick: () => setShowJoin((prev) => !prev),
+        onClick: () => {
+          setShowCredits(false);
+          setShowJoin((prev) => !prev);
+        },
       });
     }
 

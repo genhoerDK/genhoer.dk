@@ -7,20 +7,19 @@ export default function ProjectCredits({ slug, show }) {
   const project = projects.find((p) => p.slug === slug);
   if (!project) return null;
 
-  const { title, credits } = project;
+  const { credits } = project;
 
   return (
     <div className={`fixed inset-0 w-full h-screen bg-zinc-200 text-zinc-900 transition-transform duration-500 ease-in-out ${show ? "translate-y-0" : "translate-y-full"}`}>
       
       {/* Scrollable wrapper */}
-      <div className="h-full overflow-y-auto pointer-events-none">
+      <div className="h-full overflow-y-auto">
         
         {/* Flex container to vertically center if content is short */}
-        <div className="min-h-screen flex flex-col justify-center py-12">
+        <div className="min-h-svh flex flex-col justify-center pt-10 pb-14 pointer-events-none">
           
-          <div className="grid grid-cols-12 xl:grid-cols-16 px-2 lg:px-4">
-            <div className="col-span-10 sm:col-span-8 sm:col-start-2 md:col-span-8 md:col-start-3 xl:col-span-6 xl:col-start-4 space-y-4">
-              <h2 className="uppercase font-light text-lg md:text-xl leading-none">{title}</h2>
+          <div className="grid grid-cols-12 xl:grid-cols-16 px-2 lg:px-4 gap-x-4">
+            <div className="col-span-full sm:col-start-2 md:col-start-3 xl:col-start-4 space-y-4">
 
               {credits.map((credit, i) => (
                 <div key={`${slug}-credit-${i}`}>
