@@ -32,7 +32,7 @@ export default function MapLarge({ projects }) {
 
             const projection = d3
                 .geoMercator()
-                .fitExtent([[paddingX, paddingTop], [width -paddingX, height - paddingBottom]], geoData);
+                .fitExtent([[paddingX, paddingTop], [width - paddingX, height - paddingBottom]], geoData);
 
             const path = d3.geoPath().projection(projection);
             const g = svg.append("g");
@@ -45,7 +45,7 @@ export default function MapLarge({ projects }) {
                 .attr("fill", "#27272A")
                 .attr("stroke", "#27272A");
 
-            const zoomScale = 4;
+            const zoomScale = 3;
 
             // Draw the markers
             projects.forEach((project) => {
@@ -67,28 +67,29 @@ export default function MapLarge({ projects }) {
                         const translateX = mouseX - x * zoomScale;
                         const translateY = mouseY - y * zoomScale;
 
-                        // Highlight paths with matching KOMKODE
-                        g.selectAll("path")
-                            .filter(d => d.properties.KOMKODE === String(project.komkode))
-                            .transition()
-                            .duration(300)
-                            .attr("fill", "#fde047");
-
+                        // Zoom in
                         g.transition()
                             .duration(1000)
                             .attr("transform", `translate(${translateX},${translateY}) scale(${zoomScale})`);
+
+                        // Set opacity
+                        g.selectAll("path")
+                            .transition()
+                            .duration(1000)
+                            .style("opacity", d => d.properties.KOMKODE === project.komkode || 0);
                     })
                     .on("mouseleave", function () {
-                        // Transition back to original fill
-                        g.selectAll("path")
-                            .filter(d => d.properties.KOMKODE === String(project.komkode))
-                            .transition()
-                            .duration(300)
-                            .attr("fill", "#27272A");
 
+                        // Zoom out
                         g.transition()
                             .duration(600)
                             .attr("transform", `translate(0,0) scale(1)`);
+
+                        // Reset opacity
+                        g.selectAll("path")
+                            .transition()
+                            .duration(600)
+                            .style("opacity", 1);
                     });
             });
         };
