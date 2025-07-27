@@ -53,7 +53,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/videos/vi-vokser-og-flytter-os-cover-video.mp4",
     startDate: "2025-06-20",
     endDate: "2025-09-27",
-    partners: ["Slagteribygningen", "Faaborg Ungdomsskole"],
+    partners: ["Slagteribygningen", "Faaborg-Midtfyn Ungdomsskole"],
     workshop: true,
     credits: [
       { label: 'Samarbejdspartner', input: ['Fonden Slagteribygningen'] },

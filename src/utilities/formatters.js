@@ -1,5 +1,5 @@
-// lib/utils/formatters.js
 
+// Format dates to danish layout etc.
 export const formatDates = (startStr, endStr) => {
   const options = { day: 'numeric', month: 'long' };
   const formatter = new Intl.DateTimeFormat('da-DK', options);
@@ -14,6 +14,7 @@ export const formatDates = (startStr, endStr) => {
     : `${startText} ${start.getFullYear()} - ${endText} ${end.getFullYear()}`;
 };
 
+// Format partner array to string
 export const formatPartners = (partners = []) =>
   partners.length
     ? new Intl.ListFormat('da', {

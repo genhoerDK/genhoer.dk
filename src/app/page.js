@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useControlBar } from "@/context/ControlBarContext";
 import { MapIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import ProjectCard from '@/components/ProjectCard';
-import SmallMap from "@/components/SmallMap";
-import LargeMap from "@/components/LargeMap";
+import MapSmall from "@/components/MapSmall";
+import MapLarge from "@/components/MapLarge";
 import { projects } from '@/data/projects';
 
 export default function Home() {
@@ -38,8 +38,8 @@ export default function Home() {
       </section>
 
       {/* Map */}
-      <div className={`fixed inset-0 w-full h-screen bg-zinc-200 transition-transform duration-500 ease-in-out ${showMap ? 'translate-y-0' : 'translate-y-full'}`}>
-        {isPortrait ? <SmallMap /> : <LargeMap />}
+      <div className={`fixed inset-0 w-full h-dvh bg-zinc-200 transition-transform duration-500 ease-in-out ${showMap ? 'translate-y-0' : 'translate-y-full'}`}>
+        {isPortrait ? <MapSmall /> : <MapLarge />}
       </div>
     </>
   );

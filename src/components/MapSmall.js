@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
-export default function LargeMap() {
+export default function MapSmall() {
     const svgRef = useRef(null);
 
     useEffect(() => {
@@ -41,7 +41,7 @@ export default function LargeMap() {
                 .attr("stroke", "#27272A");
         };
 
-        d3.json("/map_low.json").then((topology) => {
+        d3.json("/map_low_modified.json").then((topology) => {
             geoData = topojson.feature(topology, topology.objects["kommuner"]);
             renderMap();
         });

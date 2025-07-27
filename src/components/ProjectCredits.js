@@ -20,6 +20,7 @@ export default function ProjectCredits({ slug, show }) {
           
           <div className="grid grid-cols-12 xl:grid-cols-16 px-2 lg:px-4 gap-x-4">
             <div className="col-span-full sm:col-start-2 md:col-start-3 xl:col-start-4 space-y-4">
+              <h2 className="text-xl font-extralight uppercase">Tak til</h2>
 
               {credits.map((credit, i) => (
                 <div key={`${slug}-credit-${i}`}>
@@ -29,6 +30,7 @@ export default function ProjectCredits({ slug, show }) {
                   ))}
                 </div>
               ))}
+
             </div>
           </div>
 
