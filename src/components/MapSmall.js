@@ -53,7 +53,7 @@ export default function MapSmall() {
     }, []);
 
     return (
-        <div className="relative w-full min-h-lvh">
+        <div className="relative size-full">
             <svg ref={svgRef} className="size-full" />
         </div>
     );
