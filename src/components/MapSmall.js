@@ -18,7 +18,7 @@ export default function MapSmall() {
 
             const width = container.offsetWidth;
             const height = container.offsetHeight;
-            const padding = 12;
+            const padding = 8;
 
             svg
                 .attr("viewBox", `0 0 ${width} ${height}`)
@@ -51,7 +51,7 @@ export default function MapSmall() {
     }, []);
 
     return (
-        <div className="relative size-full pt-10 pb-14">
+        <div className="relative w-full h-dvh">
             <svg ref={svgRef} className="size-full" />
         </div>
     );

@@ -4,16 +4,11 @@ import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 
-export default function MapLarge() {
+export default function MapLarge({ projects }) {
     const svgRef = useRef(null);
 
     useEffect(() => {
         let geoData = null;
-
-        const markers = [
-            { name: "Gedser", coords: [11.9694, 54.5589] },
-            { name: "Skagen", coords: [10.6000, 57.7200] },
-        ];
 
         const renderMap = () => {
             if (!svgRef.current) return;
@@ -23,7 +18,7 @@ export default function MapLarge() {
 
             const width = container.offsetWidth;
             const height = container.offsetHeight;
-            const padding = 12;
+            const padding = 8;
 
             svg.selectAll("*").remove();
 
@@ -50,9 +45,10 @@ export default function MapLarge() {
 
             const zoomScale = 4;
 
-            // Draw markers
-            markers.forEach((marker) => {
-                const [x, y] = projection(marker.coords);
+            // Draw the markers
+            projects.forEach((project) => {
+                const [lon, lat] = project.coordinates;
+                const [x, y] = projection([lon, lat]);
 
                 g.append("circle")
                     .attr("cx", x)
@@ -64,16 +60,32 @@ export default function MapLarge() {
                     .style("cursor", "pointer")
                     .on("mouseenter", function (event) {
                         const [mouseX, mouseY] = d3.pointer(event);
-                        const translateX = mouseX - mouseX * zoomScale;
-                        const translateY = mouseY - mouseY * zoomScale;
+
+                        // Compute transform so marker ends up centered under the cursor
+                        const translateX = mouseX - x * zoomScale;
+                        const translateY = mouseY - y * zoomScale;
+
+                        // Highlight paths with matching KOMKODE
+                        g.selectAll("path")
+                            .filter(d => d.properties.KOMKODE === String(project.komkode))
+                            .transition()
+                            .duration(300)
+                            .attr("fill", "#fde047");
 
                         g.transition()
-                            .duration(500)
+                            .duration(1000)
                             .attr("transform", `translate(${translateX},${translateY}) scale(${zoomScale})`);
                     })
                     .on("mouseleave", function () {
+                        // Transition back to original fill
+                        g.selectAll("path")
+                            .filter(d => d.properties.KOMKODE === String(project.komkode))
+                            .transition()
+                            .duration(300)
+                            .attr("fill", "#27272A");
+
                         g.transition()
-                            .duration(500)
+                            .duration(600)
                             .attr("transform", `translate(0,0) scale(1)`);
                     });
             });
@@ -89,7 +101,7 @@ export default function MapLarge() {
     }, []);
 
     return (
-        <div className="relative size-full pt-10 pb-14">
+        <div className="relative size-full">
             <svg ref={svgRef} className="size-full" />
         </div>
     );
