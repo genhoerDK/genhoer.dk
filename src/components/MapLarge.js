@@ -134,11 +134,9 @@ export default function MapLarge({ projects }) {
             <svg ref={svgRef} className="size-full" />
 
             {activeProject && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center px-4 pb-4 pointer-events-none transition-opacity duration-300">
-                    <div className="bg-zinc-900/80 text-white p-4 max-w-md w-full">
-                        <h2 className="font-light uppercase text-md leading-none mb-2">
-                            {activeProject.title}
-                        </h2>
+                <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none transition-opacity duration-1000">
+                    <div className="bg-zinc-800/90 text-zinc-50 px-4 pt-4 pb-2">
+                        <h2 className="font-light uppercase text-xl leading-none mb-2">{activeProject.title}</h2>
                         {[
                             { label: "Udstilling", info: formatDates(activeProject.startDate, activeProject.endDate) },
                             { label: "Lokalitet", info: activeProject.location },
@@ -146,7 +144,7 @@ export default function MapLarge({ projects }) {
                         ].map(({ label, info }) => (
                             <div key={`${activeProject.title}-card-info-${label}`} className="grid grid-cols-6 gap-x-2 pb-2 pointer-events-none">
                                 <p className="col-span-1 text-[0.5rem] uppercase leading-none mt-[5px]">{label}</p>
-                                <p className="col-start-2 col-span-full font-light text-xs truncate">{info}</p>
+                                <p className="col-start-2 col-span-full font-light text-xs">{info}</p>
                             </div>
                         ))}
                     </div>
