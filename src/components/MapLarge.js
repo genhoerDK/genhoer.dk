@@ -119,7 +119,7 @@ export default function MapLarge({ projects }) {
 
                     setActiveProject(null);
                 })
-                .on("click", (d) => {
+                .on("click", (event, d) => {
                     router.push(`/${d.slug}`);
                 });
         };
