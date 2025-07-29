@@ -38,8 +38,8 @@ export default function Home() {
       </section>
 
       {/* Map */}
-      <div className={`fixed inset-0 flex items-center w-full h-dvh bg-zinc-200 transition-transform duration-500 ease-in-out ${showMap ? 'translate-y-0' : 'translate-y-full'}`}>
-        {isPortrait ? <MapSmall /> : <MapLarge projects={projects}/>}
+      <div className={`fixed inset-0 flex items-center w-full h-dvh transition-transform duration-500 ease-in-out ${showMap ? 'translate-y-0' : 'translate-y-full'}`}>
+        {isPortrait ? <MapSmall projects={projects} /> : <MapLarge projects={projects}/>}
       </div>
     </>
   );

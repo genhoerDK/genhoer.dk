@@ -84,8 +84,11 @@ export default function MapLarge({ projects }) {
                         .transition()
                         .delay(200)
                         .duration(500)
-                        .attr("stroke-opacity", p => p.properties.KOMKODE === d.komkode ? 1 : 0.1)
-                        .attr("fill-opacity", p => p.properties.KOMKODE === d.komkode ? 1 : 0);
+                        .attr("fill", p => p.properties.KOMKODE === d.komkode ? "#FAFAFA" : "#27272A")
+                        .attr("fill-opacity", p => p.properties.KOMKODE === d.komkode ? 1 : 0)
+                        .attr("stroke", "#FAFAFA")
+                        .attr("stroke-opacity", p => p.properties.KOMKODE === d.komkode ? 1 : 0.1);
+                        
 
                     markers.transition()
                         .delay(200)
@@ -103,8 +106,10 @@ export default function MapLarge({ projects }) {
                     g.selectAll("path")
                         .transition()
                         .duration(500)
-                        .attr("stroke-opacity", 1)
-                        .attr("fill-opacity", 1);
+                        .attr("fill", "#2727A")
+                        .attr("fill-opacity", 1)
+                        .attr("stroke", "#27272A")
+                        .attr("stroke-opacity", 1);
 
                     markers.transition()
                         .duration(500)
@@ -114,7 +119,7 @@ export default function MapLarge({ projects }) {
 
                     setActiveProject(null);
                 })
-                .on("click", (event, d) => {
+                .on("click", (d) => {
                     router.push(`/${d.slug}`);
                 });
         };
@@ -129,27 +134,18 @@ export default function MapLarge({ projects }) {
     }, []);
 
     return (
-        <div className="relative size-full">
-            <div className={`absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat transition-opacity delay-200 duration-500 ${activeProject ? "opacity-20" : "opacity-0"}`} style={{ backgroundImage: activeProject ? `url(${activeProject.coverImage})` : undefined, }} />
+        <div className={`relative size-full transition-colors delay-200 duration-500 ${activeProject ? 'bg-zinc-800' : 'bg-zinc-50'}`}>
+            <div className={`absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat transition delay-200 duration-500 ${activeProject ? "opacity-20" : "opacity-0"}`} style={{ backgroundImage: activeProject ? `url(${activeProject.coverImage})` : undefined, }} />
             <svg ref={svgRef} className="size-full" />
 
-            {activeProject && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none transition-opacity duration-1000">
-                    <div className="bg-zinc-800/90 text-zinc-50 px-4 pt-4 pb-2">
-                        <h2 className="font-light uppercase text-xl leading-none mb-2">{activeProject.title}</h2>
-                        {[
-                            { label: "Udstilling", info: formatDates(activeProject.startDate, activeProject.endDate) },
-                            { label: "Lokalitet", info: activeProject.location },
-                            { label: "Partnere", info: formatPartners(activeProject.partners) },
-                        ].map(({ label, info }) => (
-                            <div key={`${activeProject.title}-card-info-${label}`} className="grid grid-cols-6 gap-x-2 pb-2 pointer-events-none">
-                                <p className="col-span-1 text-[0.5rem] uppercase leading-none mt-[5px]">{label}</p>
-                                <p className="col-start-2 col-span-full font-light text-xs">{info}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <div className={`absolute top-10 left-0 px-4 py-2 transition delay-200 duration-500 ease-in-out pointer-events-none text-zinc-50 ${activeProject ? "translate-x-0" : "-translate-x-full"}`}>
+                { activeProject &&
+                    <div>
+                        <h2 className="text-4xl font-extralight uppercase mb-1">{activeProject.title}</h2>
+                        <p className="text-xs text-end font-light uppercase pl-1">{formatDates(activeProject.startDate, activeProject.endDate)}</p>
+                    </div> 
+                }
+            </div>
         </div>
     );
 }
