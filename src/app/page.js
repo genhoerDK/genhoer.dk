@@ -43,13 +43,14 @@ export default function Home() {
       icon: !showMap ? <MapIcon /> : <ChevronDownIcon />,
       onClick: () => {
         setShowMap((prev) => {
-          const nextState = !prev;
-          if (!nextState) {
-            history.replaceState(null, "", window.location.pathname + window.location.search);
-          } else {
-            history.replaceState(null, "", "#kort");
-          }
-          return nextState;
+        if (prev) {
+        // was open → now closing → remove hash
+          history.replaceState(null, "", window.location.pathname + window.location.search);
+        } else {
+    // was closed → now opening → add hash
+          history.replaceState(null, "", "#kort");
+        }
+        return !prev;
         });
       },
     },
