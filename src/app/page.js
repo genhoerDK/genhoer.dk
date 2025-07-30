@@ -27,15 +27,6 @@ export default function Home() {
     return () => window.removeEventListener("hashchange", updateFromHash);
   }, []);
 
-  // Update hash when showMap changes
-  useEffect(() => {
-    const currentHash = window.location.hash;
-    const desiredHash = showMap ? "#kort" : "";
-    if (currentHash !== desiredHash) {
-      history.replaceState(null, "", desiredHash);
-    }
-  }, [showMap]);
-
   // Check viewport size to render either small or large map
   useEffect(() => {
     const checkViewport = () => setIsPortrait(window.innerWidth < 768);
@@ -46,15 +37,25 @@ export default function Home() {
 
   // Map button in footer component
   useEffect(() => {
-    setButtons([
-      {
-        label: "Kort",
-        icon: !showMap ? <MapIcon /> : <ChevronDownIcon />,
-        onClick: () => setShowMap((prev) => !prev),
+  setButtons([
+    {
+      label: "Kort",
+      icon: !showMap ? <MapIcon /> : <ChevronDownIcon />,
+      onClick: () => {
+        setShowMap((prev) => {
+          const nextState = !prev;
+          if (!nextState) {
+            history.replaceState(null, "", window.location.pathname + window.location.search);
+          } else {
+            history.replaceState(null, "", "#kort");
+          }
+          return nextState;
+        });
       },
-    ]);
-    return () => setButtons([]);
-  }, [showMap]);
+    },
+  ]);
+  return () => setButtons([]);
+}, [showMap]);
 
   return (
     <motion.div
