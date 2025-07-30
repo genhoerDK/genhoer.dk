@@ -106,7 +106,7 @@ export default function MapLarge({ projects }) {
                     g.selectAll("path")
                         .transition()
                         .duration(500)
-                        .attr("fill", "#2727A")
+                        .attr("fill", "#27272A")
                         .attr("fill-opacity", 1)
                         .attr("stroke", "#27272A")
                         .attr("stroke-opacity", 1);

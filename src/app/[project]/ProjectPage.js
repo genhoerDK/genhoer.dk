@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useControlBar } from "@/context/ControlBarContext";
 import { formatDates, formatPartners } from "@/utilities/formatters";
 import { UserGroupIcon, StarIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
@@ -52,7 +53,7 @@ export default function ProjectPage({ project }) {
   ];
 
   return (
-    <article>
+    <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: .3 }}>
       <section className='relative w-full h-svh overflow-hidden'>
 
         {/* Background image */}
@@ -104,6 +105,6 @@ export default function ProjectPage({ project }) {
       {project.credits?.length > 0 && (
         <ProjectCredits slug={slug} show={showCredits} />
       )}
-    </article>
+    </motion.article>
   );
 }

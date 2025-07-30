@@ -2,12 +2,15 @@ export const projects = [
   {
     slug: "bulows-kaserne",
     title: "Bülows Kaserne",
-    description: ["Genhør indtager til november en opgang i Kulturkasernen i Fredericia. Udstillingen tager udgangspunkt i kasernens historie og indeholder musikalske indslag skabt med unge musikere fra Fredericia. Den lydlige oplevelse begynder i stueetagen hvorfra publikum bevæger sig op gennem opgangen og værket som sammensættes af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af kasernens fortid. Undervejs kan publikum standse ved lyttestationer, hvor de kan fordybe sig i beretninger og lydbilleder. Interaktive elementer udviklet under workshoppen for unge på Bülows Makerspace, inviterer publikum til at påvirke eller aktivere nye lag i lydbilledet. Oplevelsen kulminerer på det øverste repos, hvor en Kulturhonnør kan aktiveres – et kort lydindslag, der både kan høres i opgangen og Kulturkasernens gårdrum, som afslutter den lydlige rejse."],
+    description: [
+      "Genhør indtager til november en opgang i Kulturkasernen i Fredericia. Udstillingen tager udgangspunkt i kasernens historie og indeholder musikalske indslag skabt med unge musikere fra Fredericia. Den lydlige oplevelse begynder i stueetagen hvorfra publikum bevæger sig op gennem opgangen og værket som sammensættes af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af kasernens fortid. Undervejs kan publikum standse ved lyttestationer, hvor de kan fordybe sig i beretninger og lydbilleder. Interaktive elementer udviklet under workshoppen for unge på Bülows Makerspace, inviterer publikum til at påvirke eller aktivere nye lag i lydbilledet. Oplevelsen kulminerer på det øverste repos, hvor en Kulturhonnør kan aktiveres – et kort lydindslag, der både kan høres i opgangen og Kulturkasernens gårdrum, som afslutter den lydlige rejse."
+    ],
     city: "Fredericia",
     location: "Kulturkasernen, Fredericia Kommune",
     coordinates: [9.7482, 55.5657],
     komkode: "0607",
     coverImage: "https://cdn.genhoer.dk/media/images/bulows-kaserne-cover-image.webp",
+    coverVideo: null,
     startDate: "2025-11-07",
     endDate: "2025-12-15",
     partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace"],
@@ -16,12 +19,16 @@ export const projects = [
   {
     slug: "kirkestraede",
     title: "Kirkestræde",
-    description: ["På Kirkestræde-dagen opsættes et udendørs og rumligt lydværk der skal præsentere fortidens lydmiljø på stedet. Publikum inviteres på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv vil igen udspille sig, og klinge mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækker lydinstallationen et område på cirka 50 meter, hvilket nogenlunde svarer til området fra Kirkestræde 6 til 16.", "Efter Kirkestræde-dagen flyttes værket indendørs i et udstillingslokale på Kirkestræde en periode så flere borgere og besøgende kan opleve det."],
+    description: [
+      "På Kirkestræde-dagen opsættes et udendørs og rumligt lydværk der skal præsentere fortidens lydmiljø på stedet. Publikum inviteres på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv vil igen udspille sig, og klinge mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækker lydinstallationen et område på cirka 50 meter, hvilket nogenlunde svarer til området fra Kirkestræde 6 til 16.", 
+      "Efter Kirkestræde-dagen flyttes værket indendørs i et udstillingslokale på Kirkestræde en periode så flere borgere og besøgende kan opleve det."
+    ],
     city: "Køge",
     location: "Kirkestræde, Køge Kommune",
     coordinates: [12.1821, 55.4561],
     komkode: "0259",
     coverImage: "https://cdn.genhoer.dk/media/images/kirkestraede-cover-image.webp",
+    coverVideo: null,
     startDate: "2025-10-11",
     endDate: "2025-11-22",
     partners: ["Køge Arkiverne", "Køge Ungdomsskole", "KøgeBibliotekerne"],
@@ -30,12 +37,15 @@ export const projects = [
   {
     slug: "ekkoung",
     title: "Ekkoung",
-    description: ["Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under de kreative workshops for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."],
+    description: [
+      "Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under de kreative workshops for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."
+    ],
     city: "Holbæk",
     location: "Gangtunnelen, Holbæk Kommune",
     coordinates: [11.7167, 55.7167],
     komkode: "0316",
     coverImage: "https://cdn.genhoer.dk/media/images/ekkoung-cover-image.webp",
+    coverVideo: null,
     startDate: "2025-10-04",
     endDate: "2025-11-28",
     partners: ["Holbæk Stadsarkiv", "UngHolbæk"],
@@ -44,7 +54,11 @@ export const projects = [
   {
     slug: "vi-vokser-og-flytter-os",
     title: "Vi vokser og flytter os",
-    description: ["Med elektronisk musik og reallyde fortolker værket slagteriets transformation fra åbningen af Fåborg Andels-svineslagteri i 1888 til lukningen af Tulip Slagteriet i 2016. En mangesidet historie der på alle tider synes at indeholde komplekse aspekter om alt fra arbejdsglæde og -vilkår til håndværk, teknologisk udvikling, dyrevelfærd, økonomi, forurening, magt og demokrati.", "Værket fortolker lokalhistorisk materiale, borgeres beretninger og er desuden inspireret af bogen “Magtspillet i Provinsbyen” skrevet af Flemming Seiersen og Karsten Lindhardt. Produktionen tager afsæt i lydoptagelser foretaget i og omkring det tidligere slagteri.", "I dag er Slagteribygningen igen under transformation. De tomme industrilokaler omdannes til et fremtidigt kulturelt samlingssted."],
+    description: [
+      "Med elektronisk musik og reallyde fortolker værket slagteriets transformation fra åbningen af Fåborg Andels-svineslagteri i 1888 til lukningen af Tulip Slagteriet i 2016. En mangesidet historie der på alle tider synes at indeholde komplekse aspekter om alt fra arbejdsglæde og -vilkår til håndværk, teknologisk udvikling, dyrevelfærd, økonomi, forurening, magt og demokrati.", 
+      "Værket fortolker lokalhistorisk materiale, borgeres beretninger og er desuden inspireret af bogen “Magtspillet i Provinsbyen” skrevet af Flemming Seiersen og Karsten Lindhardt. Produktionen tager afsæt i lydoptagelser foretaget i og omkring det tidligere slagteri.", 
+      "I dag er Slagteribygningen igen under transformation. De tomme industrilokaler omdannes til et fremtidigt kulturelt samlingssted."
+    ],
     city: "Faaborg",
     location: "Slagteribygningen, Faaborg-Midtfyn Kommune",
     coordinates: [10.2394, 55.0958],
@@ -66,7 +80,10 @@ export const projects = [
   {
     slug: "slotsgade-20",
     title: "Slotsgade 20",
-    description: ["I Baghuset ved Ehlers Samlingen kan du i disse dage opleve lydlandskabet omkring Slotsgade gennem 500 år. Genhør Slotsgade 20 åbner et lydligt vindue til den stedbundne kulturhistorie der knytter sig til bygningen. Gennem fem historiske nedslag undersøger lydværket den historiske udvikling huset har været vidne til.", "Fra skiferdækkeren Philip af Neuss og hertug Hans den Ældres slot Hansborg, over krigsødelæggelser, herberg og hestevognskørsel, til arbejderfamilier i tætpakkede lejligheder. Værket væver stemmer, reallyde og musik sammen i et 12 minutter og 30 sekunder langt forløb."],
+    description: [
+      "I Baghuset ved Ehlers Samlingen kan du i disse dage opleve lydlandskabet omkring Slotsgade gennem 500 år. Genhør Slotsgade 20 åbner et lydligt vindue til den stedbundne kulturhistorie der knytter sig til bygningen. Gennem fem historiske nedslag undersøger lydværket den historiske udvikling huset har været vidne til.", 
+      "Fra skiferdækkeren Philip af Neuss og hertug Hans den Ældres slot Hansborg, over krigsødelæggelser, herberg og hestevognskørsel, til arbejderfamilier i tætpakkede lejligheder. Værket væver stemmer, reallyde og musik sammen i et 12 minutter og 30 sekunder langt forløb."
+    ],
     city: "Haderslev",
     location: "Ehlers Samlingen, Haderslev Kommune",
     coordinates: [9.4891, 55.2493],
@@ -86,7 +103,11 @@ export const projects = [
   {
     slug: "vordingborg-station",
     title: "Vordingborg Station",
-    description: ["Siden 1937 har rejsende, borgere og ansatte haft deres daglige gang på Vordingborg Station. Bygningen har udviklet sig med tiden, og hvor der tidligere har været billetsalg, rejsegodshåndtering og restauration, er der i dag plads til kunst, musikliv og en ungdomscafé.", "Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.", "Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny."],
+    description: [
+      "Siden 1937 har rejsende, borgere og ansatte haft deres daglige gang på Vordingborg Station. Bygningen har udviklet sig med tiden, og hvor der tidligere har været billetsalg, rejsegodshåndtering og restauration, er der i dag plads til kunst, musikliv og en ungdomscafé.", 
+      "Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.", 
+      "Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny."
+    ],
     city: "Vordingborg",
     location: "Vordingborg Station, Vordingborg Kommune",
     coordinates: [11.9167, 55.0167],
@@ -129,7 +150,10 @@ export const projects = [
   {
     slug: "grindsted-station",
     title: "Grindsted Station",
-    description: ["Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for omkring 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv."],
+    description: [
+      "Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", 
+      "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for omkring 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv."
+    ],
     city: "Grindsted",
     location: "Grindsted Station, Billund Kommune",
     coordinates: [8.9222, 55.7579],
