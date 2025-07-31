@@ -1,5 +1,6 @@
 import { REM } from "next/font/google";
 import "./globals.css";
+import { motion } from "framer-motion";
 import { ControlBarProvider } from "@/context/ControlBarContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -21,9 +22,14 @@ export default function RootLayout({ children }) {
       <body className={`${rem.className} antialiased bg-zinc-50`}>
         <ControlBarProvider>
           <Header />
-          <main className="w-screen min-h-svh">
+          <motion.main
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, delay: 0.3 }}
+            className="w-screen min-h-svh"
+          >
             {children}
-          </main>
+          </motion.main>
           <Footer />
         </ControlBarProvider>
       </body>
