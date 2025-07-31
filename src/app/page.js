@@ -47,7 +47,7 @@ export default function Home() {
         // was open → now closing → remove hash
           history.replaceState(null, "", window.location.pathname + window.location.search);
         } else {
-    // was closed → now opening → add hash
+          // was closed → now opening → add hash
           history.replaceState(null, "", "#kort");
         }
         return !prev;
@@ -73,13 +73,13 @@ export default function Home() {
       </section>
 
       {/* Map */}
-      <div
+      <section
         className={`fixed inset-0 flex items-center w-full h-dvh transition-transform duration-500 ease-in-out ${
           showMap ? "translate-y-0" : "translate-y-full"
         }`}
       >
         {isPortrait ? <MapSmall projects={projects} /> : <MapLarge projects={projects} />}
-      </div>
+      </section>
     </motion.div>
   );
 }
