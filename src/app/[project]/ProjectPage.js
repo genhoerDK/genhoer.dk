@@ -9,7 +9,7 @@ import ProjectJoin from "@/components/ProjectJoin";
 import ProjectCredits from "@/components/ProjectCredits";
 
 export default function ProjectPage({ project }) {
-  const { title, slug, coverImage, startDate, endDate, location, partners, description, pageMedia } = project;
+  const { title, slug, coverImage, startDate, endDate, location, area, partners, description, pageMedia } = project;
   const [showCredits, setShowCredits] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const { setButtons } = useFooter();
@@ -48,7 +48,7 @@ export default function ProjectPage({ project }) {
 
   const pageInfoRows = [
     { label: 'Udstilling', info: formatDates(startDate, endDate) },
-    { label: 'Lokalitet', info: location },
+    { label: 'Lokalitet', info: location + ', ' + area },
     { label: 'Partnere', info: formatPartners(partners) },
   ];
 
@@ -102,7 +102,7 @@ export default function ProjectPage({ project }) {
       )}
 
       {/* Project credits */}
-      {project.credits?.length > 0 && (
+      {project.credits && (
         <ProjectCredits slug={slug} show={showCredits} />
       )}
     </motion.article>

@@ -10,7 +10,7 @@ export default function ProjectCredits({ slug, show }) {
   const { credits } = project;
 
   return (
-    <div className={`fixed inset-0 w-full h-screen bg-zinc-200 text-zinc-900 transition-transform duration-500 ease-in-out ${show ? "translate-y-0" : "translate-y-full"}`}>
+    <section className={`fixed inset-0 w-full h-screen bg-zinc-200 text-zinc-900 transition-transform duration-500 ease-in-out ${show ? "translate-y-0" : "translate-y-full"}`}>
       
       {/* Scrollable wrapper */}
       <div className="h-full overflow-y-auto">
@@ -36,6 +36,6 @@ export default function ProjectCredits({ slug, show }) {
 
         </div>
       </div>
-    </div>
+    </section>
   );
 }

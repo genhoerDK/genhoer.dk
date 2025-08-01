@@ -60,8 +60,8 @@ export default function Home() {
       {/* Projects grid section */}
       <section>
         <ul className="lg:grid grid-cols-3 gap-x-4 px-2 md:px-4 pt-28">
-          {projects.map((project) => (
-            <ProjectCard key={`${project.slug}-project-card`} project={project} />
+          {projects.map((project, i) => (
+            <ProjectCard key={`${project.slug}-project-card`} project={project} index={i} />
           ))}
         </ul>
       </section>

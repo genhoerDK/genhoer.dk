@@ -2,14 +2,15 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
+import { motion } from "framer-motion";
 import { formatDates, formatPartners } from '@/utilities/formatters';
 
-export default function ProjectCard({ project }) {
-  const { title, slug, coverImage, coverVideo, startDate, endDate, location, partners } = project;
+export default function ProjectCard({ project, index }) {
+  const { title, slug, coverImage, coverVideo, startDate, endDate, location, area, partners } = project;
 
   const cardInfoRows = [
     { label: 'Udstilling', info: formatDates(startDate, endDate) },
-    { label: 'Lokalitet', info: location },
+    { label: 'Lokalitet', info: location + ', ' + area },
     { label: 'Partnere', info: formatPartners(partners) },
   ];
 
@@ -32,7 +33,15 @@ export default function ProjectCard({ project }) {
   };
 
   return (
-    <li className="pb-24">
+    <motion.li
+      className="pb-24"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{
+        duration: 0.5,
+        ease: "easeOut",
+        delay: 0.1 + index * 0.1,
+      }}>
       <h2 className="font-light uppercase text-md leading-none">{title}</h2>
 
       <Link href={`/${slug}`} className="relative block aspect-video overflow-hidden my-2 group" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
@@ -53,6 +62,6 @@ export default function ProjectCard({ project }) {
           <p className="col-start-2 col-span-full font-light text-xs truncate">{info}</p>
         </div>
       ))}
-    </li>
+    </motion.li>
   );
 }
