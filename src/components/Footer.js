@@ -27,7 +27,7 @@ export default function Footer() {
                     <motion.button
                         key={`page-button-${btn.label}`}
                         onClick={btn.onClick}
-                        className="flex justify-center items-center h-10 px-3 border border-zinc-900 bg-white md:hover:bg-zinc-900 md:hover:text-white cursor-pointer"
+                        className="flex justify-center items-center h-10 px-3 border border-zinc-900 bg-zinc-50 md:hover:bg-zinc-900 md:hover:text-zinc-50 cursor-pointer"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{
