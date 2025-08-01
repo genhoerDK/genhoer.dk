@@ -85,7 +85,7 @@ export const projects = [
     partners: ["Slagteribygningen", "Faaborg-Midtfyn Ungdomsskole"],
     workshop: [
       "Er du mellem 12-24 år, bor du i Faaborg-Midtfyn Kommune og interesserer du dig for lyd, musik, kunst eller historie? Så kom og vær med til at transformere lydinstallationen 'Vi Vokser Og Flytter Os' ved Slagteribygningen.",
-      "Genhør afholder i slutningen af august en kreativ workshop, hvor vi sammen med deltagerne tilføjer et afsnit til det eksisterende værk. Til workshoppen eksperimenterer vi med lydoptagelser i bygningen, bygger et digitalt instrument og komponere et lydligt forløb som kan sættes i forlængelse af den eksisterende lydinstallation.",
+      "Genhør afholder i slutningen af august en kreativ workshop, hvor vi sammen med deltagerne tilføjer et afsnit til det eksisterende værk. Til workshoppen eksperimenterer vi med lydoptagelser i bygningen, bygger et digitalt instrument og komponere et lydligt forløb som kan sættes i forlængelse af det eksisterende lydværk.",
       "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
     ],
     credits: [
