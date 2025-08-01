@@ -1,6 +1,6 @@
 import { REM } from "next/font/google";
 import "./globals.css";
-import { ControlBarProvider } from "@/context/ControlBarContext";
+import { FooterProvider } from "@/context/FooterContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -19,13 +19,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body className={`${rem.className} antialiased bg-zinc-50`}>
-        <ControlBarProvider>
+        <FooterProvider>
           <Header />
           <main className="w-screen min-h-svh">
             {children}
           </main>
           <Footer />
-        </ControlBarProvider>
+        </FooterProvider>
       </body>
     </html>
   );

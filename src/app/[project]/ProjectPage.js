@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useControlBar } from "@/context/ControlBarContext";
+import { useFooter } from "@/context/FooterContext";
 import { formatDates, formatPartners } from "@/utilities/formatters";
 import { UserGroupIcon, StarIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import ProjectJoin from "@/components/ProjectJoin";
@@ -12,9 +12,9 @@ export default function ProjectPage({ project }) {
   const { title, slug, coverImage, startDate, endDate, location, partners, description, pageMedia } = project;
   const [showCredits, setShowCredits] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
-  const { setButtons } = useControlBar();
+  const { setButtons } = useFooter();
 
-  // ControlBar button
+  // Footer button
   useEffect(() => {
     const buttons = [];
 
@@ -53,7 +53,7 @@ export default function ProjectPage({ project }) {
   ];
 
   return (
-    <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: .3 }}>
+    <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <section className='relative w-full h-svh overflow-hidden'>
 
         {/* Background image */}

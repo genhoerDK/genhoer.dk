@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useControlBar } from "@/context/ControlBarContext";
+import { motion } from "framer-motion";
+import { useFooter } from "@/context/FooterContext";
 import { EnvelopeIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 
 export default function Info() {
   const [showContactInfo, setShowContactInfo] = useState(false);
-  const { setButtons } = useControlBar();
+  const { setButtons } = useFooter();
 
   // ControlBar button
   useEffect(() => {
@@ -15,7 +16,7 @@ export default function Info() {
   }, [showContactInfo]);
 
   return (
-    <article>
+    <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
 
       <section className="flex flex-col justify-center px-2 md:px-4 py-14 md:min-h-screen">
         <div className="grid grid-cols-12 md:grid-cols-24 gap-4 py-8">
@@ -41,6 +42,6 @@ export default function Info() {
           {/* contact */}
         </div>
       </section>
-    </article>
+    </motion.article>
   );
 }

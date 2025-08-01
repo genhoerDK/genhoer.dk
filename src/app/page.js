@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useControlBar } from "@/context/ControlBarContext";
+import { useFooter } from "@/context/FooterContext";
 import { MapIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import ProjectCard from "@/components/ProjectCard";
 import MapSmall from "@/components/MapSmall";
@@ -11,17 +10,14 @@ import MapLarge from "@/components/MapLarge";
 import { projects } from "@/data/projects";
 
 export default function Home() {
-  const router = useRouter();
   const [showMap, setShowMap] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
-  const { setButtons } = useControlBar();
+  const { setButtons } = useFooter();
 
-  // Check hash on load and on hash change
+  // Check for '#kort' on load and on hash change
+  // To-do: Hide map on removal of hash (clicking logo in header)
   useEffect(() => {
-    const updateFromHash = () => {
-      setShowMap(window.location.hash === "#kort");
-    };
-
+    const updateFromHash = () => { setShowMap(window.location.hash === "#kort"); };
     updateFromHash();
     window.addEventListener("hashchange", updateFromHash);
     return () => window.removeEventListener("hashchange", updateFromHash);
@@ -35,35 +31,33 @@ export default function Home() {
     return () => window.removeEventListener("resize", checkViewport);
   }, []);
 
-  // Map button in footer component
+  // Setup map button in footer component
   useEffect(() => {
-  setButtons([
-    {
-      label: "Kort",
-      icon: !showMap ? <MapIcon /> : <ChevronDownIcon />,
-      onClick: () => {
-        setShowMap((prev) => {
-        if (prev) {
-        // was open → now closing → remove hash
-          history.replaceState(null, "", window.location.pathname + window.location.search);
-        } else {
-          // was closed → now opening → add hash
-          history.replaceState(null, "", "#kort");
-        }
-        return !prev;
-        });
+    setButtons([
+      {
+        label: "Kort",
+        icon: !showMap ? <MapIcon /> : <ChevronDownIcon />,
+        onClick: () => {
+          setShowMap((prev) => {
+            if (prev) {
+              // was open → now closing → remove hash
+              history.replaceState(null, "", window.location.pathname + window.location.search);
+            } else {
+              // was closed → now opening → add hash
+              history.replaceState(null, "", "#kort");
+            }
+            return !prev;
+          });
+        },
       },
-    },
-  ]);
-  return () => setButtons([]);
-}, [showMap]);
+    ]);
+    return () => setButtons([]);
+  }, [showMap]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, delay: 0.3 }}
-    >
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.5 }}>
+
+      {/* Projects grid section */}
       <section>
         <ul className="lg:grid grid-cols-3 gap-x-4 px-2 md:px-4 pt-28">
           {projects.map((project) => (
@@ -71,15 +65,12 @@ export default function Home() {
           ))}
         </ul>
       </section>
-
-      {/* Map */}
-      <section
-        className={`fixed inset-0 flex items-center w-full h-dvh transition-transform duration-500 ease-in-out ${
-          showMap ? "translate-y-0" : "translate-y-full"
-        }`}
-      >
+      
+      {/* Projects map section */}
+      <section className={`fixed inset-0 flex items-center w-full h-dvh transition-transform duration-500 ${showMap ? "translate-y-0" : "translate-y-full"}`}>
         {isPortrait ? <MapSmall projects={projects} /> : <MapLarge projects={projects} />}
       </section>
+
     </motion.div>
   );
 }
