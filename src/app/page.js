@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { useFooter } from "@/context/FooterContext";
 import { MapIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import ProjectCard from "@/components/ProjectCard";
@@ -55,7 +54,7 @@ export default function Home() {
   }, [showMap]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.5 }}>
+    <div>
 
       {/* Projects grid section */}
       <section>
@@ -71,6 +70,6 @@ export default function Home() {
         {isPortrait ? <MapSmall projects={projects} /> : <MapLarge projects={projects} />}
       </section>
 
-    </motion.div>
+    </div>
   );
 }
