@@ -145,26 +145,11 @@ export const projects = [
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Vordingborg Kommune'] },
     ],
-    pageMedia: [
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-04.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-05.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/text-tile-dark-01.svg' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-towers-01.webp' },
-      { type: 'vid', src: 'https://cdn.genhoer.dk/media/vordingborg-station/video-01.mp4' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-towers-02.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-09.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/text-tile-light-01.svg' },
-      { type: 'vid', src: 'https://cdn.genhoer.dk/media/vordingborg-station/video-02.mp4' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-10.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-08.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-01.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-02.webp' },
-      { type: 'vid', src: 'https://cdn.genhoer.dk/media/vordingborg-station/video-towers-01.mp4' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-06.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-07.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-11.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/vordingborg-station/image-03.webp' },
-    ]
+    mediaCount: {
+      img: 13,
+      vid: 3,
+      txt: 2
+    }
   },
   {
     slug: "grindsted-station",
@@ -190,19 +175,10 @@ export const projects = [
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
     ],
-    pageMedia: [
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-06.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-01.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-04.webp' },
-      { type: 'vid', src: 'https://cdn.genhoer.dk/media/grindsted-station/video-towers-01.mp4' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/text-tile-light-01.svg' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-03.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-squares-01.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-02.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-towers-01.webp' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/text-tile-dark-01.svg' },
-      { type: 'vid', src: 'https://cdn.genhoer.dk/media/grindsted-station/video-01.mp4' },
-      { type: 'img', src: 'https://cdn.genhoer.dk/media/grindsted-station/image-05.webp' },
-    ]
+    mediaCount: {
+      img: 8,
+      vid: 2,
+      txt: 2
+    }
   },
 ];
