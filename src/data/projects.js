@@ -145,11 +145,7 @@ export const projects = [
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Vordingborg Kommune'] },
     ],
-    mediaCount: {
-      img: 13,
-      vid: 3,
-      txt: 2
-    }
+    mediaCount: { img: 13, vid: 3, txt: 2 }
   },
   {
     slug: "grindsted-station",
@@ -175,10 +171,6 @@ export const projects = [
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
     ],
-    mediaCount: {
-      img: 8,
-      vid: 2,
-      txt: 2
-    }
+    mediaCount: { img: 8, vid: 2, txt: 2 }
   },
 ];
