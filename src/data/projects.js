@@ -139,8 +139,9 @@ export const projects = [
     workshop: null,
     credits: [
       { label: 'Kunstnerisk samarbejdspartner', input: ['Poly- Udstillingsplatform'] },
-      { label: 'Kulturhistorisk sparringspartner', input: ['Vordingborg Lokalhistoriske Arkiv'] },
+      { label: 'Kulturhistorisk sparringspartner', input: ['Berit Christensen, Vordingborg Lokalhistoriske Arkiv'] },
       { label: 'Workshop-deltagere', input: ['Mikkel og Nikolas'] },
+      { label: 'Tidligere ansat på Vordingborg Station', input: ['Dan Devantier'] },
       { label: 'Billedkunstner', input: ['Dina Lundvall Nielsen'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Vordingborg Kommune'] },
