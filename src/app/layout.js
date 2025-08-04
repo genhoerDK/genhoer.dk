@@ -1,5 +1,6 @@
 import { REM } from "next/font/google";
 import "./globals.css";
+import { AudioProvider } from '@/context/AudioContext'
 import { FooterProvider } from "@/context/FooterContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -19,13 +20,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body className={`${rem.className} antialiased bg-zinc-50`}>
-        <FooterProvider>
-          <Header />
-          <main className="w-screen min-h-svh">
-            {children}
-          </main>
-          <Footer />
-        </FooterProvider>
+        <AudioProvider>
+          <FooterProvider>
+            <Header />
+            <main className="w-screen min-h-svh">
+              {children}
+            </main>
+            <Footer />
+          </FooterProvider>
+        </AudioProvider>
       </body>
     </html>
   );

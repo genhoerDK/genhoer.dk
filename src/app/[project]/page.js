@@ -6,7 +6,7 @@ export async function generateStaticParams() {
   return projects.map((project) => ({ project: project.slug }));
 }
 
-export default function ServerSideProjectPage({ params }) {
+export default async function ServerSideProjectPage({ params }) {
   const project = projects.find((p) => p.slug === params.project);
   return <ProjectPage project={project} />;
 }

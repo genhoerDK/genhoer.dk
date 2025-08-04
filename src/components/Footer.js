@@ -1,23 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from "framer-motion";
+import { useAudio } from '@/context/AudioContext'
 import { useFooter } from "@/context/FooterContext";
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
 
 export default function Footer() {
     const { buttons } = useFooter();
-    const [isPlaying, setIsPlaying] = useState(false);
-
-    const togglePlay = () => {
-        setIsPlaying((prev) => !prev);
-    };
+    const { isPlaying, togglePlay } = useAudio()
 
     return (
         <footer className="fixed bottom-0 flex flex-row-reverse items-center justify-between w-full p-2 md:px-4 bg-zinc-50 text-zinc-900">
 
-            {/* Audio buttons (hidden) */}
-            <button onClick={togglePlay} className="flex justify-center items-center size-10 border border-zinc-900 cursor-pointer opacity-0" aria-label={isPlaying ? 'Pause' : 'Afspil'}>
+            {/* Audio buttons */}
+            <button onClick={togglePlay} className="flex justify-center items-center size-10 border border-zinc-900 cursor-pointer" aria-label={isPlaying ? 'Pause' : 'Afspil'}>
                 {isPlaying ? (<PauseIcon className="size-5" />) : (<PlayIcon className="size-5" />)}
             </button>
 
