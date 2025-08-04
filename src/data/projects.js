@@ -34,6 +34,7 @@ export const projects = [
     komkode: "0259",
     coverImage: "https://cdn.genhoer.dk/media/images/kirkestraede-cover-image.webp",
     coverVideo: null,
+    mediaCount: null,
     startDate: "2025-10-11",
     endDate: "2025-11-22",
     partners: ["Køge Arkiverne", "Køge Ungdomsskole", "KøgeBibliotekerne"],
@@ -56,6 +57,7 @@ export const projects = [
     komkode: "0316",
     coverImage: "https://cdn.genhoer.dk/media/images/ekkoung-cover-image.webp",
     coverVideo: null,
+    mediaCount: null,
     startDate: "2025-10-04",
     endDate: "2025-11-28",
     partners: ["Holbæk Stadsarkiv", "UngHolbæk"],
@@ -80,6 +82,7 @@ export const projects = [
     komkode: "0430",
     coverImage: "https://cdn.genhoer.dk/media/images/vi-vokser-og-flytter-os-cover-image.webp",
     coverVideo: "https://cdn.genhoer.dk/media/videos/vi-vokser-og-flytter-os-cover-video.mp4",
+    mediaCount: null,
     startDate: "2025-06-20",
     endDate: "2025-09-27",
     partners: ["Slagteribygningen", "Faaborg-Midtfyn Ungdomsskole"],
@@ -109,6 +112,7 @@ export const projects = [
     komkode: "0510",
     coverImage: "https://cdn.genhoer.dk/media/images/slotsgade-20-cover-image.webp",
     coverVideo: "https://cdn.genhoer.dk/media/videos/slotsgade-20-cover-video.mp4",
+    mediaCount: { img: 9, vid: 4, txt: 5 },
     startDate: "2025-06-19",
     endDate: "2025-08-01",
     partners: ["Historie Haderslev"],
@@ -133,6 +137,7 @@ export const projects = [
     komkode: "0390",
     coverImage: "https://cdn.genhoer.dk/media/vordingborg-station/cover-image.webp",
     coverVideo: "https://cdn.genhoer.dk/media/vordingborg-station/cover-video.mp4",
+    mediaCount: { img: 13, vid: 3, txt: 2 },
     startDate: "2025-04-05",
     endDate: "2025-09-06",
     partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
@@ -145,8 +150,7 @@ export const projects = [
       { label: 'Billedkunstner', input: ['Dina Lundvall Nielsen'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Vordingborg Kommune'] },
-    ],
-    mediaCount: { img: 13, vid: 3, txt: 2 }
+    ]
   },
   {
     slug: "grindsted-station",
@@ -161,6 +165,7 @@ export const projects = [
     komkode: "0530",
     coverImage: "https://cdn.genhoer.dk/media/grindsted-station/cover-image.webp",
     coverVideo: "https://cdn.genhoer.dk/media/grindsted-station/cover-video.mp4",
+    mediaCount: { img: 8, vid: 2, txt: 2 },
     startDate: "2024-06-14",
     endDate: "2024-10-31",
     partners: ["UKH Grindsted", "Mark | Museet for en Ny Danmarkshistorie"],
@@ -171,7 +176,6 @@ export const projects = [
       { label: 'Workshop-deltagere', input: ['Kristian, Bastian, Tobias og Frederik'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Den Jyske Sparekasses Støttefond', 'Kulturvirket', 'Billund Kommune'] },
-    ],
-    mediaCount: { img: 8, vid: 2, txt: 2 }
+    ]
   },
 ];
