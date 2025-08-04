@@ -82,7 +82,7 @@ export const projects = [
     komkode: "0430",
     coverImage: "https://cdn.genhoer.dk/media/images/vi-vokser-og-flytter-os-cover-image.webp",
     coverVideo: "https://cdn.genhoer.dk/media/videos/vi-vokser-og-flytter-os-cover-video.mp4",
-    mediaCount: null,
+    mediaCount: { img: 13, vid: 3, txt: 2 },
     startDate: "2025-06-20",
     endDate: "2025-09-27",
     partners: ["Slagteribygningen", "Faaborg-Midtfyn Ungdomsskole"],
