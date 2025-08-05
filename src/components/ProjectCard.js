@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from "framer-motion";
 import { formatDates, formatPartners } from '@/utilities/formatters';
+import ProjectStatus from '@/components/ProjectStatus';
 
 export default function ProjectCard({ project, index }) {
   const { title, slug, coverImage, coverVideo, startDate, endDate, location, area, partners } = project;
@@ -54,6 +55,8 @@ export default function ProjectCard({ project, index }) {
             <video ref={videoRef} src={coverVideo} playsInline muted loop className="object-cover" />
           </figure>
         )}
+
+        <ProjectStatus startDate={startDate} endDate={endDate} />
       </Link>
 
       {cardInfoRows.map(({ label, info }) => (
