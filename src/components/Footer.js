@@ -22,14 +22,14 @@ export default function Footer() {
                     {isPlaying && (
                         <motion.div
                             className="flex flex-col justify-center ml-2 pointer-events-none"
-                            initial={{ x: 50, opacity: 0 }}
+                            initial={{ x: 200, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: 50, opacity: 0 }}
+                            exit={{ x: 200, opacity: 0 }}
                             transition={{ type: "spring", stiffness: 100, damping: 20 }}
                             layout
                         >
-                            <p className="text-[0.6rem] font-medium uppercase">Du lytter til værket</p>
-                            <p className="text-[0.6rem] uppercase">Genhør Grindsted Station</p>
+                            <p className="text-[0.6rem] font-medium uppercase">Du lytter til</p>
+                            <p className="text-[0.6rem] uppercase truncate">Genhør Grindsted Station</p>
                         </motion.div>
                     )}
                 </AnimatePresence>
