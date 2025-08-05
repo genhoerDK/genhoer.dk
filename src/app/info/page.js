@@ -39,7 +39,7 @@ export default function Info() {
 
       {/* Contact info */}
       <section>
-        <div className={`fixed bottom-14 left-0 w-full bg-zinc-200 transition-transform duration-500 ease-in-out ${showContactInfo ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className={`fixed bottom-14 left-0 w-full bg-zinc-200 transition-transform duration-300 ease-in-out ${showContactInfo ? 'translate-y-0' : 'translate-y-full'}`}>
           <div className="flex items-center justify-between md:justify-center gap-4 px-2 md:px-4">
             {/* Phone */}
             <a href="tel:+4591611093" className="flex items-center gap-2 p-4 md:hover:bg-zinc-800 md:hover:text-zinc-200">
