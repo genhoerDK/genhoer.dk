@@ -1,7 +1,6 @@
 import { format, isSameDay, isAfter, isBefore, parseISO, differenceInCalendarDays, differenceInCalendarMonths, isWithinInterval, startOfWeek, endOfWeek, addDays, getMonth, getYear } from 'date-fns';
 import { da } from 'date-fns/locale';
 
-
 ////////////////////////////////////////////
 //// Format dates to danish layout etc. ////
 ////////////////////////////////////////////
@@ -10,9 +9,11 @@ export const formatDates = (startStr, endStr) => {
   const start = parseISO(startStr);
   const end = parseISO(endStr);
   const sameYear = start.getFullYear() === end.getFullYear();
-  const formatOptions = 'd. MMMM'; // Danish style, e.g., "5. august"
+  const formatOptions = 'd. MMMM';
+
   const startText = format(start, formatOptions, { locale: da });
   const endText = format(end, formatOptions, { locale: da });
+
   return sameYear
     ? `${startText} - ${endText} ${end.getFullYear()}`
     : `${startText} ${start.getFullYear()} - ${endText} ${end.getFullYear()}`;
@@ -32,9 +33,9 @@ export const formatPartners = (partners = []) =>
     : '';
 
 
-////////////////////////////////////
-//// Format project time-status ////
-////////////////////////////////////
+///////////////////////////////
+//// Format project status ////
+///////////////////////////////
 
 export function formatStatus(startDate, endDate, today = new Date()) {
   const start = parseISO(startDate);

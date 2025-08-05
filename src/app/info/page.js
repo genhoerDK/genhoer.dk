@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useFooter } from "@/context/FooterContext";
-import { EnvelopeIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { PhoneIcon, EnvelopeIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 
 export default function Info() {
   const [showContactInfo, setShowContactInfo] = useState(false);
@@ -39,7 +40,42 @@ export default function Info() {
       {/* Contact info */}
       <section>
         <div className={`fixed bottom-0 left-0 w-full h-screen bg-zinc-200 transition-transform duration-500 ease-in-out ${showContactInfo ? 'translate-y-0' : 'translate-y-full'}`}>
-          {/* contact */}
+          {/* Scrollable wrapper */}
+          <div className="h-full overflow-y-auto">
+            {/* Flex container to vertically center if content is short */}
+            <div className="min-h-dvh flex flex-col justify-center pointer-events-none px-2 md:px-4">
+              <div className="grid grid-cols-12 xl:grid-cols-16 gap-x-4">
+                <div className="col-span-10 sm:col-span-8 sm:col-start-2 md:col-span-8 md:col-start-3 xl:col-span-6 xl:col-start-4">
+
+                  <div className="space-y-2 pointer-events-auto">
+                    <a href="tel:+4591611093" className="flex items-center gap-2 hover:underline">
+                      <PhoneIcon className="h-5 w-5" />
+                      <span>91 61 10 93</span>
+                    </a>
+
+                    <a href="mailto:hej@genhoer.dk" className="flex items-center gap-2 hover:underline">
+                      <EnvelopeIcon className="h-5 w-5" />
+                      <span>hej@genhoer.dk</span>
+                    </a>
+                  </div>
+
+                  {/* Sociale medier */}
+                  <div className="flex gap-4 mt-6 pointer-events-auto">
+                    <a href="https://www.facebook.com/people/Genh%C3%B8r/61559553821169/" target="_blank" rel="noopener noreferrer" className="text-zinc-700 hover:text-blue-600">
+                      <FaFacebookF size={24} />
+                    </a>
+                    <a href="https://www.instagram.com/genhoer_dk/" target="_blank" rel="noopener noreferrer" className="text-zinc-700 hover:text-pink-500">
+                      <FaInstagram size={24} />
+                    </a>
+                    <a href="https://linkedin.com/company/genhoer" target="_blank" rel="noopener noreferrer" className="text-zinc-700 hover:text-blue-700">
+                      <FaLinkedinIn size={24} />
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </motion.article>
