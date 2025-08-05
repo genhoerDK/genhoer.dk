@@ -9,6 +9,7 @@ export function AudioProvider({ children }) {
   const audioCtxRef = useRef(null);
   const sourceRef = useRef(null);
   const eqRef = useRef(null);
+  const wakeLockRef = useRef(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const audioUrl = 'https://cdn.genhoer.dk/media/grindsted-station/track.mp3';
@@ -36,11 +37,30 @@ export function AudioProvider({ children }) {
 
     // Cleanup
     return () => {
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
       audioCtx.close();
       audioRef.current.pause();
       audioRef.current = null;
     };
   }, []);
+
+  // Funktion til at anmode om wake lock
+  const requestWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLockRef.current = await navigator.wakeLock.request('screen');
+        wakeLockRef.current.addEventListener('release', () => {
+          console.log('Wake Lock blev frigivet');
+        });
+        console.log('Wake Lock aktiv');
+      }
+    } catch (err) {
+      console.error('Kunne ikke aktivere Wake Lock:', err);
+    }
+  };
 
   const togglePlay = async () => {
     if (!audioRef.current || !audioCtxRef.current) return;
@@ -52,9 +72,18 @@ export function AudioProvider({ children }) {
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
+
+      // Når lyd stoppes, kan vi frigive wake lock
+      if (wakeLockRef.current) {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
     } else {
       audioRef.current.play();
       setIsPlaying(true);
+
+      // Når lyd starter, anmod om wake lock
+      await requestWakeLock();
     }
   };
 
