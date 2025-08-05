@@ -6,7 +6,7 @@ export default function ProjectStatus({ startDate, endDate }) {
   if (!status) return null;
 
   return (
-    <div className="absolute right-0 p-1.5 bg-zinc-700 text-zinc-200">
+    <div className="absolute right-0 px-2 py-1.5 bg-zinc-700 text-zinc-200">
       <p className="text-[0.5rem] uppercase leading-none">{status}</p>
     </div>
   );
