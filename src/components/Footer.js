@@ -21,7 +21,7 @@ export default function Footer() {
                 <AnimatePresence mode="popLayout">
                     {isPlaying && (
                         <motion.div
-                            className="flex flex-col justify-center ml-2 pointer-events-none min-w-0 overflow-hidden"
+                            className="hidden md:flex flex-col justify-center ml-2 pointer-events-none min-w-0 overflow-hidden"
                             initial={{ x: 200, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             exit={{ x: 200, opacity: 0 }}
