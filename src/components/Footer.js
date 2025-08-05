@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAudio } from '@/context/AudioContext'
 import { useFooter } from "@/context/FooterContext";
 import { PlayIcon, PauseIcon } from '@heroicons/react/24/solid';
@@ -12,10 +12,28 @@ export default function Footer() {
     return (
         <footer className="fixed bottom-0 flex flex-row-reverse items-center justify-between w-full p-2 md:px-4 bg-zinc-50 text-zinc-900">
 
-            {/* Audio buttons */}
-            <button onClick={togglePlay} className="flex justify-center items-center size-10 border border-zinc-900 cursor-pointer" aria-label={isPlaying ? 'Pause' : 'Afspil'}>
-                {isPlaying ? (<PauseIcon className="size-5" />) : (<PlayIcon className="size-5" />)}
-            </button>
+            {/* Audio button and text */}
+            <motion.div className="flex items-center" layout>
+                <motion.button layout onClick={togglePlay} className="flex justify-center items-center size-10 border border-zinc-900 bg-zinc-50 md:hover:bg-zinc-900 md:hover:text-zinc-50 cursor-pointer" aria-label={isPlaying ? "Pause" : "Afspil"}>
+                    {isPlaying ? ( <PauseIcon className="size-5" /> ) : ( <PlayIcon className="size-5" /> )}
+                </motion.button>
+
+                <AnimatePresence mode="popLayout">
+                    {isPlaying && (
+                        <motion.div
+                            className="flex flex-col justify-center ml-2 pointer-events-none"
+                            initial={{ x: 50, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: 50, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                            layout
+                        >
+                            <p className="text-[0.6rem] font-medium uppercase">Du lytter til værket</p>
+                            <p className="text-[0.6rem] uppercase">Genhør Grindsted Station</p>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
 
             {/* Page buttons */}
             <div className="flex gap-2">
