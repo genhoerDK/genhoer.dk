@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useFooter } from "@/context/FooterContext";
 import { PhoneIcon, EnvelopeIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
-import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
+import { FiFacebook, FiInstagram, FiLinkedin } from 'react-icons/fi';
 
 export default function Info() {
   const [showContactInfo, setShowContactInfo] = useState(false);
@@ -55,17 +55,17 @@ export default function Info() {
 
             {/* Facebook */}
             <a href="https://www.facebook.com/people/Genh%C3%B8r/61559553821169/" target="_blank" rel="noopener noreferrer" className="p-4 text-sm md:hover:bg-zinc-800 md:hover:text-zinc-200">
-              <FaFacebookF className="h-6 w-6" />
+              <FiFacebook className="h-6 w-6" />
             </a>
 
             {/* Instagram */}
             <a href="https://www.instagram.com/genhoer_dk/" target="_blank" rel="noopener noreferrer" className="p-4 text-sm md:hover:bg-zinc-800 md:hover:text-zinc-200">
-              <FaInstagram className="h-6 w-6" />
+              <FiInstagram className="h-6 w-6" />
             </a>
 
             {/* LinkedIn */}
             <a href="https://linkedin.com/company/genhoer" target="_blank" rel="noopener noreferrer" className="p-4 text-sm md:hover:bg-zinc-800 md:hover:text-zinc-200">
-              <FaLinkedinIn className="h-6 w-6" />
+              <FiLinkedin className="h-6 w-6" />
             </a>
           </div>
         </div>
