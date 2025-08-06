@@ -25,7 +25,7 @@ export default function ProjectMedia({ project }) {
     }
 
     return (
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4 mb-12 md:mb-10">
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-4 p-2 md:p-4">
             {media.map(({ type, src }, i) => (
                 <figure key={`${slug}-media-${i}`} className="relative aspect-square overflow-hidden">
                     {type === 'vid' ? (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from 'next/link';
 import { motion } from "framer-motion";
 import { useFooter } from "@/context/FooterContext";
 import { formatDates, formatPartners } from "@/utilities/formatters";
@@ -8,6 +9,7 @@ import { UserGroupIcon, StarIcon, ChevronDownIcon } from "@heroicons/react/24/ou
 import ProjectMedia from "@/components/ProjectMedia";
 import ProjectJoin from "@/components/ProjectJoin";
 import ProjectCredits from "@/components/ProjectCredits";
+import ProjectNavigation from "@/components/ProjectNavigation";
 
 export default function ProjectPage({ project }) {
   const { title, slug, coverImage, startDate, endDate, location, area, partners, description } = project;
@@ -20,7 +22,7 @@ export default function ProjectPage({ project }) {
     const buttons = [];
 
     // Credits button
-    if (project.credits?.length) {
+    if (project.credits) {
       buttons.push({
         label: "Tak til",
         icon: !showCredits ? <StarIcon /> : <ChevronDownIcon />,
@@ -54,7 +56,7 @@ export default function ProjectPage({ project }) {
   ];
 
   return (
-    <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+    <motion.article className="pb-14" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <section className='relative w-full h-svh overflow-hidden'>
 
         {/* Background image */}
@@ -85,13 +87,16 @@ export default function ProjectPage({ project }) {
       </section>
 
       {/* Project media */}
-      {project.mediaCount && <ProjectMedia project={project} /> }
+      {project.mediaCount && <ProjectMedia project={project} />}
 
       {/* Project join */}
-      {project.workshop && <ProjectJoin slug={slug} show={showJoin} /> }
+      {project.workshop && <ProjectJoin slug={slug} show={showJoin} />}
 
       {/* Project credits */}
-      {project.credits && <ProjectCredits slug={slug} show={showCredits} /> }
+      {project.credits && <ProjectCredits slug={slug} show={showCredits} />}
+
+      {/* Project navigation */}
+      <ProjectNavigation currentProject={project} />
     </motion.article>
   );
 }

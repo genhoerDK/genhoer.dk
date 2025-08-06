@@ -5,6 +5,7 @@ export const projects = [
     description: [
       "Genhør indtager til november en opgang i Kulturkasernen i Fredericia. Udstillingen tager udgangspunkt i kasernens historie og indeholder musikalske indslag skabt med unge musikere fra Fredericia. Den lydlige oplevelse begynder i stueetagen hvorfra publikum bevæger sig op gennem opgangen og værket som sammensættes af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af kasernens fortid. Undervejs kan publikum standse ved lyttestationer, hvor de kan fordybe sig i beretninger og lydbilleder. Interaktive elementer udviklet under workshoppen for unge på Bülows Makerspace, inviterer publikum til at påvirke eller aktivere nye lag i lydbilledet. Oplevelsen kulminerer på det øverste repos, hvor en Kulturhonnør kan aktiveres – et kort lydindslag, der både kan høres i opgangen og Kulturkasernens gårdrum, som afslutter den lydlige rejse."
     ],
+    city: "Fredericia",
     area: "Fredericia Kommune",
     location: "Kulturkasernen",
     coordinates: [9.7482, 55.5657],
@@ -28,6 +29,7 @@ export const projects = [
       "På Kirkestræde-dagen opsættes et udendørs og rumligt lydværk der skal præsentere fortidens lydmiljø på stedet. Publikum inviteres på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv vil igen udspille sig, og klinge mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækker lydinstallationen et område på cirka 50 meter, hvilket nogenlunde svarer til området fra Kirkestræde 6 til 16.", 
       "Efter Kirkestræde-dagen flyttes værket indendørs i et udstillingslokale på Kirkestræde en periode så flere borgere og besøgende kan opleve det."
     ],
+    city: "Køge",
     area: "Køge Kommune",
     location: "Kirkestræde",
     coordinates: [12.1821, 55.4561],
@@ -51,6 +53,7 @@ export const projects = [
     description: [
       "Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under de kreative workshops for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."
     ],
+    city: "Holbæk",
     area: "Holbæk Kommune",
     location: "Gangtunnelen",
     coordinates: [11.7167, 55.7167],
@@ -76,6 +79,7 @@ export const projects = [
       "Værket fortolker lokalhistorisk materiale, borgeres beretninger og er desuden inspireret af bogen “Magtspillet i Provinsbyen” skrevet af Flemming Seiersen og Karsten Lindhardt. Produktionen tager afsæt i lydoptagelser foretaget i og omkring det tidligere slagteri.", 
       "I dag er Slagteribygningen igen under transformation. De tomme industrilokaler omdannes til et fremtidigt kulturelt samlingssted."
     ],
+    city: "Faaborg",
     area: "Faaborg-Midtfyn Kommune",
     location: "Slagteribygningen",
     coordinates: [10.2394, 55.0958],
@@ -106,6 +110,7 @@ export const projects = [
       "I Baghuset ved Ehlers Samlingen kan du i disse dage opleve lydlandskabet omkring Slotsgade gennem 500 år. Genhør Slotsgade 20 åbner et lydligt vindue til den stedbundne kulturhistorie der knytter sig til bygningen. Gennem fem historiske nedslag undersøger lydværket den historiske udvikling huset har været vidne til.", 
       "Fra skiferdækkeren Philip af Neuss og hertug Hans den Ældres slot Hansborg, over krigsødelæggelser, herberg og hestevognskørsel, til arbejderfamilier i tætpakkede lejligheder. Værket væver stemmer, reallyde og musik sammen i et 12 minutter og 30 sekunder langt forløb."
     ],
+    city: "Haderslev",
     area: "Haderslev Kommune",
     location: "Ehlers Samlingen",
     coordinates: [9.4891, 55.2493],
@@ -131,6 +136,7 @@ export const projects = [
       "Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.", 
       "Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny."
     ],
+    city: "Vordingborg",
     area: "Vordingborg Kommune",
     location: "Vordingborg Station",
     coordinates: [11.9167, 55.0167],
@@ -159,6 +165,7 @@ export const projects = [
       "Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", 
       "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for omkring 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv."
     ],
+    city: "Grindsted",
     area: "Billund Kommune",
     location: "Grindsted Station",
     coordinates: [8.9222, 55.7579],
