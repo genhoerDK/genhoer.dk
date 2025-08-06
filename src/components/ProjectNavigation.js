@@ -19,7 +19,7 @@ export default function ProjectNavigation({ currentProject }) {
                 <p className="text-[0.5rem] md:text-[0.6rem] font-light uppercase text-end">Næste projekt</p>
                 <p className="uppercase font-extralight md:text-xl leading-none whitespace-nowrap">{nextProject.title}</p>
               </div>
-              <figure className="w-32 md:w-64 aspect-video">
+              <figure className="w-32 md:w-64 lg:w-80 aspect-video">
                 <img src={nextProject.coverImage} loading="lazy" className="object-cover size-full" />
               </figure>
             </Link>
@@ -29,7 +29,7 @@ export default function ProjectNavigation({ currentProject }) {
         {previousProject && (
           <div className="">
             <Link href={`/${previousProject.slug}`} className="flex items-center gap-2 md:gap-4 w-fit md:p-4 md:hover:bg-zinc-800 md:hover:text-zinc-50">
-              <figure className="w-32 md:w-64 aspect-video">
+              <figure className="w-32 md:w-64 lg:w-80 aspect-video">
                 <img src={previousProject.coverImage} loading="lazy" className="object-cover size-full" />
               </figure>
               <div className="md:p-2">
