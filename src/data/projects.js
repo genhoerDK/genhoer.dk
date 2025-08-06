@@ -13,7 +13,7 @@ export const projects = [
     coverImage: "https://cdn.genhoer.dk/media/images/bulows-kaserne-cover-image.webp",
     coverVideo: null,
     startDate: "2025-11-07",
-    endDate: "2025-12-15",
+    endDate: "2025-12-19",
     partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace", "Den Kreative Skole"],
     workshop: [
       "Er du mellem 12-24 år, bor du i Fredericia Kommune og interesserer du dig for lyd, musik, kunst, historie eller interaktive teknologier? Så kom og vær med til at skabe den interaktive lydinstallation 'Genhør Bülows Kaserne'!",
