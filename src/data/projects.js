@@ -90,11 +90,7 @@ export const projects = [
     startDate: "2025-06-20",
     endDate: "2025-09-27",
     partners: ["Slagteribygningen", "Faaborg-Midtfyn Ungdomsskole"],
-    workshop: [
-      "Er du mellem 12-24 år, bor du i Faaborg-Midtfyn Kommune og interesserer du dig for lyd, musik, kunst eller historie? Så kom og vær med til at transformere lydinstallationen 'Vi Vokser Og Flytter Os' ved Slagteribygningen.",
-      "Genhør afholder i slutningen af august en kreativ workshop, hvor vi sammen med deltagerne tilføjer et afsnit til det eksisterende værk. Til workshoppen eksperimenterer vi med lydoptagelser i bygningen, bygger et digitalt instrument og komponere et lydligt forløb som kan sættes i forlængelse af det eksisterende lydværk.",
-      "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
-    ],
+    workshop: null,
     credits: [
       { label: 'Samarbejdspartner', input: ['Fonden Slagteribygningen'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Faaborg-Midtfyn Ungdomsskole'] },
@@ -107,7 +103,7 @@ export const projects = [
     slug: "slotsgade-20",
     title: "Slotsgade 20",
     description: [
-      "I Baghuset ved Ehlers Samlingen kan du i disse dage opleve lydlandskabet omkring Slotsgade gennem 500 år. Genhør Slotsgade 20 åbner et lydligt vindue til den stedbundne kulturhistorie der knytter sig til bygningen. Gennem fem historiske nedslag undersøger lydværket den historiske udvikling huset har været vidne til.", 
+      "Værket åbner et lydligt vindue til den stedbundne kulturhistorie der knytter sig til Slotsgade 20. Gennem fem historiske nedslag undersøger lydværket den historiske udvikling huset har været vidne til.", 
       "Fra skiferdækkeren Philip af Neuss og hertug Hans den Ældres slot Hansborg, over krigsødelæggelser, herberg og hestevognskørsel, til arbejderfamilier i tætpakkede lejligheder. Værket væver stemmer, reallyde og musik sammen i et 12 minutter og 30 sekunder langt forløb."
     ],
     city: "Haderslev",
