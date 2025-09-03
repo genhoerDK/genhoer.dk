@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from 'next/link';
 import { motion } from "framer-motion";
 import { useFooter } from "@/context/FooterContext";
 import { formatDates, formatPartners } from "@/utilities/formatters";

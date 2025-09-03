@@ -20,6 +20,7 @@ export const projects = [
       "Til efteråret afholder Genhør i samarbejde med Den Kreative Skole og Bülows Makerspace en række kreative workshops, hvor vi lydligt udforsker den stedbundne kulturhistorie på Bülows Kaserne og eksperimenterer med at gøre lyden interaktiv lyd til udstillingen.",
       "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
     ],
+    audio: null,
     credits: null
   },
   {
@@ -45,6 +46,7 @@ export const projects = [
       "Til efteråret afholder Genhør i samarbejde med Køge Ungdomsskole en række kreative workshops, hvor vi udforsker det historiske lydmiljø på Kirkestræde og eksperimenterer med at skabe et levende historisk lydmiljø der kan opsættes på Kirkestræde.",
       "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
     ],
+    audio: null,
     credits: null
   },
   {
@@ -69,6 +71,7 @@ export const projects = [
       "Genhør afholder et kreativt workshopforløb i samarbejde med UngHolbæk, hvor vi lydligt udforsker Holbæks historie set fra ungdommens perspektiv gennem skiftende tider. Forløbet starter med et intromøde torsdag d. 21. august kl. 15.30 - 17.00 og efterfølges af en workshop torsdag d. 11. september kl. 14.30 - 17.00 og torsdag d. 18. september kl. 14.30 - 17.00.",
       "Ta' fat i Mathis Jacobsen fra UngHolbæk eller send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
     ],
+    audio: null,
     credits: null
   },
   {
@@ -91,6 +94,7 @@ export const projects = [
     endDate: "2025-09-27",
     partners: ["Slagteribygningen", "Faaborg-Midtfyn Ungdomsskole"],
     workshop: null,
+    audio: null,
     credits: [
       { label: 'Samarbejdspartner', input: ['Fonden Slagteribygningen'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Faaborg-Midtfyn Ungdomsskole'] },
@@ -118,6 +122,7 @@ export const projects = [
     endDate: "2025-08-01",
     partners: ["Historie Haderslev"],
     workshop: null,
+    audio: null,
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Historie Haderslev'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
@@ -144,6 +149,7 @@ export const projects = [
     endDate: "2025-09-06",
     partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
     workshop: null,
+    audio: 'https://cdn.genhoer.dk/media/vordingborg-station/test.mp3',
     credits: [
       { label: 'Kunstnerisk samarbejdspartner', input: ['Poly- Udstillingsplatform'] },
       { label: 'Kulturhistorisk sparringspartner', input: ['Berit Christensen, Vordingborg Lokalhistoriske Arkiv'] },
@@ -173,6 +179,7 @@ export const projects = [
     endDate: "2024-10-31",
     partners: ["UKH Grindsted", "Mark | Museet for en Ny Danmarkshistorie"],
     workshop: null,
+    audio: 'https://cdn.genhoer.dk/media/grindsted-station/track.mp3',
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Unge- og kulturhuset (UKH) Grindsted'] },

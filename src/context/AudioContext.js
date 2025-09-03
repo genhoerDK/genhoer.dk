@@ -1,6 +1,8 @@
 'use client';
 
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { projects } from '@/data/projects';
 
 const AudioCtx = createContext();
 
@@ -8,34 +10,22 @@ export function AudioProvider({ children }) {
   const audioRef = useRef(null);
   const audioCtxRef = useRef(null);
   const sourceRef = useRef(null);
-  const eqRef = useRef(null);
   const wakeLockRef = useRef(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioUrl = 'https://cdn.genhoer.dk/media/grindsted-station/track.mp3';
+  const [title, setTitle] = useState("");
 
+  // Initialize Audio element and AudioContext once
   useEffect(() => {
-    audioRef.current = new Audio(audioUrl);
-    audioRef.current.crossOrigin = "anonymous"; // important for CORS when using Web Audio API
+    audioRef.current = new Audio();
+    audioRef.current.crossOrigin = "anonymous";
 
     const audioCtx = new AudioContext();
     audioCtxRef.current = audioCtx;
 
-    const source = audioCtx.createMediaElementSource(audioRef.current);
-    sourceRef.current = source;
+    sourceRef.current = audioCtx.createMediaElementSource(audioRef.current);
+    sourceRef.current.connect(audioCtx.destination);
 
-    // Create EQ node example
-    const eq = audioCtx.createBiquadFilter();
-    eq.type = 'lowshelf';
-    eq.frequency.value = 1000;
-    eq.gain.value = 0;
-    eqRef.current = eq;
-
-    // Connect chain: source -> eq -> destination
-    source.connect(eq);
-    eq.connect(audioCtx.destination);
-
-    // Cleanup
     return () => {
       if (wakeLockRef.current) {
         wakeLockRef.current.release();
@@ -47,21 +37,50 @@ export function AudioProvider({ children }) {
     };
   }, []);
 
-  // Funktion til at anmode om wake lock
+  // Get current slug from URL
+  const pathname = usePathname();
+  const slug = pathname?.split('/').filter(Boolean).pop();
+
+  // Update audio and title when slug changes
+  // Update audio and title when slug changes
+useEffect(() => {
+  if (!audioRef.current) return;
+
+  if (!slug) {
+    // Homepage: do NOT change current playback
+    return;
+  }
+
+  // Try to find project by slug
+  const project = projects.find(p => p.slug === slug);
+
+  if (project && project.audio) {
+    // Only change audio if there is a valid audio URL
+    audioRef.current.src = project.audio;
+    setTitle(project.title);
+    if (isPlaying) {
+      audioRef.current.play();
+    }
+  }
+  // Else: project is null or audio is null → do nothing, continue current playback
+}, [slug, isPlaying]);
+
+  // Request wake lock
   const requestWakeLock = async () => {
     try {
       if ('wakeLock' in navigator) {
         wakeLockRef.current = await navigator.wakeLock.request('screen');
         wakeLockRef.current.addEventListener('release', () => {
-          console.log('Wake Lock blev frigivet');
+          console.log('Wake Lock released');
         });
-        console.log('Wake Lock aktiv');
+        console.log('Wake Lock active');
       }
     } catch (err) {
-      console.error('Kunne ikke aktivere Wake Lock:', err);
+      console.error('Could not request Wake Lock:', err);
     }
   };
 
+  // Play/pause toggle
   const togglePlay = async () => {
     if (!audioRef.current || !audioCtxRef.current) return;
 
@@ -73,7 +92,6 @@ export function AudioProvider({ children }) {
       audioRef.current.pause();
       setIsPlaying(false);
 
-      // Når lyd stoppes, kan vi frigive wake lock
       if (wakeLockRef.current) {
         await wakeLockRef.current.release();
         wakeLockRef.current = null;
@@ -82,13 +100,12 @@ export function AudioProvider({ children }) {
       audioRef.current.play();
       setIsPlaying(true);
 
-      // Når lyd starter, anmod om wake lock
       await requestWakeLock();
     }
   };
 
   return (
-    <AudioCtx.Provider value={{ isPlaying, togglePlay }}>
+    <AudioCtx.Provider value={{ isPlaying, togglePlay, title }}>
       {children}
     </AudioCtx.Provider>
   );
