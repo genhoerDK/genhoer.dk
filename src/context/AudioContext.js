@@ -23,14 +23,7 @@ export function AudioProvider({ children }) {
   }, [slug, setTrack]);
 
   // Handle wake lock whenever playback changes
-  useEffect(() => {
-    if (!isSupported) return;
-    if (isPlaying) {
-      request();
-    } else {
-      release();
-    }
-  }, [isPlaying, isSupported, request, release]);
+  useEffect(() => { isSupported && (isPlaying ? request() : release()); }, [isPlaying, isSupported, request, release]);
 
   const value = useMemo(() => ({
     isPlaying,
