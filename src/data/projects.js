@@ -122,7 +122,7 @@ export const projects = [
     endDate: "2025-08-01",
     partners: ["Historie Haderslev"],
     workshop: null,
-    audio: null,
+    audio: 'https://cdn.genhoer.dk/media/slotsgade-20/track.mp3',
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Historie Haderslev'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
@@ -149,7 +149,7 @@ export const projects = [
     endDate: "2025-09-06",
     partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
     workshop: null,
-    audio: 'https://cdn.genhoer.dk/media/vordingborg-station/test.mp3',
+    audio: null,
     credits: [
       { label: 'Kunstnerisk samarbejdspartner', input: ['Poly- Udstillingsplatform'] },
       { label: 'Kulturhistorisk sparringspartner', input: ['Berit Christensen, Vordingborg Lokalhistoriske Arkiv'] },
