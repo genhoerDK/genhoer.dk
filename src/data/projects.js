@@ -149,7 +149,7 @@ export const projects = [
     endDate: "2025-09-06",
     partners: ["Poly- Udstillingsplatform", "Vordingborg Lokalhistoriske Arkiv"],
     workshop: null,
-    audio: null,
+    audio: 'https://cdn.genhoer.dk/media/vordingborg-station/track.mp3',
     credits: [
       { label: 'Kunstnerisk samarbejdspartner', input: ['Poly- Udstillingsplatform'] },
       { label: 'Kulturhistorisk sparringspartner', input: ['Berit Christensen, Vordingborg Lokalhistoriske Arkiv'] },
