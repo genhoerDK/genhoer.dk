@@ -53,7 +53,7 @@ export const projects = [
     slug: "ekkoung",
     title: "Ekkoung",
     description: [
-      "Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under de kreative workshops for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."
+      "Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under en kreativ workshop for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."
     ],
     city: "Holbæk",
     area: "Holbæk Kommune",
@@ -65,11 +65,11 @@ export const projects = [
     mediaCount: null,
     startDate: "2025-10-04",
     endDate: "2025-11-28",
-    partners: ["Holbæk Stadsarkiv", "UngHolbæk"],
+    partners: ["Holbæk Stadsarkiv", "UngHolbæk", "Holbæk Bibliotekerne"],
     workshop: [
       "Er du mellem 12-24 år, bor du i Holbæk Kommune og interesserer du dig for lyd, musik, kunst eller historie? Så kom og vær med til at skabe en lydinstallation i gangtunnelen ved Holbæk Station!",
-      "Genhør afholder et kreativt workshopforløb i samarbejde med UngHolbæk, hvor vi lydligt udforsker Holbæks historie set fra ungdommens perspektiv gennem skiftende tider. Forløbet starter med et intromøde torsdag d. 21. august kl. 15.30 - 17.00 og efterfølges af en workshop torsdag d. 11. september kl. 14.30 - 17.00 og torsdag d. 18. september kl. 14.30 - 17.00.",
-      "Ta' fat i Mathis Jacobsen fra UngHolbæk eller send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
+      "Genhør afholder en kreativ workshopforløb i samarbejde med Holbæk Bibliotekerne, hvor vi lydligt udforsker Holbæks historie set fra ungdommens perspektiv gennem skiftende tider. Workshoppen afholdes torsdag d. 18. september kl. 16.00 - 17.00.",
+      "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
     ],
     audio: null,
     credits: null
