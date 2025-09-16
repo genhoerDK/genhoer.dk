@@ -68,7 +68,7 @@ export const projects = [
     partners: ["Holbæk Stadsarkiv", "UngHolbæk", "Holbæk Bibliotekerne"],
     workshop: [
       "Er du mellem 12-24 år, bor du i Holbæk Kommune og interesserer du dig for lyd, musik, kunst eller historie? Så kom og vær med til at skabe en lydinstallation i gangtunnelen ved Holbæk Station!",
-      "Genhør afholder en kreativ workshopforløb i samarbejde med Holbæk Bibliotekerne, hvor vi lydligt udforsker Holbæks historie set fra ungdommens perspektiv gennem skiftende tider. Workshoppen afholdes torsdag d. 18. september kl. 16.00 - 17.00.",
+      "Genhør afholder en kreativ workshop i samarbejde med Holbæk Bibliotekerne, hvor vi lydligt udforsker Holbæks historie set fra ungdommens perspektiv gennem skiftende tider. Workshoppen afholdes torsdag d. 18. september kl. 16.00 - 17.00.",
       "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
     ],
     audio: null,
