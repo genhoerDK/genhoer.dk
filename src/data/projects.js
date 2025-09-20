@@ -50,10 +50,11 @@ export const projects = [
     credits: null
   },
   {
-    slug: "ekkoung",
-    title: "Ekkoung",
+    slug: "unge-stemmer",
+    title: "Unge stemmer",
     description: [
-      "Lydinstallationen opsættes midt under gang- og cykeltunnellen ved Holbæk Station, som er en daglig færdselsåre for mange borgere og besøgende i Holbæk. Forbipasserende vil gå gennem eller standse op i et rumligt lydværk afspillet af fire højtalere – en lydlig oplevelse sammensat af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af Holbæks fortid. En del af dette lydmateriale skabes under en kreativ workshop for unge og oplevelsen har til formål at vække refleksion over Holbæks kulturhistorie set gennem ungdommens perspektiv gennem skiftende tider."
+      "I ungdommen dannes holdninger, der ofte udfordrer samtidens normer og status quo. Med afsæt i tidens tendenser, muligheder, miljøer og fællesskaber tager perspektiver form. Erfaringer fra ungdomslivet lever videre i os alle som minder, som vi forholder os til resten af livet.",
+      "Ungdommen i Holbæk ligner ungdommen andre steder i Danmark, men den er samtidig også helt sin egen. Den har nemlig udfoldet sig på helt specifikke steder og i lokalområdets fællesskaber. Udstillingen fortolker ungdommens blik på Holbæk gennem skiftende tider. I lydværket mødes ungdommens perspektiver, interesser og drømme fra forskellige tider."
     ],
     city: "Holbæk",
     area: "Holbæk Kommune",
@@ -70,8 +71,9 @@ export const projects = [
     audio: null,
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Holbæk Stadsarkiv'] },
-      { label: 'Ungeinddragende sparringspartner', input: ['UngHolbæk'] },
-      { label: 'Workshopdeltagere', input: ['Asta, Bastian, Julie, Ace, Olivia og Sol fra Ung Skriv'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Ung Skriv'] },
+      { label: 'Andre samarbejdspartnere', input: ['UngHolbæk', 'Holbæk Bibliotekerne'] },
+      { label: 'Workshop-deltagere', input: ['Asta, Bastian, Julie, Ace, Olivia og Sol'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Sparekassen Sjælland Fonden', 'Nordea Fonden'] },
     ],
