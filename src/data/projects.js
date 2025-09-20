@@ -40,7 +40,7 @@ export const projects = [
     mediaCount: null,
     startDate: "2025-10-11",
     endDate: "2025-11-22",
-    partners: ["Køge Arkiverne", "Køge Ungdomsskole", "KøgeBibliotekerne"],
+    partners: ["Køge Arkiverne", "Køge Ungdomsskole"],
     workshop: [
       "Er du mellem 12-24 år, bor du i Køge Kommune og interesserer du dig for lyd, musik, kunst og historie? Så kom og vær med til at skabe lydinstallationen 'Genhør Kirkestræde' som præsenteres for publikum på Kirkestrædedagen.",
       "Til efteråret afholder Genhør i samarbejde med Køge Ungdomsskole en række kreative workshops, hvor vi udforsker det historiske lydmiljø på Kirkestræde og eksperimenterer med at skabe et levende historisk lydmiljø der kan opsættes på Kirkestræde.",
@@ -72,7 +72,6 @@ export const projects = [
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Holbæk Stadsarkiv'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Ung Skriv'] },
-      { label: 'Ungeinddragende sparringspartner', input: ['UngHolbæk'] },
       { label: 'Workshop-deltagere', input: ['Asta, Bastian, Julie, Ace, Olivia og Sol'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Sparekassen Sjælland Fonden', 'Nordea Fonden'] },
@@ -96,12 +95,11 @@ export const projects = [
     mediaCount: { img: 13, vid: 3, txt: 2 },
     startDate: "2025-06-20",
     endDate: "2025-09-27",
-    partners: ["Slagteribygningen", "Faaborg-Midtfyn Ungdomsskole"],
+    partners: ["Fonden Slagteribygningen"],
     workshop: null,
     audio: null,
     credits: [
       { label: 'Samarbejdspartner', input: ['Fonden Slagteribygningen'] },
-      { label: 'Ungeinddragende samarbejdspartner', input: ['Faaborg-Midtfyn Ungdomsskole'] },
       { label: 'Kulturhistorisk sparringspartner', input: ['Peter Thor Andersen, Øhavsmuseet'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Faaborg-Midtfyn Kommune'] },
@@ -156,7 +154,7 @@ export const projects = [
     audio: 'https://cdn.genhoer.dk/media/vordingborg-station/track.mp3',
     credits: [
       { label: 'Kunstnerisk samarbejdspartner', input: ['Poly- Udstillingsplatform'] },
-      { label: 'Kulturhistorisk sparringspartner', input: ['Berit Christensen, Vordingborg Lokalhistoriske Arkiv'] },
+      { label: 'Kulturhistorisk sparringspartner', input: ['Vordingborg Lokalhistoriske Arkiv'] },
       { label: 'Workshop-deltagere', input: ['Mikkel og Nikolas'] },
       { label: 'Tidligere ansat på Vordingborg Station', input: ['Dan Devantier'] },
       { label: 'Billedkunstner', input: ['Dina Lundvall Nielsen'] },
