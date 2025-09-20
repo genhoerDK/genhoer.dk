@@ -65,14 +65,16 @@ export const projects = [
     mediaCount: null,
     startDate: "2025-10-04",
     endDate: "2025-11-28",
-    partners: ["Holbæk Stadsarkiv", "UngHolbæk", "Holbæk Bibliotekerne"],
-    workshop: [
-      "Er du mellem 12-24 år, bor du i Holbæk Kommune og interesserer du dig for lyd, musik, kunst eller historie? Så kom og vær med til at skabe en lydinstallation i gangtunnelen ved Holbæk Station!",
-      "Genhør afholder en kreativ workshop i samarbejde med Holbæk Bibliotekerne, hvor vi lydligt udforsker Holbæks historie set fra ungdommens perspektiv gennem skiftende tider. Workshoppen afholdes torsdag d. 18. september kl. 16.00 - 17.00.",
-      "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
-    ],
+    partners: ["Holbæk Stadsarkiv", "Ung Skriv", "Holbæk Bibliotekerne"],
+    workshop: null,
     audio: null,
-    credits: null
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Holbæk Stadsarkiv'] },
+      { label: 'Ungeinddragende sparringspartner', input: ['UngHolbæk'] },
+      { label: 'Workshopdeltagere', input: ['Asta, Bastian, Julie, Ace, Olivia og Sol fra Ung Skriv'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Sparekassen Sjælland Fonden', 'Nordea Fonden'] },
+    ],
   },
   {
     slug: "vi-vokser-og-flytter-os",
