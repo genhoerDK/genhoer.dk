@@ -53,8 +53,8 @@ export const projects = [
     slug: "unge-stemmer",
     title: "Unge stemmer",
     description: [
-      "I ungdommen dannes holdninger, der ofte udfordrer samtidens normer og status quo. Med afsæt i tidens tendenser, muligheder, miljøer og fællesskaber tager perspektiver form. Erfaringer fra ungdomslivet lever videre i os alle som minder, som vi forholder os til resten af livet.",
-      "Ungdommen i Holbæk ligner ungdommen andre steder i Danmark, men den er samtidig også helt sin egen. Den har nemlig udfoldet sig på helt specifikke steder og i lokalområdets fællesskaber. Udstillingen fortolker ungdommens blik på Holbæk gennem skiftende tider. I lydværket mødes ungdommens perspektiver, interesser og drømme fra forskellige tider."
+      "I ungdommen dannes holdninger der ofte udfordrer samtidens normer og status quo. Med afsæt i tidens tendenser, muligheder, miljøer og fællesskaber tager perspektiver form. Erfaringer fra ungdomslivet lever videre i os alle som minder vi forholder os til resten af livet.",
+      "Ungdommen i Holbæk ligner ungdommen mange andre steder i Danmark, men den er samtidig også helt sin egen. Den har nemlig udfoldet sig på helt specifikke steder og i lokalsamfundets fællesskaber. Udstillingen i gangtunnelen nær Holbæk Station præsenterer publikum for et lydværk som fortolker ungdommens perspektiv på lokalområdet og de unges holdninger, interesser og drømme gennem skiftende tider.",
     ],
     city: "Holbæk",
     area: "Holbæk Kommune",
