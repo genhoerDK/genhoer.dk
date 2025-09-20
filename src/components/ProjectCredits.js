@@ -24,7 +24,7 @@ export default function ProjectCredits({ slug, show }) {
 
               {credits.map((credit, i) => (
                 <div key={`${slug}-credit-${i}`}>
-                  <p className="text-[0.5rem] uppercase leading-none mb-1">{credit.label}</p>
+                  <p className="text-[0.5rem] uppercase leading-none mb-0.5">{credit.label}</p>
                   {credit.input.map((entry, j) => (
                     <p key={`${slug}-entry-${i}-${j}`} className="text-sm font-light">{entry}</p>
                   ))}
