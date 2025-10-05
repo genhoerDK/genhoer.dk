@@ -29,10 +29,10 @@ export default function Info() {
 
         <div className="grid grid-cols-12 md:grid-cols-24 gap-4 pt-8 md:pt-16">
           <div className="col-span-full col-start-3 md:col-span-9 lg:col-span-6 xl:col-span-5 md:col-start-8 lg:col-start-10 xl:col-start-12">
-            <p className="font-light text-xs md:text-sm">Genhør er en nonprofitorganisation, der i samarbejde med lokale aktører engagerer unge i lokal kulturskabelse og udstiller offentlig tilgængelig lydkunst, der styrker kendskabet til den stedbundne kulturarv og den nære danmarkshistorie.</p>
+            <p className="font-light text-xs md:text-sm">Genhør er en nonprofitorganisation, der i samarbejde med lokale aktører engagerer unge i kulturskabelse og udstiller offentlig tilgængelig lydkunst, der styrker kendskabet til den stedbundne kulturarv og den nære danmarkshistorie.</p>
           </div>
           <div className="col-span-full col-start-3 md:col-span-9 lg:col-span-6 xl:col-span-5 md:col-start-17 lg:col-start-16 xl:col-start-17">
-            <p className="font-light text-xs md:text-sm">Vi fortolker fortidens lydmiljø på lokalhistoriske lokaliteter og udstiller lydkunst som et ekko fra fortiden i autentiske fysiske rammer. I tomme fabrikshaller, på nedlagte togstationer, i ruiner og i gaderum får publikum mulighed for at høre lokalhistoriens vingesus.</p>
+            <p className="font-light text-xs md:text-sm">Vi fortolker fortidens liv og lydmiljø på lokalhistoriske lokaliteter og udstiller lydkunst som et ekko fra fortiden i autentiske fysiske rammer. De digitale værker – kompositoriske forløb sammensat af musik, reallyde, personlige anekdoter og arkiveret lydmateriale – afspilles fra rumlige lydanlæg, der lader de besøgende træde ind i et levende erindringsbillede.</p>
           </div>
         </div>
       </section>
