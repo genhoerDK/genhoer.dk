@@ -72,7 +72,6 @@ export const projects = [
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Holbæk Stadsarkiv'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Ung Skriv'] },
-      { label: 'Workshop-deltagere', input: ['Asta, Bastian, Julie, Lotus, Olivia og Sol'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Sparekassen Sjælland Fonden', 'Nordea Fonden'] },
     ],
