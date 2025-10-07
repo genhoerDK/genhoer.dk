@@ -41,13 +41,14 @@ export const projects = [
     startDate: "2025-10-11",
     endDate: "2025-11-22",
     partners: ["Køge Arkiverne", "Køge Ungdomsskole"],
-    workshop: [
-      "Er du mellem 12-24 år, bor du i Køge Kommune og interesserer du dig for lyd, musik, kunst og historie? Så kom og vær med til at skabe lydinstallationen 'Genhør Kirkestræde' som præsenteres for publikum på Kirkestrædedagen.",
-      "Til efteråret afholder Genhør i samarbejde med Køge Ungdomsskole en række kreative workshops, hvor vi udforsker det historiske lydmiljø på Kirkestræde og eksperimenterer med at skabe et levende historisk lydmiljø der kan opsættes på Kirkestræde.",
-      "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
-    ],
+    workshop: null,
     audio: null,
-    credits: null
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Køge Arkiverne'] },
+      { label: 'Ungeinddragende samarbejdspartner', input: ['Køge Ungdomsskole'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Køge Fonden'] },
+    ],
   },
   {
     slug: "unge-stemmer",
