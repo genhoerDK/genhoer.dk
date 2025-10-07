@@ -46,6 +46,8 @@ export const projects = [
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Køge Arkiverne'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Køge Ungdomsskole'] },
+      { label: 'Samarbejdspartner', input: ['KøgeBibliotekerne'] },
+      { label: 'Udlån af historiske genstande', input: ['Lundekrog Landbomuseum'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Køge Fonden'] },
     ],
