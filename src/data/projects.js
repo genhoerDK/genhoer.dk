@@ -63,7 +63,7 @@ export const projects = [
     komkode: "0316",
     coverImage: "https://cdn.genhoer.dk/media/images/ekkoung-cover-image.webp",
     coverVideo: null,
-    mediaCount: null,
+    mediaCount: { img: 13, vid: 3, txt: 2 },
     startDate: "2025-10-04",
     endDate: "2025-11-28",
     partners: ["Holbæk Stadsarkiv", "Ung Skriv"],
@@ -72,7 +72,7 @@ export const projects = [
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Holbæk Stadsarkiv'] },
       { label: 'Ungeinddragende samarbejdspartner', input: ['Ung Skriv'] },
-      { label: 'Workshop-deltagere', input: ['Asta, Bastian, Julie, Ace, Olivia og Sol'] },
+      { label: 'Workshop-deltagere', input: ['Asta, Bastian, Julie, Lotus, Olivia og Sol'] },
       { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
       { label: 'Støtteydere', input: ['Øernes Kunstfond', 'Spar Nord Fonden', 'William Demant Fonden', 'Sparekassen Sjælland Fonden', 'Nordea Fonden'] },
     ],
