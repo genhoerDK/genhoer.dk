@@ -27,8 +27,8 @@ export const projects = [
     slug: "kirkestraede",
     title: "Kirkestræde",
     description: [
-      "På Kirkestræde-dagen opsættes et udendørs og rumligt lydværk der skal præsentere fortidens lydmiljø på stedet. Publikum inviteres på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv vil igen udspille sig, og klinge mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækker lydinstallationen et område på cirka 50 meter, hvilket nogenlunde svarer til området fra Kirkestræde 6 til 16.", 
-      "Efter Kirkestræde-dagen flyttes værket indendørs i et udstillingslokale på Kirkestræde en periode så flere borgere og besøgende kan opleve det."
+      "På Kirkestrædedagen opsættes et udendørs og rumligt lydværk der skal præsentere fortidens lydmiljø på stedet. Publikum inviteres på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv vil igen udspille sig, og klinge mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækker lydinstallationen et område på cirka 30 meter.", 
+      "Efter Kirkestrædedagen flyttes værket indendørs i et udstillingslokale under Kirkestræde 20 for en periode, så flere borgere og besøgende kan opleve det."
     ],
     city: "Køge",
     area: "Køge Kommune",
