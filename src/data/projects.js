@@ -3,7 +3,7 @@ export const projects = [
     slug: "bulows-kaserne",
     title: "Bülows Kaserne",
     description: [
-      "Genhør indtager til november en opgang i Kulturkasernen i Fredericia. Udstillingen tager udgangspunkt i kasernens historie og indeholder musikalske indslag skabt med unge musikere fra Fredericia. Den lydlige oplevelse begynder i stueetagen hvorfra publikum bevæger sig op gennem opgangen og værket som sammensættes af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af kasernens fortid."
+      "Genhør indtager til november en opgang i Kulturkasernen i Fredericia. Udstillingen tager udgangspunkt i kasernens historie og indeholder musikalske indslag og reallyde skabt med unge musikere fra Fredericia. Den lydlige oplevelse begynder i stueetagen hvorfra publikum bevæger sig op gennem opgangen og værket som sammensættes af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af kasernens fortid."
     ],
     city: "Fredericia",
     area: "Fredericia Kommune",
