@@ -3,7 +3,7 @@ export const projects = [
     slug: "bulows-kaserne",
     title: "Bülows Kaserne",
     description: [
-      "Genhør indtager til november en opgang i Kulturkasernen i Fredericia. Udstillingen tager udgangspunkt i kasernens historie og indeholder musikalske indslag skabt med unge musikere fra Fredericia. Den lydlige oplevelse begynder i stueetagen hvorfra publikum bevæger sig op gennem opgangen og værket som sammensættes af historiske lydoptagelser, interviews, reallyde, feltoptagelser og musikalske elementer, der tilsammen skaber et levende portræt af kasernens fortid."
+      "I en opgang på kasernen præsenteres et værk, som udforsker, belyser og fortolker den kulturhistorie, der knytter sig til Bülows Kaserne. Værket består af fysiske artefakter skabt af elever fra Erritsø Fællesskole, som omgives af et lydværk – en sammenvævning af musikalsk improvisation udført af musikelever fra Den Kreative Skole, reallyde indspillet på kasernen af elever fra Erritsø Fællesskole og anekdoter, som beretter om livet på kasernen gennem tiden. Ved solopgang, solnedgang og hver hele time herimellem kan man høre en kulturhonnør give genlyd i gårdrummet. Dette er en lydlig påmindelse om stedets kulturelle udvikling: Fra militær institution til det kulturhus, det er i dag."
     ],
     city: "Fredericia",
     area: "Fredericia Kommune",
@@ -15,13 +15,15 @@ export const projects = [
     startDate: "2025-11-07",
     endDate: "2025-12-19",
     partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace", "Den Kreative Skole"],
-    workshop: [
-      "Er du mellem 12-24 år, bor du i Fredericia Kommune og interesserer du dig for lyd, musik, kunst, historie eller interaktive teknologier? Så kom og vær med til at skabe den interaktive lydinstallation 'Genhør Bülows Kaserne'!",
-      "Til efteråret afholder Genhør i samarbejde med Den Kreative Skole og Bülows Makerspace en række kreative workshops, hvor vi lydligt udforsker den stedbundne kulturhistorie på Bülows Kaserne og eksperimenterer med at gøre lyden interaktiv lyd til udstillingen.",
-      "Send os en besked på 91 61 10 93 eller hej@genhoer.dk hvis du vil være med! ☺"
-    ],
+    workshop: null,
     audio: null,
-    credits: null
+    credits: [
+      { label: 'Kulturhistorisk samarbejdspartner', input: ['Fredericia Lokalhistoriske Arkiv, Museum Fredericia'] },
+      { label: 'Ungeinddragende samarbejdspartnere', input: ['Bülows Makerspace, Erritsø Fællesskole (Højmosen) og Den Kreative Skole'] },
+      { label: 'Samarbejdspartner', input: ['Kulturkasernen'] },
+      { label: 'Komponister', input: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen'] },
+      { label: 'Støtteydere', input: ['Fredericia Kommune', 'Spar Nord Fonden', 'William Demant Fonden'] },
+    ],
   },
   {
     slug: "kirkestraede",
