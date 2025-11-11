@@ -12,7 +12,7 @@ export const projects = [
     komkode: "0607",
     coverImage: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-image.webp",
     coverVideo: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-video.mp4",
-    mediaCount: { img: 17, vid: 3, txt: 2 },
+    mediaCount: { img: 19, vid: 3, txt: 2 },
     startDate: "2025-11-07",
     endDate: "2025-12-19",
     partners: ["Kulturkasernen", "Fredericia Lokalhistoriske Arkiv", "Bülows Makerspace", "Den Kreative Skole"],
