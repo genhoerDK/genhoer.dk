@@ -11,7 +11,7 @@ const rem = REM({
 });
 
 export const metadata = {
-  title: "GENHØR",
+  title: "Genhør",
   description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i offentlige rum, der fortolker stedbunden kulturhistorie og styrker kendskabet til den nære danmarkshistorie.",
   themeColor: '#FAFAFA',
 };

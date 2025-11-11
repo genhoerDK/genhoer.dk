@@ -14,7 +14,6 @@ export default function Home() {
   const { setButtons } = useFooter();
 
   // Check for '#kort' on load and on hash change
-  // To-do: Hide map on removal of hash (clicking logo in header)
   useEffect(() => {
     const updateFromHash = () => { setShowMap(window.location.hash === "#kort"); };
     updateFromHash();
