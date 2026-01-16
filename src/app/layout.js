@@ -26,15 +26,14 @@ export default function RootLayout({ children }) {
     <html lang="da">
       <body className={`${rem.className} antialiased bg-zinc-50`}>
         <AudioProvider>
-          
             <Header />
             <main className="w-screen min-h-svh">
               {children}
             </main>
-            <Toolbar />
             <Suspense fallback="LOADING">
-            <Map />
-            <Player />
+              <Toolbar />
+              <Map />
+              <Player />
           </Suspense>
         </AudioProvider>
       </body>
