@@ -1,6 +1,6 @@
 'use client';
 
-export default function ProjectMedia({ project }) {
+export default function ProjectMediaSection({ project }) {
     const { mediaCount, slug, title } = project;
     const folder = `https://cdn.genhoer.dk/media/${slug}/`;
 

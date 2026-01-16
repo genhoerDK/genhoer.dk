@@ -1,12 +1,23 @@
 import { projects } from "@/data/projects";
-import ProjectPage from "./ProjectPage";
+import ProjectHeroSection from "@/components/ProjectPage/ProjectHeroSection";
+import ProjectMediaSection from "@/components/ProjectPage/ProjectMediaSection";
+import ProjectNavigation from "@/components/ProjectPage/ProjectNavigation";
 
-// Server-only: generate routes for SSG
-export async function generateStaticParams() {
-  return projects.map((project) => ({ project: project.slug }));
+export default async function ProjectPage({ params }) {
+  const { project: projectSlug } = await params;
+  const project = projects.find((p) => p.slug === projectSlug);
+
+  return (
+    <article className="w-full h-svh min-h-140">
+      <ProjectHeroSection project={project} />
+        {project.mediaCount && <ProjectMediaSection project={project} />}
+      <ProjectNavigation currentProject={project} />
+    </article>
+  );
 }
 
-export default async function ServerSideProjectPage({ params }) {
-  const project = projects.find((p) => p.slug === params.project);
-  return <ProjectPage project={project} />;
+export function generateStaticParams() {
+  return projects.map((project) => ({
+    project: project.slug,
+  }));
 }

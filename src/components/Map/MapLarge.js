@@ -1,15 +1,14 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { formatDates, formatPartners } from '@/utilities/formatters';
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
+import { projects } from "@/data/projects";
 
-export default function MapLarge({ projects }) {
+export default function MapLarge({ setActiveProject }) {
     const svgRef = useRef(null);
     const router = useRouter();
-    const [activeProject, setActiveProject] = useState(null);
 
     useEffect(() => {
         let geoData = null;
@@ -22,8 +21,8 @@ export default function MapLarge({ projects }) {
 
             const width = container.offsetWidth;
             const height = container.offsetHeight;
-            const paddingTop = 48;
-            const paddingBottom = 64;
+            const paddingTop = 64;
+            const paddingBottom = 48;
             const paddingX = 16;
 
             svg.selectAll("*").remove();
@@ -133,19 +132,5 @@ export default function MapLarge({ projects }) {
         return () => window.removeEventListener("resize", renderMap);
     }, []);
 
-    return (
-        <div className={`relative size-full transition-colors delay-200 duration-500 ${activeProject ? 'bg-zinc-800' : 'bg-zinc-50'}`}>
-            <div className={`absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat transition delay-200 duration-500 ${activeProject ? "opacity-20" : "opacity-0"}`} style={{ backgroundImage: activeProject ? `url(${activeProject.coverImage})` : undefined, }} />
-            <svg ref={svgRef} className="size-full" />
-
-            <div className={`absolute top-10 left-0 px-4 py-2 transition delay-200 duration-500 ease-in-out pointer-events-none text-zinc-50 ${activeProject ? "translate-x-0" : "-translate-x-full"}`}>
-                { activeProject &&
-                    <div>
-                        <h2 className="text-4xl font-extralight uppercase mb-1">{activeProject.title}</h2>
-                        <p className="text-xs text-end font-light uppercase pl-1">{formatDates(activeProject.startDate, activeProject.endDate)}</p>
-                    </div> 
-                }
-            </div>
-        </div>
-    );
+    return <svg ref={svgRef} className="size-full" />;
 }

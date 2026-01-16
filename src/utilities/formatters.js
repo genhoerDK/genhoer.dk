@@ -19,20 +19,6 @@ export const formatDates = (startStr, endStr) => {
     : `${startText} ${start.getFullYear()} - ${endText} ${end.getFullYear()}`;
 };
 
-
-////////////////////////////////////////
-//// Format partner array to string ////
-////////////////////////////////////////
-
-export const formatPartners = (partners = []) =>
-  partners.length
-    ? new Intl.ListFormat('da', {
-      style: 'long',
-      type: 'conjunction',
-    }).format(partners)
-    : '';
-
-
 ///////////////////////////////
 //// Format project status ////
 ///////////////////////////////
