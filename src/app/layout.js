@@ -3,7 +3,6 @@ import "./globals.css";
 import { AudioProvider } from '@/context/AudioContext';
 import Header from "@/components/Header";
 import Toolbar from "@/components/Toolbar";
-import Overlays from "@/components/Overlays";
 
 const rem = REM({
   variable: "--font-rem",
@@ -29,7 +28,6 @@ export default function RootLayout({ children }) {
             {children}
           </main>
           <Toolbar />
-          <Overlays />
         </AudioProvider>
       </body>
     </html>
