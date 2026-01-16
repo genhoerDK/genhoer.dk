@@ -1,3 +1,5 @@
+
+import { Suspense } from "react";
 import { REM } from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from '@/context/AudioContext';
@@ -22,6 +24,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body className={`${rem.className} antialiased bg-zinc-50`}>
+        <Suspense fallback="HEJ">
         <AudioProvider>
           <Header />
           <main className="w-screen min-h-svh">
@@ -29,6 +32,7 @@ export default function RootLayout({ children }) {
           </main>
           <Toolbar />
         </AudioProvider>
+        </Suspense>
       </body>
     </html>
   );
