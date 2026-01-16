@@ -1,10 +1,11 @@
-
 import { Suspense } from "react";
 import { REM } from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from '@/context/AudioContext';
 import Header from "@/components/Header";
 import Toolbar from "@/components/Toolbar";
+import Player from "@/components/Player/Player";
+import Map from "@/components/Map/Map";
 
 const rem = REM({
   variable: "--font-rem",
@@ -24,15 +25,17 @@ export default function RootLayout({ children }) {
   return (
     <html lang="da">
       <body className={`${rem.className} antialiased bg-zinc-50`}>
-        <Suspense fallback="HEJ">
         <AudioProvider>
-          <Header />
-          <main className="w-screen min-h-svh">
-            {children}
-          </main>
-          <Toolbar />
+          <Suspense fallback="LOADING">
+            <Header />
+            <main className="w-screen min-h-svh">
+              {children}
+            </main>
+            <Toolbar />
+            <Map />
+            <Player />
+          </Suspense>
         </AudioProvider>
-        </Suspense>
       </body>
     </html>
   );
