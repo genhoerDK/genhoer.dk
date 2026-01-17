@@ -97,6 +97,14 @@ export function AudioProvider({ children }) {
     setIsPlaying(false);
   };
 
+  // Set time
+  const seek = (time) => {
+    if (!audioRef.current) return;
+
+    audioRef.current.currentTime = time;
+    setCurrentTime(time);
+  };
+
   /* ---------- MEDIA SESSION ---------- */
   useEffect(() => {
     if (!audioRef.current || !currentTrack || !('mediaSession' in navigator)) return;
@@ -136,7 +144,8 @@ export function AudioProvider({ children }) {
     progress,
     setTrack,
     play,
-    pause
+    pause,
+    seek
   }), [currentTrack, isPlaying, initialized, currentTime, duration, progress]);
 
   return (

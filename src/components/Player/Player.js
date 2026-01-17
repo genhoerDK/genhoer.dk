@@ -1,15 +1,56 @@
 "use client";
 
+import { useAudio } from '@/context/AudioContext';
 import { useSearchParams } from 'next/navigation';
-import { projects } from "@/data/projects";
+import { PlayCircleIcon, PauseCircleIcon, ForwardIcon, BackwardIcon, ListBulletIcon, MusicalNoteIcon } from '@heroicons/react/20/solid';
+import PlayerScrubber from '@/components/Player/PlayerScrubber';
 
 export default function Player() {
+    const { play, pause, isPlaying, currentTrack } = useAudio();
     const searchParams = useSearchParams();
     const isOpen = searchParams.has('lyt');
 
+    const togglePlayback = () => {
+        isPlaying ? pause() : play();
+    }
+    
+
     return (
-        <article className={`fixed inset-0 w-screen h-dvh ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
-            <section className='relative size-full overflow-hidden mt-10 bg-zinc-100'>
+        <article className={`fixed inset-0 w-screen h-dvh bg-zinc-50 ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
+            <section className='relative flex flex-col items-center size-full overflow-hidden'>
+                
+                <figure className="absolute inset-0 size-full"> 
+                    <video src={currentTrack.coverVideo} playsInline muted autoPlay loop className="object-cover size-full" />
+                </figure>
+
+                
+                <div className="absolute inset-x-0 bottom-10 md:bottom-0 flex flex-col justify-end items-center p-10 h-1/2 text-zinc-50 bg-gradient-to-t from-zinc-900/100 to-zinc-900/0">
+                    <div className="flex gap-4 pb-8">
+                        <figure>
+                            <img src={currentTrack.artwork} alt={currentTrack.title} className="size-14 object-cover" loading="lazy" />
+                        </figure>
+                        <div className="flex flex-col justify-center gap-1">
+                            <h2 className="uppercase font-light text-lg md:text-xl leading-none">{currentTrack.title}</h2>
+                            <p className="text-xs uppercase leading-none pointer-events-none text-zinc-50/50">{currentTrack.location}</p>
+                        </div>
+                    </div>
+
+                    <PlayerScrubber />
+
+                    <div className="flex items-center justify-between w-full max-w-sm pt-4">
+                        <MusicalNoteIcon className="size-6" />
+                        <BackwardIcon className="size-10" />
+                        <button onClick={togglePlayback} className="">
+                            {isPlaying ? <PauseCircleIcon className="size-16" /> : <PlayCircleIcon className="size-16" />}
+                        </button>
+                        <ForwardIcon className="size-10" />
+                        <ListBulletIcon className="size-6" />
+                    </div>
+                </div>
+
+                
+
+                
                 
             </section>
         </article>
