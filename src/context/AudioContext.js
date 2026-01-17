@@ -16,7 +16,7 @@ export function AudioProvider({ children }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const progress = duration ? currentTime / duration : 0;
+  const progress = duration ? Math.min(currentTime / duration, 1) : 0;
 
   /* ---------- AUDIO ELEMENT ---------- */
 
@@ -101,8 +101,13 @@ export function AudioProvider({ children }) {
   const seek = (time) => {
     if (!audioRef.current) return;
 
-    audioRef.current.currentTime = time;
-    setCurrentTime(time);
+    const audio = audioRef.current;
+
+    // Clamp to avoid hitting the exact duration
+    const safeTime = Math.min(time, (audio.duration || duration) - 0.05);
+
+    audio.currentTime = safeTime;
+    setCurrentTime(safeTime);
   };
 
   /* ---------- MEDIA SESSION ---------- */

@@ -1,14 +1,32 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useAudio } from '@/context/AudioContext';
 
-export default function PlayerScrubber() {
-  const { duration, progress, seek } = useAudio();
+export default function AudioProgress() {
+  const { progress, duration, seek } = useAudio();
+
+  const [dragging, setDragging] = useState(false);
+  const [localValue, setLocalValue] = useState(progress);
+
+  // Sync with audio only when not dragging
+  useEffect(() => {
+    if (!dragging) {
+      setLocalValue(progress);
+    }
+  }, [progress, dragging]);
+
+  const handlePointerDown = () => {
+    setDragging(true);
+  };
 
   const handleChange = (e) => {
-    const value = Number(e.target.value);
-    const time = value * duration;
-    seek(time);
+    setLocalValue(Number(e.target.value));
+  };
+
+  const handlePointerUp = () => {
+    setDragging(false);
+    seek(localValue >= 0.999 ? duration - 0.05 : localValue * duration);
   };
 
   return (
@@ -17,9 +35,11 @@ export default function PlayerScrubber() {
       min={0}
       max={1}
       step={0.001}
-      value={progress}
+      value={localValue}
+      onPointerDown={handlePointerDown}
       onChange={handleChange}
-      className="w-full max-w-md accent-zinc-50 h-1 bg-zinc-500"
+      onPointerUp={handlePointerUp}
+      className="w-full max-w-md h-1 rounded-lg bg-zinc-300 accent-zinc-900"
     />
   );
 }
