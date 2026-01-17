@@ -26,14 +26,14 @@ export default function RootLayout({ children }) {
     <html lang="da">
       <body className={`${rem.className} antialiased bg-zinc-50`}>
         <AudioProvider>
-            <Header />
-            <main className="w-screen min-h-svh">
-              {children}
-            </main>
-            <Suspense fallback="LOADING">
-              <Toolbar />
-              <Map />
-              <Player />
+          <Header />
+          <main className="w-screen min-h-svh">
+            {children}
+          </main>
+          <Suspense fallback=""> {/* Suspense might be to wide? Narrow down to where searchParams are used */}
+            <Toolbar />
+            <Map />
+            <Player />
           </Suspense>
         </AudioProvider>
       </body>
