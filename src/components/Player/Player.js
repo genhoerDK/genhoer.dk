@@ -24,6 +24,10 @@ export default function Player() {
         isPlaying ? pause() : play();
     }
 
+    const playNewTrack = (project) => {
+        play(project);
+    };
+
     const toggleTracksOverview = () => {
         setTracksIsOpen(prev => !prev);
         setSectionsIsOpen(false);
@@ -44,7 +48,7 @@ export default function Player() {
 
 
                 {tracksIsOpen &&
-                <div className="absolute inset-0 flex items-center size-full bg-amber-50">
+                <div className="absolute inset-0 flex items-center size-full text-zinc-50">
                     <Swiper
                         modules={[Mousewheel]}
                         mousewheel={{ forceToAxis: true, sensitivity: 0.5 }}
@@ -54,13 +58,10 @@ export default function Player() {
                         className='w-full'
                     >
                         {projectsWithAudio.map((project, i) => (
-                            <SwiperSlide key={i} className="!w-64 flex justify-center">
-                                <img
-                                    src={project.artwork}
-                                    alt={project.title}
-                                    className="size-64 object-cover"
-                                    loading="lazy"
-                                />
+                            <SwiperSlide key={i} className="relative !w-64 flex" onClick={() => playNewTrack(project)}>
+                                <PlayCircleIcon className="absolute inset-0 size-12" />
+                                <img src={project.artwork} alt={project.title} className="size-64 object-cover pb-2" loading="lazy" />
+                                <p className="uppercase">{project.title}</p>
                             </SwiperSlide>
                         ))}
                     </Swiper>

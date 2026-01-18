@@ -78,7 +78,7 @@ export function AudioProvider({ children }) {
     if (!audioRef.current) return;
     
     const isSameTrack = track.slug === currentTrack?.slug;
-    if (!isSameTrack) setCurrentTrack(track); // only set new track
+    if (!isSameTrack) setCurrentTrack(track); // only set if it is new track
   
     if (!initialized) setInitialized(true);
   
