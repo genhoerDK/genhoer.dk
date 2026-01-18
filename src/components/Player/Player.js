@@ -67,7 +67,7 @@ export default function Player() {
                 </div>
                 }
                 
-                <div className="absolute inset-x-0 bottom-10 md:bottom-0 flex flex-col justify-end items-center p-10 h-full text-zinc-50 bg-gradient-to-t from-zinc-900/100 to-zinc-50/0">
+                <div className="absolute inset-x-0 bottom-10 md:bottom-0 flex flex-col justify-end items-center pb-10 h-full text-zinc-50 bg-gradient-to-t from-zinc-900/100 to-zinc-50/0">
                     {!tracksIsOpen &&
                     <>
                     {!sectionsIsOpen &&
@@ -91,14 +91,14 @@ export default function Player() {
                             {sectionsIsOpen ? <XMarkIcon className="size-5" /> : <RectangleGroupIcon className="size-5" /> }
                             <LabelLarge>Afsnit</LabelLarge>
                         </button>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 md:gap-4">
                             <BackwardIcon className="size-8" />
                             <button onClick={togglePlayback} className=" cursor-pointer">
-                                {isPlaying ? <PauseCircleIcon className="size-16" /> : <PlayCircleIcon className="size-16" />}
+                                {isPlaying ? <PauseCircleIcon className="size-12" /> : <PlayCircleIcon className="size-12" />}
                             </button>
                             <ForwardIcon className="size-8" />
                         </div>
-                        <button onClick={toggleTracksOverview} className='flex items-center justify-center gap-1 w-26 h-8 rounded-full bg-zinc-50 text-zinc-800 cursor-pointer'>
+                        <button onClick={toggleTracksOverview} className='flex items-center justify-center gap-1 w-24 h-8 rounded-full bg-zinc-50 text-zinc-800 cursor-pointer'>
                             {tracksIsOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" /> }
                             <LabelLarge>Værker</LabelLarge>
                         </button>
