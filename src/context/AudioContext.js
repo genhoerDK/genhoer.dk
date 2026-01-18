@@ -141,6 +141,7 @@ export function AudioProvider({ children }) {
   /* ---------- CONTEXT ---------- */
 
   const value = useMemo(() => ({
+    projectsWithAudio,
     currentTrack,
     initialized,
     isPlaying,
@@ -151,7 +152,7 @@ export function AudioProvider({ children }) {
     play,
     pause,
     seek
-  }), [currentTrack, isPlaying, initialized, currentTime, duration, progress]);
+  }), [projectsWithAudio, currentTrack, isPlaying, initialized, currentTime, duration, progress]);
 
   return (
     <AudioCtx.Provider value={value}>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAudio } from '@/context/AudioContext';
 
-export default function AudioProgress() {
+export default function AudioProgress({ sectionsIsOpen }) {
   const { progress, duration, seek } = useAudio();
 
   const [dragging, setDragging] = useState(false);
@@ -39,7 +39,7 @@ export default function AudioProgress() {
       onPointerDown={handlePointerDown}
       onChange={handleChange}
       onPointerUp={handlePointerUp}
-      className="w-full max-w-md h-1 rounded-lg bg-zinc-300 accent-zinc-900"
+      className={`${sectionsIsOpen ? 'w-full' : 'w-120'} transition-all duration-500 h-1 rounded-lg bg-zinc-300 accent-zinc-900`}
     />
   );
 }
