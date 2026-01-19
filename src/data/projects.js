@@ -212,10 +212,10 @@ export const projects = [
     audio: 'https://cdn.genhoer.dk/media/grindsted-station/track.mp3',
     segments: [
     { title: "intro", start: 0 },
-    { title: "main part", start: 40 },
-    { title: "interlude", start: 60 },
-    { title: "outro", start: 120 },
-    { title: "main part", start: 190 },
+    { title: "main part", start: 100 },
+    { title: "interlude", start: 200 },
+    { title: "outro", start: 340 },
+    { title: "main part", start: 400 },
   ],
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Mark | Museet for en Ny Danmarkshistorie'] },

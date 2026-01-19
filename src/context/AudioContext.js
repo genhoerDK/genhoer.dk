@@ -7,22 +7,22 @@ const AudioCtx = createContext(null);
 
 export function AudioProvider({ children }) {
   const projectsWithAudio = projects.filter(p => !!p.audio);
-  const randomTrack = Math.floor(Math.random() * projectsWithAudio.length);
+  const randomTrack = projectsWithAudio[Math.floor(Math.random() * projectsWithAudio.length)];
 
-  /* ---------- STATE ---------- */
+  /* ---------- STATES ---------- */
 
-  const [currentTrack, setCurrentTrack] = useState(projectsWithAudio[randomTrack]);
+  const [currentTrack, setCurrentTrack] = useState(randomTrack);
   const [initialized, setInitialized] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const progress = duration ? Math.min(currentTime / duration, 1) : 0;
 
   /* ---------- AUDIO ELEMENT ---------- */
 
   const audioRef = useRef(null);
 
-  // Create audio element once
+  // Create audio element once and set to loop
   useEffect(() => {
     audioRef.current = new Audio();
     audioRef.current.loop = true;
@@ -70,8 +70,6 @@ export function AudioProvider({ children }) {
   const setTrack = (track) => {
     if (track.slug === currentTrack?.slug) return; // only set new track
     setCurrentTrack(track);
-
-    console.log('[Audio] setTrack:', track.audio);
   };
 
   const play = (track = currentTrack) => {
@@ -84,20 +82,15 @@ export function AudioProvider({ children }) {
   
     audioRef.current.play();
     setIsPlaying(true);
-
-    console.log('[Audio] play:', track.audio);
 };
 
   const pause = () => {
     if (!audioRef.current) return;
 
-    console.log('[Audio] pause:', currentTrack.audio);
-
     audioRef.current.pause();
     setIsPlaying(false);
   };
 
-  // Set time
   const seek = (time) => {
     if (!audioRef.current) return;
 
@@ -119,7 +112,7 @@ export function AudioProvider({ children }) {
       title: currentTrack.title,
       artist: 'Genhør, ' + currentTrack.location,
       artwork: [
-        { src: currentTrack.artwork || '/fallback-artwork.jpg', sizes: '512x512', type: 'image/jpeg' }, // SET PROPER IMAGES!!!
+        { src: currentTrack.artwork || '/fallback-artwork.jpg', sizes: '512x512', type: 'image/jpeg' },
       ],
     });
 
