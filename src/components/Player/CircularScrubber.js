@@ -7,8 +7,9 @@ import { PlayCircleIcon } from '@heroicons/react/20/solid';
 import TrackSegment from '@/components/Player/TrackSegment';
 
 export default function CircularScrubber() {
-  const scrubberRef = useRef(null);
   const { progress, duration, seek, currentTrack, play, isPlaying } = useAudio();
+
+  const scrubberRef = useRef(null);
 
   const [dragging, setDragging] = useState(false);
   const [localValue, setLocalValue] = useState(progress);
@@ -75,7 +76,7 @@ export default function CircularScrubber() {
           
         </div>
       :
-        <button className="absolute inset-auto flex items-center justify-center text-zinc-800 bg-zinc-50/50 backdrop-blur-xs cursor-pointer rounded-full overflow-hidden" style={{ width: radius * 2.2, height: radius * 2.2}} onClick={() => play()}>
+        <button className="absolute inset-auto flex items-center justify-center text-zinc-800 bg-zinc-50/25 backdrop-blur-xs cursor-pointer rounded-full overflow-hidden" style={{ width: radius * 2.2, height: radius * 2.2}} onClick={() => play()}>
           <PlayCircleIcon className="size-24" />
         </button>
       }

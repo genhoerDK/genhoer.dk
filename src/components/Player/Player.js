@@ -1,21 +1,29 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { XMarkIcon, MusicalNoteIcon, PlayCircleIcon } from '@heroicons/react/20/solid';
+import { XMarkIcon, MusicalNoteIcon } from '@heroicons/react/20/solid';
 import TracksOverview from '@/components/Player/TracksOverview'
 import CircularScrubber from '@/components/Player/CircularScrubber';
 import LabelLarge from '@/components/LabelLarge';
 
 export default function Player() {
+    /** Read URL params to check if player should be open */
     const searchParams = useSearchParams();
     const isOpen = searchParams.has('lyt');
 
+    /** Track if Tracks Overview panel is open */
     const [tracksOverviewOpen, setTracksOverviewOpen] = useState(false);
 
-    const toggleTracksOverview = () => {
-        setTracksOverviewOpen(prev => !prev);
-    }
+    /** Track if component has mounted to prevent hydration errors */
+    const [mounted, setMounted] = useState(false);
+
+    /** Set mounted to true after first render */
+    useEffect(() => { setMounted(true); }, []);
+    if (!mounted) return null;
+    
+    /** Toggle Tracks Overview panel open/closed */
+    const toggleTracksOverview = () => { setTracksOverviewOpen(prev => !prev); }
     
     return (
         <article className={`fixed inset-0 w-screen h-dvh min-h-160 bg-zinc-50 ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
