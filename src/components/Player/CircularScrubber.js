@@ -69,10 +69,15 @@ export default function CircularScrubber() {
       <figure className="absolute size- -z-10 rounded-full overflow-hidden" style={{ width: radius * 2, height: radius * 2}}>
           <img src={currentTrack.artwork} alt={currentTrack.title} className="size-full object-cover opacity-25" loading="lazy" />
       </figure>
-      {isPlaying ? '' :
-      <button className="absolute inset-auto flex items-center justify-center text-zinc-800 bg-zinc-50/50 backdrop-blur-xs cursor-pointer rounded-full overflow-hidden" style={{ width: radius * 2.2, height: radius * 2.2}} onClick={() => play()}>
-        <PlayCircleIcon className="size-24" />
-      </button>
+
+      {isPlaying ?
+        <div>
+          
+        </div>
+      :
+        <button className="absolute inset-auto flex items-center justify-center text-zinc-800 bg-zinc-50/50 backdrop-blur-xs cursor-pointer rounded-full overflow-hidden" style={{ width: radius * 2.2, height: radius * 2.2}} onClick={() => play()}>
+          <PlayCircleIcon className="size-24" />
+        </button>
       }
     </div>
   );
