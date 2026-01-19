@@ -140,11 +140,11 @@ export const projects = [
     workshop: null,
     audio: 'https://cdn.genhoer.dk/media/slotsgade-20/track.mp3',
     segments: [   // <-- add segments here
-    { title: "intro", start: 0 },
-    { title: "main part", start: 40 },
-    { title: "interlude", start: 60 },
-    { title: "outro", start: 120 },
-    { title: "main part", start: 190 },
+    { title: "1578", start: 0 },
+    { title: "1644", start: 150 },
+    { title: "1701", start: 295 },
+    { title: "1849", start: 450 },
+    { title: "1909", start: 602 },
   ],
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Historie Haderslev'] },
