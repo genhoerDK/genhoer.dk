@@ -4,7 +4,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAudio } from '@/context/AudioContext';
 import { CircularInput, CircularTrack, CircularProgress, CircularThumb } from 'react-circular-input';
 import { PlayCircleIcon } from '@heroicons/react/20/solid';
+import BackgroundImage from '@/components/BackgroundImage';
 import TrackSegment from '@/components/Player/TrackSegment';
+import TrackSegmentInfo from '@/components/Player/TrackSegmentInfo'
 
 export default function CircularScrubber() {
   const { progress, duration, seek, currentTrack, play, isPlaying } = useAudio();
@@ -57,27 +59,29 @@ export default function CircularScrubber() {
 
   return (
     <div ref={scrubberRef} className='flex justify-center items-center size-full'>
-      <CircularInput value={localValue} onChange={setLocalValue} onPointerDown={() => setDragging(true)} radius={radius} fill="none" className="pointer-events-none">
+      <BackgroundImage src={currentTrack.coverImage} />
+      <CircularInput value={localValue} onChange={setLocalValue} onPointerDown={() => setDragging(true)} radius={radius} fill="none" className="absolute pointer-events-none z-10">
         <g className="pointer-events-auto cursor-pointer">
           <CircularTrack strokeWidth={radius * 0.1} stroke="#f4f4f5" />
           <CircularProgress strokeWidth={radius * 0.1} stroke="#d4d4d8" strokeLinecap="butt" />
           <CircularThumb r={radius * 0.06} stroke="#fafafa" strokeWidth={radius * 0.015} fill="#27272a" />
           {currentTrack.segments.map((segment, i) => (
-            <TrackSegment startSec={segment.start} endSec={currentTrack.segments[i + 1]?.start ?? duration } duration={duration} value={progress} radius={radius * 0.8} onClick={handleSegmentClick}  key={i}/>
+            <TrackSegment index={i} startSec={segment.start} endSec={currentTrack.segments[i + 1]?.start ?? duration } duration={duration} value={progress} radius={radius * 0.8} onClick={handleSegmentClick} key={i} />
           ))}
         </g>
       </CircularInput>
-      <figure className="absolute size- -z-10 rounded-full overflow-hidden" style={{ width: radius * 2, height: radius * 2}}>
-          <img src={currentTrack.artwork} alt={currentTrack.title} className="size-full object-cover opacity-25" loading="lazy" />
+      <figure className="absolute rounded-full overflow-hidden bg-zinc-800" style={{ width: radius * 2, height: radius * 2}}>
+          <img src={currentTrack.artwork} alt={currentTrack.title} className="size-full object-cover opacity-50" loading="lazy" />
       </figure>
 
+      <h1 className='absolute left-2 md:left-4 top-12 uppercase font-extralight text-zinc-50 text-lg md:text-xl'>{currentTrack.title}</h1>
+
       {isPlaying ?
-        <div>
-          
-        </div>
+        <TrackSegmentInfo segments={currentTrack.segments} radius={radius} />
       :
-        <button className="absolute inset-auto flex items-center justify-center text-zinc-800 bg-zinc-50/25 backdrop-blur-xs cursor-pointer rounded-full overflow-hidden" style={{ width: radius * 2.2, height: radius * 2.2}} onClick={() => play()}>
-          <PlayCircleIcon className="size-24" />
+        <button className="absolute inset-auto flex items-center justify-center cursor-pointer rounded-full z-10" style={{ width: radius * 2.25, height: radius * 2.25}} onClick={() => play()}>
+          <div className="absolute size-full bg-radial from-zinc-900 to-zinc-800 blur-sm opacity-80 rounded-full"></div>
+          <PlayCircleIcon className="size-24 text-zinc-200 z-10" />
         </button>
       }
     </div>

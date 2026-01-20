@@ -41,11 +41,12 @@ export const projects = [
     sponsorLogos: ["spar-nord-fonden", "william-demant-fonden", "oernes-kunstfond"],
     audio: 'https://cdn.genhoer.dk/media/kirkestraede/track.mp3',
     segments: [   // <-- add segments here
-      { title: "1578", start: 0 },
-      { title: "1644", start: 100 },
-      { title: "1701", start: 200 },
-      { title: "1849", start: 250 },
-      { title: "1909", start: 300 },
+      { title: "Bødkermester Reerslev", start: 0 },
+      { title: "Enkefru Ahlers, Hr. Svendsen og Pastoren", start: 90 },
+      { title: "Anton og tøndebåndet", start: 165 },
+      { title: "Fingerpolka i avistrykkeriet", start: 200 },
+      { title: "Smedjen", start: 272 },
+      { title: "Fællessang på børneasylet", start: 396 },
     ],
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Køge Arkiverne'] },
@@ -143,12 +144,12 @@ export const projects = [
     sponsorLogos: ["spar-nord-fonden", "william-demant-fonden"],
     workshop: null,
     audio: 'https://cdn.genhoer.dk/media/slotsgade-20/track.mp3',
-    segments: [   // <-- add segments here
-    { title: "1578", start: 0 },
-    { title: "1644", start: 150 },
-    { title: "1701", start: 295 },
-    { title: "1849", start: 450 },
-    { title: "1909", start: 602 },
+    segments: [
+    { title: "Huset opføres af Philip af Neuss", start: 0 },
+    { title: "Torstenssonfejden og plettyfys-epidemi", start: 150 },
+    { title: "Hestevogne og herberg", start: 295 },
+    { title: "Treårskrigen og Hans Nielsens krigsvise", start: 450 },
+    { title: "Industrialisering, arbejdere og de mange børn", start: 602 },
   ],
     credits: [
       { label: 'Kulturhistorisk samarbejdspartner', input: ['Historie Haderslev'] },
@@ -177,7 +178,7 @@ export const projects = [
     sponsorLogos: ["spar-nord-fonden", "william-demant-fonden", "oernes-kunstfond", "vordingborg-kommune"],
     workshop: null,
     audio: 'https://cdn.genhoer.dk/media/vordingborg-station/track.mp3',
-    segments: [   // <-- add segments here
+    segments: [
     { title: "intro", start: 0 },
     { title: "main part", start: 40 },
     { title: "interlude", start: 60 },
