@@ -31,7 +31,7 @@ export default function Player() {
 
                 {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} /> : <CircularScrubber />}
 
-                <button onClick={toggleTracksOverview} className='absolute right-4 bottom-14 lg:inset-x-auto md:bottom-8 flex items-center gap-1 px-2.5 py-1.5 rounded-full cursor-pointer bg-zinc-200 text-zinc-800 md:hover:bg-zinc-600 md:hover:text-zinc-50'>
+                <button onClick={toggleTracksOverview} className='absolute right-4 bottom-14 lg:inset-x-auto md:bottom-8 flex items-center gap-1 px-3 py-1.5 rounded-full cursor-pointer bg-zinc-200 text-zinc-800 md:hover:bg-zinc-600 md:hover:text-zinc-50'>
                     {tracksOverviewOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" /> }
                     <LabelLarge>Værker</LabelLarge>
                 </button>
