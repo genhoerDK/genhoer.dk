@@ -27,7 +27,7 @@ export default function Player() {
     
     return (
         <article className={`fixed inset-0 w-screen h-dvh min-h-160 bg-zinc-50 ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
-            <section className='relative flex items-center justify-center pt-20 sm:pt-16 lg:pt-0 size-full overflow-hidden'>
+            <section className='relative flex items-center justify-center pt-16 lg:pt-0 size-full overflow-hidden'>
 
                 {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} /> : <CircularScrubber />}
 
