@@ -1,10 +1,8 @@
 import { useAudio } from '@/context/AudioContext';
 import { useRef, useState, useEffect } from 'react';
-import { useIsPortrait } from '@/hooks/useIsPortrait';
 import Marquee from "react-fast-marquee";
 
 export default function TrackSegmentInfo({ segments, radius }) {
-    const isPortrait = useIsPortrait();
     const { currentTime } = useAudio();
     const containerRef = useRef(null);
     const textRef = useRef(null);
@@ -26,7 +24,7 @@ export default function TrackSegmentInfo({ segments, radius }) {
   }, [currentSegment?.title, radius])
 
     return (
-        <div className="absolute top-20 left-2 sm:inset-auto flex gap-1 pr-3 bg-zinc-200 rounded-full overflow-hidden cursor-default shrink-0" style={!isPortrait ? { maxWidth: radius * 1.2 } : { maxWidth: "66%" }}>
+        <div className="absolute top-20 left-2 md:left-4 flex gap-1 max-w-80 pr-3 bg-zinc-200 rounded-full overflow-hidden cursor-default shrink-0">
             <div className="bg-zinc-500 border-2 shrink-0 border-zinc-200 size-6 rounded-full flex justify-center items-center">
                 <p className="text-zinc-50 uppercase text-xs leading-none">
                     {currentIndex + 1}
@@ -35,10 +33,9 @@ export default function TrackSegmentInfo({ segments, radius }) {
             <div ref={containerRef} className='flex items-center overflow-hidden'>
                 {isOverflowing ? 
                     <Marquee gradient={true} pauseOnHover={true} speed={20} gradientColor="#e4e4e7" gradientWidth={15}>
-                        <p ref={textRef} className="text-zinc-800 uppercase px-2 text-xs leading-none whitespace-nowrap">
+                        <p ref={textRef} className="text-zinc-800 uppercase px-3 text-xs leading-none whitespace-nowrap">
                             {currentSegment?.title}
                         </p>
-                        <p>|</p>
                     </Marquee>
                     :
                     <p ref={textRef} className="text-zinc-800 uppercase text-xs leading-none whitespace-nowrap">
