@@ -58,7 +58,7 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
             <circle
                 cx={`${x}%`}
                 cy={`${y}%`}
-                r={radius * 0.045}
+                r={radius * 0.05}
                 fill="#71717a"
                 className='pointer-events-none'
             />
@@ -68,8 +68,8 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
               y={`${y}%`}
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize={radius * 0.06}
-              dy={radius * 0.005}
+              fontSize={radius * 0.065}
+              dy={radius * 0.0054}
               fill="#fafafa"
               className='pointer-events-none'
             >
