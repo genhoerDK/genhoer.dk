@@ -9,7 +9,7 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
     const start = startSec / duration;
     const end = endSec / duration;
 
-    const gap = 0.01;
+    const gap = 0.003;
     const adjustedEnd = end - gap;
     const circumference = 2 * Math.PI * radius;
     const length = (adjustedEnd - start) * circumference;
@@ -26,10 +26,8 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
     const handleMouseEnter = () => onHover?.(index);
     const handleMouseLeave = () => onHoverEnd?.();
 
-    const mid = start;
-    const tweak = Math.PI / 32; // adjust to taste
-
-    const angle = mid * 2 * Math.PI - Math.PI / 2 + tweak;
+    const mid = (start + end) / 2;
+    const angle = mid * 2 * Math.PI - Math.PI / 2 - 0.01; // compensate for the gap inserted at the end of the segment
 
     const r = 50 * 0.8;
 
