@@ -33,7 +33,7 @@ export default function TrackSegmentInfo({ segments }) {
             <div className='flex items-center overflow-hidden'>
                 {isOverflowing ? 
                     <Marquee gradient={true} pauseOnHover={true} speed={25} gradientColor="#e4e4e7" gradientWidth={15}>
-                        <p ref={textRef} className="text-zinc-800 uppercase text-xs mx-2.5 whitespace-nowrap">{currentSegment?.title}</p>
+                        <p ref={textRef} className="text-zinc-800 uppercase text-xs mx-2.5 py-1 whitespace-nowrap">{currentSegment?.title}</p>
                         <div className="bg-zinc-900 size-1" />
                     </Marquee>
                     :
