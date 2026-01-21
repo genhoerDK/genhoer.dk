@@ -24,7 +24,7 @@ export default function TrackSegmentInfo({ segments }) {
     if (!currentSegment) return null;
 
     return (
-        <div className="absolute top-20 left-2 md:left-4 flex gap-1 max-w-80 pr-3 bg-zinc-200 rounded-full cursor-default shrink-0">
+        <div className="absolute top-20 left-2 flex gap-1 max-w-80 pr-3 bg-zinc-200 rounded-full cursor-default md:left-4">
             <div className="bg-zinc-500 border-2 shrink-0 border-zinc-200 size-6 rounded-full flex justify-center items-center">
                 <p className="text-zinc-50 uppercase text-xs leading-none">
                     {currentIndex + 1}
