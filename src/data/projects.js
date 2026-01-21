@@ -193,7 +193,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/grindsted-station/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/grindsted-station/artwork.jpg",
     mediaCount: { img: 8, vid: 2, txt: 2 },
-    audio: 'https://cdn.genhoer.dk/media/grindsted-station/track1.mp3',
+    audio: 'https://cdn.genhoer.dk/media/grindsted-station/track.mp3',
     segments: [
       { title: "Ankomst", start: 0 },
       { title: "Godshåndtering", start: 154 },
