@@ -59,7 +59,7 @@ export default function CircularScrubber() {
 
   return (
     <div ref={scrubberRef} className='flex justify-center items-center size-full'>
-      <BackgroundImage src={currentTrack.coverImage} />
+      <BackgroundImage src={currentTrack.coverImageLandscape} />
       <CircularInput value={localValue} onChange={setLocalValue} onPointerDown={() => setDragging(true)} radius={radius} fill="none" className="absolute pointer-events-none z-10">
         <g className="pointer-events-auto cursor-pointer">
           <CircularTrack strokeWidth={radius * 0.05} stroke="#d4d4d8" />

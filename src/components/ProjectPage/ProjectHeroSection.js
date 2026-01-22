@@ -31,10 +31,11 @@ export default function ProjectHeroSection({ project }) {
   return (
       <section className='relative size-full overflow-hidden'>
 
-        {/* Background image */}
-        <figure className="absolute inset-0">
-          <img src={coverImage} alt={title} className="size-full object-cover" loading="lazy" />
-        </figure>
+        {/* Background image, make a common component for all of those */}
+        <picture className="absolute inset-0">
+          <source media="(max-width: 768px)" srcSet={project.coverImagePortrait} />
+          <img src={project.coverImageLandscape} alt={title} className="size-full object-cover" loading="lazy" />
+        </picture>
 
         {/* Background overlay */}
         <div className="absolute inset-0 bg-zinc-800 opacity-90" />

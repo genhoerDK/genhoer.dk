@@ -20,7 +20,7 @@ export default function Map() {
     return (
         <article className={`fixed inset-0 w-screen h-dvh ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
             <MapSection isDark={!!activeProject}>
-                <MapImage isVisible={!!activeProject} src={activeProject?.coverImage}/>
+                <MapImage isVisible={!!activeProject} src={activeProject?.coverImageLandscape}/>
                 {isPortrait ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} /> : <MapLarge setActiveProject={setActiveProject} />}
                 <MapInfoContainer isVisible={!!activeProject}>
                     {!!activeProject && <MapInfo project={activeProject} />}

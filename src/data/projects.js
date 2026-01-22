@@ -12,7 +12,9 @@ export const projects = [
     description: [
       "I en opgang på kasernen præsenteres et værk, som udforsker, belyser og fortolker den kulturhistorie, der knytter sig til Bülows Kaserne. Værket består af fysiske artefakter skabt af elever fra Erritsø Fællesskole, som omgives af et lydværk – en sammenvævning af musikalsk improvisation udført af musikelever fra Den Kreative Skole, reallyde indspillet på kasernen af elever fra Erritsø Fællesskole og anekdoter, som beretter om livet på kasernen gennem tiden. Ved solopgang, solnedgang og hver hele time herimellem kan man høre en kulturhonnør give genlyd i gårdrummet. Dette er en lydlig påmindelse om stedets kulturelle udvikling: Fra militær institution til det kulturhus, det er i dag."
     ],
-    coverImage: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-image.webp",
+    coverImagePortrait: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-image-portrait.webp",
+    coverImageLandscape: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-image-landscape.webp",
+    coverImageSmall: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-video.mp4",
     artwork: null,
     mediaCount: { img: 19, vid: 3, txt: 2 },
@@ -36,7 +38,9 @@ export const projects = [
       "På Kirkestrædedagen opsættes et udendørs og rumligt lydværk der skal præsentere fortidens lydmiljø på stedet. Publikum inviteres på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv vil igen udspille sig, og klinge mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækker lydinstallationen et område på cirka 30 meter.", 
       "Efter Kirkestrædedagen flyttes værket indendørs i et udstillingslokale under Kirkestræde 20 for en periode, så flere borgere og besøgende kan opleve det."
     ],
-    coverImage: "https://cdn.genhoer.dk/media/kirkestraede/cover-image.webp",
+    coverImagePortrait: "https://cdn.genhoer.dk/media/kirkestraede/cover-image-portrait.webp",
+    coverImageLandscape: "https://cdn.genhoer.dk/media/kirkestraede/cover-image-landscape.webp",
+    coverImageSmall: "https://cdn.genhoer.dk/media/kirkestraede/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/kirkestraede/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/kirkestraede/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
@@ -65,7 +69,9 @@ export const projects = [
       "I ungdommen dannes holdninger der ofte udfordrer samtidens normer og status quo. Med afsæt i tidens tendenser, muligheder, miljøer og fællesskaber tager perspektiver form. Erfaringer fra ungdomslivet lever videre i os alle som minder vi forholder os til resten af livet.",
       "Ungdommen i Holbæk ligner ungdommen mange andre steder i Danmark, men den er samtidig også helt sin egen. Den har nemlig udfoldet sig på helt specifikke steder og i lokalsamfundets fællesskaber. Udstillingen i gangtunnelen nær Holbæk Station præsenterer publikum for et lydværk som fortolker ungdommens perspektiv på lokalområdet og de unges holdninger, interesser og drømme gennem skiftende tider.",
     ],
-    coverImage: "https://cdn.genhoer.dk/media/unge-stemmer/cover-image.webp",
+    coverImagePortrait: "https://cdn.genhoer.dk/media/unge-stemmer/cover-image-portrait.webp",
+    coverImageLandscape: "https://cdn.genhoer.dk/media/unge-stemmer/cover-image-landscape.webp",
+    coverImageSmall: "https://cdn.genhoer.dk/media/unge-stemmer/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/unge-stemmer/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/unge-stemmer/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
@@ -100,7 +106,9 @@ export const projects = [
       "Værket fortolker lokalhistorisk materiale, borgeres beretninger og er desuden inspireret af bogen “Magtspillet i Provinsbyen” skrevet af Flemming Seiersen og Karsten Lindhardt. Produktionen tager afsæt i lydoptagelser foretaget i og omkring det tidligere slagteri.", 
       "I dag er Slagteribygningen igen under transformation. De tomme industrilokaler omdannes til et fremtidigt kulturelt samlingssted."
     ],
-    coverImage: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-image.webp",
+    coverImagePortrait: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-image-portrait.webp",
+    coverImageLandscape: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-image-landscape.webp",
+    coverImageSmall: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
@@ -127,8 +135,10 @@ export const projects = [
     description: [
       "Værket åbner et lydligt vindue til den stedbundne kulturhistorie der knytter sig til Slotsgade 20. Gennem fem historiske nedslag undersøger lydværket den historiske udvikling huset har været vidne til.", 
       "Fra skiferdækkeren Philip af Neuss og hertug Hans den Ældres slot Hansborg, over krigsødelæggelser, herberg og hestevognskørsel, til arbejderfamilier i tætpakkede lejligheder. Værket væver stemmer, reallyde og musik sammen i et 12 minutter og 30 sekunder langt forløb."
-    ], 
-    coverImage: "https://cdn.genhoer.dk/media/slotsgade-20/cover-image.webp",
+    ],
+    coverImagePortrait: "https://cdn.genhoer.dk/media/slotsgade-20/cover-image-portrait.webp",
+    coverImageLandscape: "https://cdn.genhoer.dk/media/slotsgade-20/cover-image-landscape.webp",
+    coverImageSmall: "https://cdn.genhoer.dk/media/slotsgade-20/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/slotsgade-20/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/slotsgade-20/artwork.jpg",
     mediaCount: { img: 9, vid: 4, txt: 5 },
@@ -157,7 +167,9 @@ export const projects = [
       "Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.", 
       "Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny."
     ],
-    coverImage: "https://cdn.genhoer.dk/media/vordingborg-station/cover-image.webp",
+    coverImagePortrait: "https://cdn.genhoer.dk/media/vordingborg-station/cover-image-portrait.webp",
+    coverImageLandscape: "https://cdn.genhoer.dk/media/vordingborg-station/cover-image-landscape.webp",
+    coverImageSmall: "https://cdn.genhoer.dk/media/vordingborg-station/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/vordingborg-station/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/vordingborg-station/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
@@ -189,7 +201,9 @@ export const projects = [
       "Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.", 
       "Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for omkring 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv."
     ],
-    coverImage: "https://cdn.genhoer.dk/media/grindsted-station/cover-image.webp",
+    coverImagePortrait: "https://cdn.genhoer.dk/media/grindsted-station/cover-image-portrait.webp",
+    coverImageLandscape: "https://cdn.genhoer.dk/media/grindsted-station/cover-image-landscape.webp",
+    coverImageSmall: "https://cdn.genhoer.dk/media/grindsted-station/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/grindsted-station/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/grindsted-station/artwork.jpg",
     mediaCount: { img: 8, vid: 2, txt: 2 },

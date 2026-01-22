@@ -12,7 +12,7 @@ export default function ProjectCard({ project }) {
             <CardTitle>{project.title}</CardTitle>
             <Link href={project.slug}>
                 <div className="relative">
-                    <CardMedia alt={project.title} img={project.coverImage} vid={project.coverVideo} />
+                    <CardMedia alt={project.title} img={project.coverImageSmall} vid={project.coverVideo} />
                     <ProjectStatus startDate={project.startDate} endDate={project.endDate} />
                 </div>
             </Link>
