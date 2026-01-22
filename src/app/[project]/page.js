@@ -10,7 +10,7 @@ export default async function ProjectPage({ params }) {
   return (
     <article className="w-full h-svh min-h-140">
       <ProjectHeroSection project={project} />
-        {project.mediaCount && <ProjectMediaSection project={project} />}
+      {project.mediaCount && <ProjectMediaSection project={project} />}
       <ProjectNavigation currentProject={project} />
     </article>
   );
