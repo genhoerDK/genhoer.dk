@@ -50,7 +50,7 @@ export default function ProjectHeroSection({ project }) {
                   {isProjectPlaying ? <PauseCircleIcon className="size-6 sm:size-8" /> : <PlayCircleIcon className="size-6 sm:size-8" />}
                 </button>
               }
-              <h2 className={`uppercase font-light text-lg ${!projectHasAudio && 'ml-10'} leading-none md:text-xl`}>{title}</h2>
+              <h2 className={`uppercase font-light text-lg ${!projectHasAudio && 'sm:ml-10'} leading-none md:text-xl`}>{title}</h2>
             </div>
             <div className="col-span-10 sm:col-span-8 sm:col-start-2 md:col-span-8 md:col-start-3 xl:col-span-6 xl:col-start-4">
               {description.map((text, i) => (
