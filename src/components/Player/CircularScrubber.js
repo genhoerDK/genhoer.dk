@@ -70,11 +70,7 @@ export default function CircularScrubber() {
           ))}
         </g>
       </CircularInput>
-      <figure className="absolute rounded-full overflow-hidden bg-zinc-800" style={{ width: radius * 2, height: radius * 2}}>
-          <img src={currentTrack.artwork} alt={currentTrack.title} className="size-full object-cover opacity-50" loading="lazy" />
-      </figure>
-
-      <h1 className='absolute left-2 md:left-4 top-12 uppercase font-extralight text-zinc-50 text-lg md:text-xl'>{currentTrack.title}</h1>
+      <h2 className='absolute left-2 md:left-4 top-12 uppercase font-extralight text-zinc-50 text-lg md:text-xl'>{currentTrack.title}</h2>
 
       {isPlaying ?
         <TrackSegmentInfo segments={currentTrack.segments} radius={radius} />
