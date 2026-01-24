@@ -38,7 +38,7 @@ export default function TracksOverview({ toggleOverview }) {
                 {filteredProjects.map((project, i) => (
                     <SwiperSlide key={i} className="pt-10">
                         <button className="flex items-center justify-center rounded-full overflow-hidden cursor-pointer text-zinc-50" onClick={() => handleClick(project)}>
-                            <img src={project.artwork} alt={project.title} className="object-cover" loading="lazy" />
+                            <img src={project.coverImageSmall} alt={project.title} className="object-cover aspect-square" loading="lazy" />
                             <PlayCircleIcon className="absolute inset-auto size-16" />
                         </button>
                         <h2 className="uppercase font-light text-center text-zinc-800 pt-4">{project.title}</h2>
