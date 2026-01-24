@@ -77,7 +77,7 @@ export const projects = [
     startDate: '2026-06-27',
     endDate: '2026-10-05',
     partners: 'Kolding Stadsarkiv, Kolding Ungdomsskole og Godset',
-    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
+    sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden'],
     description: [
       'Flere detaljer kommer snart.'
     ],
@@ -169,7 +169,7 @@ export const projects = [
     startDate: '2026-03-14',
     endDate: '2026-07-27',
     partners: 'Esbjerg Kommune og Huset Esbjerg',
-    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
+    sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden', 'johan-hoffmann-fonden' ],
     description: [
       'Flere detaljer kommer snart.'
     ],
