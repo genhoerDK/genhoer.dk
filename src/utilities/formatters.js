@@ -7,12 +7,18 @@ import { da } from 'date-fns/locale';
 
 export const formatDates = (startStr, endStr) => {
   const start = parseISO(startStr);
+
+  // If end date is null -> permanent installation
+  if (!endStr) {
+    const startText = format(start, 'd. MMMM', { locale: da });
+    return `${startText} ${start.getFullYear()} (permanent)`;
+  }
+
   const end = parseISO(endStr);
   const sameYear = start.getFullYear() === end.getFullYear();
-  const formatOptions = 'd. MMMM';
 
-  const startText = format(start, formatOptions, { locale: da });
-  const endText = format(end, formatOptions, { locale: da });
+  const startText = format(start, 'd. MMMM', { locale: da });
+  const endText = format(end, 'd. MMMM', { locale: da });
 
   return sameYear
     ? `${startText} - ${endText} ${end.getFullYear()}`
@@ -25,13 +31,21 @@ export const formatDates = (startStr, endStr) => {
 
 export function formatStatus(startDate, endDate, today = new Date()) {
   const start = parseISO(startDate);
-  const end = parseISO(endDate);
+  const end = endDate ? parseISO(endDate) : null;
 
-  if (isSameDay(today, start)) return 'åbner i dag';
-  if (isSameDay(today, end)) return 'lukker i dag';
+  // Hvis vi HAR en endDate, kan vi vise "lukker..." og "kan opleves nu"
+  if (end) {
+    if (isSameDay(today, start)) return 'åbner i dag';
+    if (isSameDay(today, end)) return 'lukker i dag';
 
-  if (isAfter(today, start) && isBefore(today, end)) return 'kan opleves nu';
-  if (!isBefore(today, start)) return null;
+    if (isAfter(today, start) && isBefore(today, end)) return 'kan opleves nu';
+    if (!isBefore(today, start)) return null;
+  } else {
+    // Hvis vi IKKE har en endDate (permanent installation):
+    // Vi viser kun "åbner..." frem til startdatoen, og ellers ingenting bagefter
+    if (isSameDay(today, start)) return 'åbner i dag';
+    if (!isBefore(today, start)) return null;
+  }
 
   const daysDiff = differenceInCalendarDays(start, today);
   const monthsDiff = differenceInCalendarMonths(start, today);
@@ -53,7 +67,11 @@ export function formatStatus(startDate, endDate, today = new Date()) {
   if (monthsDiff === 1) return 'åbner næste måned';
   if (monthsDiff <= 3) return `åbner til ${format(start, 'LLLL', { locale: da })}`;
 
-  const seasons = [ 'vinter', 'vinter', 'foråret', 'foråret', 'foråret', 'sommer', 'sommer', 'sommer', 'efteråret', 'efteråret', 'efteråret', 'vinter'];
+  const seasons = [
+    'vinter', 'vinter', 'foråret', 'foråret', 'foråret', 'sommer',
+    'sommer', 'sommer', 'efteråret', 'efteråret', 'efteråret', 'vinter'
+  ];
+
   const season = seasons[getMonth(start)];
   return `åbner til ${season}${startYear !== currentYear ? ` ${startYear}` : ''}`;
 }

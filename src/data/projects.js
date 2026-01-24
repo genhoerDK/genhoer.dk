@@ -1,4 +1,5 @@
 export const projects = [
+  
   {
     slug: "bulows-kaserne",
     title: "Bülows Kaserne",
@@ -16,10 +17,11 @@ export const projects = [
     coverImageLandscape: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-image-landscape.webp",
     coverImageSmall: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-image-small.webp",
     coverVideo: "https://cdn.genhoer.dk/media/bulows-kaserne/cover-video.mp4",
-    artwork: null,
+    artwork: "https://cdn.genhoer.dk/media/bulows-kaserne/artwork.jpg",
     mediaCount: { img: 19, vid: 3, txt: 2 },
-    audio: null,
-    audioSegments: [ 
+    audio: 'https://cdn.genhoer.dk/media/bulows-kaserne/track-v1.mp3',
+    segments: [ 
+      { title: "intro", start: 0 },
       { title: "intro", start: 0 },
     ],
     composer: ["Thomas Eg Matthiesen", "Mark Ibsgaard Gregersen"]
@@ -44,7 +46,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/kirkestraede/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/kirkestraede/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
-    audio: 'https://cdn.genhoer.dk/media/kirkestraede/track.mp3',
+    audio: 'https://cdn.genhoer.dk/media/kirkestraede/track-v1.mp3',
     segments: [
       { title: "Bødkermester Reerslev", start: 0 },
       { title: "Enkefru Ahlers, Hr. Svendsen og Pastoren", start: 90 },
@@ -75,7 +77,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/unge-stemmer/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/unge-stemmer/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
-    audio: 'https://cdn.genhoer.dk/media/unge-stemmer/track.mp3',
+    audio: 'https://cdn.genhoer.dk/media/unge-stemmer/track-v1.mp3',
     segments: [
       { title: "Isefjorden og Buena Vista", start: 0 },
       { title: "Efterår", start: 164 },
@@ -112,7 +114,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
-    audio: 'https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/track.mp3',
+    audio: 'https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/track-v1.mp3',
     segments: [
       { title: "Udvikling", start: 0 },
       { title: "Arbejde", start: 379 },
@@ -142,7 +144,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/slotsgade-20/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/slotsgade-20/artwork.jpg",
     mediaCount: { img: 9, vid: 4, txt: 5 },
-    audio: 'https://cdn.genhoer.dk/media/slotsgade-20/track.mp3',
+    audio: 'https://cdn.genhoer.dk/media/slotsgade-20/track-v1.mp3',
     segments: [
       { title: "Huset opføres af Philip af Neuss", start: 0 },
       { title: "Torstenssonfejden og plettyfys-epidemi", start: 150 },
@@ -173,7 +175,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/vordingborg-station/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/vordingborg-station/artwork.jpg",
     mediaCount: { img: 13, vid: 3, txt: 2 },
-    audio: 'https://cdn.genhoer.dk/media/vordingborg-station/track.mp3',
+    audio: 'https://cdn.genhoer.dk/media/vordingborg-station/track-v1.mp3',
     segments: [
       { title: "Frihed under ansvar", start: 0 },
       { title: "Sådan var det jo dengang", start: 74 },
@@ -207,7 +209,7 @@ export const projects = [
     coverVideo: "https://cdn.genhoer.dk/media/grindsted-station/cover-video.mp4",
     artwork: "https://cdn.genhoer.dk/media/grindsted-station/artwork.jpg",
     mediaCount: { img: 8, vid: 2, txt: 2 },
-    audio: 'https://cdn.genhoer.dk/media/grindsted-station/track-ggs.mp3', // Renamed because of wrong sounds at 6.59, where Azure might be serving a previous version / cache conflict?
+    audio: 'https://cdn.genhoer.dk/media/grindsted-station/track-v1.mp3', // Renamed because of wrong sounds at 6.59, where Azure might be serving a previous version / cache conflict?
     segments: [
       { title: "Ankomst", start: 0 },
       { title: "Godshåndtering", start: 154 },
