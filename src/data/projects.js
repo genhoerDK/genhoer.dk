@@ -362,8 +362,7 @@ export const projects = [
     sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', 'oernes-kunstfond', 'vordingborg-kommune'],
     description: [
       'Siden 1937 har rejsende, borgere og ansatte haft deres daglige gang på Vordingborg Station. Bygningen har udviklet sig med tiden, og hvor der tidligere har været billetsalg, rejsegodshåndtering og restauration, er der i dag plads til kunst, musikliv og en ungdomscafé.', 
-      'Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.', 
-      'Lydværket kan opleves hver dag mellem kl. 8 og kl. 20 og afspilles af et computersystem, der hele tiden sammensætter og justerer lydene på ny.'
+      'Genhør Vordingborg Station fortolker det liv der er levet, og den lyd der har udspillet sig i netop dette rum gennem tiden. Historiske anekdoter, akustiske instrumenter, stemmer fra fortiden og genskabte lydlige scenarier spiller sammen med med digitalt bearbejdede toghorn, forvrængende effekter og el-guitarer indspillet af musikere fra bandet Flaw, som har øvelokale i stationens kælder. I ventesalens akustik blander værket sig med nutidens lydlandskab og forener fortidens og nutidens liv på stationen.'
     ],
     coverImagePortrait: 'https://cdn.genhoer.dk/media/vordingborg-station/cover-image-portrait.webp',
     coverImageLandscape: 'https://cdn.genhoer.dk/media/vordingborg-station/cover-image-landscape.webp',
@@ -397,7 +396,7 @@ export const projects = [
     sponsorLogos: ['billund-kommune', 'den-jyske-sparekasses-stoettefond', 'kulturvirket-grindsted'],
     description: [
       'Grundet jernbanen var Grindsted i starten af 1900-tallet i en rivende udvikling. Området udviklede sig fra et tyndtbefolket hedelandskab til en by fyldt med muligheder. Befolkningen tidobledes, industrien blomstrede og byens station blev et af Danmarks største jernbaneknudepunkter.', 
-      'Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolkede dagligdagens aktiviteter på stationen for omkring 100 år siden. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.'
+      'Udstillingen fandt sted i stationsbygningens ventesal og præsenterede publikum for et lydværk, der fortolker dagligdagens aktiviteter på stationen 100 år tidligere. Værkets musikalske elementer blev indspillet på ældre instrumenter fra egnen - en violin fra Filskov og en mandolin fra Hejnsvig - samt et digitalt instrument skabt af en historisk optagelse af fløjten fra et damplokomotiv.'
     ],
     coverImagePortrait: 'https://cdn.genhoer.dk/media/grindsted-station/cover-image-portrait.webp',
     coverImageLandscape: 'https://cdn.genhoer.dk/media/grindsted-station/cover-image-landscape.webp',
