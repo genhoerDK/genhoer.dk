@@ -19,17 +19,6 @@ export default function Participate() {
         </div>
       </section>
 
-      <section className="relative flex flex-col justify-end min-h-screen pb-24">
-        <div className="absolute inset-0 bg-zinc-800 -z-10">
-            <img src="https://cdn.genhoer.dk/media/lokation.webp" className="object-cover size-full opacity-30" loading="lazy" />
-        </div>
-        <div className="grid grid-cols-12 md:grid-cols-24 gap-8">
-          <div className="col-span-13 md:col-start-10 py-8 text-zinc-50">
-            <LabelSmall>Den nære danmarkshistorie</LabelSmall>
-            <p className="font-light py-1 text-sm md:text-lg">Kender du til et stykke af den lokale kulturhistorie eller stedbundne kulturarv som vi skal udforske?</p>
-          </div>
-        </div>
-      </section>
     </article>
   );
 }

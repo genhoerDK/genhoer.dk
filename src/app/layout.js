@@ -8,35 +8,39 @@ import Player from "@/components/Player/Player";
 import Map from "@/components/Map/Map";
 
 const rem = REM({
-  variable: "--font-rem",
-  subsets: ["latin"],
+    variable: "--font-rem",
+    subsets: ["latin"],
 });
 
 export const metadata = {
-  title: "Genhør",
-  description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i offentlige rum, der fortolker stedbunden kulturhistorie og styrker kendskabet til den nære danmarkshistorie.",
+    title: "Genhør",
+    description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i offentlige rum, der fortolker stedbunden kulturhistorie og styrker kendskabet til den nære danmarkshistorie.",
 };
 
 export const viewport = {
-  themeColor: "#FAFAFA",
+    themeColor: "#FAFAFA",
 };
 
 export default function RootLayout({ children }) {
-  return (
-    <html lang="da">
-      <body className={`${rem.className} antialiased bg-zinc-50`}>
-        <AudioProvider>
-          <Header />
-          <main className="w-screen min-h-svh">
-            {children}
-          </main>
-          <Suspense fallback={null}>
-            <Toolbar />
-            <Map />
-            <Player />
-          </Suspense>
-        </AudioProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="da">
+            <body className={`${rem.className} ${rem.variable} antialiased bg-zinc-50`}>
+                <AudioProvider>
+                    <Header />
+                    <main className="w-screen min-h-svh">
+                        {children}
+                    </main>
+                    <Suspense fallback={null}>
+                        <Toolbar />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                        <Map />
+                    </Suspense>
+                    <Suspense fallback={null}>
+                        <Player />
+                    </Suspense>
+                </AudioProvider>
+            </body>
+        </html>
+    );
 }

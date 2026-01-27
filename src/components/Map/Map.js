@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from 'next/navigation';
 import { useIsPortrait } from "@/hooks/useIsPortrait";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -30,15 +30,13 @@ export default function Map() {
     }, [isOpen]);
 
     return (
-        <Suspense fallback={null}>
-            <Overlay active={isOpen}>
-                <MapSection isDark={!!activeProject}>
-                    <MapImage isVisible={!!activeProject} src={focusedProject?.coverImageLandscape} />
-                    {isPortrait ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} /> : <MapLarge setActiveProject={setActiveProject} />}
-                    <MapInfo project={focusedProject} isVisible={!!activeProject} />
-                    {isPortrait && <MapControls activeProject={activeProject} setActiveProject={setActiveProject} />}
-                </MapSection>
-            </Overlay>
-        </Suspense>
+        <Overlay active={isOpen}>
+            <MapSection isDark={!!activeProject}>
+                <MapImage isVisible={!!activeProject} src={focusedProject?.coverImageLandscape} />
+                {isPortrait ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} /> : <MapLarge setActiveProject={setActiveProject} />}
+                <MapInfo project={focusedProject} isVisible={!!activeProject} />
+                {isPortrait && <MapControls activeProject={activeProject} setActiveProject={setActiveProject} />}
+            </MapSection>
+        </Overlay>
     );
 }
