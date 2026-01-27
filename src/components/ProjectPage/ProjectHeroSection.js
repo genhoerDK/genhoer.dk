@@ -8,7 +8,7 @@ import ProjectSponsors from '@/components/ProjectPage/ProjectSponsors';
 
 export default function ProjectHeroSection({ project }) {
   const { initialized, setTrack, currentTrack, play, pause, isPlaying } = useAudio();
-  const { title, slug, coverImage, startDate, endDate, location, partners, description, audio } = project;
+  const { title, slug, startDate, endDate, location, partners, description, audio } = project;
 
   const projectHasAudio = !!audio;
   const isProjectPlaying = isPlaying && currentTrack?.slug === project.slug;
