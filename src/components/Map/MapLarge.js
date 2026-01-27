@@ -87,7 +87,7 @@ export default function MapLarge({ setActiveProject }) {
                         .attr("fill-opacity", p => p.properties.KOMKODE === d.komkode ? 1 : 0)
                         .attr("stroke", "#FAFAFA")
                         .attr("stroke-opacity", p => p.properties.KOMKODE === d.komkode ? 1 : 0.1);
-                        
+
 
                     markers.transition()
                         .delay(200)

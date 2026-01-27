@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { REM } from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from '@/context/AudioContext';
@@ -30,11 +29,9 @@ export default function RootLayout({ children }) {
           <main className="w-screen min-h-svh">
             {children}
           </main>
-          <Suspense fallback=""> {/* Suspense might be to wide? Narrow down to where searchParams are used */}
-            <Toolbar />
-            <Map />
-            <Player />
-          </Suspense>
+          <Toolbar />
+          <Map />
+          <Player />
         </AudioProvider>
       </body>
     </html>
