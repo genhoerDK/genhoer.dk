@@ -201,7 +201,7 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/bulows-kaserne/cover-image-small.webp',
     coverVideo: 'https://cdn.genhoer.dk/media/bulows-kaserne/cover-video.mp4',
     artwork: 'https://cdn.genhoer.dk/media/bulows-kaserne/artwork.jpg',
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "text-02.svg", "image-05.webp", "image-06.webp", "video-02.mp4", "image-07.webp"],
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: 'https://cdn.genhoer.dk/media/bulows-kaserne/track-v1.mp3',
     segments: [ 
       { title: 'Angreb på ubåde', start: 0, image: 'https://cdn.genhoer.dk/media/bulows-kaserne/segment-01.webp' },
@@ -241,7 +241,7 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/kirkestraede/cover-image-small.webp',
     coverVideo: 'https://cdn.genhoer.dk/media/kirkestraede/cover-video.mp4',
     artwork: 'https://cdn.genhoer.dk/media/kirkestraede/artwork.jpg',
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "text-02.svg", "image-05.webp", "image-06.webp", "video-02.mp4", "image-07.webp"],
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: 'https://cdn.genhoer.dk/media/kirkestraede/track-v1.mp3',
     segments: [
       { title: 'Bødkermester Reerslev', start: 0, image: 'https://cdn.genhoer.dk/media/kirkestraede/segment-01.webp' },
@@ -272,7 +272,7 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/unge-stemmer/cover-image-small.webp',
     coverVideo: 'https://cdn.genhoer.dk/media/unge-stemmer/cover-video.mp4',
     artwork: 'https://cdn.genhoer.dk/media/unge-stemmer/artwork.jpg',
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "text-02.svg", "image-05.webp", "image-06.webp", "video-02.mp4", "image-07.webp"],
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: 'https://cdn.genhoer.dk/media/unge-stemmer/track-v1.mp3',
     segments: [
       { title: 'Isefjorden og Buena Vista', start: 0, image: 'https://cdn.genhoer.dk/media/unge-stemmer/segment-01.webp' },
@@ -309,7 +309,7 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-image-small.webp',
     coverVideo: 'https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/cover-video.mp4',
     artwork: 'https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/artwork.jpg',
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "text-02.svg", "image-05.webp", "image-06.webp", "video-02.mp4", "image-07.webp"],
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: 'https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/track-v1.mp3',
     segments: [
       { title: 'Udvikling', start: 0, image: 'https://cdn.genhoer.dk/media/vi-vokser-og-flytter-os/segment-01.webp' },
@@ -339,7 +339,7 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/slotsgade-20/cover-image-small.webp',
     coverVideo: 'https://cdn.genhoer.dk/media/slotsgade-20/cover-video.mp4',
     artwork: 'https://cdn.genhoer.dk/media/slotsgade-20/artwork.jpg',
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "text-02.svg", "image-05.webp", "image-06.webp", "video-02.mp4", "image-07.webp"],
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: 'https://cdn.genhoer.dk/media/slotsgade-20/track-v1.mp3',
     segments: [
       { title: 'Huset opføres af Philip af Neuss', start: 0, image: 'https://cdn.genhoer.dk/media/slotsgade-20/segment-01.webp' },
@@ -369,7 +369,7 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/vordingborg-station/cover-image-small.webp',
     coverVideo: 'https://cdn.genhoer.dk/media/vordingborg-station/cover-video.mp4',
     artwork: 'https://cdn.genhoer.dk/media/vordingborg-station/artwork.jpg',
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "text-02.svg", "image-05.webp", "image-06.webp", "video-02.mp4", "image-07.webp"],
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: 'https://cdn.genhoer.dk/media/vordingborg-station/track-v1.mp3',
     segments: [
       { title: 'Frihed under ansvar', start: 0, image: 'https://cdn.genhoer.dk/media/vordingborg-station/segment-01.webp' },
@@ -403,7 +403,7 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/grindsted-station/cover-image-small.webp',
     coverVideo: 'https://cdn.genhoer.dk/media/grindsted-station/cover-video.mp4',
     artwork: 'https://cdn.genhoer.dk/media/grindsted-station/artwork.jpg',
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "text-02.svg", "image-05.webp", "image-06.webp", "video-02.mp4", "image-07.webp"],
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: 'https://cdn.genhoer.dk/media/grindsted-station/track-v1.mp3',
     segments: [
       { title: 'Ankomst', start: 0, image: 'https://cdn.genhoer.dk/media/grindsted-station/segment-01.webp' },
