@@ -62,7 +62,7 @@ export default function CircularScrubber() {
       {/* <BackgroundImage src={currentTrack?.coverImageLandscape} /> */}
       <CircularInput value={localValue} onChange={setLocalValue} onPointerDown={() => setDragging(true)} radius={radius} fill="none" className="absolute pointer-events-none z-10">
         <g className="pointer-events-auto cursor-pointer">
-          <CircularTrack strokeWidth={radius * 0.05} stroke="#d4d4d8" />
+          <CircularTrack strokeWidth={radius * 0.05} stroke="#a1a1aa" />
           <CircularProgress strokeWidth={radius * 0.05} stroke="#52525b" strokeLinecap="butt" />
           <CircularThumb r={radius * 0.075} stroke="#27272a" strokeWidth={0} fill="#52525b" />
           {currentTrack?.segments.map((segment, i) => (
