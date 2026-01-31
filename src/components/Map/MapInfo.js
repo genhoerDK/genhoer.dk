@@ -12,7 +12,7 @@ export default function MapInfo({ project }) {
     ]
 
     return (
-        <div className="absolute top-11 left-2 flex flex-col gap-2 w-md text-paper pointer-events-none md:left-4">
+        <div className="absolute top-11 left-2 flex flex-col gap-2 max-w-sm sm:max-w-md text-paper pointer-events-none md:left-4">
             <Title>{title}</Title>
             <InfoList items={info} truncate={false} />
         </div>

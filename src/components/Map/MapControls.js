@@ -8,7 +8,7 @@ export default function MapControls({ activeProject, setActiveProject }) {
             <button onClick={() => {setActiveProject(null)}} className="p-2 rounded-full bg-paper cursor-pointer">
                 <XCircleIcon className="size-6" />            
             </button>
-            <Link href={activeProject?.slug || ""} className="flex items-center gap-2 py-2 pr-2 pl-4 rounded-full bg-zinc-50">
+            <Link href={activeProject?.slug || ""} className="flex items-center gap-2 py-2 pr-2 pl-4 rounded-full bg-paper">
                 <LabelLarge>Se mere </LabelLarge>
                 <ArrowRightCircleIcon className="size-6" />
             </Link>
