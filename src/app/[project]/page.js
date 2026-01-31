@@ -23,7 +23,7 @@ export default async function ProjectPage({ params }) {
     if (!project) notFound();
 
     return (
-        <article className="w-full h-dvh min-h-120">
+        <article className="w-full h-svh min-h-120">
             <ProjectHeroSection project={project} />
             <ProjectMediaSection slug={project.slug} media={project.media} />
             <ProjectNavSection currentProject={project} />

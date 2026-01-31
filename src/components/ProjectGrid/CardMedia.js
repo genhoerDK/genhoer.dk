@@ -14,7 +14,7 @@ export default function CardMedia({ vid, img, alt, children }) {
 
     return (
         <figure className="relative aspect-video my-2 overflow-hidden" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-            {vid && <video ref={ref} src={vid} playsInline muted loop className="hidden absolute size-full object-cover md:block" />}
+            {vid && <video ref={ref} src={vid} playsInline muted loop className="absolute size-full" />}
             <img src={img} alt={alt} loading="lazy" className={`absolute ${vid ? 'md:hover:opacity-0' : ""}`} />
             {children}
         </figure>
