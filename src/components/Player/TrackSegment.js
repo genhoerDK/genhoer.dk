@@ -41,7 +41,7 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
                 cy="50%"
                 r={radius}
                 fill="none"
-                stroke="#fafafa"
+                stroke="#27272a"
                 strokeWidth={radius * 0.25}
                 strokeDasharray={`${length} ${circumference - length}`}
                 strokeDashoffset={-offset}
@@ -59,7 +59,7 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
                 cx={`${x}%`}
                 cy={`${y}%`}
                 r={radius * 0.05}
-                fill="#71717a"
+                fill="none" // SET CIRCLE HERE
                 className='pointer-events-none'
             />
 

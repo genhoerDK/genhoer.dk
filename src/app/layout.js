@@ -13,18 +13,25 @@ const rem = REM({
 });
 
 export const metadata = {
-    title: "Genhør",
-    description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i offentlige rum, der fortolker stedbunden kulturhistorie og styrker kendskabet til den nære danmarkshistorie.",
+    metadataBase: new URL("https://genhoer.dk"),
+    title: { default: "Genhør", template: "%s | Genhør", },
+    description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i offentlige rum, der styrker kendskabet til den nære danmarkshistorie.",
+    alternates: { canonical: "/" },
+    robots: { index: true, follow: true, },
+    icons: { icon: "/favicon.ico", },
 };
 
 export const viewport = {
-    themeColor: "#FAFAFA",
+    themeColor: [
+        { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+        { media: "(prefers-color-scheme: dark)", color: "#27272a" },
+    ],
 };
 
 export default function RootLayout({ children }) {
     return (
         <html lang="da">
-            <body className={`${rem.className} ${rem.variable} antialiased bg-zinc-50`}>
+            <body className={`${rem.className} ${rem.variable} antialiased bg-paper text-ink`}>
                 <AudioProvider>
                     <Header />
                     <main className="w-screen min-h-svh">

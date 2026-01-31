@@ -132,5 +132,5 @@ export default function MapLarge({ setActiveProject }) {
         return () => window.removeEventListener("resize", renderMap);
     }, []);
 
-    return <svg ref={svgRef} className="size-full" />;
+    return <svg ref={svgRef} className="relative size-full" />;
 }

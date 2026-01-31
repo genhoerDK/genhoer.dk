@@ -5,8 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useIsPortrait } from "@/hooks/useIsPortrait";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import Overlay from '@/components/Overlay';
-import MapSection from "@/components/Map/MapSection";
-import MapImage from "@/components/Map/MapImage";
+import BackgroundImage from "@/components/BackgroundImage";
 import MapSmall from "@/components/Map/MapSmall";
 import MapLarge from "@/components/Map/MapLarge";
 import MapInfo from "@/components/Map/MapInfo";
@@ -22,7 +21,7 @@ export default function Map() {
     useScrollLock(isOpen);
 
     useEffect(() => {
-        !!activeProject && setFocusedProject(activeProject);
+        if (activeProject) setFocusedProject(activeProject);
     }, [activeProject]);
 
     useEffect(() => {
@@ -31,12 +30,10 @@ export default function Map() {
 
     return (
         <Overlay active={isOpen}>
-            <MapSection isDark={!!activeProject}>
-                <MapImage isVisible={!!activeProject} src={focusedProject?.coverImageLandscape} />
-                {isPortrait ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} /> : <MapLarge setActiveProject={setActiveProject} />}
-                <MapInfo project={focusedProject} isVisible={!!activeProject} />
-                {isPortrait && <MapControls activeProject={activeProject} setActiveProject={setActiveProject} />}
-            </MapSection>
+            <BackgroundImage visible={!!activeProject} portrait={focusedProject?.coverImagePortrait} landscape={focusedProject?.coverImageLandscape} />
+            {isPortrait ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} /> : <MapLarge setActiveProject={setActiveProject} />}
+            <MapInfo project={activeProject} />
+            {isPortrait && <MapControls activeProject={activeProject} setActiveProject={setActiveProject} />}
         </Overlay>
     );
 }

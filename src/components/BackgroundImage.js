@@ -1,8 +1,8 @@
-export default function BackgroundImage({ visible = true, src }) {
+export default function BackgroundImage({ portrait, landscape, visible = true }) {
     return (
-        <div className={`absolute inset-0 transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}>
-            <img src={src} className="object-cover size-full" loading="lazy" />
-            <div className="absolute inset-0 bg-zinc-800 opacity-90" />
-        </div>
+        <picture className={`absolute inset-0 bg-ink transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}>
+            <source media="(max-width: 768px)" srcSet={portrait} />
+            <img src={landscape} className="size-full object-cover opacity-10" loading="lazy" alt="" />
+        </picture>
     );
 }

@@ -25,23 +25,23 @@ export default function TrackSegmentInfo({ segments, radius }) {
 
     return (
         <>
-            <figure className="absolute rounded-full overflow-hidden bg-zinc-800" style={{ width: radius * 1.25, height: radius * 1.25 }}>
+            <figure className="absolute rounded-full overflow-hidden bg-ink" style={{ width: radius * 1.25, height: radius * 1.25 }}>
               <img src={currentSegment.image} alt={currentSegment.title} className="size-full object-cover opacity-75" loading="lazy" />
             </figure>
-            <div className="absolute top-20 left-2 flex gap-1 max-w-80 pr-3 bg-zinc-200 rounded-full cursor-default md:left-4">
-                <div className="bg-zinc-500 border-2 shrink-0 border-zinc-200 size-6 rounded-full flex justify-center items-center">
-                    <p className="text-zinc-50 uppercase text-xs leading-none">
+            <div className="absolute top-20 left-2 flex gap-1 max-w-80 pr-3 bg-ink rounded-full cursor-default md:left-4">
+                <div className="bg-paper border-2 shrink-0 border-ink size-6 rounded-full flex justify-center items-center">
+                    <p className="uppercase text-xs leading-none">
                         {currentIndex + 1}
                     </p>
                 </div>
                 <div className='flex items-center overflow-hidden'>
                     {isOverflowing ? 
-                        <Marquee gradient={true} pauseOnHover={true} speed={25} gradientColor="#e4e4e7" gradientWidth={15}>
-                            <p ref={textRef} className="text-zinc-800 uppercase text-xs mx-2.5 py-1 whitespace-nowrap">{currentSegment?.title}</p>
-                            <div className="bg-zinc-900 size-1" />
+                        <Marquee gradient={true} pauseOnHover={true} speed={25} gradientColor="#27272a" gradientWidth={15}>
+                            <p ref={textRef} className="text-paper uppercase text-xs mx-2.5 py-1 whitespace-nowrap">{currentSegment?.title}</p>
+                            <div className="bg-paper size-1" />
                         </Marquee>
                         :
-                        <p ref={textRef} className="text-zinc-800 uppercase text-xs whitespace-nowrap">{currentSegment?.title}</p>
+                        <p ref={textRef} className="text-paper uppercase text-xs whitespace-nowrap">{currentSegment?.title}</p>
                     }
 
                 </div>

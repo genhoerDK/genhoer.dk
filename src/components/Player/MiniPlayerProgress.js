@@ -5,7 +5,7 @@ export default function AudioProgress() {
 
   return (
     <div className="absolute inset-0 w-full h-full">
-      <div className="h-full bg-zinc-800/10" style={{ width: `${progress * 100}%` }} />
+      <div className="h-full bg-ink/10" style={{ width: `${progress * 100}%` }} />
     </div>
   );
 }

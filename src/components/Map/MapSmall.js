@@ -114,7 +114,8 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                         .duration(500)
                         .attr("r", (r) => (r === d ? 3 : 0))
                         .attr("fill", "#27272A")
-                        .attr("stroke-width", 1);
+                        .attr("stroke-width", 1)
+                        .style("cursor", "default");
                 });
 
             const userZoomExtent = 3;
@@ -189,9 +190,10 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                 .duration(500)
                 .attr("r", markerRadius)
                 .attr("fill", "#71717A")
-                .attr("stroke-width", markerStrokeWidth);
+                .attr("stroke-width", markerStrokeWidth)
+                .style("cursor", "pointer");
         }
     }, [activeProject]);
 
-    return <svg ref={svgRef} className="size-full cursor-pointer" />;
+    return <svg ref={svgRef} className="relative size-full" />;
 }

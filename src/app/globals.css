@@ -2,13 +2,13 @@
 
 @theme {
   --font-rem: "Rem", monospace;
+  --color-paper: #fafafa;      /* zinc-50  */
+  --color-soft: #e4e4e7;       /* zinc-200 */
+  --color-muted: #d4d4d8;      /* zinc-300 */
+  --color-hard: #71717a;      /* zinc-500 */
+  --color-ink: #27272a;        /* zinc-800 */
 }
 
-.marker-label {
-    font-family: var(--font-rem);
-    font-size: .75rem;
-    font-weight: 400;
-    fill: #fafafa;
-    text-transform: uppercase;
-    pointer-events: none;
+@media (prefers-color-scheme: dark) {
+  :root {}
 }

@@ -1,5 +1,3 @@
-"use client";
-
 import ProjectGrid from "@/components/ProjectGrid/ProjectGrid";
 import { projects } from "@/data/projects";
 

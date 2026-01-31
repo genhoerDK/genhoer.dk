@@ -59,25 +59,25 @@ export default function CircularScrubber() {
 
   return (
     <div ref={scrubberRef} className='flex justify-center items-center size-full min-h-160'>
-      <BackgroundImage src={currentTrack?.coverImageLandscape} />
+      {/* <BackgroundImage src={currentTrack?.coverImageLandscape} /> */}
       <CircularInput value={localValue} onChange={setLocalValue} onPointerDown={() => setDragging(true)} radius={radius} fill="none" className="absolute pointer-events-none z-10">
         <g className="pointer-events-auto cursor-pointer">
           <CircularTrack strokeWidth={radius * 0.05} stroke="#d4d4d8" />
-          <CircularProgress strokeWidth={radius * 0.05} stroke="#a1a1aa" strokeLinecap="butt" />
-          <CircularThumb r={radius * 0.06} stroke="#fafafa" strokeWidth={radius * 0.015} fill="#27272a" />
+          <CircularProgress strokeWidth={radius * 0.05} stroke="#52525b" strokeLinecap="butt" />
+          <CircularThumb r={radius * 0.075} stroke="#27272a" strokeWidth={0} fill="#52525b" />
           {currentTrack?.segments.map((segment, i) => (
             <TrackSegment index={i} startSec={segment.start} endSec={currentTrack?.segments[i + 1]?.start ?? duration } duration={duration} value={progress} radius={radius * 0.8} onClick={handleSegmentClick} key={i} />
           ))}
         </g>
       </CircularInput>
-      <h2 className='absolute left-2 md:left-4 top-12 uppercase font-extralight text-zinc-50 text-lg md:text-xl'>{currentTrack?.title}</h2>
+      <h2 className='absolute left-2 md:left-4 top-12 uppercase font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
 
       {isPlaying ?
         <TrackSegmentInfo segments={currentTrack?.segments} radius={radius} />
       :
         <button className="absolute inset-auto flex items-center justify-center cursor-pointer rounded-full z-10" style={{ width: radius * 2.25, height: radius * 2.25}} onClick={() => play()}>
-          <div className="absolute size-full bg-radial from-zinc-900 to-zinc-800 blur-sm opacity-80 rounded-full"></div>
-          <PlayCircleIcon className="size-24 text-zinc-200 z-10" />
+          <div className="absolute size-full bg-radial from-paper to-paper blur-sm opacity-80 rounded-full"></div>
+          <PlayCircleIcon className="size-24 text-ink z-10" />
         </button>
       }
     </div>

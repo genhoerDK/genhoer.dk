@@ -10,7 +10,7 @@ export default function ListenButton() {
     }
 
     return (
-         <button onClick={handleClick} className="flex items-center gap-1 h-10 px-2.5 cursor-pointer md:hover:bg-zinc-800 md:hover:text-zinc-50">
+         <button onClick={handleClick} className="flex items-center gap-1 h-10 px-2.5 cursor-pointer md:hover:bg-ink md:hover:text-paper">
             <PlayCircleIcon className="size-6" />
             <LabelLarge>Lyt</LabelLarge>
         </button>
