@@ -1,5 +1,5 @@
 import { formatDates } from "@/utilities/formatDates";
-import Title from "@/components/TitleSmall";
+import TitleLarge from "@/components/TitleLarge";
 import InfoList from "@/components/InfoList";
 
 export default function MapInfo({ project }) {
@@ -12,8 +12,8 @@ export default function MapInfo({ project }) {
     ]
 
     return (
-        <div className="absolute top-11 left-2 flex flex-col gap-2 max-w-sm sm:max-w-md text-paper pointer-events-none md:left-4">
-            <Title>{title}</Title>
+        <div className="absolute top-12 left-2 flex flex-col gap-2 max-w-sm sm:max-w-md text-paper pointer-events-none md:left-4">
+            <TitleLarge>{title}</TitleLarge>
             <InfoList items={info} truncate={false} />
         </div>
     );

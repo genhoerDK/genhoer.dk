@@ -10,9 +10,7 @@ export default function ToggleButton() {
     const isOpen = searchParams.has('kort');
 
     const handleToggle = () => {
-        isOpen
-            ? router.replace('?', { scroll: false })
-            : router.replace('?kort', { scroll: false });
+        isOpen ? router.replace('?', { scroll: false }) : router.replace('?kort', { scroll: false });
     }
 
     return (

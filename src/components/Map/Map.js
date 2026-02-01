@@ -25,7 +25,7 @@ export default function Map() {
     }, [activeProject]);
 
     useEffect(() => {
-        setActiveProject(null);
+        if(!isOpen) setActiveProject(null);
     }, [isOpen]);
 
     return (

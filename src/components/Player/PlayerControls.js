@@ -38,10 +38,10 @@ export default function PlayerControls() {
             {isPlayerOpen && <div className='absolute inset-0 flex w-full h-0.5 bg-ink'></div>}
             <div className='flex items-center'>
                 <button onClick={togglePlayback} className='flex z-10 items-center h-10 pl-2.5 pr-1 md:hover:text-hard/75 cursor-pointer'>
-                    {isPlaying ? <PauseCircleIcon className="size-6 bg-paper rounded-full" /> : <PlayCircleIcon className="size-6 bg-paper rounded-full" />}
+                    {isPlaying ? <PauseCircleIcon className="size-6 bg-soft rounded-full" /> : <PlayCircleIcon className="size-6 bg-soft rounded-full" />}
                 </button>
                 <button onClick={togglePlayer} className="flex items-center h-10 cursor-pointer group">
-                    <div className="relative flex gap-0.5 items-center pl-3 pr-1.25 py-0.75 -ml-3 rounded-r-full bg-soft overflow-hidden md:group-hover:bg-muted/25">
+                    <div className="relative flex gap-0.5 items-center pl-4 pr-1.25 py-1 -ml-4 rounded-r-full bg-soft overflow-hidden md:group-hover:bg-muted/25">
                         <LabelLarge>{currentTrack.title}</LabelLarge>
                         {isPlayerOpen ? <XMarkIcon className="size-4" /> : <ChevronUpIcon className="size-4" />}
                         <MiniPlayerProgress />
