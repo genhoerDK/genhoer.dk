@@ -77,7 +77,7 @@ export default function CircularScrubber() {
       :
         <button className="absolute inset-auto flex items-center justify-center cursor-pointer rounded-full z-10" style={{ width: radius * 2.25, height: radius * 2.25}} onClick={() => play()}>
           <div className="absolute size-full bg-radial from-paper to-paper blur-sm opacity-80 rounded-full"></div>
-          <PlayCircleIcon className="size-48 text-ink z-10" />
+          <PlayCircleIcon className="size-24 text-ink z-10" />
         </button>
       }
     </div>
