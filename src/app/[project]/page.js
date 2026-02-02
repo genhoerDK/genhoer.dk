@@ -2,7 +2,6 @@ import { projects } from "@/data/projects";
 import { notFound } from "next/navigation";
 import ProjectHeroSection from "@/components/ProjectPage/ProjectHeroSection";
 import ProjectMediaSection from "@/components/ProjectPage/ProjectMediaSection";
-import ProjectNavSection from "@/components/ProjectPage/ProjectNavSection";
 
 export async function generateMetadata({ params }) {
     const { project: projectSlug } = await params;
@@ -23,10 +22,9 @@ export default async function ProjectPage({ params }) {
     if (!project) notFound();
 
     return (
-        <article className="w-full h-svh min-h-120">
+        <article className="w-full min-h-120 pb-10 md:pb-0">
             <ProjectHeroSection project={project} />
             <ProjectMediaSection slug={project.slug} media={project.media} />
-            <ProjectNavSection currentProject={project} />
         </article>
     );
 }

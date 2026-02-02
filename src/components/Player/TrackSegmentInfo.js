@@ -28,20 +28,20 @@ export default function TrackSegmentInfo({ segments, radius }) {
             <figure className="absolute rounded-full overflow-hidden bg-ink" style={{ width: radius * 1.25, height: radius * 1.25 }}>
               <img src={currentSegment.image} alt={currentSegment.title} className="size-full object-cover opacity-75" loading="lazy" />
             </figure>
-            <div className="absolute top-20 left-2 flex gap-1 max-w-80 pr-3 bg-ink rounded-full cursor-default md:left-4">
-                <div className="bg-paper border-2 shrink-0 border-ink size-6 rounded-full flex justify-center items-center">
+            <div className="absolute top-19 left-2 flex max-w-80 bg-zinc-700 cursor-default md:left-4">
+                <div className="bg-paper border-2 shrink-0 border-zinc-700 size-6 flex justify-center items-center">
                     <p className="uppercase text-xs leading-none">
                         {currentIndex + 1}
                     </p>
                 </div>
                 <div className='flex items-center overflow-hidden'>
                     {isOverflowing ? 
-                        <Marquee gradient={true} pauseOnHover={true} speed={25} gradientColor="#27272a" gradientWidth={15}>
+                        <Marquee gradient={true} pauseOnHover={true} speed={25} gradientColor="#27272a" gradientWidth={15} className='-ml-1 mr-1'>
                             <p ref={textRef} className="text-paper uppercase text-xs mx-2.5 py-1 whitespace-nowrap">{currentSegment?.title}</p>
                             <div className="bg-paper size-1" />
                         </Marquee>
                         :
-                        <p ref={textRef} className="text-paper uppercase text-xs whitespace-nowrap">{currentSegment?.title}</p>
+                        <p ref={textRef} className="text-paper uppercase text-xs ml-2 mr-3 whitespace-nowrap">{currentSegment?.title}</p>
                     }
 
                 </div>

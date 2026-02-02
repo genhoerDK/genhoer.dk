@@ -30,7 +30,7 @@ export default function ProjectHeroSection({ project }) {
     ]
 
     return (
-        <section className='relative size-full text-paper overflow-hidden pointer-events-none'>
+        <section className='relative flex items-center min-h-svh text-paper overflow-hidden pointer-events-none'>
             <BackgroundImage portrait={project.coverImagePortrait} landscape={project.coverImageLandscape} />
             <ProjectDescription title={title} text={description} info={info}>
                 <ProjectPlayButton active={hasAudio} playing={isProjectPlaying} togglePlayback={togglePlayback}/>

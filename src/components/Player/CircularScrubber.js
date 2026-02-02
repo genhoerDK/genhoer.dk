@@ -70,14 +70,14 @@ export default function CircularScrubber() {
           ))}
         </g>
       </CircularInput>
-      <h2 className='absolute left-2 md:left-4 top-12 uppercase font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
+      <h2 className='absolute left-2 md:left-4 top-12 leading-none uppercase font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
 
       {isPlaying ?
         <TrackSegmentInfo segments={currentTrack?.segments} radius={radius} />
       :
         <button className="absolute inset-auto flex items-center justify-center cursor-pointer rounded-full z-10" style={{ width: radius * 2.25, height: radius * 2.25}} onClick={() => play()}>
           <div className="absolute size-full bg-radial from-paper to-paper blur-sm opacity-80 rounded-full"></div>
-          <PlayCircleIcon className="size-24 text-ink z-10" />
+          <PlayCircleIcon className="size-48 text-ink z-10" />
         </button>
       }
     </div>
