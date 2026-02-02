@@ -11,7 +11,7 @@ export default function Participate() {
   return (
     <article className="pt-24">
 
-      <section className="flex items-center px-2 md:px-4 min-h-svh">
+      <section className="px-2 md:px-4 min-h-svh">
         <div className="grid grid-cols-12 md:grid-cols-24 gap-8">
           <figure className="col-span-6 col-start-2">
             <video src="https://cdn.genhoer.dk/media/workshop.mp4" playsInline muted loop autoPlay className="object-cover size-full" />
