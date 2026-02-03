@@ -23,6 +23,7 @@ export default function Participate() {
                 </div>
             </section>
 
+
         </article>
     );
 }
