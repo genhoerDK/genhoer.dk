@@ -14,7 +14,7 @@ export default function MembershipForm({ onClose }) {
 
     const { submit: onSubmit } = useWeb3Forms({
         access_key: apiKey,
-        settings: { from_name: "Genhør", subject: "Nyt medlemskab", },
+        settings: { from_name: "Genhør | Medlemskab", subject: "Nyt medlemskab", },
         onSuccess: () => {
             setIsSuccess(true);
             reset();

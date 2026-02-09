@@ -14,7 +14,7 @@ export default function ContactForm({ onClose }) {
 
     const { submit: onSubmit } = useWeb3Forms({
         access_key: apiKey,
-        settings: { from_name: "Genhør", subject: "Ny besked", },
+        settings: { from_name: "Genhør | Kontakt", subject: "Ny besked", },
         onSuccess: () => {
             setIsSuccess(true);
             reset();

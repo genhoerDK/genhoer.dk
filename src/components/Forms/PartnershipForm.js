@@ -14,7 +14,7 @@ export default function PartnershipForm({ onClose }) {
 
     const { submit: onSubmit } = useWeb3Forms({
         access_key: apiKey,
-        settings: { from_name: "Genhør", subject: "Nyt partnerskab", },
+        settings: { from_name: "Genhør | Partnerskab", subject: "Nyt partnerskab", },
         onSuccess: () => {
             setIsSuccess(true);
             reset();
