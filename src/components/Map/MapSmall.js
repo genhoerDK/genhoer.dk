@@ -195,5 +195,5 @@ export default function MapSmall({ activeProject, setActiveProject }) {
         }
     }, [activeProject]);
 
-    return <svg ref={svgRef} className="relative size-full" />;
+    return <svg ref={svgRef} className="relative w-full h-svh" />;
 }
