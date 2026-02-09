@@ -16,7 +16,7 @@ export default function WorkshopSection() {
                         ]}
                         smallText={[
                             "Kommer Genhør til dit lokalområde og har du lyst til at være medskaber, er du velkommen til at kontakte os eller vores lokale samarbejdspartner. Projektet formes af de deltagende og kræver ikke særlige forudsætninger. Forløbet er ikke udelukkende for musikere, men henvender sig til alle unge, der har lyst til at arbejde kreativt med lydkunst og udstillingsdesign.",
-                            "Vi har tidligere afholdt workshops med blandt andet makerspaces, teaterhold, skrivegrupper og musikmiljøer. Forløbet er et åbent arbejdsrum hvor vi sammen undersøger det historiske tema og udvikler en ny kulturoplevelse. Deltagerne kan arbejde med alt fra idéudvikling til interviews, elektronisk lyd, komposition og interaktivitet.",
+                            "Vi har tidligere afholdt workshops med blandt andet makerspaces, teaterhold, skrivegrupper og musikskoler. Forløbet er et åbent arbejdsrum hvor vi sammen undersøger det historiske tema og udvikler en ny kulturoplevelse. Deltagerne kan arbejde med alt fra idéudvikling til interviews, elektronisk lyd, komposition og interaktivitet.",
                         ]}
                     />
                 </div>
