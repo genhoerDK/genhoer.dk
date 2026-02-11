@@ -70,7 +70,7 @@ export default function CircularScrubber() {
           ))}
         </g>
       </CircularInput>
-      <h2 className='absolute left-2 md:left-4 top-12 leading-none uppercase font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
+      <h2 className='absolute left-2 md:left-4 top-12 leading-none font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
 
       {isPlaying ?
         <TrackSegmentInfo segments={currentTrack?.segments} radius={radius} />
