@@ -8,18 +8,17 @@ export default function LogoAnimation() {
     const [mounted, setMounted] = useState(true);
 
     useEffect(() => {
-        const tEnter = setTimeout(() => setEntered(true), 0);
+        setEntered(true);
 
-        // Your timing:
-        // each <g> duration-100, last one has delay-500
+        // Timing of the g delays
         const lastDelayMs = 500;
         const animDurationMs = 100;
 
-        // Optional: keep it visible a tiny moment after finishing
+        // Keep it visible a tiny moment after finishing
         const holdMs = 300;
 
         // Fade overlay out, then unmount it
-        const fadeDurationMs = 300; // match duration-400 below
+        const fadeDurationMs = 300; // match duration-300 below
         const tHide = setTimeout(
             () => setHideOverlay(true),
             lastDelayMs + animDurationMs + holdMs
@@ -30,7 +29,6 @@ export default function LogoAnimation() {
         );
 
         return () => {
-            clearTimeout(tEnter);
             clearTimeout(tHide);
             clearTimeout(tUnmount);
         };

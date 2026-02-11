@@ -92,29 +92,6 @@ export const projects = [
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
-    slug: 'kolding',
-    title: 'Kolding',
-    location: 'Kolding, Kolding Kommune',
-    coordinates: [9.4776, 55.4899],
-    komkode: '0621',
-    startDate: '2026-06-27',
-    endDate: '2026-10-05',
-    partners: 'Kolding Stadsarkiv, Kolding Ungdomsskole og Godset',
-    sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden'],
-    description: [
-      'Flere detaljer kommer snart.'
-    ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/kolding/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/kolding/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/kolding/cover-image-small.webp',
-    coverVideo: null,
-    artwork: null,
-    media: null,
-    audio: null,
-    segments: null,
-    composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  },
-  {
     slug: 'nakskov',
     title: 'Nakskov',
     location: 'Nakskov, Kolding Kommune',
@@ -176,6 +153,29 @@ export const projects = [
     coverImagePortrait: 'https://cdn.genhoer.dk/media/naestved/cover-image-portrait.webp',
     coverImageLandscape: 'https://cdn.genhoer.dk/media/naestved/cover-image-landscape.webp',
     coverImageSmall: 'https://cdn.genhoer.dk/media/naestved/cover-image-small.webp',
+    coverVideo: null,
+    artwork: null,
+    media: null,
+    audio: null,
+    segments: null,
+    composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
+  },
+  {
+    slug: 'kolding',
+    title: 'Kolding',
+    location: 'Kolding, Kolding Kommune',
+    coordinates: [9.4776, 55.4899],
+    komkode: '0621',
+    startDate: '2026-11-13',
+    endDate: '2026-12-18',
+    partners: 'Kolding Stadsarkiv, Kolding Ungdomsskole og Godset',
+    sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden'],
+    description: [
+      'Flere detaljer kommer snart.'
+    ],
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/kolding/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/kolding/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/kolding/cover-image-small.webp',
     coverVideo: null,
     artwork: null,
     media: null,
