@@ -48,7 +48,7 @@ export default function RootLayout({ children }) {
                         <Player />
                     </Suspense>
                 </AudioProvider>
-                <LogoAnimation />
+                {/* <LogoAnimation /> sometimes it loads wrongly */}
             </body>
         </html>
     );
