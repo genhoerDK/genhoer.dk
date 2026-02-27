@@ -1,5 +1,6 @@
 import TextBlock from "@/components/TextBlock";
 import LabelSmall from "@/components/LabelSmall";
+import Marquee from "react-fast-marquee";
 
 export const metadata = {
     title: "Info",
@@ -8,6 +9,8 @@ export const metadata = {
 };
 
 export default function Info() {
+
+    const partners = ['billund-kommune', 'den-jyske-sparekasses-stoettefond', 'fonden-for-sjf-bank', 'fredericia-kommune', 'faaborg-midtfyn-kommune', 'johan-hoffmann-fonden', 'koege-arkiverne', 'koege-bibliotekerne', 'koege-ungdomsskole', 'kulturkasernen', 'kulturvirket-grindsted', 'mark-museet', 'museum-fredericia', 'nordea-fonden', 'oernes-kunstfond', 'poly-udstillingsplatform', 'region-syddanmark', 'spar-nord-fonden', 'vordingborg-kommune', 'william-demant-fonden']
 
     return (
         <article>
@@ -26,7 +29,16 @@ export default function Info() {
                 </div>
             </section>
 
-            <section className="grid grid-cols-24 px-2 md:px-4 pb-24">
+            <section className="flex flex-col items-center gap-4 py-8 bg-ink text-paper">
+                <h2 className="uppercase font-light md:text-lg pt-4">Samarbejdspartnere</h2>
+                <Marquee gradient={true} pauseOnHover={false} speed={80} gradientColor="#27272a" gradientWidth={15}>
+                    {partners.map(partner => (
+                        <img key={partner} src={`/logos/${partner}-logo.svg`} alt="" className="h-8 m-8 md:h-12 md:m-12" />
+                    ))}
+                </Marquee>
+            </section>
+
+            <section className="grid grid-cols-24 px-2 md:px-4 py-24">
                 <div className="col-span-full md:col-start-4">
                     <div className="flex gap-8 mb-10">
                         <div className="w-20 pt-1.5">
