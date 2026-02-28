@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function Info() {
 
-    const partners = ['billund-kommune', 'den-jyske-sparekasses-stoettefond', 'fonden-for-sjf-bank', 'fredericia-kommune', 'faaborg-midtfyn-kommune', 'johan-hoffmann-fonden', 'koege-arkiverne', 'koege-bibliotekerne', 'koege-ungdomsskole', 'kulturkasernen', 'kulturvirket-grindsted', 'mark-museet', 'museum-fredericia', 'nordea-fonden', 'oernes-kunstfond', 'poly-udstillingsplatform', 'region-syddanmark', 'spar-nord-fonden', 'vordingborg-kommune', 'william-demant-fonden']
+    const partners = ['billund-kommune', 'bulows-makerspace', 'den-jyske-sparekasses-stoettefond', 'den-kreative-skole', 'fonden-for-sjf-bank', 'fredericia-kommune', 'faaborg-midtfyn-kommune', 'historie-haderslev', 'holbaek-stadsarkiv', 'johan-hoffmann-fonden', 'koege-arkiverne', 'koege-bibliotekerne', 'koege-ungdomsskole', 'kulturkasernen', 'kulturvirket-grindsted', 'mark-museet', 'museum-fredericia', 'nordea-fonden', 'oernes-kunstfond', 'poly-udstillingsplatform', 'region-syddanmark', 'spar-nord-fonden', 'vordingborg-kommune', 'william-demant-fonden']
 
     return (
         <article>
