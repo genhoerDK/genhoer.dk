@@ -46,9 +46,9 @@ export const projects = [
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
-    slug: 'esterhoejen',
-    title: 'Esterhøjen',
-    location: 'Esterhøjen, Odsherred Kommune',
+    slug: 'esterhoej',
+    title: 'Esterhøj',
+    location: 'Esterhøj, Odsherred Kommune',
     coordinates: [11.4840, 55.8361],
     komkode: '0306',
     startDate: '2026-05-23',
@@ -58,9 +58,9 @@ export const projects = [
     description: [
       'Flere detaljer kommer snart.'
     ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/esterhoejen/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/esterhoejen/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/esterhoejen/cover-image-small.webp',
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-small.webp',
     coverVideo: null,
     artwork: null,
     media: null,
