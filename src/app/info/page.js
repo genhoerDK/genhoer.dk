@@ -31,7 +31,7 @@ export default function Info() {
 
             <section className="flex flex-col items-center gap-4 py-8 bg-ink text-paper">
                 <h2 className="uppercase font-light md:text-lg pt-4">Samarbejdspartnere</h2>
-                <Marquee gradient={true} pauseOnHover={false} speed={80} gradientColor="#27272a" gradientWidth={15}>
+                <Marquee gradient={true} pauseOnHover={false} speed={80} gradientColor="#27272a" gradientWidth={15} className="z-0">
                     {partners.map(partner => (
                         <img key={partner} src={`/logos/${partner}-logo.svg`} alt="" className="h-8 m-8 md:h-12 md:m-12" />
                     ))}
