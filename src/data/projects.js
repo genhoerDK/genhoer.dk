@@ -99,7 +99,7 @@ export const projects = [
     komkode: '0360',
     startDate: '2026-09-12',
     endDate: '2026-11-28',
-    partners: 'Museum Lolland-Falster og Lolland Ungdomsskole',
+    partners: 'Museum Lolland-Falster, Headspace og Lolland Ungdomsskole',
     sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
     description: [
       'Flere detaljer kommer snart.'
@@ -145,7 +145,7 @@ export const projects = [
     komkode: '0370',
     startDate: '2026-10-10',
     endDate: '2026-12-12',
-    partners: 'Næstved Kommune, Næstved Ungdomsskole og Næstved Museum',
+    partners: 'Næstved Kommune, Næstved Ungdomsskole, Kompagni47 og Næstved Museum',
     sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
     description: [
       'Flere detaljer kommer snart.'
@@ -168,7 +168,7 @@ export const projects = [
     komkode: '0621',
     startDate: '2026-11-13',
     endDate: '2026-12-18',
-    partners: 'Kolding Stadsarkiv, Kolding Ungdomsskole og Godset',
+    partners: 'Kolding Stadsarkiv, Kolding Ungdomsskole, TRIO og Godset',
     sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden'],
     description: [
       'Flere detaljer kommer snart.'
