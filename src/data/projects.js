@@ -68,7 +68,7 @@ export const projects = [
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
-  {
+/*  {
     slug: 'kanonstilling-g3',
     title: 'Kanonstilling G3',
     location: 'Dueodde, Bornholms Regionskommune',
@@ -90,7 +90,7 @@ export const projects = [
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  },
+  }, */
   {
     slug: 'nakskov',
     title: 'Nakskov',
