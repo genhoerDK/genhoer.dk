@@ -5,7 +5,7 @@ export const projects = [
     location: 'Huset, Esbjerg Kommune',
     coordinates: [8.4554, 55.4694],
     komkode: '0561',
-    startDate: '2026-03-14',
+    startDate: '2026-03-31',
     endDate: '2026-07-27',
     partners: 'Esbjerg Kommune og Huset Esbjerg',
     sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden', 'johan-hoffmann-fonden' ],
