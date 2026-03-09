@@ -137,7 +137,7 @@ export const projects = [
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
-  {
+  /* {
     slug: 'naestved',
     title: 'Næstved',
     location: 'Næstved, Næstved Kommune',
@@ -159,7 +159,7 @@ export const projects = [
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  },
+  }, */
   {
     slug: 'kolding',
     title: 'Kolding',
