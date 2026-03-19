@@ -77,7 +77,7 @@ export const projects = [
     startDate: '2026-06-06',
     endDate: '2026-09-28',
     partners: 'Friskolen Østerlars og Bornholms Museum',
-    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
+    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', 'sparekassen-bornholms-fond', ],
     description: [
       'Flere detaljer kommer snart.'
     ],
