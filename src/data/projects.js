@@ -68,7 +68,7 @@ export const projects = [
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
-/*  {
+  {
     slug: 'kanonstilling-g3',
     title: 'Kanonstilling G3',
     location: 'Dueodde, Bornholms Regionskommune',
@@ -90,8 +90,8 @@ export const projects = [
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  }, */
-  /* {
+  },
+  {
     slug: 'nakskov',
     title: 'Nakskov',
     location: 'Nakskov, Kolding Kommune',
@@ -113,7 +113,7 @@ export const projects = [
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  }, */
+  },
   {
     slug: 'viborg',
     title: 'Viborg',
@@ -137,7 +137,7 @@ export const projects = [
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
-  /* {
+  {
     slug: 'naestved',
     title: 'Næstved',
     location: 'Næstved, Næstved Kommune',
@@ -159,7 +159,7 @@ export const projects = [
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  }, */
+  },
   {
     slug: 'kolding',
     title: 'Kolding',
