@@ -1,20 +1,20 @@
 export const projects = [
   {
-    slug: 'esbjerg',
-    title: 'Esbjerg',
+    slug: 'under-overfladen',
+    title: 'Under overfladen',
     location: 'Huset, Esbjerg Kommune',
     coordinates: [8.4554, 55.4694],
     komkode: '0561',
     startDate: '2026-03-31',
-    endDate: '2026-07-27',
+    endDate: '2026-07-31',
     partners: 'Esbjerg Kommune og Huset Esbjerg',
     sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden', 'johan-hoffmann-fonden' ],
     description: [
       'Flere detaljer kommer snart.'
     ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/esbjerg/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/esbjerg/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/esbjerg/cover-image-small.webp',
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-small.webp',
     coverVideo: null,
     artwork: null,
     media: null,
