@@ -10,14 +10,15 @@ export const projects = [
     partners: 'Esbjerg Kommune og Huset Esbjerg',
     sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden', 'johan-hoffmann-fonden' ],
     description: [
-      'Flere detaljer kommer snart.'
+      'Huset blev bygget i 1888. Først som administrations- og direktørbolig til Esbjerg Andels-Svineslagteri og siden da har det fungeret som museum, biograf, koncertsted og studenterhus. I dag er det byens ungekulturhus.',
+      '‘Under overfladen’ er et digitalt lydværk der tager udgangspunkt i feltoptagelser, musik og historisk arkivmateriale – alt sammen med tilknytning til huset. Værket er skabt i fællesskab med unge fra Huset Esbjerg.'
     ],
     coverImagePortrait: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-portrait.webp',
     coverImageLandscape: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-landscape.webp',
     coverImageSmall: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-small.webp',
     coverVideo: null,
     artwork: null,
-    media: null,
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']

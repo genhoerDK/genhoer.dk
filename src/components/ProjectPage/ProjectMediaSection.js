@@ -21,8 +21,8 @@ export default function ProjectMediaSection({ slug, media }) {
                 return (
                     <Tile key={file} className={tileClass}>
                         {isVideo
-                            ? <video src={folder + file} className="size-full object-cover" playsInline muted loop autoPlay />
-                            : <img src={folder + file} alt="" className="size-full object-cover" loading="lazy" decoding="async" />
+                            ? <video src={folder + file} className="size-full object-cover bg-zinc-200" playsInline muted loop autoPlay />
+                            : <img src={folder + file} alt="" className="size-full object-cover bg-zinc-200" loading="lazy" decoding="async" />
                         }
                     </Tile>
                 );
