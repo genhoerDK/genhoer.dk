@@ -1,52 +1,5 @@
 export const projects = [
   {
-    slug: 'under-overfladen',
-    title: 'Under overfladen',
-    location: 'Huset, Esbjerg Kommune',
-    coordinates: [8.4554, 55.4694],
-    komkode: '0561',
-    startDate: '2026-03-31',
-    endDate: '2026-07-31',
-    partners: 'Esbjerg Kommune og Huset Esbjerg',
-    sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden', 'johan-hoffmann-fonden' ],
-    description: [
-      'Huset blev bygget i 1888. Først som administrations- og direktørbolig til Esbjerg Andels-Svineslagteri og siden da har det fungeret som museum, biograf, koncertsted og studenterhus. I dag er det byens ungekulturhus.',
-      '‘Under overfladen’ er et digitalt lydværk der tager udgangspunkt i feltoptagelser, musik og historisk arkivmateriale – alt sammen med tilknytning til huset. Værket er skabt i fællesskab med unge fra Huset Esbjerg.'
-    ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-small.webp',
-    coverVideo: null,
-    artwork: null,
-    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
-    audio: null,
-    segments: null,
-    composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  },
-  {
-    slug: 'hvide-sande',
-    title: 'Hvide Sande',
-    location: 'Hvide Sande, Ringkøbing-Skjern Kommune',
-    coordinates: [8.1308, 56.0084],
-    komkode: '0760',
-    startDate: '2026-04-04',
-    endDate: null, // permanent installation
-    partners: 'Hvide Sande Skole',
-    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
-    description: [
-      'Flere detaljer kommer snart.'
-    ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-small.webp',
-    coverVideo: null,
-    artwork: null,
-    media: null,
-    audio: null,
-    segments: null,
-    composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  },
-  {
     slug: 'esterhoej',
     title: 'Esterhøj',
     location: 'Esterhøj, Odsherred Kommune',
@@ -180,6 +133,53 @@ export const projects = [
     coverVideo: null,
     artwork: null,
     media: null,
+    audio: null,
+    segments: null,
+    composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
+  },
+  {
+    slug: 'hvide-sande',
+    title: 'Hvide Sande',
+    location: 'Hvide Sande, Ringkøbing-Skjern Kommune',
+    coordinates: [8.1308, 56.0084],
+    komkode: '0760',
+    startDate: '2026-04-04',
+    endDate: null, // permanent installation
+    partners: 'Hvide Sande Skole',
+    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
+    description: [
+      'Flere detaljer kommer snart.'
+    ],
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-small.webp',
+    coverVideo: null,
+    artwork: null,
+    media: null,
+    audio: null,
+    segments: null,
+    composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
+  },
+  {
+    slug: 'under-overfladen',
+    title: 'Under overfladen',
+    location: 'Huset, Esbjerg Kommune',
+    coordinates: [8.4554, 55.4694],
+    komkode: '0561',
+    startDate: '2026-03-31',
+    endDate: '2026-07-31',
+    partners: 'Esbjerg Kommune og Huset Esbjerg',
+    sponsorLogos: ['region-syddanmark', 'spar-nord-fonden', 'william-demant-fonden', 'johan-hoffmann-fonden' ],
+    description: [
+      'Huset blev bygget i 1888. Først som administrations- og direktørbolig til Esbjerg Andels-Svineslagteri og siden da har det fungeret som museum, biograf, koncertsted og studenterhus. I dag er det byens ungekulturhus.',
+      '‘Under overfladen’ er et digitalt lydværk der tager udgangspunkt i feltoptagelser, musik og historisk arkivmateriale – alt sammen med tilknytning til huset. Værket er skabt i fællesskab med unge fra Huset Esbjerg.'
+    ],
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-small.webp',
+    coverVideo: null,
+    artwork: null,
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
