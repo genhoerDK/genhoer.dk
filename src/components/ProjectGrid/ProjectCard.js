@@ -14,7 +14,7 @@ export default function ProjectCard({ project }) {
     ]
 
     return (
-        <li>
+        <li className="cursor-pointer">
             <Title>{title}</Title>
             <Link href={slug}>
                 <CardMedia vid={coverVideo} img={coverImageSmall} alt={title}>

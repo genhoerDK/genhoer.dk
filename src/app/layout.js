@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import Toolbar from "@/components/Toolbar";
 import Player from "@/components/Player/Player";
 import Map from "@/components/Map/Map";
-import LogoAnimation from "@/components/LogoAnimation";
 
 const rem = REM({
     variable: "--font-rem",
@@ -48,7 +47,6 @@ export default function RootLayout({ children }) {
                         <Player />
                     </Suspense>
                 </AudioProvider>
-                {/* <LogoAnimation /> sometimes it loads wrongly */}
             </body>
         </html>
     );

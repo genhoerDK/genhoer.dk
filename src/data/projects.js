@@ -1,5 +1,5 @@
 export const projects = [
-  {
+  /*{
     slug: 'esterhoej',
     title: 'Esterhøj',
     location: 'Esterhøj, Odsherred Kommune',
@@ -136,7 +136,7 @@ export const projects = [
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
-  },
+  }, */
   {
     slug: 'hvide-sande',
     title: 'Hvide Sande',
@@ -177,7 +177,7 @@ export const projects = [
     coverImagePortrait: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-portrait.webp',
     coverImageLandscape: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-landscape.webp',
     coverImageSmall: 'https://cdn.genhoer.dk/media/under-overfladen/cover-image-small.webp',
-    coverVideo: null,
+    coverVideo: 'https://cdn.genhoer.dk/media/under-overfladen/cover-video.mp4',
     artwork: null,
     media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: null,
