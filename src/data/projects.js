@@ -48,7 +48,7 @@ export const projects = [
   {
     slug: 'nakskov',
     title: 'Nakskov',
-    location: 'Nakskov, Kolding Kommune',
+    location: 'Nakskov, Lolland Kommune',
     coordinates: [11.1381, 54.8297],
     komkode: '0360',
     startDate: '2026-09-12',
