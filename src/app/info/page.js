@@ -11,7 +11,7 @@ export const metadata = {
 export default function Info() {
 
     // Partners and sponsors in alphabetic order
-    const partners = ['billund-kommune', 'bulows-makerspace', 'den-jyske-sparekasses-stoettefond', 'den-kreative-skole', 'esbjerg-kommune', 'fonden-for-sjf-bank', 'fredericia-kommune', 'faaborg-midtfyn-kommune', 'historie-haderslev', 'holbaek-stadsarkiv', 'huset-esbjerg', 'johan-hoffmann-fonden', 'koege-arkiverne', 'koege-bibliotekerne', 'koege-ungdomsskole', 'kulturkasernen', 'kulturvirket-grindsted', 'mark-museet', 'museum-fredericia', 'nordea-fonden', 'oernes-kunstfond', 'poly-udstillingsplatform', 'region-syddanmark', 'spar-nord-fonden', 'sparekassen-bornholms-fond', 'vordingborg-kommune', 'william-demant-fonden']
+    const partners = ['billund-kommune', 'bulows-makerspace', 'den-jyske-sparekasses-stoettefond', 'den-kreative-skole', 'esbjerg-kommune', 'ewii', 'fonden-for-sjf-bank', 'fredericia-kommune', 'faaborg-midtfyn-kommune', 'historie-haderslev', 'holbaek-stadsarkiv', 'huset-esbjerg', 'johan-hoffmann-fonden', 'koege-arkiverne', 'koege-bibliotekerne', 'koege-ungdomsskole', 'kulturkasernen', 'kulturvirket-grindsted', 'mark-museet', 'museum-fredericia', 'nordea-fonden', 'oernes-kunstfond', 'poly-udstillingsplatform', 'region-syddanmark', 'spar-nord-fonden', 'sparekassen-bornholms-fond', 'vordingborg-kommune', 'william-demant-fonden']
 
     return (
         <article>

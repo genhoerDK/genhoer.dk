@@ -100,7 +100,7 @@ export const projects = [
     startDate: '2026-06-06',
     endDate: '2026-09-28',
     partners: 'Friskolen Østerlars og Bornholms Museum',
-    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', 'sparekassen-bornholms-fond', ],
+    sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', 'sparekassen-bornholms-fond', 'ewii' ],
     description: [
       'Flere detaljer kommer snart.'
     ],
@@ -143,8 +143,8 @@ export const projects = [
     location: 'Hvide Sande, Ringkøbing-Skjern Kommune',
     coordinates: [8.1308, 56.0084],
     komkode: '0760',
-    startDate: '2026-04-04',
-    endDate: null, // permanent installation
+    startDate: '2026-08-04',
+    endDate: '2026-09-26', // skift til null på et tidspunkt, så står der permanent installation
     partners: 'Hvide Sande Skole',
     sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', ],
     description: [
