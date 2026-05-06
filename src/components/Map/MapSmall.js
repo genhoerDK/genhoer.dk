@@ -10,6 +10,20 @@ export default function MapSmall({ activeProject, setActiveProject }) {
     const activeProjectRef = useRef(null);
     const zoomRef = useRef(null);
 
+    const now = new Date();
+
+    const upcomingProjects = projects.filter(
+        (project) => new Date(project.startDate) > now
+    );
+
+    upcomingProjects.sort(
+        (a, b) => new Date(a.startDate) - new Date(b.startDate)
+    );
+
+    const finishedProjects = projects.filter(
+        (project) => new Date(project.startDate) <= now
+    );
+
     useEffect(() => {
         activeProjectRef.current = activeProject;
     }, [activeProject]);
@@ -71,12 +85,26 @@ export default function MapSmall({ activeProject, setActiveProject }) {
             const markerRadius = 6;
             const markerStrokeWidth = 2;
 
-            const markers = g
-                .selectAll(".marker")
-                .data(projects)
+            // Draw upcoming markers
+            const upcomingMarkers = g.selectAll(".upcoming-marker")
+                .data(upcomingProjects)
                 .enter()
                 .append("circle")
-                .attr("class", "marker")
+                .attr("class", "upcoming-marker")
+                .attr("cx", (d) => projection(getCoordinates(d))[0])
+                .attr("cy", (d) => projection(getCoordinates(d))[1])
+                .attr("r", 6)
+                .attr("fill", "#27272A")
+                .attr("stroke", "#fafafa")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", 3.14)
+
+            const finishedMarkers = g
+                .selectAll(".finished-marker")
+                .data(finishedProjects)
+                .enter()
+                .append("circle")
+                .attr("class", "finished-marker")
                 .attr("cx", (d) => projection(getCoordinates(d))[0])
                 .attr("cy", (d) => projection(getCoordinates(d))[1])
                 .attr("r", markerRadius)
@@ -99,8 +127,7 @@ export default function MapSmall({ activeProject, setActiveProject }) {
 
                     svg.transition().duration(500).call(zoom.transform, t);
 
-                    g.selectAll("path")
-                        .transition()
+                    g.selectAll("path").transition()
                         .delay(200)
                         .duration(500)
                         .attr("fill", (p) => (p.properties.KOMKODE === d.komkode ? "#FAFAFA" : "#27272A"))
@@ -108,14 +135,19 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                         .attr("stroke", "#FAFAFA")
                         .attr("stroke-opacity", (p) => (p.properties.KOMKODE === d.komkode ? 1 : 0.1));
 
-                    markers
-                        .transition()
+                    finishedMarkers.transition()
                         .delay(200)
                         .duration(500)
                         .attr("r", (r) => (r === d ? 3 : 0))
                         .attr("fill", "#27272A")
                         .attr("stroke-width", 1)
                         .style("cursor", "default");
+
+                    upcomingMarkers.transition()
+                        .delay(200)
+                        .duration(500)
+                        .attr("r", 0)
+                        .attr("stroke-width", 1);
                 });
 
             const userZoomExtent = 3;
@@ -143,9 +175,8 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                     // Scale markers to zoom
                     const k = event.transform.k;
                     const r = radiusForMarker(k);
-                    markers
-                        .attr("r", r)
-                        .attr("stroke-width", Math.max(0.5, markerStrokeWidth * (r / markerRadius)));
+                    upcomingMarkers.attr("r", r).attr("stroke-width", Math.max(0.5, markerStrokeWidth * (r / markerRadius)));
+                    finishedMarkers.attr("r", r).attr("stroke-width", Math.max(0.5, markerStrokeWidth * (r / markerRadius)));
                 });
 
             svg.call(zoom);
@@ -176,8 +207,7 @@ export default function MapSmall({ activeProject, setActiveProject }) {
             svg.transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity);
 
             // Reset paths
-            g.selectAll("path")
-                .transition()
+            g.selectAll("path").transition()
                 .duration(500)
                 .attr("fill", "#27272A")
                 .attr("fill-opacity", 1)
@@ -185,11 +215,16 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                 .attr("stroke-opacity", 1);
 
             // Reset markers
-            g.selectAll(".marker")
-                .transition()
+            g.selectAll(".finished-marker").transition()
                 .duration(500)
                 .attr("r", markerRadius)
                 .attr("fill", "#71717A")
+                .attr("stroke-width", markerStrokeWidth)
+                .style("cursor", "pointer");
+
+            g.selectAll(".upcoming-marker").transition()
+                .duration(500)
+                .attr("r", markerRadius)
                 .attr("stroke-width", markerStrokeWidth)
                 .style("cursor", "pointer");
         }

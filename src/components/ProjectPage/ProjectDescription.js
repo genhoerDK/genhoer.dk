@@ -6,7 +6,7 @@ export default function ProjectDescription({ title, text, info, children }) {
         <div className="relative grid items-center grid-cols-12 min-h-svh px-2 pt-12 pb-24 md:px-4">
             <div className='max-w-lg col-span-10 sm:col-start-2 sm:col-span-8 md:col-start-3 md:col-span-7 lg:col-start-4'>
                 <div className='flex items-center h-10'>
-                    {children}
+                    {children} {/* Insert play button as child */}
                     <TitleLarge>{title}</TitleLarge>
                 </div>
 

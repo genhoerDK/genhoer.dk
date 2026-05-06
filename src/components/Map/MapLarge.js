@@ -10,6 +10,20 @@ export default function MapLarge({ setActiveProject }) {
     const svgRef = useRef(null);
     const router = useRouter();
 
+    const now = new Date();
+
+    const upcomingProjects = projects.filter(
+        (project) => new Date(project.startDate) > now
+    );
+
+    upcomingProjects.sort(
+        (a, b) => new Date(a.startDate) - new Date(b.startDate)
+    );
+
+    const finishedProjects = projects.filter(
+        (project) => new Date(project.startDate) <= now
+    );
+
     useEffect(() => {
         let geoData = null;
 
@@ -53,12 +67,26 @@ export default function MapLarge({ setActiveProject }) {
 
             const zoomScale = 4;
 
-            // Draw the markers
-            const markers = g.selectAll(".marker")
-                .data(projects)
+            // Draw upcoming markers
+            const upcomingMarkers = g.selectAll(".upcoming-marker")
+                .data(upcomingProjects)
                 .enter()
                 .append("circle")
-                .attr("class", "marker")
+                .attr("class", "upcoming-marker")
+                .attr("cx", d => projection(d.coordinates)[0])
+                .attr("cy", d => projection(d.coordinates)[1])
+                .attr("r", 6)
+                .attr("fill", "#27272A")
+                .attr("stroke", "#fafafa")
+                .attr("stroke-width", 2)
+                .attr("stroke-dasharray", 3.14)
+
+            // Draw the finished markers
+            const finishedMarkers = g.selectAll(".finished-marker")
+                .data(finishedProjects)
+                .enter()
+                .append("circle")
+                .attr("class", "finished-marker")
                 .attr("cx", d => projection(d.coordinates)[0])
                 .attr("cy", d => projection(d.coordinates)[1])
                 .attr("r", 6)
@@ -88,13 +116,19 @@ export default function MapLarge({ setActiveProject }) {
                         .attr("stroke", "#FAFAFA")
                         .attr("stroke-opacity", p => p.properties.KOMKODE === d.komkode ? 1 : 0.1);
 
-
-                    markers.transition()
+                    finishedMarkers.transition()
                         .delay(200)
                         .duration(500)
                         .attr("r", r => r === d ? 4 : 0)
                         .attr("fill", "#27272A")
                         .attr("stroke-width", 1);
+                    
+                    upcomingMarkers.transition()
+                        .delay(200)
+                        .duration(500)
+                        .attr("r", 0)
+                        .attr("stroke-width", 1);
+                    
 
                 })
                 .on("mouseleave", function () {
@@ -110,10 +144,15 @@ export default function MapLarge({ setActiveProject }) {
                         .attr("stroke", "#27272A")
                         .attr("stroke-opacity", 1);
 
-                    markers.transition()
+                    finishedMarkers.transition()
                         .duration(500)
                         .attr("r", 6)
                         .attr("fill", "#71717A")
+                        .attr("stroke-width", 2);
+
+                    upcomingMarkers.transition()
+                        .duration(500)
+                        .attr("r", 6)
                         .attr("stroke-width", 2);
 
                     setActiveProject(null);
