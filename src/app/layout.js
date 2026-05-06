@@ -21,13 +21,6 @@ export const metadata = {
     icons: { icon: "/favicon.ico", },
 };
 
-export const viewport = {
-    themeColor: [
-        { media: "(prefers-color-scheme: light)", color: "#fafafa" },
-        { media: "(prefers-color-scheme: dark)", color: "#27272a" },
-    ],
-};
-
 export default function RootLayout({ children }) {
     return (
         <html lang="da">

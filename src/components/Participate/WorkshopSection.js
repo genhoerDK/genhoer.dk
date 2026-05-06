@@ -12,7 +12,7 @@ export default function WorkshopSection() {
                 <div className="col-span-full order-1 md:col-start-4 lg:col-start-8 lg:order-2 xl:col-start-9 xl:col-span-14">
                     <TextBlock label="Workshops"
                         largeText={[
-                            "I forbindelse med hvert projekt afholder Genhør et workshopforløb for lokale unge mellem 12-24 år. Her dykker vi ned i den stedbundne historie og udforsker hvordan vi med musik og lyddesign kan skabe en udstilling der gør lokalhistorien levende for publikum.",
+                            "Genhør afholder workshops for unge mellem 12-24 år. Her dykker vi ned i den stedbundne historie og udforsker hvordan vi med musik og lyddesign kan skabe installationer og udstillinger der gør lokalhistorien levende for publikum.",
                         ]}
                         smallText={[
                             "Kommer Genhør til dit lokalområde og har du lyst til at være medskaber, er du velkommen til at kontakte os eller vores lokale samarbejdspartner. Projektet formes af de deltagende og kræver ikke særlige forudsætninger. Forløbet er ikke udelukkende for musikere, men henvender sig til alle unge, der har lyst til at arbejde kreativt med lydkunst og udstillingsdesign.",

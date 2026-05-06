@@ -4,7 +4,7 @@ import NavLink from "@/components/NavLink";
 
 export default function Header() {
     return (
-        <header className="fixed inset-x-0 h-10 px-2 bg-paper z-10 md:px-4">
+        <header className="fixed inset-x-0 h-10 px-2 bg-paper z-20 md:px-4">
             <nav className="flex items-center justify-between h-full">
                 <Link href="/">
                     <h1>

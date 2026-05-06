@@ -26,7 +26,12 @@ export default function TracksOverview({ toggleOverview }) {
                 slidesPerView={1.5}
                 spaceBetween={40}
                 grabCursor={true}
-                mousewheel={{ forceToAxis: true, sensitivity: 0.5 }}
+                mousewheel={{
+                    forceToAxis: true,
+                    sensitivity: 0.2,
+                    thresholdDelta: 20
+                }}
+                speed={400}
                 breakpoints={{
                   640: { slidesPerView: 1.75, spaceBetween: 50 }, // sm
                   768: { slidesPerView: 2.25, spaceBetween: 60 }, // md
