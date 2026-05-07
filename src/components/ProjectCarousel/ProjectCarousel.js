@@ -36,9 +36,29 @@ export default function ProjectCarousel({ projects }) {
                         <BackgroundImage portrait={project.coverImagePortrait} landscape={project.coverImageLandscape} />
 
                         {/* overlay container */}
-                        <div className="absolute inset-0 flex justify-center items-center py-24 text-paper">
-                            <TitleLarge>{project.title}</TitleLarge>
-                            
+                        <div className="absolute inset-0 flex flex-col justify-center items-center p-4 md:p-8 pt-14 text-paper">
+
+                            {/* Fælles wrapper — begrænser bredden på mobil, går i row på desktop */}
+                            <div className="w-full max-w-sm md:max-w-none md:flex md:flex-row md:w-full">
+
+                                {/* Billede-kolonne */}
+                                <div className="w-full md:w-1/2 flex justify-center md:justify-end md:p-8">
+                                    <img
+                                        src={project.coverImageLandscape}
+                                        loading="lazy"
+                                        className="w-full md:max-w-none aspect-square md:aspect-video object-cover"
+                                    />
+                                </div>
+
+                                {/* Tekst-kolonne */}
+                                <div className="w-full md:w-1/2 flex flex-col pt-3 md:p-8 gap-2 md:justify-center">
+                                    <TitleLarge>{project.title}</TitleLarge>
+                                    {project.description.map((t, i) => (
+                                        <p key={i} className="font-light text-xs md:text-sm pb-2">{t}</p>
+                                    ))}
+                                </div>
+
+                            </div>
                         </div>
                     </SwiperSlide>
                 ))}
