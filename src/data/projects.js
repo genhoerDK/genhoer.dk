@@ -148,7 +148,7 @@ export const projects = [
     partners: 'Odsherred Musikskole og Geopark Odsherred',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', ],
     description: [
-      'Flere detaljer kommer snart.'
+      'Bronzealderhøjen ved Høve bliver omdrejningspunkt for en udendørs lydinstallation, hvor unge fra Odsherred nyfortolker de folkesagn og myter der omgærder højen. Udstillingen bliver til i samarbejde med Geopark Odsherred og Odsherred Musikskole.'
     ],
     coverImagePortrait: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-portrait.webp',
     coverImageLandscape: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-landscape.webp',

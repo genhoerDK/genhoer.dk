@@ -36,25 +36,25 @@ export default function ProjectCarousel({ projects }) {
                         <BackgroundImage portrait={project.coverImagePortrait} landscape={project.coverImageLandscape} />
 
                         {/* overlay container */}
-                        <div className="absolute inset-0 flex flex-col justify-center items-center p-4 md:p-8 pt-14 text-paper">
+                        <div className="absolute inset-0 flex flex-col justify-center items-center md:px-12 lg:px-24 xl:px-30 text-paper">
 
-                            {/* Fælles wrapper — begrænser bredden på mobil, går i row på desktop */}
-                            <div className="w-full max-w-sm md:max-w-none md:flex md:flex-row md:w-full">
+                            {/* Fælles wrapper */}
+                            <div className="w-full max-w-sm lg:max-w-none lg:flex lg:flex-row lg:w-full">
 
                                 {/* Billede-kolonne */}
-                                <div className="w-full md:w-1/2 flex justify-center md:justify-end md:p-8">
+                                <div className="w-full lg:w-1/2 flex justify-center lg:justify-end lg:p-4">
                                     <img
                                         src={project.coverImageLandscape}
                                         loading="lazy"
-                                        className="w-full md:max-w-none aspect-square md:aspect-video object-cover"
+                                        className="w-full lg:max-w-none aspect-video object-cover"
                                     />
                                 </div>
 
                                 {/* Tekst-kolonne */}
-                                <div className="w-full md:w-1/2 flex flex-col pt-3 md:p-8 gap-2 md:justify-center">
+                                <div className="w-full lg:w-1/3 flex flex-col pt-4 lg:p-4 gap-2 lg:justify-center">
                                     <TitleLarge>{project.title}</TitleLarge>
                                     {project.description.map((t, i) => (
-                                        <p key={i} className="font-light text-xs md:text-sm pb-2">{t}</p>
+                                        <p key={i} className="font-light text-xs lg:text-sm pb-2">{t}</p>
                                     ))}
                                 </div>
 
