@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+/**************************************/
+/******** SWIPER CUSTOMISATION ********/
+/**************************************/
+
+:root {
+  --swiper-theme-color: #fafafa !important;
+  
+  --swiper-pagination-bottom: 48px !important;
+  --swiper-navigation-size: 20px !important;
+  --swiper-navigation-sides-offset: 8px !important;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --swiper-pagination-bottom: 16px !important;
+    --swiper-navigation-size: 24px !important;
+    --swiper-navigation-sides-offset: 16px !important;
+  }
+}
+
+
+
 @theme {
   --font-rem: "Rem", monospace;
   --color-paper: #fafafa;      /* zinc-50  */
@@ -8,3 +30,4 @@
   --color-hard: #71717a;      /* zinc-500 */
   --color-ink: #27272a;        /* zinc-800 */
 }
+
