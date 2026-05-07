@@ -1,33 +1,27 @@
 @import "tailwindcss";
 
-/**************************************/
-/******** SWIPER CUSTOMISATION ********/
-/**************************************/
+@theme {
+    --font-rem: "Rem", monospace;
+    --color-paper: #fafafa;         /* zinc-50  */
+    --color-soft: #e4e4e7;          /* zinc-200 */
+    --color-muted: #d4d4d8;         /* zinc-300 */
+    --color-hard: #71717a;          /* zinc-500 */
+    --color-ink: #27272a;           /* zinc-800 */
+}
 
 :root {
-  --swiper-theme-color: #fafafa !important;
-  
-  --swiper-pagination-bottom: 48px !important;
-  --swiper-navigation-size: 20px !important;
-  --swiper-navigation-sides-offset: 8px !important;
+    --swiper-theme-color: var(--color-paper) !important;
+    --swiper-pagination-bottom: 48px !important;
+    --swiper-pagination-bullet-inactive-color: var(--color-paper) !important;
+    --swiper-pagination-bullet-inactive-opacity: 0.33 !important;
+    --swiper-navigation-size: 20px !important;
+    --swiper-navigation-sides-offset: 8px !important;
 }
 
 @media (min-width: 768px) {
-  :root {
-    --swiper-pagination-bottom: 16px !important;
-    --swiper-navigation-size: 24px !important;
-    --swiper-navigation-sides-offset: 16px !important;
-  }
+    :root {
+        --swiper-pagination-bottom: 16px !important;
+        --swiper-navigation-size: 24px !important;
+        --swiper-navigation-sides-offset: 16px !important;
+    }
 }
-
-
-
-@theme {
-  --font-rem: "Rem", monospace;
-  --color-paper: #fafafa;      /* zinc-50  */
-  --color-soft: #e4e4e7;       /* zinc-200 */
-  --color-muted: #d4d4d8;      /* zinc-300 */
-  --color-hard: #71717a;      /* zinc-500 */
-  --color-ink: #27272a;        /* zinc-800 */
-}
-
