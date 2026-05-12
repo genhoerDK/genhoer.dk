@@ -19,7 +19,7 @@ export default function Home() {
 
     return (
         <article>
-            { /* <ProjectCarousel projects={upcomingProjects} /> */ }
+            <ProjectCarousel projects={upcomingProjects} />
             <ProjectGrid projects={finishedProjects} />
         </article>
     );

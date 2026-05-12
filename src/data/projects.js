@@ -31,7 +31,7 @@ export const projects = [
     startDate: '2026-10-10',
     endDate: '2026-12-12',
     partners: 'Næstved Kommune, Næstved Ungdomsskole, Kompagni47 og Næstved Museum',
-    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'trelleborg-fonden' ],
+    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'trelleborg-fonden', 'fonden-for-sjf-bank'],
     description: [
       'Flere detaljer kommer snart.'
     ],
@@ -77,7 +77,7 @@ export const projects = [
     startDate: '2026-09-12',
     endDate: '2026-11-28',
     partners: 'Museum Lolland-Falster, Headspace og Lolland Ungdomsskole',
-    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', ],
+    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'fonden-for-sjf-bank'],
     description: [
       'Flere detaljer kommer snart.'
     ],
@@ -146,7 +146,7 @@ export const projects = [
     startDate: '2026-05-23',
     endDate: '2026-08-01',
     partners: 'Odsherred Musikskole og Geopark Odsherred',
-    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', ],
+    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'fonden-for-sjf-bank'],
     description: [
       'Bronzealderhøjen ved Høve bliver omdrejningspunkt for en udendørs lydinstallation, hvor unge fra Odsherred nyfortolker de folkesagn og myter der omgærder højen. Udstillingen bliver til i samarbejde med Geopark Odsherred og Odsherred Musikskole.'
     ],
