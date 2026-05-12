@@ -3,22 +3,13 @@
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation, Mousewheel, EffectFade } from 'swiper/modules';
 import BackgroundImage from '../BackgroundImage';
-import ProjectStatus from '../ProjectGrid/ProjectStatus';
+import { formatDates } from '@/utilities/formatDates';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
-function formatDateRange(start, end) {
-  const opts = { day: 'numeric', month: 'short', year: 'numeric' };
-  const s = new Date(start).toLocaleDateString('da-DK', opts);
-  const e = new Date(end).toLocaleDateString('da-DK', opts);
-  return `${s} – ${e}`;
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
 export default function ProjectCarousel({ projects }) {
   const total = projects.length;
 
@@ -64,6 +55,11 @@ export default function ProjectCarousel({ projects }) {
                 </span>
               </div>
 
+              {/* Section label */}
+              <p className="text-paper/50 text-[10px] uppercase tracking-[0.25em] mb-2">
+                Kommende projekter
+              </p>
+
               {/* Big title */}
               <h2
                 className="text-paper font-black uppercase leading-none"
@@ -72,17 +68,10 @@ export default function ProjectCarousel({ projects }) {
                 {project.title}
               </h2>
 
-              {/* Status badge */}
-              {project.startDate && (
-                <div className="mt-3">
-                  <ProjectStatus startDate={project.startDate} endDate={project.endDate} />
-                </div>
-              )}
-
               {/* Date & location */}
               <div className="mt-2">
                 <p className="text-paper text-xs tracking-widest">
-                  {formatDateRange(project.startDate, project.endDate)}
+                  {formatDates(project.startDate, project.endDate)}
                 </p>
                 {project.location && (
                   <p className="text-paper/50 text-[11px] mt-1 tracking-wider">
@@ -121,35 +110,6 @@ export default function ProjectCarousel({ projects }) {
           Næste
         </span>
       </button>
-
-      {/* ── Styles ── */}
-      <style>{`
-        .swiper-pagination-progressbar {
-          display: none;
-        }
-        .swiper-pagination-custom .swiper-pagination-bullet {
-          width: 6px;
-          height: 6px;
-          border-radius: 9999px;
-          background: rgba(var(--color-paper-rgb, 255 255 255) / 0.5);
-          transition: all 0.3s ease;
-          display: inline-block;
-          cursor: pointer;
-        }
-        .swiper-pagination-custom .swiper-pagination-bullet-active {
-          width: 24px;
-          height: 2px;
-          border-radius: 2px;
-          background: var(--color-paper, #fff);
-        }
-        .swiper-button-next,
-        .swiper-button-prev {
-          display: none !important;
-        }
-        .swiper-button-disabled {
-          opacity: 1 !important;
-        }
-      `}</style>
     </section>
   );
 }
