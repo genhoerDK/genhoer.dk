@@ -4,7 +4,9 @@ import InfoList from "@/components/InfoList";
 
 export default function MapInfo({ project }) {
     if (!project) return null;
+
     const { title, startDate, endDate, location, partners } = project;
+    
     const info = [
         { label: "Udstilling", value: formatDates(startDate, endDate) },
         { label: "Lokalitet", value: location },
