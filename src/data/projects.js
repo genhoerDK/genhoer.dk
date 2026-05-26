@@ -144,8 +144,8 @@ export const projects = [
     coordinates: [15.0806, 55.0009],
     komkode: '0400',
     startDate: '2026-05-30',
-    endDate: '2026-09-01',
-    partners: 'Friskolen Østerlars og Bornholms Museum',
+    endDate: '2026-09-28',
+    partners: 'Friskolen Østerlars',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'sparekassen-bornholms-fond', 'ewii' ],
     description: [
       'Flere detaljer kommer snart.'
