@@ -138,9 +138,9 @@ export const projects = [
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
-    slug: 'kanonstilling-g3',
-    title: 'Kanonstilling G3',
-    location: 'Dueodde, Bornholms Regionskommune',
+    slug: 'kanon-i-g3',
+    title: 'Kanon i G3',
+    location: 'Kanonstilling G3, Bornholms Regionskommune',
     coordinates: [15.0806, 55.0009],
     komkode: '0400',
     startDate: '2026-05-30',
@@ -148,14 +148,15 @@ export const projects = [
     partners: 'Friskolen Østerlars',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'sparekassen-bornholms-fond', 'ewii' ],
     description: [
-      'Flere detaljer kommer snart.'
+      'Værket rummer en fiktiv fortælling inspireret af historiske beretninger fra "Et centrum i periferien" af Jørgen H. Barfod, om de små modstandshandlinger som fandt sted i dagligdagen på Bornholm under besættelsen.',
+      'Kanonstilling G3 blev anlagt i en tid præget af samarbejdspolitik, hvor det skete at bornholmerne var nødsaget til at arbejde for tyskerne. Dette var også tilfældet under byggeriet af kanonstillingen og også her fandt de små modstandshandlinger sted.'
     ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/kanonstilling-g3/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/kanonstilling-g3/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/kanonstilling-g3/cover-image-small.webp',
-    coverVideo: null,
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/kanon-i-g3/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/kanon-i-g3/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/kanon-i-g3/cover-image-small.webp',
+    coverVideo: 'https://cdn.genhoer.dk/media/kanon-i-g3/cover-video.mp4',
     artwork: null,
-    media: null,
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
