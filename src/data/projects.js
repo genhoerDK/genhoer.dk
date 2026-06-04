@@ -120,7 +120,7 @@ export const projects = [
     location: 'Esterhøj, Odsherred Kommune',
     coordinates: [11.4840, 55.8361],
     komkode: '0306',
-    startDate: '2026-06-12',
+    startDate: '2026-06-24',
     endDate: '2026-08-01',
     partners: 'Odsherred Musikskole og Geopark Odsherred',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'fonden-for-sjf-bank'],
