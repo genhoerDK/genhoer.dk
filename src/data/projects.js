@@ -299,7 +299,7 @@ export const projects = [
     komkode: '0430',
     startDate: '2025-06-20',
     endDate: '2025-09-27',
-    partners: 'Fonden Slagteribygningen',
+    partners: 'Fonden Slagteribygningen og Øhavsmuseet',
     sponsorLogos: ['spar-nord-fonden', 'william-demant-fonden', 'oernes-kunstfond', 'faaborg-midtfyn-kommune'],
     description: [
       'Med elektronisk musik og reallyde fortolker værket slagteriets transformation fra åbningen af Fåborg Andels-svineslagteri i 1888 til lukningen af Tulip Slagteriet i 2016. En mangesidet historie der på alle tider synes at indeholde komplekse aspekter om alt fra arbejdsglæde og -vilkår til håndværk, teknologisk udvikling, dyrevelfærd, økonomi, forurening, magt og demokrati.', 
