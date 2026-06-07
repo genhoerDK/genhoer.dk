@@ -77,7 +77,7 @@ export const projects = [
     startDate: '2026-09-12',
     endDate: '2026-11-28',
     partners: 'Museum Lolland-Falster, Headspace og Lolland Ungdomsskole',
-    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'fonden-for-sjf-bank'],
+    sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'fonden-for-sjf-bank', 'nakskov-2030'],
     description: [
       'Flere detaljer kommer snart.'
     ],
