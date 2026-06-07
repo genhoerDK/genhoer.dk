@@ -145,7 +145,7 @@ export const projects = [
     komkode: '0400',
     startDate: '2026-05-30',
     endDate: '2026-09-28',
-    partners: 'Friskolen Østerlars',
+    partners: 'Friskolen Østerlars og Bornholms Museum',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'sparekassen-bornholms-fond', 'ewii' ],
     description: [
       'Værket rummer en fiktiv fortælling inspireret af historiske beretninger fra "Et centrum i periferien" af Jørgen H. Barfod, om de små modstandshandlinger som fandt sted i dagligdagen på Bornholm under besættelsen.',
