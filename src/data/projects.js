@@ -115,24 +115,25 @@ export const projects = [
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
-    slug: 'esterhoej',
-    title: 'Esterhøj',
+    slug: 'troldetoner',
+    title: 'Troldetoner',
     location: 'Esterhøj, Odsherred Kommune',
     coordinates: [11.4840, 55.8361],
     komkode: '0306',
     startDate: '2026-06-24',
-    endDate: '2026-08-01',
-    partners: 'Odsherred Musikskole og Geopark Odsherred',
+    endDate: '2026-07-31',
+    partners: 'Odsherred Musikskole, Geopark Odsherred og Høve Bylaug',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'fonden-for-sjf-bank'],
     description: [
-      'Bronzealderhøjen ved Høve bliver omdrejningspunkt for en udendørs lydinstallation, hvor unge fra Odsherred nyfortolker de folkesagn og myter der omgærder højen. Udstillingen bliver til i samarbejde med Geopark Odsherred og Odsherred Musikskole.'
+      'I Esterhøj boede der engang en venlig trold. Han var altid hjælpsom over for folk i Høve og når de hjalp ham med noget, sørgede han altid for at belønne dem rundhåndet. Troldens kæreste eje var en lur – et blæseinstrument fra bronzealderen, som han havde fået af de lokale da han flyttede ind i højen.',
+      'Det interaktive lydværk ‘Troldetoner’ er inspireret af sagn om den trold, som havde sin hule i Esterhøj. Værket udforsker den stedbundne kulturhistorie gennem oplæsning, musikalske elementer og et sample-baseret instrument, der afspiller toner fra en lur.'
     ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/esterhoej/cover-image-small.webp',
-    coverVideo: null,
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/troldetoner/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/troldetoner/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/troldetoner/cover-image-small.webp',
+    coverVideo: 'https://cdn.genhoer.dk/media/troldetoner/cover-video.mp4',
     artwork: null,
-    media: null,
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
