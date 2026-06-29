@@ -13,7 +13,7 @@ import 'swiper/css/effect-fade';
 export default function ProjectCarousel({ projects }) {
 
   return (
-    <section className="relative h-svh md:pt-10 md:pb-4 md:mx-4 overflow-hidden">
+    <section className="relative h-svh md:pt-12 md:pb-4 md:mx-4 overflow-hidden">
       <Swiper
         effect="fade"
         fadeEffect={{ crossFade: true }}
