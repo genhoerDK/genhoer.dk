@@ -1,6 +1,5 @@
 'use client';
 
-// Make scrolling overlay possible
 // Make scroll lock when loading page with open overlay (?kort or ?lyt)
 
 import { useEffect } from 'react';
