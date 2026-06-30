@@ -52,7 +52,7 @@ export const projects = [
     coordinates: [11.1381, 54.8297],
     komkode: '0360',
     startDate: '2026-10-08',
-    endDate: '2026-11-30',
+    endDate: '2026-12-03',
     partners: 'Museum Lolland-Falster, Headspace og Lolland Ungdomsskole',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'fonden-for-sjf-bank', 'nakskov-2030'],
     description: [
