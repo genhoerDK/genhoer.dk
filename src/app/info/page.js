@@ -1,5 +1,6 @@
 import TextBlock from "@/components/TextBlock";
 import LabelSmall from "@/components/LabelSmall";
+import LabelLarge from "@/components/LabelLarge";
 import Marquee from "react-fast-marquee";
 
 export const metadata = {
@@ -15,7 +16,7 @@ export default function Info() {
 
     return (
         <article>
-            <section className="grid grid-cols-24 items-center px-2 md:px-4 py-14 md:min-h-svh">
+            <section className="grid grid-cols-24 items-center px-2 md:px-4 py-14 min-h-svh">
                 <div className="col-span-full md:col-start-4 lg:col-start-4 lg:col-span-18">
                     <TextBlock
                         largeText={[
@@ -30,66 +31,58 @@ export default function Info() {
                 </div>
             </section>
 
-            <section className="flex flex-col items-center gap-4 py-8 bg-ink text-paper">
-                <h2 className="uppercase font-light md:text-lg pt-4">Samarbejdspartnere</h2>
-                <Marquee gradient={true} pauseOnHover={false} speed={80} gradientColor="#27272a" gradientWidth={15} className="z-0">
+
+
+<section className="flex flex-wrap gap-4 p-2 md:p-4">
+        <div>
+            <LabelSmall>Email</LabelSmall>
+            <p className="text-xs md:text-sm font-light pt-1">hej@genhoer.dk</p>
+        </div>
+
+        <div>
+            <LabelSmall>Telefon</LabelSmall>
+            <p className="text-xs md:text-sm font-light pt-1">+45 91 61 10 93</p>
+        </div>
+
+        <div>
+            <LabelSmall>Adresse</LabelSmall>
+            <p className="text-xs md:text-sm font-light pt-1">Sofiendalvej 120, 5500 Middelfart</p>
+        </div>
+
+        <div>
+            <LabelSmall>CVR</LabelSmall>
+            <p className="text-xs md:text-sm font-light pt-1">44733196</p>
+        </div>
+
+        <div>
+            <LabelSmall>Sociale medier</LabelSmall>
+            <div className="flex gap-4 text-xs md:text-sm font-light pt-1">
+                <a href="https://www.instagram.com/genhoer_dk/" target="_blank" rel="noopener noreferrer">
+                    Instagram
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61559553821169" target="_blank" rel="noopener noreferrer">
+                    Facebook
+                </a>
+                <a href="https://www.linkedin.com/company/genhoer/" target="_blank" rel="noopener noreferrer">
+                    LinkedIn
+                </a>
+            </div>
+        </div>
+
+</section>
+
+
+
+
+
+
+            <section className="mb-10 md:mb-0 md:p-4 bg-ink text-paper">
+                <Marquee gradient={true} pauseOnHover={false} speed={40} gradientColor="#27272a" gradientWidth={80} className="z-0">
                     {partners.map(partner => (
-                        <img key={partner} src={`/logos/${partner}-logo.svg`} alt="" className="h-8 m-8 md:h-12 md:m-12" />
+                        <img key={partner} src={`/logos/${partner}-logo.svg`} alt="" className="h-4 m-4 md:h-6 md:m-6" />
                     ))}
                 </Marquee>
             </section>
-
-            <section className="grid grid-cols-24 px-2 md:px-4 py-24">
-                <div className="col-span-full md:col-start-4">
-                    <div className="flex gap-8 mb-10">
-                        <div className="w-20 pt-1.5">
-                            <LabelSmall>Kontakt</LabelSmall>
-                        </div>
-                        <div className="text-xs md:text-sm font-light space-y-1">
-                            <p>hej@genhoer.dk</p>
-                            <p>+45 91 61 10 93</p>
-                            <p>Sofiendalvej 120</p>
-                            <p>5500 Middelfart</p>
-                            <p>CVR 44733196</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-8">
-                        <div className="w-20 pt-1.5">
-                            <LabelSmall>Sociale medier</LabelSmall>
-                        </div>
-                        <div className="text-xs md:text-sm font-light space-y-1">
-                            <a
-                                href="https://www.instagram.com/genhoer_dk/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block"
-                            >
-                                Instagram
-                            </a>
-
-                            <a
-                                href="https://www.facebook.com/profile.php?id=61559553821169"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block"
-                            >
-                                Facebook
-                            </a>
-
-                            <a
-                                href="https://www.linkedin.com/company/genhoer/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block"
-                            >
-                                LinkedIn
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-
 
         </article>
     );
