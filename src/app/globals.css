@@ -18,12 +18,12 @@
 
 @media (min-width: 768px) {
     :root {
-        --swiper-pagination-bottom: 16px !important;
+        --swiper-pagination-bottom: 18px !important;
     }
 }
 
 .swiper-pagination-custom.swiper-pagination-horizontal {
-    left: 14px !important;
+    left: 13px !important;
     width: auto !important;
     justify-content: flex-start;
 }
