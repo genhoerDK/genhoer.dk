@@ -19,6 +19,7 @@
     "framer-motion": "^12.23.12",
     "gl-matrix": "^3.4.4",
     "lucide-react": "^0.525.0",
+    "motion": "^12.42.2",
     "next": "^16.0.3",
     "postprocessing": "^6.37.3",
     "react": "^19.2.0",

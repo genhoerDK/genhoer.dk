@@ -1,6 +1,5 @@
 import TextBlock from "@/components/TextBlock";
 import LabelSmall from "@/components/LabelSmall";
-import LabelLarge from "@/components/LabelLarge";
 import Marquee from "react-fast-marquee";
 
 export const metadata = {

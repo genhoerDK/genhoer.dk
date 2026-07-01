@@ -6,7 +6,7 @@ import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import { projects } from "@/data/projects";
 
-export default function MapLarge({ setActiveProject }) {
+export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
     const svgRef = useRef(null);
     const router = useRouter();
 
@@ -158,6 +158,7 @@ export default function MapLarge({ setActiveProject }) {
                     setActiveProject(null);
                 })
                 .on("click", (event, d) => {
+                    onMarkerNavigate?.(); // Fade overlay ved navigation til projektside
                     router.push(`/${d.slug}`);
                 });
         };

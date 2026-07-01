@@ -1,9 +1,11 @@
+
+import { motion } from 'framer-motion';
 import TitleLarge from '@/components/TitleLarge';
 import InfoList from '@/components/InfoList';
 
 export default function ProjectDescription({ title, text, info, children }) {
     return (
-        <div className="relative grid items-center grid-cols-12 min-h-svh px-2 pt-12 pb-24 md:px-4">
+        <motion.div className="relative grid items-center grid-cols-12 min-h-svh px-2 pt-12 pb-24 md:px-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }}>
             <div className='max-w-lg col-span-10 sm:col-start-2 sm:col-span-8 md:col-start-3 md:col-span-7 lg:col-start-4'>
                 <div className='flex items-center h-10'>
                     {children} {/* Insert play button as child */}
@@ -18,6 +20,6 @@ export default function ProjectDescription({ title, text, info, children }) {
                     <InfoList items={info} truncate={false} />
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
