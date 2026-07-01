@@ -30,7 +30,7 @@ export default function Info() {
                 </div>
             </section>
 
-            <section className="flex flex-wrap gap-4 p-2 md:p-4">
+            <section className="flex flex-col gap-4 p-2 md:p-8">
                     <div>
                         <LabelSmall>Email</LabelSmall>
                         <p className="text-xs md:text-sm font-light pt-1">hej@genhoer.dk</p>
@@ -39,16 +39,6 @@ export default function Info() {
                     <div>
                         <LabelSmall>Telefon</LabelSmall>
                         <p className="text-xs md:text-sm font-light pt-1">+45 91 61 10 93</p>
-                    </div>
-
-                    <div>
-                        <LabelSmall>Adresse</LabelSmall>
-                        <p className="text-xs md:text-sm font-light pt-1">Sofiendalvej 120, 5500 Middelfart</p>
-                    </div>
-
-                    <div>
-                        <LabelSmall>CVR</LabelSmall>
-                        <p className="text-xs md:text-sm font-light pt-1">44733196</p>
                     </div>
 
                     <div>
@@ -65,7 +55,6 @@ export default function Info() {
                             </a>
                         </div>
                     </div>
-
             </section>
 
             <section className="mb-10 md:mb-0 md:p-4 bg-ink text-paper">

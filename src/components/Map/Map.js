@@ -41,7 +41,7 @@ export default function Map() {
             {isPortrait
                 ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} onMarkerNavigate={handleMarkerNavigate} />
                 : <MapLarge setActiveProject={setActiveProject} onMarkerNavigate={handleMarkerNavigate} />}
-            <MapInfo project={activeProject} />
+            {isPortrait && <MapInfo project={activeProject} />}
             {isPortrait && <MapControls activeProject={activeProject} setActiveProject={setActiveProject} onMarkerNavigate={handleMarkerNavigate} />}
         </Overlay>
     );

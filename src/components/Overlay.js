@@ -46,7 +46,7 @@ export default function Overlay({ active, exit = 'slide', children }) {
 
     return (
         <article ref={ref} onTransitionEnd={handleTransitionEnd} style={instant ? { transitionDuration: '0ms' } : undefined} className={`fixed inset-0 transition-all duration-300 z-10 ${active ? 'translate-y-0 opacity-100' : closedClasses}`}>
-            <section className="relative flex justify-center items-center w-screen min-h-svh bg-paper/80 backdrop-blur-md backdrop-grayscale">
+            <section className="relative flex justify-center items-center w-screen min-h-svh bg-paper">
                 {children}
             </section>
         </article>

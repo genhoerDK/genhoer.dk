@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import { projects } from "@/data/projects";
+import { formatDates } from "@/utilities/formatDates"; // NY: bruges til at formatere datoer i label
+
+const ZOOM_SCALE = 4; // NY: udtrukket som konstant (var før en variabel inde i renderMap)
+const DEFAULT_LABEL_OFFSET = { x: 60, y: 0 }; // NY: fallback-placering hvis et projekt ikke har labelOffset sat
 
 export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
     const svgRef = useRef(null);
@@ -65,8 +69,6 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
                 .attr("stroke-width", .25)
                 .attr("stroke-opacity", 1);
 
-            const zoomScale = 4;
-
             // Draw upcoming markers
             const upcomingMarkers = g.selectAll(".upcoming-marker")
                 .data(upcomingProjects)
@@ -81,31 +83,77 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
                 .attr("stroke-width", 2)
                 .attr("stroke-dasharray", 3.14)
 
-            // Draw the finished markers
-            const finishedMarkers = g.selectAll(".finished-marker")
+            // NY: cirkel flyttet fra direkte g.selectAll(".finished-marker") ind i en fælles <g> pr. marker,
+            // så cirkel + label kan style/animeres/håndteres samlet
+            const finishedGroups = g.selectAll(".finished-marker-group")
                 .data(finishedProjects)
                 .enter()
-                .append("circle")
+                .append("g")
+                .attr("class", "finished-marker-group")
+                .style("cursor", "pointer"); // NY: flyttet hertil fra den gamle .finished-marker selection
+
+            // NY: appendes nu på finishedGroups i stedet for direkte på g
+            const finishedMarkers = finishedGroups.append("circle")
                 .attr("class", "finished-marker")
                 .attr("cx", d => projection(d.coordinates)[0])
                 .attr("cy", d => projection(d.coordinates)[1])
                 .attr("r", 6)
                 .attr("fill", "#71717A")
                 .attr("stroke", "#FAFAFA")
-                .attr("stroke-width", 2)
-                .style("cursor", "pointer")
+                .attr("stroke-width", 2);
+
+            // NY: hele denne label-blok er tilføjet fra bunden
+            // Label-gruppe pr. marker, kontra-skaleret ift. ZOOM_SCALE så teksten forbliver fast størrelse
+            // uanset hvor meget kortet zoomer ind (transform-skaleringerne ganges sammen til 1)
+            const finishedLabels = finishedGroups.append("g")
+                .attr("class", "marker-label")
+                .attr("transform", d => {
+                    const [x, y] = projection(d.coordinates);
+                    return `translate(${x},${y}) scale(${1 / ZOOM_SCALE})`;
+                })
+                .style("opacity", 0) // NY: skjult som udgangspunkt, vises kun ved hover
+                .style("pointer-events", "none");
+
+            // NY: bruger hardcoded offset fra projects.js (d.labelOffset) i stedet for
+            // automatisk beregnet retning ud fra afstand til kortets centrum
+            finishedLabels.each(function (d) {
+                const offset = d.labelOffset ?? DEFAULT_LABEL_OFFSET;
+                const group = d3.select(this);
+
+                group.append("text")
+                    .attr("class", "marker-label-title fill-paper text-xs uppercase") // NY: Tailwind i stedet for .attr("fill"/"font-size"/"font-weight")
+                    .attr("x", offset.x)
+                    .attr("y", offset.y + 6)
+                    .text(d.title);
+
+                group.append("text")
+                    .attr("class", "marker-label-location fill-paper text-[0.5rem] uppercase") // NY
+                    .attr("x", offset.x + 1)
+                    .attr("y", offset.y + 20)
+                    .text(d.location);
+
+                group.append("text")
+                    .attr("class", "marker-label-date fill-paper text-[0.5rem] uppercase") // NY
+                    .attr("x", offset.x + 1)
+                    .attr("y", offset.y + 32)
+                    .text(formatDates(d.startDate, d.endDate));
+            });
+
+            // NY: event-håndtering flyttet fra finishedMarkers til finishedGroups,
+            // så både cirkel og label reagerer på samme hover-flade
+            finishedGroups
                 .on("mouseenter", function (event, d) {
                     const [x, y] = projection(d.coordinates);
-                    const [mouseX, mouseY] = d3.pointer(event);
-                    const translateX = mouseX - x * zoomScale;
-                    const translateY = mouseY - y * zoomScale;
+                    const [mouseX, mouseY] = d3.pointer(event, g.node()); // NY: reference ændret fra event til (event, g.node())
+                    const translateX = mouseX - x * ZOOM_SCALE;
+                    const translateY = mouseY - y * ZOOM_SCALE;
 
                     setActiveProject(d);
 
                     g.transition()
                         .delay(200)
                         .duration(500)
-                        .attr("transform", `translate(${translateX},${translateY}) scale(${zoomScale})`);
+                        .attr("transform", `translate(${translateX},${translateY}) scale(${ZOOM_SCALE})`);
 
                     g.selectAll("path")
                         .transition()
@@ -119,17 +167,22 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
                     finishedMarkers.transition()
                         .delay(200)
                         .duration(500)
-                        .attr("r", r => r === d ? 4 : 0)
+                        .attr("r", p => p === d ? 4 : 0)
                         .attr("fill", "#27272A")
                         .attr("stroke-width", 1);
-                    
+
                     upcomingMarkers.transition()
                         .delay(200)
                         .duration(500)
                         .attr("r", 0)
                         .attr("stroke-width", 1);
-                    
 
+                    // NY: vis kun label for den markør, der hoveres over
+                    finishedLabels
+                        .transition()
+                        .delay(200)
+                        .duration(300)
+                        .style("opacity", p => p === d ? 1 : 0);
                 })
                 .on("mouseleave", function () {
                     g.transition()
@@ -155,10 +208,16 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
                         .attr("r", 6)
                         .attr("stroke-width", 2);
 
+                    // NY: skjul label igen ved mouseleave
+                    finishedLabels
+                        .transition()
+                        .duration(150)
+                        .style("opacity", 0);
+
                     setActiveProject(null);
                 })
                 .on("click", (event, d) => {
-                    onMarkerNavigate?.(); // Fade overlay ved navigation til projektside
+                    onMarkerNavigate?.();
                     router.push(`/${d.slug}`);
                 });
         };
