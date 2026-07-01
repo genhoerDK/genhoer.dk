@@ -34,7 +34,7 @@ export default function ProjectCarousel({ projects }) {
             <BackgroundImage portrait={project.coverImagePortrait} landscape={project.coverImageLandscape} />
 
             {/* ── Bottom-left content ── */}
-            <div className="absolute bottom-20 left-8 md:bottom-8 md:left-8">
+            <div className="absolute bottom-20 left-4 md:bottom-8 md:left-4">
 
               {/* Big title */}
               <h2
@@ -60,7 +60,7 @@ export default function ProjectCarousel({ projects }) {
         ))}
 
         {/* ── Pagination dots ── */}
-        <div className="swiper-pagination-custom absolute bottom-4 z-10 flex gap-2 items-center justify-center w-full" />
+        <div className="swiper-pagination-custom absolute z-10 flex gap-2" />
       </Swiper>
 
     </section>
