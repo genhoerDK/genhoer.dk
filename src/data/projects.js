@@ -161,7 +161,7 @@ export const projects = [
     title: 'Kanon i G3',
     location: 'Kanonstilling G3',
     coordinates: [15.0806, 55.0009],
-    labelOffsetSmall: { x: -20, y: 40 },
+    labelOffsetSmall: { x: -20, y: 60 },
     labelOffsetLarge: { x: -220, y: 0 },
     kommune: 'Bornholms Regionskommune',
     komkode: '0400',
