@@ -10,7 +10,7 @@ import ProjectSponsors from '@/components/ProjectPage/ProjectSponsors';
 
 export default function ProjectHeroSection({ project }) {
     const { initialized, setTrack, currentTrack, play, pause, isPlaying } = useAudio();
-    const { title, slug, startDate, endDate, location, partners, description, audio, sponsorLogos } = project;
+    const { title, slug, startDate, endDate, location, kommune, partners, description, audio, sponsorLogos } = project;
     const isProjectPlaying = isPlaying && currentTrack?.slug === slug;
     const hasAudio = !!audio;
 
@@ -25,7 +25,7 @@ export default function ProjectHeroSection({ project }) {
 
     const info = [
         { label: "Udstilling", value: formatDates(startDate, endDate) },
-        { label: "Lokalitet", value: location },
+        { label: "Lokalitet", value: `${location}, ${kommune}` },
         { label: "Partnere", value: partners },
     ]
 

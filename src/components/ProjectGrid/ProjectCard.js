@@ -6,10 +6,10 @@ import InfoList from "@/components/InfoList";
 import { formatDates } from '@/utilities/formatDates';
 
 export default function ProjectCard({ project }) {
-    const { title, slug, coverVideo, coverImageSmall, startDate, endDate, location, partners } = project;
+    const { title, slug, coverVideo, coverImageSmall, startDate, endDate, location, kommune, partners } = project;
     const info = [
         { label: "Udstilling", value: formatDates(startDate, endDate) },
-        { label: "Lokalitet", value: location },
+        { label: "Lokalitet", value: `${location}, ${kommune}` },
         { label: "Partnere", value: partners },
     ]
 

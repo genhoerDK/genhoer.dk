@@ -49,11 +49,6 @@ export default function ProjectCarousel({ projects }) {
                 <p className="text-paper/80 text-[11px] tracking-widest">
                   {formatDates(project.startDate, project.endDate)}
                 </p>
-                {project.location && (
-                  <p className="text-paper/40 text-[10px] tracking-wider">
-                    {project.location}
-                  </p>
-                )}
               </div>
             </div>
           </SwiperSlide>

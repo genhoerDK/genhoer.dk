@@ -124,19 +124,19 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
                     .attr("class", "marker-label-title fill-paper text-xs uppercase") // NY: Tailwind i stedet for .attr("fill"/"font-size"/"font-weight")
                     .attr("x", offset.x)
                     .attr("y", offset.y + 6)
-                    .text(d.title);
-
-                group.append("text")
-                    .attr("class", "marker-label-location fill-paper text-[0.5rem] uppercase") // NY
-                    .attr("x", offset.x + 1)
-                    .attr("y", offset.y + 20)
-                    .text(d.location);
+                    .text(d.title);      
 
                 group.append("text")
                     .attr("class", "marker-label-date fill-paper text-[0.5rem] uppercase") // NY
                     .attr("x", offset.x + 1)
-                    .attr("y", offset.y + 32)
+                    .attr("y", offset.y + 20)
                     .text(formatDates(d.startDate, d.endDate));
+
+                group.append("text")
+                    .attr("class", "marker-label-location fill-paper text-[0.5rem] uppercase") // NY
+                    .attr("x", offset.x + 1)
+                    .attr("y", offset.y + 32)
+                    .text(d.kommune);
             });
 
             // NY: event-håndtering flyttet fra finishedMarkers til finishedGroups,
