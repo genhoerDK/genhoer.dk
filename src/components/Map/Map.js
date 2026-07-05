@@ -8,7 +8,6 @@ import Overlay from '@/components/Overlay';
 import BackgroundImage from "@/components/BackgroundImage";
 import MapSmall from "@/components/Map/MapSmall";
 import MapLarge from "@/components/Map/MapLarge";
-import MapInfo from "@/components/Map/MapInfo";
 import MapControls from "@/components/Map/MapControls";
 
 export default function Map() {
@@ -41,7 +40,6 @@ export default function Map() {
             {isPortrait
                 ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} onMarkerNavigate={handleMarkerNavigate} />
                 : <MapLarge setActiveProject={setActiveProject} onMarkerNavigate={handleMarkerNavigate} />}
-            {isPortrait && <MapInfo project={activeProject} />}
             {isPortrait && <MapControls activeProject={activeProject} setActiveProject={setActiveProject} onMarkerNavigate={handleMarkerNavigate} />}
         </Overlay>
     );

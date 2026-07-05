@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import { projects } from "@/data/projects";
+import { formatDates } from "@/utilities/formatDates"; // NY: bruges til at formatere datoer i label
 
 export default function MapSmall({ activeProject, setActiveProject }) {
     const svgRef = useRef(null);
@@ -99,56 +100,107 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                 .attr("stroke-width", 2)
                 .attr("stroke-dasharray", 3.14)
 
-            const finishedMarkers = g
-                .selectAll(".finished-marker")
+            // NY: cirkel flyttet fra direkte g.selectAll(".finished-marker") ind i en fælles <g> pr. marker,
+            // så cirkel + label kan style/animeres/håndteres samlet
+            const finishedGroups = g.selectAll(".finished-marker-group")
                 .data(finishedProjects)
                 .enter()
-                .append("circle")
+                .append("g")
+                .attr("class", "finished-marker-group")
+                .style("cursor", "pointer"); // NY: flyttet hertil fra den gamle .finished-marker selection
+
+            // NY: appendes nu på finishedGroups i stedet for direkte på g, og click-listener er flyttet ned til finishedGroups
+            const finishedMarkers = finishedGroups.append("circle")
                 .attr("class", "finished-marker")
                 .attr("cx", (d) => projection(getCoordinates(d))[0])
                 .attr("cy", (d) => projection(getCoordinates(d))[1])
                 .attr("r", markerRadius)
                 .attr("fill", "#71717A")
                 .attr("stroke", "#FAFAFA")
-                .attr("stroke-width", markerStrokeWidth)
-                .style("cursor", "pointer")
-                .on("click", function (event, d) {
-                    if (activeProjectRef.current) return;
-                    event.stopPropagation();
-                    setActiveProject(d);
+                .attr("stroke-width", markerStrokeWidth);
 
+            // NY: hele denne label-blok er tilføjet fra bunden
+            // Label-gruppe pr. marker, kontra-skaleret ift. clickZoomScale så teksten forbliver fast størrelse
+            // uanset hvor meget kortet zoomer ind (transform-skaleringerne ganges sammen til 1)
+            const finishedLabels = finishedGroups.append("g")
+                .attr("class", "marker-label")
+                .attr("transform", (d) => {
                     const [x, y] = projection(getCoordinates(d));
+                    return `translate(${x},${y}) scale(${1 / clickZoomScale})`;
+                })
+                .style("opacity", 0) // NY: skjult som udgangspunkt, vises kun ved klik
+                .style("pointer-events", "none");
 
-                    const centerX = width / 2;
-                    const centerY = height / 2;
-                    const translateX = centerX - x * clickZoomScale;
-                    const translateY = centerY - y * clickZoomScale;
-                    const t = d3.zoomIdentity.translate(translateX, translateY).scale(clickZoomScale);
+            // NY: bruger hardcoded offset fra projects.js (d.labelOffset) i stedet for
+            // automatisk beregnet retning ud fra afstand til kortets centrum
+            finishedLabels.each(function (d) {
+                const offset = d.labelOffsetSmall;
+                const group = d3.select(this);
 
-                    svg.transition().duration(500).call(zoom.transform, t);
+                group.append("text")
+                    .attr("class", "marker-label-title fill-paper text-xs uppercase") // NY
+                    .attr("x", offset.x)
+                    .attr("y", offset.y + 6)
+                    .text(d.title);
 
-                    g.selectAll("path").transition()
-                        .delay(200)
-                        .duration(500)
-                        .attr("fill", (p) => (p.properties.KOMKODE === d.komkode ? "#FAFAFA" : "#27272A"))
-                        .attr("fill-opacity", (p) => (p.properties.KOMKODE === d.komkode ? 1 : 0))
-                        .attr("stroke", "#FAFAFA")
-                        .attr("stroke-opacity", (p) => (p.properties.KOMKODE === d.komkode ? 1 : 0.1));
+                group.append("text")
+                    .attr("class", "marker-label-date fill-paper text-[0.5rem] uppercase") // NY
+                    .attr("x", offset.x + 1)
+                    .attr("y", offset.y + 20)
+                    .text(formatDates(d.startDate, d.endDate));
 
-                    finishedMarkers.transition()
-                        .delay(200)
-                        .duration(500)
-                        .attr("r", (r) => (r === d ? 3 : 0))
-                        .attr("fill", "#27272A")
-                        .attr("stroke-width", 1)
-                        .style("cursor", "default");
+                group.append("text")
+                    .attr("class", "marker-label-location fill-paper text-[0.5rem] uppercase") // NY
+                    .attr("x", offset.x + 1)
+                    .attr("y", offset.y + 32)
+                    .text(d.kommune);
+            });
 
-                    upcomingMarkers.transition()
-                        .delay(200)
-                        .duration(500)
-                        .attr("r", 0)
-                        .attr("stroke-width", 1);
-                });
+            // NY: click-håndtering flyttet fra finishedMarkers til finishedGroups,
+            // så cirkel + label reagerer på samme klik-flade
+            finishedGroups.on("click", function (event, d) {
+                if (activeProjectRef.current) return;
+                event.stopPropagation();
+                setActiveProject(d);
+
+                const [x, y] = projection(getCoordinates(d));
+
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const translateX = centerX - x * clickZoomScale;
+                const translateY = centerY - y * clickZoomScale;
+                const t = d3.zoomIdentity.translate(translateX, translateY).scale(clickZoomScale);
+
+                svg.transition().duration(500).call(zoom.transform, t);
+
+                g.selectAll("path").transition()
+                    .delay(200)
+                    .duration(500)
+                    .attr("fill", (p) => (p.properties.KOMKODE === d.komkode ? "#FAFAFA" : "#27272A"))
+                    .attr("fill-opacity", (p) => (p.properties.KOMKODE === d.komkode ? 1 : 0))
+                    .attr("stroke", "#FAFAFA")
+                    .attr("stroke-opacity", (p) => (p.properties.KOMKODE === d.komkode ? 1 : 0.1));
+
+                finishedMarkers.transition()
+                    .delay(200)
+                    .duration(500)
+                    .attr("r", (p) => (p === d ? 3 : 0))
+                    .attr("fill", "#27272A")
+                    .attr("stroke-width", 1)
+                    .style("cursor", "default");
+
+                upcomingMarkers.transition()
+                    .delay(200)
+                    .duration(500)
+                    .attr("r", 0)
+                    .attr("stroke-width", 1);
+
+                // NY: vis kun label for den klikkede markør
+                finishedLabels.transition()
+                    .delay(200)
+                    .duration(300)
+                    .style("opacity", (p) => (p === d ? 1 : 0));
+            });
 
             const userZoomExtent = 3;
             const maxMarkerRadiusZoom = 4;
@@ -227,6 +279,11 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                 .attr("r", markerRadius)
                 .attr("stroke-width", markerStrokeWidth)
                 .style("cursor", "pointer");
+
+            // NY: skjul label igen ved reset
+            g.selectAll(".marker-label").transition()
+                .duration(150)
+                .style("opacity", 0);
         }
     }, [activeProject]);
 

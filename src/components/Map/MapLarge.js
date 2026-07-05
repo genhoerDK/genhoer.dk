@@ -8,7 +8,6 @@ import { projects } from "@/data/projects";
 import { formatDates } from "@/utilities/formatDates"; // NY: bruges til at formatere datoer i label
 
 const ZOOM_SCALE = 4; // NY: udtrukket som konstant (var før en variabel inde i renderMap)
-const DEFAULT_LABEL_OFFSET = { x: 60, y: 0 }; // NY: fallback-placering hvis et projekt ikke har labelOffset sat
 
 export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
     const svgRef = useRef(null);
@@ -114,10 +113,10 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
                 .style("opacity", 0) // NY: skjult som udgangspunkt, vises kun ved hover
                 .style("pointer-events", "none");
 
-            // NY: bruger hardcoded offset fra projects.js (d.labelOffset) i stedet for
+            // NY: bruger hardcoded offset fra projects.js (d.labelOffsetLarge) i stedet for
             // automatisk beregnet retning ud fra afstand til kortets centrum
             finishedLabels.each(function (d) {
-                const offset = d.labelOffset ?? DEFAULT_LABEL_OFFSET;
+                const offset = d.labelOffsetLarge;
                 const group = d3.select(this);
 
                 group.append("text")
