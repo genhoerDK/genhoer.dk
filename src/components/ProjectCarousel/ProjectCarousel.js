@@ -36,7 +36,7 @@ export default function ProjectCarousel({ projects }) {
             <div className="absolute bottom-20 left-4 md:bottom-8 md:left-4 text-paper">
 
               {/* Lille billede */}
-              <div className="relative w-2/3 md:w-1/2 opacity-90 aspect-video overflow-hidden mb-4">
+              <div className="relative w-2/3 md:w-1/3 opacity-90 aspect-video overflow-hidden mb-4">
                 <img src={project.coverImageSmall} alt={project.title} className="object-cover size-full" />
               </div>
 
