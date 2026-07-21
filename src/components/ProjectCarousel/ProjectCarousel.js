@@ -30,26 +30,21 @@ export default function ProjectCarousel({ projects }) {
       >
         {projects.map((project, i) => (
           <SwiperSlide key={i} className="relative overflow-hidden">
-            {/* ── Full-bleed background ── */}
             <BackgroundImage portrait={project.coverImagePortrait} landscape={project.coverImageLandscape} />
 
-            {/* ── Bottom-left content ── */}
-            <div className="absolute bottom-20 left-4 md:bottom-8 md:left-4">
+            {/* ── Info ── */}
+            <div className="absolute bottom-20 left-4 md:bottom-8 md:left-4 text-paper">
 
-              {/* Big title */}
-              <h2
-                className="text-paper font-black uppercase leading-none"
-                style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}
-              >
-                {project.title}
-              </h2>
-
-              {/* Date & location */}
-              <div className="mt-1 flex flex-col gap-0.5">
-                <p className="text-paper/80 text-[11px] tracking-widest">
-                  {formatDates(project.startDate, project.endDate)}
-                </p>
+              {/* Lille billede */}
+              <div className="relative w-2/3 md:w-1/2 opacity-90 aspect-video overflow-hidden mb-4">
+                <img src={project.coverImageSmall} alt={project.title} className="object-cover size-full" />
               </div>
+
+              {/* Title */}
+              <h2 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.title}</h2>
+
+              {/* Date */}
+              <p className="text-xs mt-1">{formatDates(project.startDate, project.endDate)}</p>
             </div>
           </SwiperSlide>
         ))}
