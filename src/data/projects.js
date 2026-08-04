@@ -108,7 +108,7 @@ export const projects = [
     title: 'Guldminebyen på dødens kyst',
     location: 'Hvide Sande',
     coordinates: [8.1308, 56.0084],
-    labelOffsetSmall: { x: -180, y: 0 },
+    labelOffsetSmall: { x: -180, y: -220 },
     labelOffsetLarge: { x: 300, y: 0 },
     kommune: 'Ringkøbing-Skjern Kommune',
     komkode: '0760',

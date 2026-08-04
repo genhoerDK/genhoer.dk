@@ -80,7 +80,7 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                 .attr("stroke-opacity", 1);
 
             // Zoom amount on clicking marker
-            const clickZoomScale = 6;
+            const clickZoomScale = 4;
 
             // Draw the markers
             const markerRadius = 6;
