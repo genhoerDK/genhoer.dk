@@ -44,7 +44,7 @@ export default function ProjectCarousel({ projects }) {
               <h2 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.title}</h2>
 
               {/* Date */}
-              <p className="text-xs mt-1">{formatDates(project.startDate, project.endDate)}</p>
+              <p className="font-light text-xs mt-1">{formatDates(project.startDate, project.endDate)}</p>
             </div>
           </SwiperSlide>
         ))}

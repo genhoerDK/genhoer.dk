@@ -104,27 +104,29 @@ export const projects = [
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
-    slug: 'hvide-sande',
-    title: 'Hvide Sande',
+    slug: 'guldminebyen-paa-doedens-kyst',
+    title: 'Guldminebyen på dødens kyst',
     location: 'Hvide Sande',
     coordinates: [8.1308, 56.0084],
     labelOffsetSmall: { x: -180, y: 0 },
     labelOffsetLarge: { x: 300, y: 0 },
     kommune: 'Ringkøbing-Skjern Kommune',
     komkode: '0760',
-    startDate: '2026-08-04',
-    endDate: '2026-09-26', // skift til null på et tidspunkt, så står der permanent installation
+    startDate: '2026-06-29',
+    endDate: '2026-08-03',
     partners: 'Hvide Sande Skole',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', ],
     description: [
-      'Flere detaljer kommer snart.'
+      'Værket udforsker Hvide Sandes historie gennem musik, anekdoter, reallyde og reportager fra journalister, som besøgte området før, under og efter at der blev etableret en by i klitlandskabet.',
+      'Hvide Sande er et af Danmarks yngste bysamfund, opstået i kølvandet på afvandingsslusens indvielse i 1931 og navngivet efter de lyse sandskrænter, som fiskere længe havde brugt som landkending. Fra en interimistisk havn ved slusen voksede et lille Klondyke-agtigt samfund sig gennem årtier til en by.',
+      'Udstillingen fandt sted i et fiskerhus på Tyskerhavnen.'
     ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/hvide-sande/cover-image-small.webp',
-    coverVideo: null,
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-small.webp',
+    coverVideo: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-video.mp4',
     artwork: null,
-    media: null,
+    media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']

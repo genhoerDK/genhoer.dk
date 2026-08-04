@@ -1,4 +1,4 @@
-import WorkshopSection from "@/components/Participate/WorkshopSection";
+import TextSection from "@/components/TextSection";
 import CoopSection from "@/components/Participate/CoopSection";
 
 export const metadata = {
@@ -8,10 +8,18 @@ export const metadata = {
 };
 
 export default function Participate() {
-
     return (
-        <article className="px-2 md:px-4 py-10">
-            <WorkshopSection />
+        <article>
+            <TextSection
+                label="Deltag i Genhør"
+                largeText={[
+                    "Vær med til at skabe en stedspecifik kulturoplevelse, der åbner et lydligt vindue til fortidens lokalsamfund. Vi vil meget gerne høre fra dig, hvis du eller din organisation har lyst til at opstarte et projekt."
+                ]}
+                smallText={[
+                    "Genhør samarbejder med lokale aktører om at udvikle offentligt tilgængelige lydinstallationer. Samarbejdet tager afsæt i lokale muligheder, behov og stedbundne potentialer og realiseres gennem en fælles indsats.",
+                ]}
+            />
+
             <CoopSection />
         </article>
     );
