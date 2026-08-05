@@ -29,7 +29,7 @@ export default function Info() {
             />
 
             <section className="relative w-full bg-ink mb-10 md:mb-0">
-              <img src="https://cdn.genhoer.dk/media/info-footer-image.webp" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+              <img src="https://cdn.genhoer.dk/media/info-footer-image.webp" className="absolute inset-0 w-full h-full object-cover opacity-30" />
 
               <div className="relative z-20 text-paper grid grid-cols-[auto_1fr] gap-8 px-2 md:px-48 py-24">
                 <div className="pt-1.25 md:pt-1.75">
