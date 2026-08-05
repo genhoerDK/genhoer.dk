@@ -127,8 +127,15 @@ export const projects = [
     coverVideo: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-video.mp4',
     artwork: null,
     media: ["image-01.webp", "image-02.webp", "image-03.webp", "image-04.webp", "text-01.svg", "video-01.mp4", "image-05.webp", "text-02.svg", "image-06.webp", "video-02.mp4", "image-07.webp"],
-    audio: null,
-    segments: null,
+    audio: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/track-v1.mp3',
+    segments: [ 
+      { title: 'Tyskerhavnen', start: 0, image: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-small.webp' },
+      { title: 'Fjord og hav', start: 60, image: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-small.webp' },
+      { title: 'Sand, legende børn og jernaffald', start: 140, image: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-small.webp' },
+      { title: 'Profiler af en by', start: 268, image: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-small.webp' },
+      { title: 'Mager er jorden', start: 315, image: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-small.webp' },
+      { title: 'Ingen forbindelse', start: 400, image: 'https://cdn.genhoer.dk/media/guldminebyen-paa-doedens-kyst/cover-image-small.webp' },
+    ],
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
