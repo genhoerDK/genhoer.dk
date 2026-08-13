@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Mousewheel, EffectFade } from 'swiper/modules';
 import BackgroundImage from '../BackgroundImage';
@@ -12,7 +13,7 @@ import 'swiper/css/effect-fade';
 export default function ProjectCarousel({ projects }) {
 
   return (
-    <section className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden">
+    <motion.section className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }}>
       <Swiper
         effect="fade"
         fadeEffect={{ crossFade: true }}
@@ -53,6 +54,6 @@ export default function ProjectCarousel({ projects }) {
         <div className="swiper-pagination-custom absolute z-10 flex gap-2" />
       </Swiper>
 
-    </section>
+    </motion.section>
   );
 }
