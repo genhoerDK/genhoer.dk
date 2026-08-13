@@ -31,7 +31,7 @@ export default function Info() {
             <section className="relative w-full bg-ink mb-10 md:mb-0">
               <img src="https://cdn.genhoer.dk/media/info-footer-image.webp" className="absolute inset-0 w-full h-full object-cover opacity-30" />
 
-              <div className="relative z-20 text-paper grid grid-cols-[auto_1fr] gap-8 px-2 md:px-48 py-24">
+              <div className="relative text-paper grid grid-cols-[auto_1fr] gap-8 px-2 md:px-48 py-24">
                 <div className="pt-1.25 md:pt-1.75">
                     <LabelSmall>Kontakt</LabelSmall>
                 </div>
@@ -53,7 +53,7 @@ export default function Info() {
                 </div>
               </div>
 
-                <Marquee pauseOnHover={false} speed={40} gradientColor="#27272a" gradientWidth={80} className="z-0">
+                <Marquee pauseOnHover={false} speed={40} gradientColor="#27272a" gradientWidth={80}>
                     {partners.map(partner => (
                         <img key={partner} src={`/logos/${partner}-logo.svg`} alt="" className="h-6 mx-6 mb-6" />
                     ))}
