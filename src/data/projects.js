@@ -175,7 +175,7 @@ export const projects = [
     kommune: 'Bornholms Regionskommune',
     komkode: '0400',
     startDate: '2026-05-30',
-    endDate: '2026-09-28',
+    endDate: '2026-09-20',
     partners: 'Friskolen Østerlars og Bornholms Museum',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'sparekassen-bornholms-fond', 'ewii' ],
     description: [
