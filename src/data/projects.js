@@ -60,8 +60,8 @@ export const projects = [
     labelOffsetLarge: { x: 200, y: 0 },
     kommune: 'Lolland Kommune',
     komkode: '0360',
-    startDate: '2026-10-08',
-    endDate: '2026-12-03',
+    startDate: '2026-10-22',
+    endDate: '2027-04-01',
     partners: 'Museum Lolland-Falster, Headspace og Lolland Ungdomsskole',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'lolland-kommune', 'kulturstroemmen', 'nakskov-2030'],
     description: [
@@ -86,8 +86,8 @@ export const projects = [
     labelOffsetLarge: { x: 180, y: 0 },
     kommune: 'Viborg Kommune',
     komkode: '0791',
-    startDate: '2026-10-02',
-    endDate: '2026-10-30',
+    startDate: '2026-10-08',
+    endDate: '2026-05-30',
     partners: 'Viborg Kommune, Paletten, Kulturambassadører Viborg og Viborg Museum',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', ],
     description: [
