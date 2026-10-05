@@ -202,7 +202,7 @@ export const projects = [
     kommune: 'Esbjerg Kommune',
     komkode: '0561',
     startDate: '2026-03-31',
-    endDate: '2026-07-31',
+    endDate: '2026-09-25',
     partners: 'Esbjerg Kommune og Huset Esbjerg',
     sponsorLogos: ['region-syddanmark', 'nordjyllands-fonden', 'william-demant-fonden', 'johan-hoffmann-fonden' ],
     description: [
