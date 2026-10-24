@@ -62,7 +62,7 @@ export const projects = [
     komkode: '0360',
     startDate: '2026-10-22',
     endDate: '2027-12-18',
-    partners: 'Museum Lolland-Falster, Headspace og Lolland Ungdomsskole',
+    partners: 'Museum Lolland-Falster og Lolland Ungdomsskole',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'lolland-kommune', 'kulturstroemmen', 'nakskov-2030'],
     description: [
       'Flere detaljer kommer snart.'
