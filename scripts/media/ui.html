@@ -3,70 +3,122 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Genhør medier</title>
+<title>Medier · Genhør</title>
+<link rel="icon" href="/design/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=REM:wght@100..900&display=swap" rel="stylesheet">
+<!-- Farver og font hentes fra src/app/globals.css, så siden følger hjemmesidens design -->
+<link rel="stylesheet" href="/design/tokens.css">
 <style>
-  :root {
-    --bg: #f4f4f5; --panel: #fff; --text: #18181b; --muted: #71717a; --line: #e4e4e7;
-    --accent: #18181b; --accent-text: #fff; --warn: #b45309; --warn-bg: #fef3c7; --ok: #15803d;
-  }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--text); }
-  header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); }
-  header h1 { font-size: 16px; margin: 0; }
-  header .hint { color: var(--muted); flex: 1; }
-  button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
-  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); padding: 8px 16px; }
-  button:disabled { opacity: .5; cursor: default; }
-  .layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; padding: 20px; align-items: start; }
-  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  body { margin: 0; font-family: var(--font-rem); font-weight: 300; font-size: 0.875rem; line-height: 1.4; background: var(--color-paper); color: var(--color-ink); -webkit-font-smoothing: antialiased; }
+  h1, h2 { font-weight: 300; line-height: 1; margin: 0; }
 
-  .slots { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-flow: dense; gap: 8px; }
-  .slot { position: relative; aspect-ratio: 1; background: #e4e4e7; border: 2px dashed #a1a1aa; border-radius: 4px; overflow: hidden; touch-action: none; }
+  /* Small uppercase label, som UI/Label */
+  .label { display: block; text-transform: uppercase; line-height: 1; font-size: 0.75rem; }
+  .label.sm { font-size: 0.5rem; }
+
+  /* Knapper, som UI/Button: solid og soft */
+  button { font: inherit; font-weight: 300; text-transform: uppercase; font-size: 0.75rem; line-height: 1; border: 0; border-radius: 0; padding: 0.625rem 0.875rem; cursor: pointer; background: var(--color-soft); color: var(--color-ink); }
+  button:hover:not(:disabled) { background: var(--color-ink); color: var(--color-paper); }
+  button.solid { background: var(--color-ink); color: var(--color-paper); }
+  button.solid:hover:not(:disabled) { background: var(--color-hard); }
+  button:disabled { opacity: .4; cursor: default; }
+
+  /* Header, som Layout/Header */
+  header { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 1rem; height: 2.5rem; padding: 0 var(--spacing-gutter); background: var(--color-paper); }
+  header .logo { display: flex; align-items: center; gap: 0.75rem; }
+  header .logo img { width: 160px; height: 28px; display: block; }
+  header .logo span { font-size: 1.25rem; }
+  header .hint { flex: 1; color: var(--color-hard); font-size: 0.75rem; }
+
+  .layout { display: grid; grid-template-columns: 1fr 18rem; gap: var(--spacing-gutter); padding: var(--spacing-gutter); align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } header .hint { display: none; } }
+
+  /* Pladserne, i samme opstilling som ProjectMediaSection */
+  .slots { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-flow: dense; gap: 0.5rem; }
+  .slot { position: relative; aspect-ratio: 1; background: var(--color-soft); overflow: hidden; touch-action: none; outline: 2px solid transparent; outline-offset: -2px; }
   .slot.big { grid-column: span 2; grid-row: span 2; }
   .slot.wide { grid-column: span 2; aspect-ratio: 2 / 1; }
-  .slot.filled { border: 2px solid transparent; cursor: grab; }
+  .slot.filled { cursor: grab; }
   .slot.filled:active { cursor: grabbing; }
-  .slot.over, .slot.target { border: 2px solid var(--accent); }
-  .slot img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
-  .slot .label { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 4px; }
-  .slot .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 8px; }
-  .slot .tools { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
-  .slot .tools button { padding: 2px 8px; font-size: 12px; background: rgba(255,255,255,.9); }
-  .slot .badge { position: absolute; bottom: 6px; left: 6px; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--warn-bg); color: var(--warn); }
+  .slot.over, .slot.target { outline-color: var(--color-ink); }
+  .slot img, .slot video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
+  .slot.text { background: var(--color-paper); outline: 1px dashed var(--color-faint); }
+  /* Klippene i en video, nederst i feltet */
+  .slot .clips { position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 0.25rem; padding: 0.25rem; background: color-mix(in srgb, var(--color-ink) 60%, transparent); overflow-x: auto; }
+  .slot .clips img { width: 2.5rem; height: 2.5rem; flex: none; cursor: pointer; pointer-events: auto; outline: 2px solid transparent; outline-offset: -2px; opacity: .7; }
+  .slot .clips img.selected { outline-color: var(--color-paper); opacity: 1; }
+  /* Tidslinje for det valgte klip: markeringen er den del, der kommer med */
+  .slot .trim { position: absolute; left: 0; right: 0; bottom: 3.5rem; padding: 0.375rem 0.5rem 0.5rem; background: color-mix(in srgb, var(--color-ink) 60%, transparent); color: var(--color-paper); }
+  .slot .trim .info { display: flex; justify-content: space-between; font-size: 0.5rem; text-transform: uppercase; line-height: 1; margin-bottom: 0.375rem; }
+  .slot .trim .bar { position: relative; height: 1.25rem; background: color-mix(in srgb, var(--color-paper) 25%, transparent); cursor: pointer; touch-action: none; }
+  .slot .trim .range { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--color-paper) 55%, transparent); outline: 2px solid var(--color-paper); outline-offset: -2px; cursor: grab; }
+  .slot .trim .range:active { cursor: grabbing; }
+  .slot .trim .handle { position: absolute; top: 0; bottom: 0; width: 0.5rem; background: var(--color-paper); cursor: ew-resize; }
+  .slot .trim .handle.in { left: 0; }
+  .slot .trim .handle.out { right: 0; }
+  .slot .trim .playhead { position: absolute; top: -0.125rem; bottom: -0.125rem; width: 2px; margin-left: -1px; background: var(--color-error); pointer-events: none; }
+  /* Pladsnummer, som ProjectStatus på projektkortene */
+  .slot > .label { position: absolute; top: 0; left: 0; padding: 0.375rem 0.5rem; background: var(--color-ink); color: var(--color-paper); font-size: 0.5rem; }
+  .slot .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--color-hard); text-transform: uppercase; font-size: 0.75rem; }
+  .slot .tools { position: absolute; top: 0; right: 0; display: flex; }
+  .slot .tools button { padding: 0.375rem 0.5rem; font-size: 0.5rem; background: var(--color-paper); }
+  .slot .tools button:hover { background: var(--color-ink); color: var(--color-paper); }
+  .slot .badge { position: absolute; bottom: 0; left: 0; padding: 0.375rem 0.5rem; font-size: 0.5rem; text-transform: uppercase; line-height: 1; background: var(--color-error-strong); color: var(--color-paper); }
 
-  aside { position: sticky; top: 76px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; max-height: calc(100vh - 96px); overflow: auto; }
-  aside h2 { font-size: 13px; margin: 0 0 8px; color: var(--muted); font-weight: 500; }
-  .pool { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .pool img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; display: block; }
-  .pool img.used { opacity: .35; }
-  .pool img.selected { border-color: var(--accent); }
+  aside { position: sticky; top: calc(2.5rem + var(--spacing-gutter)); max-height: calc(100vh - 2.5rem - 2 * var(--spacing-gutter)); overflow: auto; }
+  aside h2 { margin: 1rem 0 0.5rem; }
+  .pool { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.25rem; }
+  .pool .item { position: relative; cursor: pointer; outline: 2px solid transparent; outline-offset: -2px; }
+  .pool img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--color-soft); pointer-events: none; }
+  .pool .item.used img { opacity: .3; }
+  .pool .item.selected { outline-color: var(--color-ink); }
+  .pool .duration { position: absolute; bottom: 0; right: 0; padding: 0.25rem 0.375rem; background: var(--color-ink); color: var(--color-paper); font-size: 0.5rem; text-transform: uppercase; line-height: 1; pointer-events: none; }
+  .drop { display: grid; gap: 0.75rem; justify-items: center; text-align: center; padding: 1.25rem 0.75rem; background: var(--color-soft); color: var(--color-dim); font-size: 0.75rem; }
+  .drop button { background: var(--color-paper); }
+  body.dragging .drop { background: var(--color-ink); color: var(--color-paper); }
+  .pool-empty { grid-column: 1 / -1; color: var(--color-hard); font-size: 0.75rem; margin: 0.5rem 0; }
 
-  .results { margin: 0 20px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
-  .results h2 { font-size: 15px; margin: 0 0 8px; }
-  .results table { border-collapse: collapse; width: 100%; max-width: 560px; margin-bottom: 12px; }
-  .results td { padding: 4px 8px 4px 0; border-bottom: 1px solid var(--line); }
-  .results .warn { color: var(--warn); }
-  .results .ok { color: var(--ok); }
+  /* Resultat og upload */
+  .results { margin: 0 var(--spacing-gutter) var(--spacing-gutter); padding: 1rem; background: var(--color-soft); }
+  .results h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+  .results table { border-collapse: collapse; width: 100%; max-width: 36rem; margin-bottom: 1rem; font-size: 0.75rem; }
+  .results td { padding: 0.375rem 1rem 0.375rem 0; border-bottom: 1px solid var(--color-muted); }
+  .results .warn { color: var(--color-error); }
+  .results .ok { color: var(--color-ink); }
   .results a { color: inherit; }
-  .publish { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
-  .publish label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
-  .publish select, .publish input { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; min-width: 240px; color: var(--text); background: var(--panel); }
-  .publish .note { width: 100%; font-size: 13px; color: var(--muted); margin: 0; }
-  .publish .note.warn { color: var(--warn); }
+  .results ul { padding-left: 1rem; font-size: 0.75rem; }
+  .publish { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-muted); }
+  /* Felter, som Forms/FormField */
+  .publish label { display: grid; gap: 0.25rem; text-transform: uppercase; font-size: 0.75rem; }
+  .publish select, .publish input { font: inherit; font-size: 0.875rem; text-transform: none; padding: 0.5rem 0.75rem; border: 2px solid var(--color-muted); border-radius: 0; outline: none; min-width: 15rem; color: var(--color-ink); background: var(--color-paper); }
+  .publish select:focus, .publish input:focus { border-color: var(--color-ink); }
+  .publish button { padding: 0.75rem 1rem; }
+  .results button:not(.solid) { background: var(--color-paper); }
+  .results button:not(.solid):hover:not(:disabled) { background: var(--color-ink); color: var(--color-paper); }
+  .publish .note { width: 100%; font-size: 0.75rem; color: var(--color-dim); margin: 0; }
+  .publish .note.warn { color: var(--color-error); }
   [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Genhør medier</h1>
-  <span class="hint">Træk billeder fra højre over på pladserne, eller klik på et billede og derefter på en plads. Træk i et placeret billede for at flytte udsnittet.</span>
-  <button class="primary" id="build">Lav billeder</button>
+  <div class="logo"><img src="/design/logo.svg" alt="Genhør"><span>Medier</span></div>
+  <span class="hint">Træk billeder og klip over på pladserne, eller klik på dem og derefter på en plads. Træk i et billede eller klip for at flytte udsnittet.</span>
+  <button class="solid" id="build">Lav galleri</button>
 </header>
 
 <div class="layout">
   <section class="slots" id="slots"></section>
   <aside>
-    <h2 id="poolTitle">Billeder</h2>
+    <div class="drop" id="drop">
+      <span id="dropText">Træk billeder, klip eller en zip fra Google Fotos hertil</span>
+      <button id="pick">Vælg filer…</button>
+      <input type="file" id="fileInput" multiple accept="image/*,video/*,.heic,.heif,.mov,.zip" hidden>
+    </div>
+    <h2 class="label" id="poolTitle">Filer</h2>
     <div class="pool" id="pool"></div>
   </aside>
 </div>
@@ -80,20 +132,25 @@
     <label>Projekt<select id="project"></select></label>
     <label>Mappe på Azure<select id="folderSelect"></select></label>
     <label id="newFolderLabel" hidden>Navn på ny mappe<input id="newFolder" spellcheck="false" placeholder="fx viborg"></label>
-    <button class="primary" id="upload">Upload og opdatér projects.js</button>
+    <button class="solid" id="upload">Upload og opdatér projects.js</button>
     <p class="note" id="publishNote"></p>
   </div>
   <div id="uploadResult"></div>
+  <button id="cleanup" hidden>Ryd op – flyt filerne til papirkurven</button>
 </section>
 
 <script>
-const state = { targets: [], photos: [], layout: {}, projects: [], folders: [], folderError: null, selected: null, builtLayout: null };
+const state = { targets: [], videoTargets: [], gallery: [], media: [], layout: {}, projects: [], folders: [], folderError: null, selected: null, selectedClip: {}, builtLayout: null };
 const NEW_FOLDER = '__new';
+const DROP_TEXT = 'Træk billeder, klip eller en zip fra Google Fotos hertil';
 const validFolder = f => /^[a-z0-9][a-z0-9-]*$/.test(f);
 const currentFolder = () => $('folderSelect').value === NEW_FOLDER ? $('newFolder').value.trim() : $('folderSelect').value;
 const $ = id => document.getElementById(id);
-const thumb = name => `/api/thumb?name=${encodeURIComponent(name)}`;
-const photo = name => state.photos.find(p => p.name === name);
+const enc = encodeURIComponent;
+const thumb = name => `/api/thumb?name=${enc(name)}`;
+const item = name => state.media.find(m => m.name === name);
+const isVideoSlot = slot => slot.startsWith('v');
+const seconds = s => `${s.toFixed(1).replace('.', ',')} s`;
 
 async function api(url, options) {
   const res = await fetch(url, options);
@@ -102,67 +159,292 @@ async function api(url, options) {
   return body;
 }
 
-async function assign(slot, name) {
+// Galleriets felter i samme rækkefølge og opstilling som ProjectMediaSection på hjemmesiden
+function tiles() {
+  return state.gallery.map((file, i) => {
+    const layoutClass = i === 3 ? 'big' : i === 10 ? 'wide' : '';
+    const image = file.match(/^image-(\d+)\.webp$/);
+    if (image) return { kind: 'image', slot: image[1], layoutClass, target: state.targets.find(t => t.slot === image[1]) };
+    const video = file.match(/^video-0?(\d+)\.mp4$/);
+    if (video) return { kind: 'video', slot: `v${video[1]}`, layoutClass, target: state.videoTargets.find(t => t.slot === `v${video[1]}`) };
+    return { kind: 'text', file, layoutClass };
+  });
+}
+
+// Den markerede del af et klip. Uden markering bruges op til 4 sekunder fra midten, som i scriptet
+const MIN_SEGMENT = 0.3;
+function ensureSegment(clip) {
+  const duration = item(clip.file)?.duration ?? 0;
+  if (!Number.isFinite(clip.in) || !Number.isFinite(clip.out)) {
+    const length = Math.min(duration, 4);
+    clip.in = (duration - length) / 2;
+    clip.out = clip.in + length;
+  }
+  return clip;
+}
+const clipLength = clip => clip.out - clip.in;
+const videoLength = clips => clips.reduce((sum, c) => sum + clipLength(ensureSegment(c)), 0);
+
+// Skalerer alle markeringer med samme andel omkring deres midte, så videoen rammer målet
+function fitToTarget(clips, target) {
+  const factor = target / videoLength(clips);
+  for (const c of clips) {
+    const duration = item(c.file).duration;
+    const length = Math.min(duration, Math.max(MIN_SEGMENT, clipLength(c) * factor));
+    const center = (c.in + c.out) / 2;
+    c.in = Math.min(Math.max(0, center - length / 2), duration - length);
+    c.out = c.in + length;
+  }
+}
+
+async function autoFocus(slot, name) {
+  return api(`/api/focus?name=${enc(name)}&slot=${slot}`);
+}
+
+async function placeImage(slot, name) {
   state.layout[slot] = { file: name, fx: 0.5, fy: 0.5 };
   render();
-  const focus = await api(`/api/focus?name=${encodeURIComponent(name)}&slot=${slot}`);
+  const focus = await autoFocus(slot, name);
   if (state.layout[slot]?.file === name) Object.assign(state.layout[slot], focus);
   render();
 }
 
-// Advarer hvis udsnittet er smallere end det færdige billede
-function lowRes(target, p) {
-  const aspect = target.width / target.height;
-  const cropWidth = p.width / p.height > aspect ? p.height * aspect : p.width;
-  return cropWidth < target.width;
+async function addClip(slot, name) {
+  const clip = ensureSegment({ file: name, fx: 0.5, fy: 0.5 });
+  state.layout[slot] = { clips: [...(state.layout[slot]?.clips ?? []), clip] };
+  state.selectedClip[slot] = state.layout[slot].clips.length - 1;
+  render();
+  Object.assign(clip, await autoFocus(slot, name));
+  render();
 }
 
-function renderSlot(t) {
-  const entry = state.layout[t.slot];
-  const el = document.createElement('div');
-  el.className = 'slot' + (t.slot === '04' ? ' big' : t.width > t.height ? ' wide' : '') + (entry ? ' filled' : '') + (state.selected ? ' target' : '');
-  el.dataset.slot = t.slot;
-  const label = `${t.slot} · ${t.width}×${t.height}`;
+// Billeder kan kun placeres på billedpladser og klip kun i videoer
+function place(tile, name) {
+  const m = item(name);
+  if (!m) return;
+  if (tile.kind === 'image' && m.kind === 'image') placeImage(tile.slot, name);
+  if (tile.kind === 'video' && m.kind === 'video') addClip(tile.slot, name);
+}
 
+// Advarer hvis udsnittet er mindre end den færdige fil
+function lowRes(t, m) {
+  const width = t.width ?? t.size, height = t.height ?? t.size;
+  const aspect = width / height;
+  const cropWidth = m.width / m.height > aspect ? m.height * aspect : m.width;
+  return cropWidth < width;
+}
+
+function renderImageTile(el, tile) {
+  const t = tile.target;
+  const entry = state.layout[t.slot];
+  const label = `${t.slot} · ${t.width}×${t.height}`;
   if (!entry) {
     el.innerHTML = `<span class="label">${label}</span><div class="empty">Tom plads</div>`;
-  } else {
-    const p = photo(entry.file);
-    el.innerHTML = `<img src="${thumb(entry.file)}" style="object-position:${entry.fx * 100}% ${entry.fy * 100}%">
-      <span class="label">${label}</span>
-      <div class="tools"><button data-act="auto" title="Find motivet automatisk">Auto</button><button data-act="clear" title="Fjern">✕</button></div>
-      ${p && lowRes(t, p) ? '<span class="badge">Lav opløsning – bliver opskaleret</span>' : ''}`;
-    el.querySelector('[data-act=clear]').onclick = e => { e.stopPropagation(); delete state.layout[t.slot]; render(); };
-    el.querySelector('[data-act=auto]').onclick = e => { e.stopPropagation(); assign(t.slot, entry.file); };
-    enablePan(el, t.slot);
+    return;
   }
+  const m = item(entry.file);
+  el.classList.add('filled');
+  el.innerHTML = `<img src="${thumb(entry.file)}" style="object-position:${entry.fx * 100}% ${entry.fy * 100}%">
+    <span class="label">${label}</span>
+    <div class="tools"><button data-act="auto" title="Find motivet automatisk">Auto</button><button data-act="clear" title="Fjern">✕</button></div>
+    ${m && lowRes(t, m) ? '<span class="badge">Lav opløsning – bliver opskaleret</span>' : ''}`;
+  el.querySelector('[data-act=clear]').onclick = e => { e.stopPropagation(); delete state.layout[t.slot]; render(); };
+  el.querySelector('[data-act=auto]').onclick = e => { e.stopPropagation(); placeImage(t.slot, entry.file); };
+  enablePan(el, () => state.layout[t.slot]);
+}
+
+function renderVideoTile(el, tile) {
+  const t = tile.target;
+  const clips = state.layout[t.slot]?.clips ?? [];
+  const name = t.out.replace('.mp4', '');
+  if (!clips.length) {
+    el.innerHTML = `<span class="label">${name} · ${t.size}×${t.size}</span><div class="empty">Træk 3–4 klip hertil</div>`;
+    return;
+  }
+  const index = Math.min(state.selectedClip[t.slot] ?? 0, clips.length - 1);
+  state.selectedClip[t.slot] = index;
+  const clip = ensureSegment(clips[index]);
+  const m = item(clip.file);
+  const total = videoLength(clips);
+  const offTarget = Math.abs(total - t.seconds) > 1.5;
+
+  el.classList.add('filled');
+  el.innerHTML = `<video src="/api/preview?name=${enc(clip.file)}" muted autoplay playsinline style="object-position:${clip.fx * 100}% ${clip.fy * 100}%"></video>
+    <span class="label" data-total>${name} · ${seconds(total)} · ${clips.length} klip</span>
+    <div class="tools">
+      <button data-act="fit" title="Tilpas markeringerne, så videoen bliver ${t.seconds} sekunder">${t.seconds} s</button>
+      <button data-act="left" title="Flyt klippet tidligere" ${index === 0 ? 'disabled' : ''}>←</button>
+      <button data-act="right" title="Flyt klippet senere" ${index === clips.length - 1 ? 'disabled' : ''}>→</button>
+      <button data-act="auto" title="Find motivet automatisk">Auto</button>
+      <button data-act="clear" title="Fjern klippet">✕</button>
+    </div>
+    <span class="badge" data-warning style="bottom:6.75rem" ${offTarget ? '' : 'hidden'}>Videoen bliver ${seconds(total)} – målet er ca. ${t.seconds} s</span>
+    ${!offTarget && m && lowRes(t, m) ? '<span class="badge" style="bottom:6.75rem">Lav opløsning – bliver opskaleret</span>' : ''}
+    <div class="trim">
+      <div class="info"><span>${clip.file}</span><span data-range></span></div>
+      <div class="bar"><div class="range"><div class="handle in"></div><div class="handle out"></div></div><div class="playhead"></div></div>
+    </div>
+    <div class="clips">${clips.map((c, i) => `<img src="${thumb(c.file)}" data-index="${i}" class="${i === index ? 'selected' : ''}" title="${c.file} · ${seconds(clipLength(ensureSegment(c)))} bruges">`).join('')}</div>`;
+
+  // Afspil kun den markerede del af klippet
+  const video = el.querySelector('video');
+  video.addEventListener('loadedmetadata', () => { video.currentTime = clip.in; });
+  video.addEventListener('timeupdate', () => { if (video.currentTime >= clip.out || video.currentTime < clip.in - 0.05) video.currentTime = clip.in; });
+  enableTrim(el, t, clips, clip, video);
+
+  const move = offset => {
+    const list = [...clips];
+    [list[index], list[index + offset]] = [list[index + offset], list[index]];
+    state.layout[t.slot] = { clips: list };
+    state.selectedClip[t.slot] = index + offset;
+    render();
+  };
+  el.querySelector('[data-act=left]').onclick = e => { e.stopPropagation(); move(-1); };
+  el.querySelector('[data-act=right]').onclick = e => { e.stopPropagation(); move(1); };
+  el.querySelector('[data-act=auto]').onclick = async e => {
+    e.stopPropagation();
+    Object.assign(clip, await autoFocus(t.slot, clip.file));
+    render();
+  };
+  el.querySelector('[data-act=fit]').onclick = e => {
+    e.stopPropagation();
+    fitToTarget(clips, t.seconds);
+    render();
+  };
+  el.querySelector('[data-act=clear]').onclick = e => {
+    e.stopPropagation();
+    const list = clips.filter((_, i) => i !== index);
+    if (list.length) state.layout[t.slot] = { clips: list }; else delete state.layout[t.slot];
+    render();
+  };
+  el.querySelectorAll('.clips img').forEach(img => img.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    state.selectedClip[t.slot] = Number(img.dataset.index);
+    render();
+  }));
+  enablePan(el, () => state.layout[t.slot]?.clips[state.selectedClip[t.slot]]);
+}
+
+// Tidslinjen: træk i markeringen for at flytte den, i kanterne for at gøre den kortere eller længere,
+// eller klik på linjen for at flytte markeringen derhen. Markøren viser, hvor afspilningen er
+function enableTrim(el, t, clips, clip, video) {
+  const duration = item(clip.file).duration;
+  const bar = el.querySelector('.bar');
+  const range = el.querySelector('.range');
+  const playhead = el.querySelector('.playhead');
+
+  const update = () => {
+    range.style.left = `${clip.in / duration * 100}%`;
+    range.style.width = `${clipLength(clip) / duration * 100}%`;
+    el.querySelector('[data-range]').textContent = `${seconds(clip.in)} – ${seconds(clip.out)} · ${seconds(clipLength(clip))} af ${seconds(duration)}`;
+    const total = videoLength(clips);
+    el.querySelector('[data-total]').textContent = `${t.out.replace('.mp4', '')} · ${seconds(total)} · ${clips.length} klip`;
+    const warning = el.querySelector('[data-warning]');
+    warning.hidden = Math.abs(total - t.seconds) <= 1.5;
+    warning.textContent = `Videoen bliver ${seconds(total)} – målet er ca. ${t.seconds} s`;
+  };
+  update();
+
+  const tick = () => {
+    if (!el.isConnected) return;
+    playhead.style.left = `${video.currentTime / duration * 100}%`;
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+
+  const timeAt = x => {
+    const rect = bar.getBoundingClientRect();
+    return Math.min(duration, Math.max(0, (x - rect.left) / rect.width * duration));
+  };
+
+  bar.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    const mode = e.target.classList.contains('in') ? 'in' : e.target.classList.contains('out') ? 'out' : e.target === range ? 'move' : 'jump';
+    const start = { t: timeAt(e.clientX), in: clip.in, out: clip.out };
+    if (mode === 'jump') {
+      // Centrér markeringen, hvor der klikkes
+      const length = clipLength(clip);
+      clip.in = Math.min(Math.max(0, start.t - length / 2), duration - length);
+      clip.out = clip.in + length;
+      start.in = clip.in; start.out = clip.out;
+      video.currentTime = clip.in;
+      update();
+    }
+    bar.setPointerCapture(e.pointerId);
+    video.pause();
+
+    const move = ev => {
+      const delta = timeAt(ev.clientX) - start.t;
+      if (mode === 'in') {
+        clip.in = Math.min(Math.max(0, start.in + delta), clip.out - MIN_SEGMENT);
+        video.currentTime = clip.in;
+      } else if (mode === 'out') {
+        clip.out = Math.max(Math.min(duration, start.out + delta), clip.in + MIN_SEGMENT);
+        video.currentTime = clip.out;
+      } else {
+        const length = start.out - start.in;
+        clip.in = Math.min(Math.max(0, start.in + delta), duration - length);
+        clip.out = clip.in + length;
+        video.currentTime = clip.in;
+      }
+      update();
+    };
+    const up = () => {
+      bar.removeEventListener('pointermove', move);
+      bar.removeEventListener('pointerup', up);
+      video.currentTime = clip.in;
+      video.play();
+      el.querySelectorAll('.clips img')[state.selectedClip[t.slot]].title = `${clip.file} · ${seconds(clipLength(clip))} bruges`;
+      updatePublish();
+    };
+    bar.addEventListener('pointermove', move);
+    bar.addEventListener('pointerup', up);
+  });
+}
+
+function renderTile(tile) {
+  const el = document.createElement('div');
+  el.className = `slot ${tile.layoutClass}`;
+  if (tile.kind === 'text') {
+    el.classList.add('text');
+    el.innerHTML = `<span class="label">${tile.file.replace('.svg', '')}</span><div class="empty">Tekst · uploades manuelt</div>`;
+    return el;
+  }
+  el.dataset.slot = tile.slot;
+  const selected = item(state.selected);
+  if (selected && (selected.kind === tile.kind)) el.classList.add('target');
+  if (tile.kind === 'image') renderImageTile(el, tile); else renderVideoTile(el, tile);
 
   el.addEventListener('click', () => {
     if (!state.selected) return;
     const name = state.selected;
     state.selected = null;
-    assign(t.slot, name);
+    place(tile, name);
   });
   el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
   el.addEventListener('dragleave', () => el.classList.remove('over'));
   el.addEventListener('drop', e => {
     e.preventDefault();
+    el.classList.remove('over');
     const name = e.dataTransfer.getData('text/plain');
-    if (name) assign(t.slot, name);
+    if (name) place(tile, name);
   });
   return el;
 }
 
-// Træk i billedet flytter udsnittet, svarende til CSS object-position
-function enablePan(el, slot) {
+// Træk i billedet eller klippet flytter udsnittet, svarende til CSS object-position
+function enablePan(el, getEntry) {
   el.addEventListener('pointerdown', e => {
-    if (e.target.closest('button') || state.selected) return;
-    const img = el.querySelector('img');
-    const entry = state.layout[slot];
+    if (e.target.closest('button, .clips, .trim') || state.selected) return;
+    const media = el.querySelector('img, video');
+    const entry = getEntry();
+    const naturalWidth = media.naturalWidth || media.videoWidth;
+    const naturalHeight = media.naturalHeight || media.videoHeight;
+    if (!entry || !naturalWidth) return;
     const rect = el.getBoundingClientRect();
-    const scale = Math.max(rect.width / img.naturalWidth, rect.height / img.naturalHeight);
-    const overflowX = img.naturalWidth * scale - rect.width;
-    const overflowY = img.naturalHeight * scale - rect.height;
+    const scale = Math.max(rect.width / naturalWidth, rect.height / naturalHeight);
+    const overflowX = naturalWidth * scale - rect.width;
+    const overflowY = naturalHeight * scale - rect.height;
     const start = { x: e.clientX, y: e.clientY, fx: entry.fx, fy: entry.fy };
     el.setPointerCapture(e.pointerId);
 
@@ -170,7 +452,7 @@ function enablePan(el, slot) {
       const clamp = v => Math.min(1, Math.max(0, v));
       if (overflowX > 1) entry.fx = clamp(start.fx - (ev.clientX - start.x) / overflowX);
       if (overflowY > 1) entry.fy = clamp(start.fy - (ev.clientY - start.y) / overflowY);
-      img.style.objectPosition = `${entry.fx * 100}% ${entry.fy * 100}%`;
+      media.style.objectPosition = `${entry.fx * 100}% ${entry.fy * 100}%`;
     };
     const up = () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); updatePublish(); };
     el.addEventListener('pointermove', move);
@@ -178,43 +460,87 @@ function enablePan(el, slot) {
   });
 }
 
-function renderPool() {
-  const used = new Set(Object.values(state.layout).map(e => e.file));
-  $('poolTitle').textContent = `Billeder (${state.photos.length})`;
-  $('pool').replaceChildren(...state.photos.map(p => {
-    const img = document.createElement('img');
-    img.src = thumb(p.name);
-    img.title = `${p.name} · ${p.width}×${p.height}`;
-    img.loading = 'lazy';
-    img.draggable = true;
-    img.className = (used.has(p.name) ? 'used' : '') + (state.selected === p.name ? ' selected' : '');
-    img.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', p.name));
-    img.addEventListener('click', () => { state.selected = state.selected === p.name ? null : p.name; render(); });
-    return img;
-  }));
+function usedFiles() {
+  return new Set(Object.values(state.layout).flatMap(e => e.clips ? e.clips.map(c => c.file) : [e.file]));
 }
 
+function renderPool() {
+  const used = usedFiles();
+  const images = state.media.filter(m => m.kind === 'image').length;
+  const clips = state.media.length - images;
+  $('poolTitle').textContent = `Filer (${images} billeder, ${clips} klip)`;
+  $('pool').replaceChildren(...state.media.map(m => {
+    const el = document.createElement('div');
+    el.className = 'item' + (used.has(m.name) ? ' used' : '') + (state.selected === m.name ? ' selected' : '');
+    el.title = `${m.name} · ${m.width}×${m.height}${m.duration ? ` · ${seconds(m.duration)}` : ''}`;
+    el.draggable = true;
+    el.innerHTML = `<img src="${thumb(m.name)}" loading="lazy">${m.kind === 'video' ? `<span class="duration">▶ ${seconds(m.duration)}</span>` : ''}`;
+    el.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', m.name));
+    el.addEventListener('click', () => { state.selected = state.selected === m.name ? null : m.name; render(); });
+    return el;
+  }));
+  if (!state.media.length) $('pool').innerHTML = '<p class="pool-empty">Ingen filer endnu</p>';
+}
+
+// Sender filerne én ad gangen, så store zip-filer ikke skal holdes i hukommelsen
+async function addFiles(files) {
+  files = [...files];
+  if (!files.length) return;
+  const text = $('dropText');
+  try {
+    for (const [i, file] of files.entries()) {
+      text.textContent = `Tilføjer ${i + 1} af ${files.length}: ${file.name}…`;
+      state.media = await api(`/api/add?file=${enc(file.name)}`, { method: 'POST', body: file });
+    }
+  } catch (err) {
+    alert('Kunne ikke tilføje filen: ' + err.message);
+  } finally {
+    text.textContent = DROP_TEXT;
+    render();
+  }
+}
+
+$('pick').onclick = () => $('fileInput').click();
+$('fileInput').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+
+// Filer fra Finder kan slippes hvor som helst på siden. Træk mellem pool og pladser bruger tekst, ikke filer
+const hasFiles = e => [...e.dataTransfer.types].includes('Files');
+window.addEventListener('dragover', e => { if (hasFiles(e)) { e.preventDefault(); document.body.classList.add('dragging'); } });
+window.addEventListener('dragleave', e => { if (!e.relatedTarget) document.body.classList.remove('dragging'); });
+window.addEventListener('drop', e => {
+  document.body.classList.remove('dragging');
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  e.stopPropagation();
+  addFiles(e.dataTransfer.files);
+}, true);
+
 function render() {
-  $('slots').replaceChildren(...state.targets.map(renderSlot));
+  $('slots').replaceChildren(...tiles().map(renderTile));
   renderPool();
+  $('build').disabled = !Object.keys(state.layout).length;
   if (state.projects.length) updatePublish();
 }
 
 $('build').onclick = async () => {
   const button = $('build');
+  const hasVideo = state.videoTargets.some(t => state.layout[t.slot]);
   button.disabled = true;
-  button.textContent = 'Behandler… (ca. 30 sek.)';
+  button.textContent = hasVideo ? 'Behandler… (ca. 1 min.)' : 'Behandler… (ca. 30 sek.)';
   try {
     const snapshot = JSON.stringify(state.layout);
     const results = await api('/api/build', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.layout) });
-    const empty = state.targets.filter(t => !state.layout[t.slot]).map(t => t.slot);
+    const empty = [...state.targets, ...state.videoTargets].filter(t => !state.layout[t.slot]).map(t => t.out);
     $('resultRows').innerHTML = results.map(r => {
-      const t = state.targets.find(t => t.slot === r.slot);
       const notes = [r.overTarget && 'over mål', r.upscaled && 'opskaleret'].filter(Boolean).join(', ');
-      return `<tr><td>${r.out}</td><td>${r.kb} KB / ${t.kb} KB</td><td>kvalitet ${r.q}</td><td class="${notes ? 'warn' : 'ok'}">${notes || '✓'}</td></tr>`;
-    }).join('') + (empty.length ? `<tr><td colspan="4" class="warn">Tomme pladser: ${empty.join(', ')}</td></tr>` : '');
+      const details = r.out.endsWith('.mp4')
+        ? `<td>${(r.kb / 1024).toFixed(1).replace('.', ',')} MB</td><td>${seconds(r.seconds)} · ${r.clips} klip · <a href="/output/${r.out}?${Date.now()}" target="_blank">afspil</a></td>`
+        : `<td>${r.kb} KB / ${r.maxKb} KB</td><td>kvalitet ${r.q}</td>`;
+      return `<tr><td>${r.out}</td>${details}<td class="${notes ? 'warn' : 'ok'}">${notes || '✓'}</td></tr>`;
+    }).join('') + (empty.length ? `<tr><td colspan="4" class="warn">Ikke lavet: ${empty.join(', ')}</td></tr>` : '');
     state.builtLayout = snapshot;
     $('results').hidden = false;
+    $('reveal').hidden = false;
     $('uploadResult').innerHTML = '';
     updatePublish();
     $('results').scrollIntoView({ behavior: 'smooth' });
@@ -222,11 +548,29 @@ $('build').onclick = async () => {
     alert('Noget gik galt: ' + err.message);
   } finally {
     button.disabled = false;
-    button.textContent = 'Lav billeder';
+    button.textContent = 'Lav galleri';
   }
 };
 
 $('reveal').onclick = () => api('/api/reveal', { method: 'POST' });
+
+// Input er tømt, så der er intet at arbejde videre med på siden
+function clearWork() {
+  state.media = [];
+  state.layout = {};
+  state.selectedClip = {};
+  state.builtLayout = null;
+  $('reveal').hidden = true;
+  $('cleanup').hidden = true;
+  render();
+}
+
+$('cleanup').onclick = async () => {
+  if (!confirm('Flyt alle billeder, klip og færdige filer til papirkurven?')) return;
+  const { trashed } = await api('/api/cleanup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folder: currentFolder() }) });
+  $('uploadResult').innerHTML = `<p>Filerne er flyttet til papirkurven (mappen ${trashed}).</p>`;
+  clearWork();
+};
 
 function renderProjects() {
   $('project').innerHTML = '<option value="">Vælg projekt…</option>' + state.projects
@@ -249,23 +593,24 @@ function selectFolder(name) {
 
 function updatePublish() {
   const project = state.projects.find(p => p.slug === $('project').value);
-  const filled = state.targets.every(t => state.layout[t.slot]);
+  const built = state.builtLayout !== null;
+  const notBuilt = [...state.targets, ...state.videoTargets].filter(t => !state.layout[t.slot]).map(t => t.out);
   const stale = JSON.stringify(state.layout) !== state.builtLayout;
   const note = $('publishNote');
   note.className = 'note';
   if (!state.azureReady) { note.textContent = 'AZURE_STORAGE_SAS_URL mangler i .env.local — se scripts/media/README.md'; note.className = 'note warn'; }
-  else if (!filled) note.textContent = 'Alle 7 pladser skal være udfyldt for at uploade.';
-  else if (stale) { note.textContent = 'Placeringen er ændret siden sidst. Klik Lav billeder igen før upload.'; note.className = 'note warn'; }
+  else if (!built) note.textContent = 'Klik Lav galleri for at lave filerne, før de uploades.';
+  else if (stale) { note.textContent = 'Galleriet er ændret siden sidst. Klik Lav galleri igen før upload.'; note.className = 'note warn'; }
   else if (!project) note.textContent = 'Vælg det projekt, galleriet hører til.';
   else if (!currentFolder()) note.textContent = 'Vælg en mappe på Azure, eller opret en ny.';
   else if (!validFolder(currentFolder())) { note.textContent = 'Mappenavnet må kun indeholde små bogstaver, tal og bindestreger (ingen æ, ø, å eller mellemrum).'; note.className = 'note warn'; }
   else {
     const isNew = !state.folders.includes(currentFolder());
-    note.textContent = `Billederne lægges i ${isNew ? 'den nye mappe ' : ''}cdn.genhoer.dk/media/${currentFolder()}/, og galleriet i projects.js sættes for ${project.title}.`;
-    if (project.hasMedia) { note.textContent += ' Projektet har allerede et galleri, som bliver erstattet.'; note.className = 'note warn'; }
+    note.textContent = `Filerne lægges i ${isNew ? 'den nye mappe ' : ''}cdn.genhoer.dk/media/${currentFolder()}/ og overskriver filer med samme navn. Galleriet i projects.js sættes for ${project.title}.`;
+    if (notBuilt.length) note.textContent += ` Tomme felter (${notBuilt.join(', ')}) røres ikke på Azure.`;
   }
   if (state.folderError) note.textContent += ` (${state.folderError})`;
-  $('upload').disabled = !(state.azureReady && filled && !stale && project && validFolder(currentFolder()));
+  $('upload').disabled = !(state.azureReady && built && !stale && project && validFolder(currentFolder()));
 }
 
 $('project').onchange = () => {
@@ -282,18 +627,20 @@ $('newFolder').oninput = updatePublish;
 
 $('upload').onclick = async () => {
   const button = $('upload');
-  const body = { slug: $('project').value, folder: currentFolder(), force: false };
+  const body = { slug: $('project').value, folder: currentFolder() };
   button.disabled = true;
   button.textContent = 'Uploader…';
   try {
-    let result = await api('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (result.conflict) {
-      if (!confirm(`Disse filer findes allerede i media/${body.folder}/ og bliver overskrevet:\n\n${result.conflict.join('\n')}\n\nFortsæt?`)) return;
-      result = await api('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, force: true }) });
-    }
-    $('uploadResult').innerHTML = `<p class="ok">✓ ${result.uploaded.length} billeder uploadet, og projects.js er opdateret. Tjek ændringen, og commit og push.</p>`
-      + `<ul>${result.uploaded.map(u => `<li><a href="${u}" target="_blank">${u}</a></li>`).join('')}</ul>`
-      + (result.missing.length ? `<p class="warn">Galleriet henviser også til filer, der endnu ikke ligger på Azure: ${result.missing.join(', ')}</p>` : '');
+    const result = await api('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const replaced = new Set(result.replaced);
+    $('uploadResult').innerHTML = `<p class="ok">✓ ${result.uploaded.length} filer uploadet, og projects.js er opdateret. Tjek ændringen, og commit og push.</p>`
+      + `<ul>${result.uploaded.map(u => `<li><a href="${u}" target="_blank">${u}</a>${replaced.has(u.split('/').pop()) ? ' (overskrevet)' : ''}</li>`).join('')}</ul>`
+      + (replaced.size ? `<p>Overskrevne filer kan blive vist i den gamle udgave et stykke tid, fordi Front Door gemmer dem. Fremover slår en ny udgave igennem inden for en time. Skal det gå hurtigere, så tøm cachen i Azure under Front Door → Purge med stien /media/${body.folder}/*.</p>` : '')
+      + (result.missing.length ? `<p class="warn">Galleriet henviser også til filer, der endnu ikke ligger på Azure: ${result.missing.join(', ')}</p>` : '')
+      + (result.trashed
+        ? `<p>Hele galleriet er uploadet, og filerne er flyttet til papirkurven (mappen ${result.trashed}). Tilføj filer til næste projekt, eller stop scriptet med Ctrl+C i Terminal.</p>`
+        : '<p>Filerne bliver liggende, så du kan arbejde videre på de andre felter. Klik Ryd op, når du er færdig med projektet.</p>');
+    if (result.trashed) clearWork(); else $('cleanup').hidden = false;
     const project = state.projects.find(p => p.slug === body.slug);
     if (project) project.hasMedia = true;
     // En ny mappe findes nu på Azure, så den vælges i listen fremover

@@ -1,37 +1,43 @@
 # Galleri til projektsider
 
-`npm run media` gør galleribillederne klar, når et projekt er slut og skal dokumenteres:
+`npm run media` gør galleriet klar, når et projekt er slut og skal dokumenteres:
 
-1. Tager billederne fra `media/input/`
-2. Åbner en side, hvor billederne placeres på de 7 pladser, og udsnittet justeres
-3. Beskærer, komprimerer og gemmer dem som WebP i `media/output/`
+1. Åbner en side, hvor du tilføjer billeder, korte klip eller en zip fra Google Fotos
+2. Lader dig placere billederne på de 7 pladser og klippene i de 2 videoer, og justere udsnittet
+3. Beskærer og komprimerer billederne til WebP og sætter klippene sammen til videoer
 4. Uploader dem til Azure i den mappe, du vælger
 5. Skriver links til galleriet i `src/data/projects.js`
 
-Mappen `media/` er gitignored, så billederne kommer ikke på GitHub.
+Filerne lægges i en midlertidig systemmappe og aldrig i repoet. Arbejdet bliver liggende mellem kørsler, indtil det er uploadet. Knappen **Åbn mappen i Finder** viser de færdige filer.
+
+Videoerne kræver ffmpeg: `brew install ffmpeg`.
 
 ## Sådan bruger du det
 
-1. Læg billederne i `media/input/`. Du kan også markere dem i Google Fotos, trykke **Download** (Shift+D) og give zip-filen til scriptet:
+1. Kør `npm run media`. En side åbner i browseren.
 
-   ```bash
-   npm run media -- ~/Downloads/Photos.zip
-   ```
+2. Tilføj filer: Træk billeder og klip (MP4, MOV) fra Finder ind på siden, eller klik **Vælg filer…**. Fra Google Fotos markerer du filerne, trykker **Download** (Shift+D) og trækker zip-filen ind. HEIC fra iPhone konverteres automatisk.
 
-   Ligger billederne allerede i `media/input/`, er det bare `npm run media`. HEIC fra iPhone konverteres automatisk.
+   Du kan også angive zip-filen, når du starter: `npm run media -- ~/Downloads/Photos.zip`
 
-2. På siden, der åbner i browseren:
-   - **Træk** et billede fra højre over på en plads, eller **klik** på billedet og derefter på pladsen.
-   - **Træk i et placeret billede** for at flytte udsnittet. Det, du ser, er præcis det, der kommer med.
-   - **Auto** finder motivet automatisk. **✕** tømmer pladsen.
+3. Placér billeder og klip. Siden viser galleriet i samme opstilling som på projektsiden:
+   - **Træk** et billede over på en billedplads eller et klip over på en af de to videoer. Du kan også **klikke** på filen og derefter på pladsen.
+   - **Træk i et billede eller klip** for at flytte udsnittet. Det, du ser, er præcis det, der kommer med.
+   - **Auto** finder motivet automatisk. **✕** fjerner billedet eller klippet.
+   - I en video vælger du et klip i strimlen nederst og flytter det med **←** og **→**. Hvert klip kan have sit eget udsnit.
+   - **Tidslinjen** over strimlen viser hele det valgte klip. Den lyse markering er den del, der kommer med i videoen. Træk i markeringen for at flytte den, træk i kanterne for at gøre den kortere eller længere, eller klik på linjen for at flytte markeringen derhen. Den røde markør viser, hvor afspilningen er.
+   - **10 s** tilpasser alle markeringer med samme andel, så videoen bliver ca. 10 sekunder.
 
-3. Klik **Lav billeder**, og tjek resultatet.
+4. Klik **Lav galleri**, og tjek resultatet. Videoerne kan afspilles fra resultatlisten.
 
-4. Vælg **Projekt** og **Mappe på Azure**. Listen viser mapperne i `media`-containeren, og som standard vælges den mappe, projektets coverbilleder ligger i. Vælg **＋ Ny mappe…** for at oprette en ny. Navnet må kun indeholde små bogstaver, tal og bindestreger. Klik **Upload og opdatér projects.js**. Hvis filerne allerede findes i mappen, bliver du spurgt, før de overskrives.
+5. Vælg **Projekt** og **Mappe på Azure**. Listen viser mapperne i `media`-containeren, og som standard vælges den mappe, projektets coverbilleder ligger i. Vælg **＋ Ny mappe…** for at oprette en ny. Navnet må kun indeholde små bogstaver, tal og bindestreger. Klik **Upload og opdatér projects.js**.
 
-5. Stop scriptet med Ctrl+C, og tjek ændringen i `projects.js`. Galleriet henviser også til `video-01.mp4`, `video-02.mp4`, `text-01.svg` og `text-02.svg` i samme mappe. Upload dem manuelt, hvis de ikke ligger der. Siden advarer, hvis de mangler. Commit og push.
+   - **Du behøver ikke udfylde alle felter.** Kun de filer, du har lavet, uploades. Tomme felter røres ikke på Azure, så du kan f.eks. lave og uploade kun videoerne.
+   - **Filer med samme navn overskrives** uden at spørge. Uploadede filer får en cache-tid på 1 time, så en ny udgave slår igennem på siden inden for en time. Skal det gå hurtigere, eller er filen uploadet før denne ændring, så tøm cachen i Azure under **Front Door → Purge** med stien `/media/<mappe>/*`.
 
-6. Tøm `media/input/`, inden du starter på næste projekt.
+6. Stop scriptet med Ctrl+C, og tjek ændringen i `projects.js`. Galleriet henviser også til `text-01.svg` og `text-02.svg` i samme mappe, og til de felter, du ikke har lavet her. Siden advarer, hvis de mangler på Azure. Commit og push.
+
+Uploader du hele galleriet (7 billeder og 2 videoer) på én gang, flyttes dine filer og de færdige filer bagefter til papirkurven i en mappe, der hedder `genhoer-<mappe>-<dato>`. Uploader du kun nogle felter, bliver filerne liggende, så du kan arbejde videre. Klik **Ryd op**, når du er færdig med projektet.
 
 ## Formater
 
@@ -40,6 +46,9 @@ Mappen `media/` er gitignored, så billederne kommer ikke på GitHub.
 | 01, 02, 03, 05, 06 | `image-0X.webp` | 1200×1200 | ~300 KB |
 | 04 (stor) | `image-04.webp` | 2400×2400 | ~600 KB |
 | 07 (bred) | `image-07.webp` | 2400×1200 | ~450 KB |
+| video-01, video-02 | `video-0X.mp4` | 1080×1080 | ~10 s, ca. 3 MB |
+
+**Videoerne** laves af 3–4 klip, hvor du markerer de 2–4 sekunder, der skal med. Et nyt klip får automatisk markeret op til 4 sekunder fra midten. Siden advarer, hvis videoen bliver mere end 1,5 sekund kortere eller længere end 10 sekunder. Videoerne er H.264 uden lyd, 30 billeder i sekundet og klar til web. Galleriet afspiller dem lydløst. HDR-klip fra iPhone omsættes til almindelige farver, så de ikke ser blege ud. Klippene skæres hårdt sammen uden overgange.
 
 ## Opsætning af Azure (én gang)
 
