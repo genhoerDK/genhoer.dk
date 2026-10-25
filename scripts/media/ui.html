@@ -100,6 +100,22 @@
   .results button:not(.solid):hover:not(:disabled) { background: var(--color-ink); color: var(--color-paper); }
   .publish .note { width: 100%; font-size: 0.75rem; color: var(--color-dim); margin: 0; }
   .publish .note.warn { color: var(--color-error); }
+  /* Teksteditor */
+  .slot.text { cursor: pointer; }
+  .slot.text img { pointer-events: none; }
+  dialog { border: 0; padding: 0; max-width: min(64rem, calc(100vw - 2rem)); width: 100%; background: var(--color-paper); color: var(--color-ink); }
+  dialog::backdrop { background: color-mix(in srgb, var(--color-ink) 60%, transparent); }
+  .editor { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1rem; }
+  @media (max-width: 700px) { .editor { grid-template-columns: 1fr; } }
+  .editor h2 { grid-column: 1 / -1; font-size: 1.25rem; }
+  .editor .fields { display: grid; gap: 0.75rem; align-content: start; }
+  .editor label { display: grid; gap: 0.25rem; text-transform: uppercase; font-size: 0.75rem; }
+  .editor textarea { font: inherit; font-size: 0.875rem; text-transform: uppercase; min-height: 8rem; padding: 0.5rem 0.75rem; border: 2px solid var(--color-muted); border-radius: 0; outline: none; resize: vertical; background: var(--color-paper); color: var(--color-ink); }
+  .editor textarea:focus { border-color: var(--color-ink); }
+  .editor .help { font-size: 0.75rem; color: var(--color-dim); margin: 0; }
+  .editor .warn { font-size: 0.75rem; color: var(--color-error); margin: 0; }
+  .editor .preview { width: 100%; aspect-ratio: 1; background: var(--color-soft); display: block; outline: 1px solid var(--color-muted); }
+  .editor .actions { grid-column: 1 / -1; display: flex; gap: 0.5rem; justify-content: flex-end; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -139,8 +155,25 @@
   <button id="cleanup" hidden>Ryd op – flyt filerne til papirkurven</button>
 </section>
 
+<dialog id="textDialog">
+  <div class="editor">
+    <h2 id="textTitle">Tekst</h2>
+    <div class="fields">
+      <label>Øverst til venstre<textarea id="textTop" spellcheck="true"></textarea></label>
+      <label>Nederst til højre<textarea id="textBottom" spellcheck="true"></textarea></label>
+      <p class="help">Skriv almindeligt. Teksten sættes med store bogstaver og deles selv på linjer. Linjeskift, du laver selv, bevares. Skriv <strong>**ord**</strong> for fed skrift.</p>
+      <p class="warn" id="textWarnings"></p>
+    </div>
+    <img class="preview" id="textPreview" alt="">
+    <div class="actions">
+      <button id="textClear">Ryd</button>
+      <button class="solid" id="textDone">Færdig</button>
+    </div>
+  </div>
+</dialog>
+
 <script>
-const state = { targets: [], videoTargets: [], gallery: [], media: [], layout: {}, projects: [], folders: [], folderError: null, selected: null, selectedClip: {}, builtLayout: null };
+const state = { targets: [], videoTargets: [], textTargets: [], textPreviews: {}, gallery: [], media: [], layout: {}, projects: [], folders: [], folderError: null, selected: null, selectedClip: {}, builtLayout: null };
 const NEW_FOLDER = '__new';
 const DROP_TEXT = 'Træk billeder, klip eller en zip fra Google Fotos hertil';
 const validFolder = f => /^[a-z0-9][a-z0-9-]*$/.test(f);
@@ -167,7 +200,8 @@ function tiles() {
     if (image) return { kind: 'image', slot: image[1], layoutClass, target: state.targets.find(t => t.slot === image[1]) };
     const video = file.match(/^video-0?(\d+)\.mp4$/);
     if (video) return { kind: 'video', slot: `v${video[1]}`, layoutClass, target: state.videoTargets.find(t => t.slot === `v${video[1]}`) };
-    return { kind: 'text', file, layoutClass };
+    const text = file.match(/^text-0?(\d+)\.svg$/);
+    return { kind: 'text', slot: `t${text[1]}`, layoutClass, target: state.textTargets.find(t => t.slot === `t${text[1]}`) };
   });
 }
 
@@ -402,12 +436,81 @@ function enableTrim(el, t, clips, clip, video) {
   });
 }
 
+// --- Tekstfelter ---
+
+const hasText = entry => !!(entry?.top?.trim() || entry?.bottom?.trim());
+
+// Henter den færdige SVG fra scriptet, så forhåndsvisningen er præcis den fil, der bliver lavet
+async function textPreview(slot) {
+  const entry = state.layout[slot];
+  const key = JSON.stringify(entry);
+  const cached = state.textPreviews[slot];
+  if (cached?.key === key) return cached;
+  const { svg, warnings } = await api('/api/text', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: key });
+  const preview = { key, url: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`, warnings };
+  state.textPreviews[slot] = preview;
+  return preview;
+}
+
+function renderTextTile(el, tile) {
+  const name = tile.target.out.replace('.svg', '');
+  const entry = state.layout[tile.slot];
+  el.classList.add('text');
+  if (!hasText(entry)) {
+    el.innerHTML = `<span class="label">${name}</span><div class="empty">Klik for at skrive tekst</div>`;
+  } else {
+    el.innerHTML = `<img alt=""><span class="label">${name}</span>
+      <div class="tools"><button data-act="clear" title="Fjern teksten">✕</button></div>
+      <span class="badge" hidden></span>`;
+    el.querySelector('[data-act=clear]').onclick = e => { e.stopPropagation(); delete state.layout[tile.slot]; render(); };
+    textPreview(tile.slot).then(p => {
+      el.querySelector('img').src = p.url;
+      const badge = el.querySelector('.badge');
+      badge.hidden = !p.warnings.length;
+      badge.textContent = p.warnings[0] ?? '';
+    });
+  }
+  el.addEventListener('click', () => openTextEditor(tile));
+}
+
+let editing = null;
+let previewTimer = null;
+
+function openTextEditor(tile) {
+  editing = tile;
+  const entry = state.layout[tile.slot] ?? { top: '', bottom: '' };
+  $('textTitle').textContent = tile.target.out.replace('.svg', '');
+  $('textTop').value = entry.top ?? '';
+  $('textBottom').value = entry.bottom ?? '';
+  updateTextPreview();
+  $('textDialog').showModal();
+  $('textTop').focus();
+}
+
+function updateTextPreview() {
+  if (!editing) return;
+  const entry = { top: $('textTop').value, bottom: $('textBottom').value };
+  if (hasText(entry)) state.layout[editing.slot] = entry; else delete state.layout[editing.slot];
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(async () => {
+    if (!hasText(entry)) { $('textPreview').removeAttribute('src'); $('textWarnings').textContent = ''; return; }
+    const p = await textPreview(editing.slot);
+    $('textPreview').src = p.url;
+    $('textWarnings').textContent = p.warnings.join('. ');
+  }, 250);
+}
+
+$('textTop').oninput = updateTextPreview;
+$('textBottom').oninput = updateTextPreview;
+$('textClear').onclick = () => { $('textTop').value = ''; $('textBottom').value = ''; updateTextPreview(); };
+$('textDone').onclick = () => $('textDialog').close();
+$('textDialog').addEventListener('close', () => { editing = null; render(); });
+
 function renderTile(tile) {
   const el = document.createElement('div');
   el.className = `slot ${tile.layoutClass}`;
   if (tile.kind === 'text') {
-    el.classList.add('text');
-    el.innerHTML = `<span class="label">${tile.file.replace('.svg', '')}</span><div class="empty">Tekst · uploades manuelt</div>`;
+    renderTextTile(el, tile);
     return el;
   }
   el.dataset.slot = tile.slot;
@@ -530,13 +633,16 @@ $('build').onclick = async () => {
   try {
     const snapshot = JSON.stringify(state.layout);
     const results = await api('/api/build', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.layout) });
-    const empty = [...state.targets, ...state.videoTargets].filter(t => !state.layout[t.slot]).map(t => t.out);
+    const empty = [...state.targets, ...state.videoTargets, ...state.textTargets].filter(t => !state.layout[t.slot]).map(t => t.out);
     $('resultRows').innerHTML = results.map(r => {
-      const notes = [r.overTarget && 'over mål', r.upscaled && 'opskaleret'].filter(Boolean).join(', ');
+      const notes = [r.overTarget && 'over mål', r.upscaled && 'opskaleret'].filter(Boolean);
       const details = r.out.endsWith('.mp4')
         ? `<td>${(r.kb / 1024).toFixed(1).replace('.', ',')} MB</td><td>${seconds(r.seconds)} · ${r.clips} klip · <a href="/output/${r.out}?${Date.now()}" target="_blank">afspil</a></td>`
-        : `<td>${r.kb} KB / ${r.maxKb} KB</td><td>kvalitet ${r.q}</td>`;
-      return `<tr><td>${r.out}</td>${details}<td class="${notes ? 'warn' : 'ok'}">${notes || '✓'}</td></tr>`;
+        : r.out.endsWith('.svg')
+          ? `<td>${r.kb} KB</td><td>tekst</td>`
+          : `<td>${r.kb} KB / ${r.maxKb} KB</td><td>kvalitet ${r.q}</td>`;
+      if (r.warnings?.length) notes.push(...r.warnings);
+      return `<tr><td>${r.out}</td>${details}<td class="${notes.length ? 'warn' : 'ok'}">${notes.join(', ') || '✓'}</td></tr>`;
     }).join('') + (empty.length ? `<tr><td colspan="4" class="warn">Ikke lavet: ${empty.join(', ')}</td></tr>` : '');
     state.builtLayout = snapshot;
     $('results').hidden = false;
@@ -559,6 +665,7 @@ function clearWork() {
   state.media = [];
   state.layout = {};
   state.selectedClip = {};
+  state.textPreviews = {};
   state.builtLayout = null;
   $('reveal').hidden = true;
   $('cleanup').hidden = true;
@@ -594,11 +701,15 @@ function selectFolder(name) {
 function updatePublish() {
   const project = state.projects.find(p => p.slug === $('project').value);
   const built = state.builtLayout !== null;
-  const notBuilt = [...state.targets, ...state.videoTargets].filter(t => !state.layout[t.slot]).map(t => t.out);
+  const notBuilt = [...state.targets, ...state.videoTargets, ...state.textTargets].filter(t => !state.layout[t.slot]).map(t => t.out);
   const stale = JSON.stringify(state.layout) !== state.builtLayout;
   const note = $('publishNote');
   note.className = 'note';
+  const sas = state.sas;
+  const expired = sas?.daysLeft < 0;
+  const expiresOn = sas?.expires ? new Date(sas.expires).toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
   if (!state.azureReady) { note.textContent = 'AZURE_STORAGE_SAS_URL mangler i .env.local — se scripts/media/README.md'; note.className = 'note warn'; }
+  else if (expired) { note.textContent = `Azure-nøglen (SAS-URL'en) udløb ${expiresOn}. Lav en ny, og sæt den i .env.local — se scripts/media/README.md.`; note.className = 'note warn'; }
   else if (!built) note.textContent = 'Klik Lav galleri for at lave filerne, før de uploades.';
   else if (stale) { note.textContent = 'Galleriet er ændret siden sidst. Klik Lav galleri igen før upload.'; note.className = 'note warn'; }
   else if (!project) note.textContent = 'Vælg det projekt, galleriet hører til.';
@@ -610,7 +721,8 @@ function updatePublish() {
     if (notBuilt.length) note.textContent += ` Tomme felter (${notBuilt.join(', ')}) røres ikke på Azure.`;
   }
   if (state.folderError) note.textContent += ` (${state.folderError})`;
-  $('upload').disabled = !(state.azureReady && built && !stale && project && validFolder(currentFolder()));
+  if (!expired && sas?.daysLeft < 30) { note.textContent += ` Azure-nøglen udløber om ${sas.daysLeft} dage (${expiresOn}). Lav en ny i god tid.`; note.className = 'note warn'; }
+  $('upload').disabled = !(state.azureReady && !expired && built && !stale && project && validFolder(currentFolder()));
 }
 
 $('project').onchange = () => {

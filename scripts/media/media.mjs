@@ -1,5 +1,6 @@
 // Gør galleriet klar til en projektside, når projektet er slut og skal dokumenteres:
 // beskærer og komprimerer billeder til WebP, sætter korte klip sammen til de to videoer,
+// sætter teksten til de to tekstfelter som SVG,
 // uploader til Azure og skriver links i src/data/projects.js.
 //
 // Brug:
@@ -19,6 +20,7 @@ import os from 'node:os';
 import { execFile, execFileSync } from 'node:child_process';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
+import opentype from 'opentype.js';
 
 const run = promisify(execFile);
 const STARTED = Date.now();
@@ -37,12 +39,12 @@ const PORT = Number(process.env.MEDIA_PORT ?? 4747);
 
 // Billedpladser -> output, størrelse og mål for filstørrelse i KB
 const TARGETS = [
-  { slot: '01', out: 'image-01.webp', width: 1200, height: 1200, kb: 300 },
-  { slot: '02', out: 'image-02.webp', width: 1200, height: 1200, kb: 300 },
-  { slot: '03', out: 'image-03.webp', width: 1200, height: 1200, kb: 300 },
-  { slot: '04', out: 'image-04.webp', width: 2400, height: 2400, kb: 600 },
-  { slot: '05', out: 'image-05.webp', width: 1200, height: 1200, kb: 300 },
-  { slot: '06', out: 'image-06.webp', width: 1200, height: 1200, kb: 300 },
+  { slot: '01', out: 'image-01.webp', width: 1200, height: 1200, kb: 400 },
+  { slot: '02', out: 'image-02.webp', width: 1200, height: 1200, kb: 400 },
+  { slot: '03', out: 'image-03.webp', width: 1200, height: 1200, kb: 400 },
+  { slot: '04', out: 'image-04.webp', width: 2400, height: 2400, kb: 800 },
+  { slot: '05', out: 'image-05.webp', width: 1200, height: 1200, kb: 400 },
+  { slot: '06', out: 'image-06.webp', width: 1200, height: 1200, kb: 400 },
   { slot: '07', out: 'image-07.webp', width: 2400, height: 1200, kb: 450 },
 ];
 
@@ -53,7 +55,14 @@ const VIDEO_TARGETS = [
   { slot: 'v2', out: 'video-02.mp4', size: 1080, seconds: 10 },
 ];
 
-// Rækkefølgen i galleriet. Tekst-SVG'erne uploades stadig manuelt
+// Tekstfelter: tekst øverst til venstre og nederst til højre, sat som kurver i hjemmesidens font,
+// så de kan skaleres og vises som <img> uden at hente fonten
+const TEXT_TARGETS = [
+  { slot: 't1', out: 'text-01.svg' },
+  { slot: 't2', out: 'text-02.svg' },
+];
+
+// Rækkefølgen i galleriet
 const GALLERY = ['image-01.webp', 'image-02.webp', 'image-03.webp', 'image-04.webp', 'text-01.svg', 'video-01.mp4', 'image-05.webp', 'text-02.svg', 'image-06.webp', 'video-02.mp4', 'image-07.webp'];
 
 const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.webp', '.avif', '.heic', '.heif'];
@@ -190,6 +199,8 @@ async function readLayout(media) {
       if (entry.clips) {
         const clips = entry.clips.filter(c => names.has(c.file));
         if (clips.length) layout[slot] = { clips };
+      } else if (entry.top !== undefined || entry.bottom !== undefined) {
+        layout[slot] = entry;
       } else if (names.has(entry.file)) {
         layout[slot] = entry;
       }
@@ -379,8 +390,122 @@ async function build(layout) {
     if (layout[t.slot]?.clips?.length) results.push(await buildVideo(t, layout[t.slot]));
     else console.warn(`  ⚠ ${t.out} har ingen klip — springer over`);
   }
+  for (const t of TEXT_TARGETS) {
+    const entry = layout[t.slot];
+    if (entry?.top?.trim() || entry?.bottom?.trim()) results.push(await buildText(t, entry));
+    else console.warn(`  ⚠ ${t.out} har ingen tekst — springer over`);
+  }
   console.log(`Færdige filer: ${OUTPUT_DIR}`);
   return results;
+}
+
+// --- Tekstfelter ---
+
+// Typografien er målt op mod de eksisterende tekstfelter (lavet i Figma): REM Light med store
+// bogstaver, Medium til fremhævninger, 54,4 px med 3,3 px ekstra bogstavafstand og 80 px linjeafstand.
+// Teksten står 18 px fra venstre og slutter 12 px fra højre kant
+const TEXT = { size: 54.4, spacing: 3.3, lineHeight: 80, left: 18, right: 1188, firstBaseline: 61, lastBaseline: 1184 };
+const FONT_DIR = path.join(ROOT, 'node_modules/@fontsource/rem/files');
+const fonts = {};
+async function font(weight) {
+  if (!fonts[weight]) {
+    const buf = await fs.readFile(path.join(FONT_DIR, `rem-latin-${weight}-normal.woff`));
+    fonts[weight] = opentype.parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+  }
+  return fonts[weight];
+}
+
+// **ord** bliver fremhævet. Resultatet er en liste af tegn med hver deres vægt
+function parseText(text) {
+  const chars = [];
+  text.toLocaleUpperCase('da').split('**').forEach((part, i) => {
+    for (const ch of part) chars.push({ ch, weight: i % 2 ? 500 : 300 });
+  });
+  return chars;
+}
+
+// Kurvedata med to decimaler. opentype.js' egen toPathData giver af og til ugyldige tal
+const num = v => String(Math.round(v * 100) / 100);
+function pathData(commands) {
+  return commands.map(c => {
+    if (c.type === 'M' || c.type === 'L') return `${c.type}${num(c.x)} ${num(c.y)}`;
+    if (c.type === 'Q') return `Q${num(c.x1)} ${num(c.y1)} ${num(c.x)} ${num(c.y)}`;
+    if (c.type === 'C') return `C${num(c.x1)} ${num(c.y1)} ${num(c.x2)} ${num(c.y2)} ${num(c.x)} ${num(c.y)}`;
+    return 'Z';
+  }).join('');
+}
+
+// Tegner en linje og returnerer kurverne og hvor linjen slutter (inkl. bogstavafstanden efter sidste tegn, som i Figma)
+async function drawLine(chars, x, y) {
+  let d = '';
+  for (let i = 0; i < chars.length; i++) {
+    const f = await font(chars[i].weight);
+    const glyph = f.charToGlyph(chars[i].ch);
+    d += pathData(glyph.getPath(x, y, TEXT.size).commands);
+    x += glyph.advanceWidth / f.unitsPerEm * TEXT.size + TEXT.spacing;
+    const next = chars[i + 1];
+    if (next && next.weight === chars[i].weight) {
+      const kerning = f.getKerningValue(glyph, f.charToGlyph(next.ch));
+      if (Number.isFinite(kerning)) x += kerning / f.unitsPerEm * TEXT.size;
+    }
+  }
+  return { d, end: x };
+}
+const lineWidth = async chars => (await drawLine(chars, 0, 0)).end;
+
+// Bryder teksten om, så hver linje holder sig inden for felterne. Egne linjeskift bevares
+async function wrap(text) {
+  const max = TEXT.right - TEXT.left;
+  const lines = [];
+  for (const paragraph of text.split('\n')) {
+    const chars = parseText(paragraph);
+    let line = [], word = [];
+    const flush = async () => {
+      const candidate = line.length ? [...line, { ch: ' ', weight: word[0]?.weight ?? 300 }, ...word] : word;
+      if (line.length && await lineWidth(candidate) > max) { lines.push(line); line = word; } else line = candidate;
+      word = [];
+    };
+    for (const c of chars) {
+      if (c.ch === ' ') { if (word.length) await flush(); } else word.push(c);
+    }
+    if (word.length) await flush();
+    lines.push(line);
+  }
+  while (lines.length && !lines.at(-1).length) lines.pop();
+  return lines;
+}
+
+async function textSvg({ top = '', bottom = '' }) {
+  const tokens = await designTokens();
+  const paper = tokens.match(/--color-paper:\s*([^;]+);/)?.[1] ?? '#fafafa';
+  const ink = tokens.match(/--color-ink:\s*([^;]+);/)?.[1] ?? '#27272a';
+  const topLines = await wrap(top.trim());
+  const bottomLines = await wrap(bottom.trim());
+
+  const warnings = [];
+  for (const l of [...topLines, ...bottomLines]) {
+    if (await lineWidth(l) > TEXT.right - TEXT.left) warnings.push(`Ordet "${l.map(c => c.ch).join('')}" er for langt til én linje`);
+  }
+  // Teksten øverst og nederst må ikke løbe ind i hinanden
+  const topEnd = TEXT.firstBaseline + TEXT.lineHeight * (topLines.length - 1);
+  const bottomStart = TEXT.lastBaseline - TEXT.lineHeight * (bottomLines.length - 1);
+  if (topLines.length && bottomLines.length && bottomStart - topEnd < TEXT.lineHeight) warnings.push('Teksten øverst og nederst overlapper. Gør en af dem kortere');
+
+  let d = '';
+  for (const [i, l] of topLines.entries()) d += (await drawLine(l, TEXT.left, TEXT.firstBaseline + TEXT.lineHeight * i)).d;
+  for (const [i, l] of bottomLines.entries()) {
+    d += (await drawLine(l, TEXT.right - await lineWidth(l), bottomStart + TEXT.lineHeight * i)).d;
+  }
+  const svg = `<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">\n<rect width="1200" height="1200" fill="${paper.trim().toUpperCase()}"/>\n<path d="${d}" fill="${ink.trim().toUpperCase()}"/>\n</svg>\n`;
+  return { svg, warnings };
+}
+
+async function buildText(t, entry) {
+  const { svg, warnings } = await textSvg(entry);
+  await fs.writeFile(path.join(OUTPUT_DIR, t.out), svg);
+  const kb = Math.round(Buffer.byteLength(svg) / 1024);
+  console.log(`  ✓ ${t.out.padEnd(16)} 1200×1200  ${String(kb).padStart(4)} KB${warnings.length ? `  ⚠ ${warnings.join(', ')}` : ''}`);
+  return { slot: t.slot, out: t.out, kb, warnings };
 }
 
 // --- projects.js ---
@@ -422,9 +547,29 @@ async function updateProjects(slug, folder) {
 
 // --- Azure ---
 
+// SAS-URL'en indeholder selv sin udløbsdato (se=) og sine rettigheder (sp=), så de kan vises uden at spørge Azure
+const NEEDED_PERMISSIONS = { r: 'Read', a: 'Add', c: 'Create', w: 'Write', l: 'List' };
+function sasInfo() {
+  const sasUrl = process.env.AZURE_STORAGE_SAS_URL;
+  if (!sasUrl) return null;
+  const params = new URL(sasUrl).searchParams;
+  const expires = params.get('se') ? new Date(params.get('se')) : null;
+  const permissions = params.get('sp') ?? '';
+  return {
+    expires: expires?.toISOString() ?? null,
+    daysLeft: expires ? Math.ceil((expires - Date.now()) / 86400000) - (expires < Date.now() ? 1 : 0) : null,
+    missing: Object.entries(NEEDED_PERMISSIONS).filter(([k]) => !permissions.includes(k)).map(([, name]) => name),
+  };
+}
+const danishDate = iso => new Date(iso).toLocaleDateString('da-DK', { day: 'numeric', month: 'long', year: 'numeric' });
+
 async function container() {
   const sasUrl = process.env.AZURE_STORAGE_SAS_URL;
   if (!sasUrl) throw new Error('AZURE_STORAGE_SAS_URL mangler i .env.local — se scripts/media/README.md');
+  const sas = sasInfo();
+  if (sas.daysLeft !== null && sas.daysLeft < 0) {
+    throw new Error(`Azure-nøglen (SAS-URL'en) udløb ${danishDate(sas.expires)}. Lav en ny, og sæt den i .env.local — se scripts/media/README.md`);
+  }
   const { ContainerClient } = await import('@azure/storage-blob');
   return new ContainerClient(sasUrl);
 }
@@ -438,7 +583,12 @@ async function listFolders() {
       if (item.kind === 'prefix') folders.push(item.name.replace(/\/$/, ''));
     }
   } catch (err) {
-    if (err.statusCode === 403) throw new Error('SAS-URL\'en mangler List-rettighed, så mapperne kan ikke vises — se scripts/media/README.md');
+    if (err.statusCode === 403) {
+      const { missing } = sasInfo();
+      throw new Error(missing.includes('List')
+        ? 'SAS-URL\'en mangler List-rettighed, så mapperne kan ikke vises — se scripts/media/README.md'
+        : 'Azure afviste nøglen (SAS-URL\'en). Den kan være slettet eller ugyldig. Lav en ny — se scripts/media/README.md');
+    }
     throw err;
   }
   return folders.sort((a, b) => a.localeCompare(b, 'da'));
@@ -460,7 +610,7 @@ async function cleanUp(folder) {
   return path.basename(trash);
 }
 
-const CONTENT_TYPES = { '.webp': 'image/webp', '.mp4': 'video/mp4' };
+const CONTENT_TYPES = { '.webp': 'image/webp', '.mp4': 'video/mp4', '.svg': 'image/svg+xml' };
 
 // Front Door gemmer filer og ser bort fra ?v=…, så en overskrevet fil ellers kan blive vist i dagevis.
 // Med en kort cache-tid slår en ny udgave igennem inden for en time
@@ -493,7 +643,7 @@ async function upload({ slug, folder }) {
   }
   if (missing.length) console.warn(`⚠ mangler stadig på Azure: ${missing.join(', ')}`);
   // Ryd kun op af sig selv, når hele galleriet er uploadet. Ellers kan der arbejdes videre på resten
-  const complete = files.length === TARGETS.length + VIDEO_TARGETS.length;
+  const complete = files.length === GALLERY.length;
   const trashed = complete ? await cleanUp(folder) : null;
   return { uploaded: files.map(f => `${CDN}/${folder}/${f}`), replaced, missing, trashed };
 }
@@ -564,8 +714,8 @@ async function handle(req, res) {
   if (url.pathname === '/api/state') {
     const media = await listMedia();
     return send(res, 200, {
-      targets: TARGETS, videoTargets: VIDEO_TARGETS, gallery: GALLERY, media, layout: await readLayout(media),
-      projects: await listProjects(), azureReady: !!process.env.AZURE_STORAGE_SAS_URL,
+      targets: TARGETS, videoTargets: VIDEO_TARGETS, textTargets: TEXT_TARGETS, gallery: GALLERY, media, layout: await readLayout(media),
+      projects: await listProjects(), azureReady: !!process.env.AZURE_STORAGE_SAS_URL, sas: sasInfo(),
     });
   }
   if (url.pathname === '/api/folders') return send(res, 200, await listFolders());
@@ -573,6 +723,7 @@ async function handle(req, res) {
   if (url.pathname === '/api/thumb') return send(res, 200, await thumbnail(name), 'image/jpeg');
   if (url.pathname === '/api/preview') return sendVideo(req, res, await previewClip(name));
   if (url.pathname === '/api/focus') return send(res, 200, await attentionFocus(name, url.searchParams.get('slot')));
+  if (url.pathname === '/api/text' && req.method === 'POST') return send(res, 200, await textSvg(await readBody(req)));
   if (url.pathname === '/api/build' && req.method === 'POST') return send(res, 200, await build(await readBody(req)));
   if (url.pathname.startsWith('/output/') && url.pathname.endsWith('.mp4')) {
     return sendVideo(req, res, path.join(OUTPUT_DIR, path.basename(url.pathname)));
@@ -620,6 +771,10 @@ server.on('error', async err => {
 });
 server.on('listening', () => {
   const address = `http://localhost:${port}`;
+  const sas = sasInfo();
+  if (sas?.daysLeft < 0) console.warn(`\n⚠ Azure-nøglen udløb ${danishDate(sas.expires)} — lav en ny, se scripts/media/README.md`);
+  else if (sas?.daysLeft < 30) console.warn(`\n⚠ Azure-nøglen udløber om ${sas.daysLeft} dage (${danishDate(sas.expires)})`);
+  if (sas?.missing.length) console.warn(`⚠ Azure-nøglen mangler rettighederne: ${sas.missing.join(', ')}`);
   console.log(`\nÅbner ${address} — tryk Ctrl+C for at stoppe`);
   if (!process.env.NO_OPEN) execFileSync('open', [address]);
 });

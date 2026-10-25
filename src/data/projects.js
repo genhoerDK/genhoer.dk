@@ -87,12 +87,24 @@ export const projects = [
     description: [
       'Flere detaljer kommer snart.'
     ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/nakskov/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/nakskov/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/nakskov/cover-image-small.webp',
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/tvaerveje/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/tvaerveje/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/tvaerveje/cover-image-small.webp',
     coverVideo: null,
     artwork: null,
-    media: null,
+    media: [
+      'https://cdn.genhoer.dk/media/tvaerveje/image-01.webp',
+      'https://cdn.genhoer.dk/media/tvaerveje/image-02.webp',
+      'https://cdn.genhoer.dk/media/tvaerveje/image-03.webp',
+      'https://cdn.genhoer.dk/media/tvaerveje/image-04.webp',
+      'https://cdn.genhoer.dk/media/tvaerveje/text-01.svg',
+      'https://cdn.genhoer.dk/media/tvaerveje/video-01.mp4',
+      'https://cdn.genhoer.dk/media/tvaerveje/image-05.webp',
+      'https://cdn.genhoer.dk/media/tvaerveje/text-02.svg',
+      'https://cdn.genhoer.dk/media/tvaerveje/image-06.webp',
+      'https://cdn.genhoer.dk/media/tvaerveje/video-02.mp4',
+      'https://cdn.genhoer.dk/media/tvaerveje/image-07.webp'
+    ],
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
