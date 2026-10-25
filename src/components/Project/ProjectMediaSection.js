@@ -9,6 +9,8 @@ export default function ProjectMediaSection({ slug, media }) {
     return (
         <section className="grid grid-cols-1 p-1 md:p-2 md:grid-cols-2 md:grid-flow-dense xl:grid-cols-3">
             {media.map((file, i) => {
+                // Entries are either full URLs or file names in the project's cdn folder
+                const src = file.startsWith("https://") ? file : folder + file;
                 const isVideo = file.endsWith(".mp4");
 
                 // Layout depends on position: the 4th file (index 3) is the big tile, the 11th (index 10) the wide one.
@@ -23,8 +25,8 @@ export default function ProjectMediaSection({ slug, media }) {
                 return (
                     <Tile key={file} className={tileClass}>
                         {isVideo
-                            ? <video src={folder + file} className="size-full object-cover bg-soft" playsInline muted loop autoPlay />
-                            : <img src={folder + file} alt="" className="size-full object-cover bg-soft" loading="lazy" decoding="async" />
+                            ? <video src={src} className="size-full object-cover bg-soft" playsInline muted loop autoPlay />
+                            : <img src={src} alt="" className="size-full object-cover bg-soft" loading="lazy" decoding="async" />
                         }
                     </Tile>
                 );

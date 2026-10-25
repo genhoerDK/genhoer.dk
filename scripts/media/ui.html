@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genhør medier</title>
+<style>
+  :root {
+    --bg: #f4f4f5; --panel: #fff; --text: #18181b; --muted: #71717a; --line: #e4e4e7;
+    --accent: #18181b; --accent-text: #fff; --warn: #b45309; --warn-bg: #fef3c7; --ok: #15803d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0; }
+  header .hint { color: var(--muted); flex: 1; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); padding: 8px 16px; }
+  button:disabled { opacity: .5; cursor: default; }
+  .layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; padding: 20px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  .slots { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-flow: dense; gap: 8px; }
+  .slot { position: relative; aspect-ratio: 1; background: #e4e4e7; border: 2px dashed #a1a1aa; border-radius: 4px; overflow: hidden; touch-action: none; }
+  .slot.big { grid-column: span 2; grid-row: span 2; }
+  .slot.wide { grid-column: span 2; aspect-ratio: 2 / 1; }
+  .slot.filled { border: 2px solid transparent; cursor: grab; }
+  .slot.filled:active { cursor: grabbing; }
+  .slot.over, .slot.target { border: 2px solid var(--accent); }
+  .slot img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
+  .slot .label { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 4px; }
+  .slot .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 8px; }
+  .slot .tools { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+  .slot .tools button { padding: 2px 8px; font-size: 12px; background: rgba(255,255,255,.9); }
+  .slot .badge { position: absolute; bottom: 6px; left: 6px; font-size: 12px; padding: 2px 6px; border-radius: 4px; background: var(--warn-bg); color: var(--warn); }
+
+  aside { position: sticky; top: 76px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; max-height: calc(100vh - 96px); overflow: auto; }
+  aside h2 { font-size: 13px; margin: 0 0 8px; color: var(--muted); font-weight: 500; }
+  .pool { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .pool img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; cursor: pointer; border: 2px solid transparent; display: block; }
+  .pool img.used { opacity: .35; }
+  .pool img.selected { border-color: var(--accent); }
+
+  .results { margin: 0 20px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  .results h2 { font-size: 15px; margin: 0 0 8px; }
+  .results table { border-collapse: collapse; width: 100%; max-width: 560px; margin-bottom: 12px; }
+  .results td { padding: 4px 8px 4px 0; border-bottom: 1px solid var(--line); }
+  .results .warn { color: var(--warn); }
+  .results .ok { color: var(--ok); }
+  .results a { color: inherit; }
+  .publish { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .publish label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .publish select, .publish input { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; min-width: 240px; color: var(--text); background: var(--panel); }
+  .publish .note { width: 100%; font-size: 13px; color: var(--muted); margin: 0; }
+  .publish .note.warn { color: var(--warn); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Genhør medier</h1>
+  <span class="hint">Træk billeder fra højre over på pladserne, eller klik på et billede og derefter på en plads. Træk i et placeret billede for at flytte udsnittet.</span>
+  <button class="primary" id="build">Lav billeder</button>
+</header>
+
+<div class="layout">
+  <section class="slots" id="slots"></section>
+  <aside>
+    <h2 id="poolTitle">Billeder</h2>
+    <div class="pool" id="pool"></div>
+  </aside>
+</div>
+
+<section class="results" id="results" hidden>
+  <h2>Færdige filer</h2>
+  <table><tbody id="resultRows"></tbody></table>
+  <button id="reveal">Åbn mappen i Finder</button>
+
+  <div class="publish">
+    <label>Projekt<select id="project"></select></label>
+    <label>Mappe på Azure<select id="folderSelect"></select></label>
+    <label id="newFolderLabel" hidden>Navn på ny mappe<input id="newFolder" spellcheck="false" placeholder="fx viborg"></label>
+    <button class="primary" id="upload">Upload og opdatér projects.js</button>
+    <p class="note" id="publishNote"></p>
+  </div>
+  <div id="uploadResult"></div>
+</section>
+
+<script>
+const state = { targets: [], photos: [], layout: {}, projects: [], folders: [], folderError: null, selected: null, builtLayout: null };
+const NEW_FOLDER = '__new';
+const validFolder = f => /^[a-z0-9][a-z0-9-]*$/.test(f);
+const currentFolder = () => $('folderSelect').value === NEW_FOLDER ? $('newFolder').value.trim() : $('folderSelect').value;
+const $ = id => document.getElementById(id);
+const thumb = name => `/api/thumb?name=${encodeURIComponent(name)}`;
+const photo = name => state.photos.find(p => p.name === name);
+
+async function api(url, options) {
+  const res = await fetch(url, options);
+  const body = await res.json();
+  if (!res.ok) throw new Error(body.error);
+  return body;
+}
+
+async function assign(slot, name) {
+  state.layout[slot] = { file: name, fx: 0.5, fy: 0.5 };
+  render();
+  const focus = await api(`/api/focus?name=${encodeURIComponent(name)}&slot=${slot}`);
+  if (state.layout[slot]?.file === name) Object.assign(state.layout[slot], focus);
+  render();
+}
+
+// Advarer hvis udsnittet er smallere end det færdige billede
+function lowRes(target, p) {
+  const aspect = target.width / target.height;
+  const cropWidth = p.width / p.height > aspect ? p.height * aspect : p.width;
+  return cropWidth < target.width;
+}
+
+function renderSlot(t) {
+  const entry = state.layout[t.slot];
+  const el = document.createElement('div');
+  el.className = 'slot' + (t.slot === '04' ? ' big' : t.width > t.height ? ' wide' : '') + (entry ? ' filled' : '') + (state.selected ? ' target' : '');
+  el.dataset.slot = t.slot;
+  const label = `${t.slot} · ${t.width}×${t.height}`;
+
+  if (!entry) {
+    el.innerHTML = `<span class="label">${label}</span><div class="empty">Tom plads</div>`;
+  } else {
+    const p = photo(entry.file);
+    el.innerHTML = `<img src="${thumb(entry.file)}" style="object-position:${entry.fx * 100}% ${entry.fy * 100}%">
+      <span class="label">${label}</span>
+      <div class="tools"><button data-act="auto" title="Find motivet automatisk">Auto</button><button data-act="clear" title="Fjern">✕</button></div>
+      ${p && lowRes(t, p) ? '<span class="badge">Lav opløsning – bliver opskaleret</span>' : ''}`;
+    el.querySelector('[data-act=clear]').onclick = e => { e.stopPropagation(); delete state.layout[t.slot]; render(); };
+    el.querySelector('[data-act=auto]').onclick = e => { e.stopPropagation(); assign(t.slot, entry.file); };
+    enablePan(el, t.slot);
+  }
+
+  el.addEventListener('click', () => {
+    if (!state.selected) return;
+    const name = state.selected;
+    state.selected = null;
+    assign(t.slot, name);
+  });
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    const name = e.dataTransfer.getData('text/plain');
+    if (name) assign(t.slot, name);
+  });
+  return el;
+}
+
+// Træk i billedet flytter udsnittet, svarende til CSS object-position
+function enablePan(el, slot) {
+  el.addEventListener('pointerdown', e => {
+    if (e.target.closest('button') || state.selected) return;
+    const img = el.querySelector('img');
+    const entry = state.layout[slot];
+    const rect = el.getBoundingClientRect();
+    const scale = Math.max(rect.width / img.naturalWidth, rect.height / img.naturalHeight);
+    const overflowX = img.naturalWidth * scale - rect.width;
+    const overflowY = img.naturalHeight * scale - rect.height;
+    const start = { x: e.clientX, y: e.clientY, fx: entry.fx, fy: entry.fy };
+    el.setPointerCapture(e.pointerId);
+
+    const move = ev => {
+      const clamp = v => Math.min(1, Math.max(0, v));
+      if (overflowX > 1) entry.fx = clamp(start.fx - (ev.clientX - start.x) / overflowX);
+      if (overflowY > 1) entry.fy = clamp(start.fy - (ev.clientY - start.y) / overflowY);
+      img.style.objectPosition = `${entry.fx * 100}% ${entry.fy * 100}%`;
+    };
+    const up = () => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); updatePublish(); };
+    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerup', up);
+  });
+}
+
+function renderPool() {
+  const used = new Set(Object.values(state.layout).map(e => e.file));
+  $('poolTitle').textContent = `Billeder (${state.photos.length})`;
+  $('pool').replaceChildren(...state.photos.map(p => {
+    const img = document.createElement('img');
+    img.src = thumb(p.name);
+    img.title = `${p.name} · ${p.width}×${p.height}`;
+    img.loading = 'lazy';
+    img.draggable = true;
+    img.className = (used.has(p.name) ? 'used' : '') + (state.selected === p.name ? ' selected' : '');
+    img.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', p.name));
+    img.addEventListener('click', () => { state.selected = state.selected === p.name ? null : p.name; render(); });
+    return img;
+  }));
+}
+
+function render() {
+  $('slots').replaceChildren(...state.targets.map(renderSlot));
+  renderPool();
+  if (state.projects.length) updatePublish();
+}
+
+$('build').onclick = async () => {
+  const button = $('build');
+  button.disabled = true;
+  button.textContent = 'Behandler… (ca. 30 sek.)';
+  try {
+    const snapshot = JSON.stringify(state.layout);
+    const results = await api('/api/build', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state.layout) });
+    const empty = state.targets.filter(t => !state.layout[t.slot]).map(t => t.slot);
+    $('resultRows').innerHTML = results.map(r => {
+      const t = state.targets.find(t => t.slot === r.slot);
+      const notes = [r.overTarget && 'over mål', r.upscaled && 'opskaleret'].filter(Boolean).join(', ');
+      return `<tr><td>${r.out}</td><td>${r.kb} KB / ${t.kb} KB</td><td>kvalitet ${r.q}</td><td class="${notes ? 'warn' : 'ok'}">${notes || '✓'}</td></tr>`;
+    }).join('') + (empty.length ? `<tr><td colspan="4" class="warn">Tomme pladser: ${empty.join(', ')}</td></tr>` : '');
+    state.builtLayout = snapshot;
+    $('results').hidden = false;
+    $('uploadResult').innerHTML = '';
+    updatePublish();
+    $('results').scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    alert('Noget gik galt: ' + err.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Lav billeder';
+  }
+};
+
+$('reveal').onclick = () => api('/api/reveal', { method: 'POST' });
+
+function renderProjects() {
+  $('project').innerHTML = '<option value="">Vælg projekt…</option>' + state.projects
+    .map(p => `<option value="${p.slug}">${p.title}${p.hasMedia ? ' (har allerede galleri)' : ''}</option>`).join('');
+}
+
+function renderFolders() {
+  $('folderSelect').innerHTML = '<option value="">Vælg mappe…</option>'
+    + state.folders.map(f => `<option value="${f}">${f}</option>`).join('')
+    + `<option value="${NEW_FOLDER}">＋ Ny mappe…</option>`;
+}
+
+// Vælg projektets eksisterende mappe, eller foreslå et navn til en ny
+function selectFolder(name) {
+  const exists = state.folders.includes(name);
+  $('folderSelect').value = exists ? name : name ? NEW_FOLDER : '';
+  $('newFolder').value = exists ? '' : name;
+  $('newFolderLabel').hidden = $('folderSelect').value !== NEW_FOLDER;
+}
+
+function updatePublish() {
+  const project = state.projects.find(p => p.slug === $('project').value);
+  const filled = state.targets.every(t => state.layout[t.slot]);
+  const stale = JSON.stringify(state.layout) !== state.builtLayout;
+  const note = $('publishNote');
+  note.className = 'note';
+  if (!state.azureReady) { note.textContent = 'AZURE_STORAGE_SAS_URL mangler i .env.local — se scripts/media/README.md'; note.className = 'note warn'; }
+  else if (!filled) note.textContent = 'Alle 7 pladser skal være udfyldt for at uploade.';
+  else if (stale) { note.textContent = 'Placeringen er ændret siden sidst. Klik Lav billeder igen før upload.'; note.className = 'note warn'; }
+  else if (!project) note.textContent = 'Vælg det projekt, galleriet hører til.';
+  else if (!currentFolder()) note.textContent = 'Vælg en mappe på Azure, eller opret en ny.';
+  else if (!validFolder(currentFolder())) { note.textContent = 'Mappenavnet må kun indeholde små bogstaver, tal og bindestreger (ingen æ, ø, å eller mellemrum).'; note.className = 'note warn'; }
+  else {
+    const isNew = !state.folders.includes(currentFolder());
+    note.textContent = `Billederne lægges i ${isNew ? 'den nye mappe ' : ''}cdn.genhoer.dk/media/${currentFolder()}/, og galleriet i projects.js sættes for ${project.title}.`;
+    if (project.hasMedia) { note.textContent += ' Projektet har allerede et galleri, som bliver erstattet.'; note.className = 'note warn'; }
+  }
+  if (state.folderError) note.textContent += ` (${state.folderError})`;
+  $('upload').disabled = !(state.azureReady && filled && !stale && project && validFolder(currentFolder()));
+}
+
+$('project').onchange = () => {
+  const project = state.projects.find(p => p.slug === $('project').value);
+  selectFolder(project?.folder ?? '');
+  updatePublish();
+};
+$('folderSelect').onchange = () => {
+  $('newFolderLabel').hidden = $('folderSelect').value !== NEW_FOLDER;
+  if (!$('newFolderLabel').hidden) $('newFolder').focus();
+  updatePublish();
+};
+$('newFolder').oninput = updatePublish;
+
+$('upload').onclick = async () => {
+  const button = $('upload');
+  const body = { slug: $('project').value, folder: currentFolder(), force: false };
+  button.disabled = true;
+  button.textContent = 'Uploader…';
+  try {
+    let result = await api('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (result.conflict) {
+      if (!confirm(`Disse filer findes allerede i media/${body.folder}/ og bliver overskrevet:\n\n${result.conflict.join('\n')}\n\nFortsæt?`)) return;
+      result = await api('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, force: true }) });
+    }
+    $('uploadResult').innerHTML = `<p class="ok">✓ ${result.uploaded.length} billeder uploadet, og projects.js er opdateret. Tjek ændringen, og commit og push.</p>`
+      + `<ul>${result.uploaded.map(u => `<li><a href="${u}" target="_blank">${u}</a></li>`).join('')}</ul>`
+      + (result.missing.length ? `<p class="warn">Galleriet henviser også til filer, der endnu ikke ligger på Azure: ${result.missing.join(', ')}</p>` : '');
+    const project = state.projects.find(p => p.slug === body.slug);
+    if (project) project.hasMedia = true;
+    // En ny mappe findes nu på Azure, så den vælges i listen fremover
+    if (!state.folders.includes(body.folder)) {
+      state.folders = [...state.folders, body.folder].sort((a, b) => a.localeCompare(b, 'da'));
+      renderFolders();
+      selectFolder(body.folder);
+    }
+  } catch (err) {
+    alert('Upload mislykkedes: ' + err.message);
+  } finally {
+    button.textContent = 'Upload og opdatér projects.js';
+    updatePublish();
+  }
+};
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.selected) { state.selected = null; render(); } });
+
+(async () => {
+  Object.assign(state, await api('/api/state'));
+  renderProjects();
+  if (state.azureReady) {
+    try { state.folders = await api('/api/folders'); } catch (err) { state.folderError = err.message; }
+  }
+  renderFolders();
+  render();
+})();
+</script>
+</body>
+</html>

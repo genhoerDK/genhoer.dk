@@ -118,7 +118,19 @@ export const projects = [
     coverImageSmall: 'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/cover-image-small.webp',
     coverVideo: null,
     artwork: null,
-    media: null,
+    media: [
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/image-01.webp',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/image-02.webp',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/image-03.webp',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/image-04.webp',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/text-01.svg',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/video-01.mp4',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/image-05.webp',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/text-02.svg',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/image-06.webp',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/video-02.mp4',
+      'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/image-07.webp'
+    ],
     audio: null,
     segments: null,
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
