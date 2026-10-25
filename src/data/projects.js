@@ -71,8 +71,8 @@ export const projects = [
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
-    slug: 'nakskov',
-    title: 'Nakskov',
+    slug: 'tvaerveje',
+    title: 'Tværveje',
     location: 'Nakskov',
     coordinates: [11.1381, 54.8297],
     labelOffsetSmall: { x: -100, y: 160 },
@@ -97,8 +97,8 @@ export const projects = [
     composer: ['Thomas Eg Matthiesen', 'Mark Ibsgaard Gregersen']
   },
   {
-    slug: 'viborg',
-    title: 'Viborg',
+    slug: '53-sekunder-til-faelles',
+    title: '53 sekunder til fælles',
     location: 'Viborg',
     coordinates: [9.4061, 56.4494],
     labelOffsetSmall: { x: 0, y: 200 },
