@@ -1,26 +1,10 @@
-import ProjectCarousel from "@/components/ProjectCarousel/ProjectCarousel";
-import ProjectGrid from "@/components/ProjectGrid/ProjectGrid";
-import { projects } from "@/data/projects";
+import HomeProjects from "@/components/Project/HomeProjects";
 
 export default function Home() {
-    const now = new Date();
-
-    const upcomingProjects = projects.filter(
-        (project) => new Date(project.startDate) > now
-    );
-
-    upcomingProjects.sort(
-        (a, b) => new Date(a.startDate) - new Date(b.startDate)
-    );
-
-    const finishedProjects = projects.filter(
-        (project) => new Date(project.startDate) <= now
-    );
-
     return (
         <article>
-            { upcomingProjects.length > 0 && <ProjectCarousel projects={upcomingProjects} /> }
-            <ProjectGrid projects={finishedProjects} />
+            <h1 className="sr-only">Genhør – lydkunst i offentlige rum</h1>
+            <HomeProjects />
         </article>
     );
 }

@@ -1,3 +1,22 @@
+// All projects on the site. Add a new project by copying an existing entry.
+// Order = order in the project grid. Upcoming projects are sorted by start date automatically.
+//
+// slug                 URL of the project page (genhoer.dk/<slug>) and folder name on cdn.genhoer.dk/media/
+// title, location      Shown on cards, project page and map
+// coordinates          [longitude, latitude] of the marker on the map
+// labelOffsetSmall/-Large  Where the map label sits relative to the marker (mobile / desktop), tuned by hand
+// kommune, komkode     Kommune name and code — komkode lights up the kommune on the map
+// startDate, endDate   'YYYY-MM-DD'. endDate null = permanent installation
+// partners             Text shown under "Partnere"
+// sponsorLogos         Names of files in public/logos/<name>-logo.svg
+// description          Paragraphs on the project page. The last one is also the search engine description
+// coverImage*/coverVideo  Images/video for page background (portrait/landscape), cards and hover video
+// artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
+// media                File names in the project's cdn folder, shown in the gallery. The 4th file becomes
+//                      the big tile and the 11th the wide tile, so order them accordingly
+// audio, segments      Sound work and its chapters (start in seconds). null = project without sound
+// composer             Not shown on the site at the moment
+
 export const projects = [
   {
     slug: 'naestved',
@@ -61,7 +80,7 @@ export const projects = [
     kommune: 'Lolland Kommune',
     komkode: '0360',
     startDate: '2026-10-22',
-    endDate: '2027-12-18',
+    endDate: '2026-12-18',
     partners: 'Museum Lolland-Falster og Lolland Ungdomsskole',
     sponsorLogos: ['nordjyllands-fonden', 'william-demant-fonden', 'lolland-kommune', 'kulturstroemmen', 'nakskov-2030'],
     description: [

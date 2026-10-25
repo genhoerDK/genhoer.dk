@@ -1,6 +1,9 @@
-import TextSection from "@/components/TextSection";
-import LabelSmall from "@/components/LabelSmall";
 import Marquee from "react-fast-marquee";
+import { partners } from "@/data/partners";
+import { colors } from "@/styles/colors";
+import TextSection from "@/components/Layout/TextSection";
+import Label from "@/components/UI/Label";
+import Text from "@/components/UI/Text";
 
 export const metadata = {
     title: "Info",
@@ -9,10 +12,6 @@ export const metadata = {
 };
 
 export default function Info() {
-
-    // Partners and sponsors in alphabetic order
-    const partners = [  'billund-kommune', 'bulows-makerspace', 'den-jyske-sparekasses-stoettefond', 'den-kreative-skole', 'esbjerg-kommune', 'ewii', 'fonden-for-sjf-bank', 'fredericia-kommune', 'faaborg-midtfyn-kommune', 'geopark-odsherred', 'historie-haderslev', 'holbaek-stadsarkiv', 'huset-esbjerg', 'johan-hoffmann-fonden', 'koege-arkiverne', 'koege-bibliotekerne', 'koege-ungdomsskole', 'kulturkasernen', 'kulturstroemmen', 'kulturvirket-grindsted', 'lolland-kommune', 'mark-museet', 'museum-fredericia', 'nakskov-2030', 'nordea-fonden', 'nordjyllands-fonden', 'oernes-kunstfond', 'poly-udstillingsplatform', 'region-syddanmark', 'spar-nord-fonden', 'sparekassen-bornholms-fond', 'trelleborg-fonden', 'vordingborg-kommune', 'william-demant-fonden']
-
     return (
         <article>
             
@@ -29,31 +28,31 @@ export default function Info() {
             />
 
             <section className="relative w-full bg-ink mb-10 md:mb-0">
-              <img src="https://cdn.genhoer.dk/media/info-footer-image.webp" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+              <img src="https://cdn.genhoer.dk/media/info-footer-image.webp" alt="" className="absolute inset-0 w-full h-full object-cover opacity-30" />
 
-              <div className="relative text-paper grid grid-cols-[auto_1fr] gap-8 px-2 md:px-48 py-24">
+              <div className="relative text-paper grid grid-cols-[auto_1fr] gap-8 px-gutter md:px-48 py-24">
                 <div className="pt-1.25 md:pt-1.75">
-                    <LabelSmall>Kontakt</LabelSmall>
+                    <Label>Kontakt</Label>
                 </div>
-                <div className="flex flex-col gap-0.5 text-xs md:text-sm font-light">
+                <Text as="div" className="flex flex-col gap-0.5">
                   <p>hej@genhoer.dk</p>
                   <p>91611093</p>
                   <p>Sofiendalvej 120</p>
                   <p>5500 Middelfart</p>
                   <p>CVR 44733196</p>
-                </div>
+                </Text>
 
                 <div className="pt-1.25 md:pt-1.75">
-                    <LabelSmall>Social</LabelSmall>
+                    <Label>Social</Label>
                 </div>
-                <div className="flex flex-col gap-0.5 text-xs md:text-sm font-light">
+                <Text as="div" className="flex flex-col gap-0.5">
                     <a className="w-fit" href="https://www.instagram.com/genhoer_dk/" target="_blank" rel="noopener noreferrer">Instagram</a>
                     <a className="w-fit" href="https://www.facebook.com/profile.php?id=61559553821169" target="_blank" rel="noopener noreferrer">Facebook</a>
                     <a className="w-fit" href="https://www.linkedin.com/company/genhoer/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                </div>
+                </Text>
               </div>
 
-                <Marquee pauseOnHover={false} speed={40} gradientColor="#27272a" gradientWidth={80}>
+                <Marquee pauseOnHover={false} speed={40} gradientColor={colors.ink} gradientWidth={80}>
                     {partners.map(partner => (
                         <img key={partner} src={`/logos/${partner}-logo.svg`} alt="" className="h-6 mx-6 mb-6" />
                     ))}

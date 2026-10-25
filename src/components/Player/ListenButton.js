@@ -1,5 +1,6 @@
 import { useAudio } from '@/context/AudioContext';
-import LabelLarge from "@/components/LabelLarge";
+import Button from "@/components/UI/Button";
+import Label from "@/components/UI/Label";
 import { PlayCircleIcon } from "@heroicons/react/20/solid";
 
 export default function ListenButton() {
@@ -10,9 +11,9 @@ export default function ListenButton() {
     }
 
     return (
-         <button onClick={handleClick} className="flex items-center gap-1 h-10 px-2.5 cursor-pointer md:hover:bg-ink md:hover:text-paper">
+        <Button variant="ghost" onClick={handleClick} className="gap-1 h-10 px-2.5">
             <PlayCircleIcon className="size-6" />
-            <LabelLarge>Lyt</LabelLarge>
-        </button>
+            <Label size="lg">Lyt</Label>
+        </Button>
     );
 }

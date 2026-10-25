@@ -4,9 +4,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAudio } from '@/context/AudioContext';
 import { CircularInput, CircularTrack, CircularProgress, CircularThumb } from 'react-circular-input';
 import { PlayCircleIcon } from '@heroicons/react/20/solid';
-import BackgroundImage from '@/components/BackgroundImage';
+import { colors } from '@/styles/colors';
 import TrackSegment from '@/components/Player/TrackSegment';
-import TrackSegmentInfo from '@/components/Player/TrackSegmentInfo'
+import TrackSegmentInfo from '@/components/Player/TrackSegmentInfo';
 
 export default function CircularScrubber() {
   const { progress, duration, seek, currentTrack, play, isPlaying } = useAudio();
@@ -59,18 +59,17 @@ export default function CircularScrubber() {
 
   return (
     <div ref={scrubberRef} className='flex justify-center items-center size-full min-h-160'>
-      {/* <BackgroundImage src={currentTrack?.coverImageLandscape} /> */}
       <CircularInput value={localValue} onChange={setLocalValue} onPointerDown={() => setDragging(true)} radius={radius} fill="none" className="absolute pointer-events-none z-10">
         <g className="pointer-events-auto cursor-pointer">
-          <CircularTrack strokeWidth={radius * 0.05} stroke="#a1a1aa" />
-          <CircularProgress strokeWidth={radius * 0.05} stroke="#52525b" strokeLinecap="butt" />
-          <CircularThumb r={radius * 0.075} stroke="#27272a" strokeWidth={0} fill="#52525b" />
+          <CircularTrack strokeWidth={radius * 0.05} stroke={colors.faint} />
+          <CircularProgress strokeWidth={radius * 0.05} stroke={colors.dim} strokeLinecap="butt" />
+          <CircularThumb r={radius * 0.075} stroke={colors.ink} strokeWidth={0} fill={colors.dim} />
           {currentTrack?.segments.map((segment, i) => (
             <TrackSegment index={i} startSec={segment.start} endSec={currentTrack?.segments[i + 1]?.start ?? duration } duration={duration} value={progress} radius={radius * 0.8} onClick={handleSegmentClick} key={i} />
           ))}
         </g>
       </CircularInput>
-      <h2 className='absolute left-2 md:left-4 top-12 leading-none font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
+      <h2 className='absolute left-gutter top-12 leading-none font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
 
       {isPlaying ?
         <TrackSegmentInfo segments={currentTrack?.segments} radius={radius} />

@@ -11,6 +11,8 @@ export default function ProjectMediaSection({ slug, media }) {
             {media.map((file, i) => {
                 const isVideo = file.endsWith(".mp4");
 
+                // Layout depends on position: the 4th file (index 3) is the big tile, the 11th (index 10) the wide one.
+                // Order the files in projects.js > media accordingly.
                 const tileClass =
                     i === 3
                         ? "md:aspect-2/1 md:col-span-2 xl:row-span-2 xl:aspect-square" // Big tile
@@ -21,8 +23,8 @@ export default function ProjectMediaSection({ slug, media }) {
                 return (
                     <Tile key={file} className={tileClass}>
                         {isVideo
-                            ? <video src={folder + file} className="size-full object-cover bg-zinc-200" playsInline muted loop autoPlay />
-                            : <img src={folder + file} alt="" className="size-full object-cover bg-zinc-200" loading="lazy" decoding="async" />
+                            ? <video src={folder + file} className="size-full object-cover bg-soft" playsInline muted loop autoPlay />
+                            : <img src={folder + file} alt="" className="size-full object-cover bg-soft" loading="lazy" decoding="async" />
                         }
                     </Tile>
                 );

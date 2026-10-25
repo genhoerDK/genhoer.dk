@@ -2,34 +2,25 @@
 
 import { useRef, useEffect } from "react";
 import * as d3 from "d3";
-import * as topojson from "topojson-client";
 import { projects } from "@/data/projects";
-import { formatDates } from "@/utilities/formatDates"; // NY: bruges til at formatere datoer i label
+import { getProjectsByStatus } from "@/utilities/projectsByStatus";
+import { loadKommuner, drawMap, highlightProject, resetHighlight, ZOOM_SCALE, MARKER_RADIUS, MARKER_STROKE_WIDTH, DURATION } from "@/components/Map/mapDrawing";
 
+const USER_ZOOM_MAX = 3;             // Max pinch zoom
+const MARKER_RADIUS_AT_MAX_ZOOM = 4; // Markers shrink while zooming so they don't cover each other
+
+// Mobile map: pinch to zoom, tap a marker to select it (MapControls then shows "Se mere")
 export default function MapSmall({ activeProject, setActiveProject }) {
     const svgRef = useRef(null);
     const activeProjectRef = useRef(null);
     const zoomRef = useRef(null);
-
-    const now = new Date();
-
-    const upcomingProjects = projects.filter(
-        (project) => new Date(project.startDate) > now
-    );
-
-    upcomingProjects.sort(
-        (a, b) => new Date(a.startDate) - new Date(b.startDate)
-    );
-
-    const finishedProjects = projects.filter(
-        (project) => new Date(project.startDate) <= now
-    );
 
     useEffect(() => {
         activeProjectRef.current = activeProject;
     }, [activeProject]);
 
     useEffect(() => {
+        const { upcoming, opened } = getProjectsByStatus(projects);
         let geoData = null;
 
         const renderMap = () => {
@@ -54,237 +45,88 @@ export default function MapSmall({ activeProject, setActiveProject }) {
                 .geoMercator()
                 .fitExtent([[paddingX, paddingTop], [width - paddingX, height - paddingBottom]], geoData);
 
-            const getCoordinates = (d) => {
+            // Bornholm + Christiansø are moved closer to the rest of Denmark in map_low_modified.json,
+            // so their markers are moved the same way
+            const position = (d) => {
                 const [lon, lat] = d.coordinates;
-
-                // Bornholm + Christiansø
-                if (d.komkode === "0400" || d.komkode === "0411") {
-                    return [lon - 2.5, lat + 2];
-                }
-
-                return [lon, lat];
+                const isBornholm = d.komkode === "0400" || d.komkode === "0411";
+                return projection(isBornholm ? [lon - 2.5, lat + 2] : [lon, lat]);
             };
 
-            const path = d3.geoPath().projection(projection);
             const g = svg.append("g");
 
-            // Draw the map
-            g.selectAll("path")
-                .data(geoData.features)
-                .join("path")
-                .attr("d", path)
-                .attr("fill", "#27272A")
-                .attr("fill-opacity", 1)
-                .attr("stroke", "#27272A")
-                .attr("stroke-width", 0.25)
-                .attr("stroke-opacity", 1);
-
-            // Zoom amount on clicking marker
-            const clickZoomScale = 4;
-
-            // Draw the markers
-            const markerRadius = 6;
-            const markerStrokeWidth = 2;
-
-            // Draw upcoming markers
-            const upcomingMarkers = g.selectAll(".upcoming-marker")
-                .data(upcomingProjects)
-                .enter()
-                .append("circle")
-                .attr("class", "upcoming-marker")
-                .attr("cx", (d) => projection(getCoordinates(d))[0])
-                .attr("cy", (d) => projection(getCoordinates(d))[1])
-                .attr("r", 6)
-                .attr("fill", "#27272A")
-                .attr("stroke", "#fafafa")
-                .attr("stroke-width", 2)
-                .attr("stroke-dasharray", 3.14)
-
-            // NY: cirkel flyttet fra direkte g.selectAll(".finished-marker") ind i en fælles <g> pr. marker,
-            // så cirkel + label kan style/animeres/håndteres samlet
-            const finishedGroups = g.selectAll(".finished-marker-group")
-                .data(finishedProjects)
-                .enter()
-                .append("g")
-                .attr("class", "finished-marker-group")
-                .style("cursor", "pointer"); // NY: flyttet hertil fra den gamle .finished-marker selection
-
-            // NY: appendes nu på finishedGroups i stedet for direkte på g, og click-listener er flyttet ned til finishedGroups
-            const finishedMarkers = finishedGroups.append("circle")
-                .attr("class", "finished-marker")
-                .attr("cx", (d) => projection(getCoordinates(d))[0])
-                .attr("cy", (d) => projection(getCoordinates(d))[1])
-                .attr("r", markerRadius)
-                .attr("fill", "#71717A")
-                .attr("stroke", "#FAFAFA")
-                .attr("stroke-width", markerStrokeWidth);
-
-            // NY: hele denne label-blok er tilføjet fra bunden
-            // Label-gruppe pr. marker, kontra-skaleret ift. clickZoomScale så teksten forbliver fast størrelse
-            // uanset hvor meget kortet zoomer ind (transform-skaleringerne ganges sammen til 1)
-            const finishedLabels = finishedGroups.append("g")
-                .attr("class", "marker-label")
-                .attr("transform", (d) => {
-                    const [x, y] = projection(getCoordinates(d));
-                    return `translate(${x},${y}) scale(${1 / clickZoomScale})`;
-                })
-                .style("opacity", 0) // NY: skjult som udgangspunkt, vises kun ved klik
-                .style("pointer-events", "none");
-
-            // NY: bruger hardcoded offset fra projects.js (d.labelOffset) i stedet for
-            // automatisk beregnet retning ud fra afstand til kortets centrum
-            finishedLabels.each(function (d) {
-                const offset = d.labelOffsetSmall;
-                const group = d3.select(this);
-
-                group.append("text")
-                    .attr("class", "marker-label-title fill-paper text-xs uppercase") // NY
-                    .attr("x", offset.x)
-                    .attr("y", offset.y + 6)
-                    .text(d.title);
-
-                group.append("text")
-                    .attr("class", "marker-label-date fill-paper text-[0.5rem] uppercase") // NY
-                    .attr("x", offset.x + 1)
-                    .attr("y", offset.y + 20)
-                    .text(formatDates(d.startDate, d.endDate));
-
-                group.append("text")
-                    .attr("class", "marker-label-location fill-paper text-[0.5rem] uppercase") // NY
-                    .attr("x", offset.x + 1)
-                    .attr("y", offset.y + 32)
-                    .text(d.kommune);
+            const { upcomingMarkers, openedGroups, openedMarkers } = drawMap(g, geoData, projection, {
+                upcoming,
+                opened,
+                position,
+                labelOffsetKey: "labelOffsetSmall",
             });
 
-            // NY: click-håndtering flyttet fra finishedMarkers til finishedGroups,
-            // så cirkel + label reagerer på samme klik-flade
-            finishedGroups.on("click", function (event, d) {
-                if (activeProjectRef.current) return;
-                event.stopPropagation();
-                setActiveProject(d);
-
-                const [x, y] = projection(getCoordinates(d));
-
-                const centerX = width / 2;
-                const centerY = height / 2;
-                const translateX = centerX - x * clickZoomScale;
-                const translateY = centerY - y * clickZoomScale;
-                const t = d3.zoomIdentity.translate(translateX, translateY).scale(clickZoomScale);
-
-                svg.transition().duration(500).call(zoom.transform, t);
-
-                g.selectAll("path").transition()
-                    .delay(200)
-                    .duration(500)
-                    .attr("fill", (p) => (p.properties.KOMKODE === d.komkode ? "#FAFAFA" : "#27272A"))
-                    .attr("fill-opacity", (p) => (p.properties.KOMKODE === d.komkode ? 1 : 0))
-                    .attr("stroke", "#FAFAFA")
-                    .attr("stroke-opacity", (p) => (p.properties.KOMKODE === d.komkode ? 1 : 0.1));
-
-                finishedMarkers.transition()
-                    .delay(200)
-                    .duration(500)
-                    .attr("r", (p) => (p === d ? 3 : 0))
-                    .attr("fill", "#27272A")
-                    .attr("stroke-width", 1)
-                    .style("cursor", "default");
-
-                upcomingMarkers.transition()
-                    .delay(200)
-                    .duration(500)
-                    .attr("r", 0)
-                    .attr("stroke-width", 1);
-
-                // NY: vis kun label for den klikkede markør
-                finishedLabels.transition()
-                    .delay(200)
-                    .duration(300)
-                    .style("opacity", (p) => (p === d ? 1 : 0));
-            });
-
-            const userZoomExtent = 3;
-            const maxMarkerRadiusZoom = 4;
-
-            const radiusForMarker = (k) => {
-                const t = Math.max(0, Math.min(1, (k - 1) / (userZoomExtent - 1)));
-                return markerRadius + (maxMarkerRadiusZoom - markerRadius) * Math.pow(t, 1);
+            const radiusForZoom = (k) => {
+                const t = Math.max(0, Math.min(1, (k - 1) / (USER_ZOOM_MAX - 1)));
+                return MARKER_RADIUS + (MARKER_RADIUS_AT_MAX_ZOOM - MARKER_RADIUS) * t;
             };
 
-            // User zoom and pan
+            // User zoom and pan — blocked while a project is selected
             const zoom = d3
                 .zoom()
-                .scaleExtent([1, userZoomExtent])
+                .scaleExtent([1, USER_ZOOM_MAX])
                 .translateExtent([
                     [0, 0],
                     [width, height],
                 ])
-                // Block zoom/pan when project is active
-                .filter((event) => {
-                    return !activeProjectRef.current;
-                })
+                .filter(() => !activeProjectRef.current)
                 .on("zoom", (event) => {
                     g.attr("transform", event.transform);
-                    // Scale markers to zoom
-                    const k = event.transform.k;
-                    const r = radiusForMarker(k);
-                    upcomingMarkers.attr("r", r).attr("stroke-width", Math.max(0.5, markerStrokeWidth * (r / markerRadius)));
-                    finishedMarkers.attr("r", r).attr("stroke-width", Math.max(0.5, markerStrokeWidth * (r / markerRadius)));
+                    const r = radiusForZoom(event.transform.k);
+                    const strokeWidth = Math.max(0.5, MARKER_STROKE_WIDTH * (r / MARKER_RADIUS));
+                    upcomingMarkers.attr("r", r).attr("stroke-width", strokeWidth);
+                    openedMarkers.attr("r", r).attr("stroke-width", strokeWidth);
                 });
 
             svg.call(zoom);
             zoomRef.current = zoom;
+
+            openedGroups.on("click", (event, d) => {
+                if (activeProjectRef.current) return;
+                event.stopPropagation();
+                setActiveProject(d);
+
+                // Zoom in so the marker ends up in the center
+                const [x, y] = position(d);
+                const translateX = width / 2 - x * ZOOM_SCALE;
+                const translateY = height / 2 - y * ZOOM_SCALE;
+                const t = d3.zoomIdentity.translate(translateX, translateY).scale(ZOOM_SCALE);
+
+                svg.transition().duration(DURATION).call(zoom.transform, t);
+
+                highlightProject(g, d, 3);
+                openedMarkers.style("cursor", "default");
+            });
         };
 
-        d3.json("/map_low_modified.json").then((topology) => {
-            geoData = topojson.feature(topology, topology.objects["kommuner"]);
+        loadKommuner("/map_low_modified.json").then((data) => {
+            geoData = data;
             renderMap();
         });
 
-        window.addEventListener("resize", () => {
-            window.innerWidth >= 768 && setActiveProject(null);
-        });
+        // Deselect when the window grows to desktop size (Map then switches to MapLarge)
+        const handleResize = () => {
+            if (window.innerWidth >= 768) setActiveProject(null);
+        };
 
-        return () => window.removeEventListener("resize", renderMap);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- draw once on mount; d3 owns the svg after that
     }, []);
 
-    /** Reset project selection */
+    /** Reset zoom and highlight when the selection is cleared */
     useEffect(() => {
-        if (activeProject === null && svgRef.current && zoomRef.current) {
-            const svg = d3.select(svgRef.current);
-            const g = svg.select("g");
-            const markerRadius = 6;
-            const markerStrokeWidth = 2;
+        if (activeProject !== null || !svgRef.current || !zoomRef.current) return;
 
-            // Reset zoom
-            svg.transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity);
-
-            // Reset paths
-            g.selectAll("path").transition()
-                .duration(500)
-                .attr("fill", "#27272A")
-                .attr("fill-opacity", 1)
-                .attr("stroke", "#27272A")
-                .attr("stroke-opacity", 1);
-
-            // Reset markers
-            g.selectAll(".finished-marker").transition()
-                .duration(500)
-                .attr("r", markerRadius)
-                .attr("fill", "#71717A")
-                .attr("stroke-width", markerStrokeWidth)
-                .style("cursor", "pointer");
-
-            g.selectAll(".upcoming-marker").transition()
-                .duration(500)
-                .attr("r", markerRadius)
-                .attr("stroke-width", markerStrokeWidth)
-                .style("cursor", "pointer");
-
-            // NY: skjul label igen ved reset
-            g.selectAll(".marker-label").transition()
-                .duration(150)
-                .style("opacity", 0);
-        }
+        const svg = d3.select(svgRef.current);
+        svg.transition().duration(DURATION).call(zoomRef.current.transform, d3.zoomIdentity);
+        resetHighlight(svg.select("g"));
     }, [activeProject]);
 
     return <svg ref={svgRef} className="relative w-full h-svh" />;

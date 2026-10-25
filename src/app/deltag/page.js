@@ -1,4 +1,4 @@
-import TextSection from "@/components/TextSection";
+import TextSection from "@/components/Layout/TextSection";
 import CoopSection from "@/components/Participate/CoopSection";
 
 export const metadata = {

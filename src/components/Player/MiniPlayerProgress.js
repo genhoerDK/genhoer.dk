@@ -1,6 +1,6 @@
 import { useAudio } from '@/context/AudioContext';
 
-export default function AudioProgress() {
+export default function MiniPlayerProgress() {
   const { progress } = useAudio();
 
   return (

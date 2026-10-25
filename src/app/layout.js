@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import { REM } from "next/font/google";
 import "./globals.css";
 import { AudioProvider } from '@/context/AudioContext';
-import Header from "@/components/Header";
-import Toolbar from "@/components/Toolbar";
+import Header from "@/components/Layout/Header";
+import Toolbar from "@/components/Layout/Toolbar";
 import Player from "@/components/Player/Player";
 import Map from "@/components/Map/Map";
 
@@ -13,7 +13,7 @@ const rem = REM({
 });
 
 export const metadata = {
-    metadataBase: new URL("https://genhoer.dk"),
+    metadataBase: new URL("https://www.genhoer.dk"), // Must match public/CNAME,
     title: { default: "Genhør", template: "%s | Genhør", },
     description: "Engagerer unge i lokal kulturskabelse og udstiller lydkunst i offentlige rum, der styrker kendskabet til den nære danmarkshistorie.",
     alternates: { canonical: "/" },

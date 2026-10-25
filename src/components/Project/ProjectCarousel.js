@@ -1,10 +1,10 @@
 'use client';
 
-import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Mousewheel, EffectFade } from 'swiper/modules';
-import BackgroundImage from '../BackgroundImage';
 import { formatDates } from '@/utilities/formatDates';
+import BackgroundImage from '@/components/Layout/BackgroundImage';
+import Text from '@/components/UI/Text';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -13,7 +13,7 @@ import 'swiper/css/effect-fade';
 export default function ProjectCarousel({ projects }) {
 
   return (
-    <motion.section className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }}>
+    <section className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden animate-fade-in">
       <Swiper
         effect="fade"
         fadeEffect={{ crossFade: true }}
@@ -45,7 +45,7 @@ export default function ProjectCarousel({ projects }) {
               <h2 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.title}</h2>
 
               {/* Date */}
-              <p className="font-light text-xs mt-1">{formatDates(project.startDate, project.endDate)}</p>
+              <Text size="small" className="mt-1">{formatDates(project.startDate, project.endDate)}</Text>
             </div>
           </SwiperSlide>
         ))}
@@ -54,6 +54,6 @@ export default function ProjectCarousel({ projects }) {
         <div className="swiper-pagination-custom absolute z-10 flex gap-2" />
       </Swiper>
 
-    </motion.section>
+    </section>
   );
 }

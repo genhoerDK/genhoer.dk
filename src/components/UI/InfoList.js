@@ -1,5 +1,6 @@
 import { Fragment } from "react";
-import LabelSmall from "@/components/LabelSmall";
+import Label from "@/components/UI/Label";
+import Text from "@/components/UI/Text";
 
 export default function InfoList({ items, truncate = true }) {
     return (
@@ -7,10 +8,10 @@ export default function InfoList({ items, truncate = true }) {
             {items.map(({ label, value }) => (
                 <Fragment key={label}>
                     <dt className="pt-1.25">
-                        <LabelSmall>{label}</LabelSmall>
+                        <Label>{label}</Label>
                     </dt>
                     <dd className="min-w-0">
-                        <p className={`font-light text-xs ${truncate ? "truncate" : ""}`}>{value}</p>
+                        <Text size="small" className={truncate ? "truncate" : ""}>{value}</Text>
                     </dd>
                 </Fragment>
             ))}

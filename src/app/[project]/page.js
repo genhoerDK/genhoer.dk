@@ -1,11 +1,13 @@
 import { projects } from "@/data/projects";
 import { notFound } from "next/navigation";
-import ProjectHeroSection from "@/components/ProjectPage/ProjectHeroSection";
-import ProjectMediaSection from "@/components/ProjectPage/ProjectMediaSection";
+import ProjectHeroSection from "@/components/Project/ProjectHeroSection";
+import ProjectMediaSection from "@/components/Project/ProjectMediaSection";
 
 export async function generateMetadata({ params }) {
     const { project: projectSlug } = await params;
     const project = projects.find((p) => p.slug === projectSlug);
+    if (!project) return {};
+
     const description = project.description.at(-1).slice(0, 160);
     const url = `/${project.slug}`;
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useMemo, useRef, useState, useEffect } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
 import { projects } from '@/data/projects';
 
 const AudioCtx = createContext(null);
@@ -96,14 +96,17 @@ export function AudioProvider({ children }) {
 
     /* ---------- CONTROLS ---------- */
 
+    // Wrapped in useCallback so they only change when the values they use change —
+    // otherwise the Media Session effect below would re-run on every time update.
+
     /** Set a new track if it differs from the current one */
-    const setTrack = (track) => {
+    const setTrack = useCallback((track) => {
         if (track.slug === currentTrack?.slug) return;
         setCurrentTrack(track);
-    };
+    }, [currentTrack]);
 
     /** Start playback, optionally switching to a new track */
-    const play = (track = currentTrack) => {
+    const play = useCallback((track = currentTrack) => {
         if (!audioRef.current || !track) return;
 
         const isSameTrack = track.slug === currentTrack?.slug;
@@ -113,18 +116,18 @@ export function AudioProvider({ children }) {
 
         audioRef.current.play();
         setIsPlaying(true);
-    };
+    }, [currentTrack, initialized]);
 
     /** Pause playback */
-    const pause = () => {
+    const pause = useCallback(() => {
         if (!audioRef.current) return;
 
         audioRef.current.pause();
         setIsPlaying(false);
-    };
+    }, []);
 
     /** Seek to a specific playback time */
-    const seek = (time) => {
+    const seek = useCallback((time) => {
         if (!audioRef.current) return;
 
         const audio = audioRef.current;
@@ -137,7 +140,7 @@ export function AudioProvider({ children }) {
 
         audio.currentTime = safeTime;
         setCurrentTime(safeTime);
-    };
+    }, [duration]);
 
     /* ---------- MEDIA SESSION ---------- */
 
@@ -163,8 +166,9 @@ export function AudioProvider({ children }) {
             ],
         });
 
-        navigator.mediaSession.setActionHandler('play', play);
-        navigator.mediaSession.setActionHandler('pause', pause);
+        // Wrapped: the browser passes an event object, which play() would treat as a track
+        navigator.mediaSession.setActionHandler('play', () => play());
+        navigator.mediaSession.setActionHandler('pause', () => pause());
 
         navigator.mediaSession.setActionHandler('seekbackward', (details) => {
             audioRef.current.currentTime -= details.seekOffset || 10;
@@ -199,6 +203,10 @@ export function AudioProvider({ children }) {
             currentTime,
             duration,
             progress,
+            setTrack,
+            play,
+            pause,
+            seek,
         ]
     );
 

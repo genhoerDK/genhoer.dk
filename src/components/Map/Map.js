@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from 'next/navigation';
 import { useIsPortrait } from "@/hooks/useIsPortrait";
 import { useScrollLock } from "@/hooks/useScrollLock";
-import Overlay from '@/components/Overlay';
-import BackgroundImage from "@/components/BackgroundImage";
+import Overlay from '@/components/Layout/Overlay';
+import BackgroundImage from "@/components/Layout/BackgroundImage";
 import MapSmall from "@/components/Map/MapSmall";
 import MapLarge from "@/components/Map/MapLarge";
 import MapControls from "@/components/Map/MapControls";
@@ -16,7 +16,7 @@ export default function Map() {
     const isPortrait = useIsPortrait();
     const [activeProject, setActiveProject] = useState(null);
     const [focusedProject, setFocusedProject] = useState(null);
-    const [exitVariant, setExitVariant] = useState('slide'); // NY
+    const [exitVariant, setExitVariant] = useState('slide'); // 'fade' when leaving through a marker
 
     useScrollLock(isOpen);
 

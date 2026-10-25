@@ -46,7 +46,7 @@ export default function TracksOverview({ toggleOverview }) {
                             <img src={project.coverImageSmall} alt={project.title} className="object-cover aspect-square" loading="lazy" />
                             <PlayCircleIcon className="absolute inset-auto size-24" />
                         </button>
-                        <h2 className="uppercase font-light text-center text-zinc-800 pt-4">{project.title}</h2>
+                        <h2 className="uppercase font-light text-center text-ink pt-4">{project.title}</h2>
                     </SwiperSlide>
                 ))}
             </Swiper>

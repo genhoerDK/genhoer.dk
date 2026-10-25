@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { XMarkIcon, MusicalNoteIcon } from '@heroicons/react/20/solid';
-import Overlay from '@/components/Overlay';
-import TracksOverview from '@/components/Player/TracksOverview'
+import Overlay from '@/components/Layout/Overlay';
+import Button from '@/components/UI/Button';
+import Label from '@/components/UI/Label';
+import TracksOverview from '@/components/Player/TracksOverview';
 import CircularScrubber from '@/components/Player/CircularScrubber';
-import LabelLarge from '@/components/LabelLarge';
 
 export default function Player() {
     /** Read URL params to check if player should be open */
@@ -34,15 +35,12 @@ export default function Player() {
 
     return (
         <Overlay active={isOpen}>
+            {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} /> : <CircularScrubber />}
 
-                {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} /> : <CircularScrubber />}
-
-                <button onClick={toggleTracksOverview} className='absolute right-4 bottom-14 md:right-1/2 md:translate-x-1/2 md:bottom-8 flex items-center gap-2 py-2 px-3 rounded-full cursor-pointer bg-ink text-paper md:hover:bg-muted md:hover:text-ink'>
-                    {tracksOverviewOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" />}
-                    <LabelLarge>Værker</LabelLarge>
-                </button>
-
+            <Button variant="pill" onClick={toggleTracksOverview} className='absolute right-4 bottom-14 md:right-1/2 md:translate-x-1/2 md:bottom-8 gap-2 py-2 px-3'>
+                {tracksOverviewOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" />}
+                <Label size="lg">Værker</Label>
+            </Button>
         </Overlay>
     );
 }
-    

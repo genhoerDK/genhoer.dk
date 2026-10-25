@@ -1,16 +1,15 @@
 import Link from "next/link";
-import Logo from "@/components/Logo";
-import NavLink from "@/components/NavLink";
+import Logo from "@/components/UI/Logo";
+import NavLink from "@/components/Layout/NavLink";
 
+// The logo is not a heading: each page sets its own <h1>
 export default function Header() {
     return (
-        <header className="fixed inset-x-0 h-10 px-2 bg-paper z-20 md:px-4">
+        <header className="fixed inset-x-0 h-10 px-gutter bg-paper z-20">
             <nav className="flex items-center justify-between h-full">
                 <Link href="/">
-                    <h1>
-                        <span className="sr-only">Genhør</span>
-                        <Logo />
-                    </h1>
+                    <span className="sr-only">Genhør</span>
+                    <Logo />
                 </Link>
                 <div className="flex gap-4">
                     <NavLink href="/deltag">Deltag</NavLink>

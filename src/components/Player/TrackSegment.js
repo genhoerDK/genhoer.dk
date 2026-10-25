@@ -1,6 +1,7 @@
 "use client";
 
 import { useAudio } from '@/context/AudioContext';
+import { colors } from '@/styles/colors';
 
 export default function TrackSegment({ index, startSec, endSec, duration, radius, value, onClick, onHover, onHoverEnd }) {
     const { isPlaying } = useAudio();
@@ -41,7 +42,7 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
                 cy="50%"
                 r={radius}
                 fill="none"
-                stroke="#27272a"
+                stroke={colors.ink}
                 strokeWidth={radius * 0.25}
                 strokeDasharray={`${length} ${circumference - length}`}
                 strokeDashoffset={-offset}
@@ -51,7 +52,7 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 pointerEvents="auto"
-                className={`${isPlaying && isActive && 'animate-pulse'} opacity-80 md:hover:opacity-100 md:hover:animate-none`}
+                className={`${isPlaying && isActive ? 'animate-pulse' : ''} opacity-80 md:hover:opacity-100 md:hover:animate-none`}
             >
             </circle>
 
@@ -70,7 +71,7 @@ export default function TrackSegment({ index, startSec, endSec, duration, radius
               dominantBaseline="middle"
               fontSize={radius * 0.065}
               dy={radius * 0.0054}
-              fill="#fafafa"
+              fill={colors.paper}
               className='pointer-events-none'
             >
               {index + 1}

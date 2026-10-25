@@ -1,13 +1,43 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens
+ * Grey scale from light to dark. Mirrored in src/styles/colors.js for
+ * code that needs colors in JavaScript (d3 maps, SVG players, Marquee) —
+ * change both places together.
+ */
 @theme {
     --font-rem: "Rem", monospace;
+
     --color-paper: #fafafa;         /* zinc-50  */
     --color-soft: #e4e4e7;          /* zinc-200 */
     --color-muted: #d4d4d8;         /* zinc-300 */
+    --color-faint: #a1a1aa;         /* zinc-400 */
     --color-hard: #71717a;          /* zinc-500 */
+    --color-dim: #52525b;           /* zinc-600 */
+    --color-shade: #3f3f46;         /* zinc-700 */
     --color-ink: #27272a;           /* zinc-800 */
+    --color-error: #dc2626;         /* red-600  */
+    --color-error-strong: #991b1b;  /* red-800  */
+
+    /* Page side padding: px-gutter, left-gutter, gap-x-gutter etc. Grows at md (see below) */
+    --spacing-gutter: 0.5rem;
+
+    /* Fade-in on mount: animate-fade-in */
+    --animate-fade-in: fade-in 0.2s ease-out 0.1s both;
+
+    @keyframes fade-in {
+        from { opacity: 0; }
+    }
 }
+
+@media (min-width: 768px) {
+    :root {
+        --spacing-gutter: 1rem;
+    }
+}
+
+/* Swiper (carousel and tracks overview) */
 
 :root {
     --swiper-theme-color: var(--color-paper) !important;
