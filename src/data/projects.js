@@ -12,8 +12,9 @@
 // description          Paragraphs on the project page. The last one is also the search engine description
 // coverImage*/coverVideo  Images/video for page background (portrait/landscape), cards and hover video
 // artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
-// media                File names in the project's cdn folder, shown in the gallery. The 4th file becomes
-//                      the big tile and the 11th the wide tile, so order them accordingly
+// media                File names in the project's cdn folder, or full URLs, shown in the gallery. The 4th file
+//                      becomes the big tile and the 11th the wide tile, so order them accordingly.
+//                      Filled in by `npm run media` (scripts/media/README.md)
 // audio, segments      Sound work and its chapters (start in seconds). null = project without sound
 // composer             Not shown on the site at the moment
 
@@ -112,9 +113,9 @@ export const projects = [
     description: [
       'Flere detaljer kommer snart.'
     ],
-    coverImagePortrait: 'https://cdn.genhoer.dk/media/viborg/cover-image-portrait.webp',
-    coverImageLandscape: 'https://cdn.genhoer.dk/media/viborg/cover-image-landscape.webp',
-    coverImageSmall: 'https://cdn.genhoer.dk/media/viborg/cover-image-small.webp',
+    coverImagePortrait: 'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/cover-image-portrait.webp',
+    coverImageLandscape: 'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/cover-image-landscape.webp',
+    coverImageSmall: 'https://cdn.genhoer.dk/media/53-sekunder-til-faelles/cover-image-small.webp',
     coverVideo: null,
     artwork: null,
     media: null,
