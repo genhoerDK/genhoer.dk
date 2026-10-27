@@ -6,8 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src",
-    "media": "node --env-file-if-exists=.env.local scripts/media/media.mjs"
+    "lint": "eslint src"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -24,14 +23,10 @@
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
-    "@azure/storage-blob": "^12.34.0",
-    "@fontsource/rem": "^5.3.0",
     "@tailwindcss/postcss": "^4.1.7",
     "eslint": "^9",
     "eslint-config-next": "^16.0.3",
-    "opentype.js": "^2.0.0",
     "postcss": "^8.5.3",
-    "sharp": "^0.35.5",
     "tailwindcss": "^4.1.7"
   }
 }
