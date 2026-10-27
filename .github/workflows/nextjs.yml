@@ -64,11 +64,11 @@ jobs:
           ssh-key: ${{ secrets.GENHOER_DATA_KEY }}
           path: genhoer-data
       - name: Projects from genhoer-data
-        # Only the public fields of published projects are written; the checkout is removed again
+        # Only the public fields of published projects and the sponsor logos are written; the checkout is removed again
         # so nothing else from genhoer-data ends up in the build
         run: |
           npm ci --prefix genhoer-data/api --omit=dev --no-audit --no-fund
-          node genhoer-data/scripts/offentlig.js src/data/projects.json
+          node genhoer-data/scripts/offentlig.js src/data/projects.json --logoer public/logos --partnere src/data/partners.json
           rm -rf genhoer-data
       - name: Setup Pages
         uses: actions/configure-pages@v5

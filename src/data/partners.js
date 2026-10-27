@@ -1,39 +1,6 @@
-// Partner and sponsor logos shown on /info, in alphabetical order.
-// Each name must match a file in public/logos/<name>-logo.svg
+// Sponsor logos shown on /info: every logo in genhoer-data (data/logoer.yaml), in alphabetical order.
+// The build writes partners.json and copies the logos to public/logos/<name>-logo.svg; the committed
+// files are a snapshot so `npm run dev` works without access to genhoer-data.
+import data from './partners.json';
 
-export const partners = [
-    'billund-kommune',
-    'bulows-makerspace',
-    'den-jyske-sparekasses-stoettefond',
-    'den-kreative-skole',
-    'esbjerg-kommune',
-    'ewii',
-    'fonden-for-sjf-bank',
-    'fredericia-kommune',
-    'faaborg-midtfyn-kommune',
-    'geopark-odsherred',
-    'historie-haderslev',
-    'holbaek-stadsarkiv',
-    'huset-esbjerg',
-    'johan-hoffmann-fonden',
-    'koege-arkiverne',
-    'koege-bibliotekerne',
-    'koege-ungdomsskole',
-    'kulturkasernen',
-    'kulturstroemmen',
-    'kulturvirket-grindsted',
-    'lolland-kommune',
-    'mark-museet',
-    'museum-fredericia',
-    'nakskov-2030',
-    'nordea-fonden',
-    'nordjyllands-fonden',
-    'oernes-kunstfond',
-    'poly-udstillingsplatform',
-    'region-syddanmark',
-    'spar-nord-fonden',
-    'sparekassen-bornholms-fond',
-    'trelleborg-fonden',
-    'vordingborg-kommune',
-    'william-demant-fonden',
-];
+export const partners = data;

@@ -64,9 +64,9 @@
     "endDate": "2026-12-18",
     "partners": "Kolding Stadsarkiv, Kolding Ungdomsskole, TRIO og Godset",
     "sponsorLogos": [
-      "region-syddanmark",
       "nordjyllands-fonden",
-      "william-demant-fonden"
+      "william-demant-fonden",
+      "region-syddanmark"
     ],
     "description": [
       "Flere detaljer kommer snart."
@@ -109,9 +109,9 @@
     "sponsorLogos": [
       "nordjyllands-fonden",
       "william-demant-fonden",
-      "lolland-kommune",
       "kulturstroemmen",
-      "nakskov-2030"
+      "nakskov-2030",
+      "lolland-kommune"
     ],
     "description": [
       "Flere detaljer kommer snart."
@@ -363,8 +363,8 @@
     "sponsorLogos": [
       "nordjyllands-fonden",
       "william-demant-fonden",
-      "sparekassen-bornholms-fond",
-      "ewii"
+      "ewii",
+      "sparekassen-bornholms-fond"
     ],
     "description": [
       "Værket rummer en fiktiv fortælling inspireret af historiske beretninger fra \"Et centrum i periferien\" af Jørgen H. Barfod, om de små modstandshandlinger som fandt sted i dagligdagen på Bornholm under besættelsen.",
@@ -418,9 +418,9 @@
     "endDate": "2026-09-25",
     "partners": "Esbjerg Kommune og Huset Esbjerg",
     "sponsorLogos": [
-      "region-syddanmark",
       "nordjyllands-fonden",
       "william-demant-fonden",
+      "region-syddanmark",
       "johan-hoffmann-fonden"
     ],
     "description": [
