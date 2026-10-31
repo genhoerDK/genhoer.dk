@@ -1,0 +1,29 @@
+{
+  "troldetoner": {
+    "type": "knapper",
+    "hint": "Tryk og hold på en knap",
+    "tracks": [
+      { "id": "flade", "label": "Flade", "src": null, "placeholder": "flade" },
+      { "id": "trommer", "label": "Trommer", "src": null, "placeholder": "trommer", "volume": 0, "active": 1, "attack": 0.6, "release": 8 },
+      { "id": "fortaeller", "label": "Fortæller", "src": null, "placeholder": "stemme", "start": "press", "loop": false }
+    ],
+    "buttons": [
+      { "label": "1", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
+      { "label": "2", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
+      { "label": "3", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
+      { "label": "4", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
+      { "label": "5", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] }
+    ]
+  },
+  "under-overfladen": {
+    "type": "overflade",
+    "hint": "Hold knappen nede for at høre under overfladen",
+    "tracks": [
+      { "id": "spor", "label": "Overfladen", "src": null, "placeholder": "flade" },
+      { "id": "skjult", "label": "Under overfladen", "src": null, "placeholder": "skjult", "volume": 0, "active": 1, "attack": 0.4, "release": 3 }
+    ],
+    "buttons": [
+      { "label": "Tryk", "raises": ["skjult"] }
+    ]
+  }
+}

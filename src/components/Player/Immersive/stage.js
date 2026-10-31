@@ -12,6 +12,8 @@ import * as THREE from 'three';
  */
 export function createStage(container, { getState, actions }) {
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.style.display = 'block';
@@ -20,7 +22,7 @@ export function createStage(container, { getState, actions }) {
 
     const clock = new THREE.Clock();
     const raycaster = new THREE.Raycaster();
-    const pointer = { x: 0, y: 0, ndc: new THREE.Vector2(), down: false, dragX: 0, dragY: 0, moved: 0, raycaster };
+    const pointer = { id: null, x: 0, y: 0, ndc: new THREE.Vector2(), down: false, dragX: 0, dragY: 0, moved: 0, raycaster };
 
     let size = { width: 1, height: 1 };
     let current = null;
@@ -47,37 +49,53 @@ export function createStage(container, { getState, actions }) {
         pointer.ndc.set((pointer.x / rect.width) * 2 - 1, -(pointer.y / rect.height) * 2 + 1);
     };
 
+    // An interface can take a pointer for itself (e.g. holding a push button) by returning
+    // true from pointerDown — that pointer then doesn't drag or click. Each finger has its
+    // own id, so several buttons can be held at once.
+    const captured = new Set();
     let last = null;
     const onDown = (e) => {
         setPointer(e);
+        pointer.id = e.pointerId;
+        renderer.domElement.setPointerCapture?.(e.pointerId);
+        if (current?.camera) raycaster.setFromCamera(pointer.ndc, current.camera);
+        if (current?.pointerDown?.(pointer) === true) {
+            captured.add(e.pointerId);
+            return;
+        }
         pointer.down = true;
         pointer.moved = 0;
-        last = { x: e.clientX, y: e.clientY };
-        renderer.domElement.setPointerCapture?.(e.pointerId);
-        current?.pointerDown?.(pointer);
+        last = { x: e.clientX, y: e.clientY, id: e.pointerId };
     };
     const onMove = (e) => {
+        if (captured.has(e.pointerId)) return;
         setPointer(e);
-        if (pointer.down && last) {
+        if (pointer.down && last && last.id === e.pointerId) {
             const dx = e.clientX - last.x;
             const dy = e.clientY - last.y;
             pointer.dragX += dx;
             pointer.dragY += dy;
             pointer.moved += Math.abs(dx) + Math.abs(dy);
-            last = { x: e.clientX, y: e.clientY };
+            last = { x: e.clientX, y: e.clientY, id: e.pointerId };
             current?.drag?.(dx / size.width, dy / size.height, pointer);
         }
         current?.pointerMove?.(pointer);
         renderer.domElement.style.cursor = current?.hovering?.() ? 'pointer' : pointer.down ? 'grabbing' : 'grab';
     };
     const onUp = (e) => {
+        if (captured.delete(e.pointerId)) {
+            current?.pointerUp?.({ ...pointer, id: e.pointerId });
+            return;
+        }
+        if (last && last.id !== e.pointerId) return;
         setPointer(e);
+        pointer.id = e.pointerId;
         const wasClick = pointer.down && pointer.moved < 6;
         pointer.down = false;
         last = null;
         current?.pointerUp?.(pointer);
         if (wasClick) {
-            raycaster.setFromCamera(pointer.ndc, current?.camera);
+            if (current?.camera) raycaster.setFromCamera(pointer.ndc, current.camera);
             current?.click?.(pointer, actions);
         }
     };

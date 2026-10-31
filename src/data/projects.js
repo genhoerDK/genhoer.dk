@@ -17,8 +17,13 @@
 // media                Full URLs shown in the gallery. The 4th file becomes the big tile and the 11th the wide tile
 // audio, segments      Sound work and its chapters (start in seconds). null = project without sound
 // player               Optional. How the work is shown in the full-page player, e.g. { "type": "landskab" }.
-//                      Missing = "kapitler". See src/components/Player/Immersive/interfaces/index.js
+//                      Missing = "kapitler". See src/components/Player/Immersive/interfaces/index.js.
+//                      Interactive works also list `tracks` and `buttons` (see src/audio/LayeredEngine.js
+//                      and players.json) and need no `audio`
 // composer             Not shown on the site at the moment
 import data from './projects.json';
+import players from './players.json';
 
-export const projects = data;
+// Interactive works (layers + push buttons) are described in players.json until the
+// dashboard can hold the `player` field. A `player` from genhoer-data wins.
+export const projects = data.map((p) => ({ ...p, player: p.player ?? players[p.slug] ?? null }));

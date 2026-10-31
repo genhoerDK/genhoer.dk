@@ -20,8 +20,8 @@ const GATE_H = 2.9;
 
 export default function landskab({ size }) {
     const scene = new THREE.Scene();
-    scene.background = palette.ink.clone();
-    scene.fog = new THREE.Fog(palette.ink, 14, 95);
+    scene.background = palette.paper.clone();
+    scene.fog = new THREE.Fog(palette.paper, 14, 95);
 
     const camera = new THREE.PerspectiveCamera(58, size.width / size.height, 2.5, 200); // near plane hides the terrain right under the camera
 
@@ -47,7 +47,7 @@ export default function landskab({ size }) {
     const terrainGeometry = new THREE.BufferGeometry();
     terrainGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     terrainGeometry.setAttribute('color', new THREE.BufferAttribute(terrainColors, 3));
-    const terrainMaterial = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.95, depthWrite: false });
+    const terrainMaterial = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, sizeAttenuation: true });
     const terrain = new THREE.Points(terrainGeometry, terrainMaterial);
     terrain.frustumCulled = false;
     scene.add(terrain);
@@ -76,7 +76,7 @@ export default function landskab({ size }) {
 
     const playhead = new THREE.Mesh(
         new THREE.PlaneGeometry(WIDTH, 0.05).rotateX(-Math.PI / 2),
-        new THREE.MeshBasicMaterial({ color: palette.paper, transparent: true, opacity: 0.8 }),
+        new THREE.MeshBasicMaterial({ color: palette.ink, transparent: true, opacity: 0.8 }),
     );
     scene.add(playhead);
 
@@ -96,7 +96,7 @@ export default function landskab({ size }) {
 
             const frame = new THREE.LineSegments(
                 new THREE.EdgesGeometry(new THREE.PlaneGeometry(GATE_W + 0.3, GATE_H + 0.3)),
-                new THREE.LineBasicMaterial({ color: palette.faint, transparent: true }),
+                new THREE.LineBasicMaterial({ color: palette.hard, transparent: true }),
             );
             const material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.9, side: THREE.DoubleSide });
             material.map = loadTexture(span.image, pad(i + 1), (t) => {
@@ -117,7 +117,7 @@ export default function landskab({ size }) {
                     new THREE.Vector3(-GATE_W / 2 - 0.15, -GATE_H / 2 - 0.15, 0), new THREE.Vector3(-GATE_W / 2 - 0.15, -4, 0),
                     new THREE.Vector3(GATE_W / 2 + 0.15, -GATE_H / 2 - 0.15, 0), new THREE.Vector3(GATE_W / 2 + 0.15, -4, 0),
                 ]),
-                new THREE.LineBasicMaterial({ color: palette.dim, transparent: true }),
+                new THREE.LineBasicMaterial({ color: palette.muted, transparent: true }),
             );
 
             group.add(frame, image, label, posts);
@@ -144,8 +144,8 @@ export default function landskab({ size }) {
                 const i = r * COLS + c;
                 const h = positions[i * 3 + 1];
                 const k = THREE.MathUtils.clamp((h + 1.2) / 3.2, 0, 1);
-                if (ahead) tmp.copy(palette.dim).lerp(palette.paper, 0.25 + k * 0.75);
-                else tmp.copy(palette.shade).lerp(palette.hard, k * 0.6);
+                if (ahead) tmp.copy(palette.faint).lerp(palette.ink, 0.2 + k * 0.8);
+                else tmp.copy(palette.soft).lerp(palette.muted, k);
                 terrainColors[i * 3] = tmp.r;
                 terrainColors[i * 3 + 1] = tmp.g;
                 terrainColors[i * 3 + 2] = tmp.b;

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { envelopeAtFraction } from '../useAudioEnvelope';
-import { palette, loadTexture, coverTexture, textTexture, pad, damp, angleDelta, chapterSpans, disposeTree } from './shared';
+import { palette, loadTexture, coverTexture, textTexture, pad, damp, angleDelta, chapterSpans, disposeTree, createRoom } from './shared';
 
 /**
  * "Kapitler" — the circular scrubber turned into a room.
@@ -13,9 +13,10 @@ import { palette, loadTexture, coverTexture, textTexture, pad, damp, angleDelta,
 
 const RING_RADIUS = 10;
 const RING_BARS = 300;
-const FLOOR_Y = -1.6;
+const FLOOR_Y = 0;
 const CHAPTER_RADIUS = 7;
-const CHAPTER_Y = 0.45;
+const CHAPTER_Y = 2.05;
+const EYE_Y = 1.95;
 const TAU = Math.PI * 2;
 
 /** f = 0 is straight ahead, increasing clockwise seen from above */
@@ -23,24 +24,24 @@ const onCircle = (fraction, radius, y) => new THREE.Vector3(Math.sin(fraction * 
 
 export default function kapitler({ size }) {
     const scene = new THREE.Scene();
-    scene.background = palette.ink.clone();
-    scene.fog = new THREE.Fog(palette.ink, 6, 22);
+    createRoom(scene, { fogNear: 7, fogFar: 26 });
 
     const camera = new THREE.PerspectiveCamera(60, size.width / size.height, 0.1, 100);
     camera.rotation.order = 'YXZ';
-    camera.position.set(0, 0.35, 0);
+    camera.position.set(0, EYE_Y, 0);
 
     /* ---------- FLOOR RING ---------- */
 
     const barGeometry = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
-    const barMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const barMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
     const bars = new THREE.InstancedMesh(barGeometry, barMaterial, RING_BARS);
+    bars.castShadow = true;
     bars.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     scene.add(bars);
 
     const floorLine = new THREE.Mesh(
         new THREE.RingGeometry(RING_RADIUS - 0.02, RING_RADIUS + 0.02, 256).rotateX(-Math.PI / 2),
-        new THREE.MeshBasicMaterial({ color: palette.shade, transparent: true, opacity: 0.8 }),
+        new THREE.MeshBasicMaterial({ color: palette.muted, transparent: true, opacity: 0.8 }),
     );
     floorLine.position.y = FLOOR_Y;
     scene.add(floorLine);
@@ -65,12 +66,12 @@ export default function kapitler({ size }) {
         const r = 3 + Math.random() * 18;
         const a = Math.random() * TAU;
         dustPositions[i * 3] = Math.sin(a) * r;
-        dustPositions[i * 3 + 1] = -2 + Math.random() * 8;
+        dustPositions[i * 3 + 1] = Math.random() * 8;
         dustPositions[i * 3 + 2] = Math.cos(a) * r;
     }
     const dustGeometry = new THREE.BufferGeometry();
     dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
-    const dustMaterial = new THREE.PointsMaterial({ color: palette.faint, size: 0.035, sizeAttenuation: true, transparent: true, opacity: 0.6, depthWrite: false });
+    const dustMaterial = new THREE.PointsMaterial({ color: palette.hard, size: 0.03, sizeAttenuation: true, transparent: true, opacity: 0.6, depthWrite: false });
     const dust = new THREE.Points(dustGeometry, dustMaterial);
     scene.add(dust);
 
@@ -168,7 +169,7 @@ export default function kapitler({ size }) {
 
             camera.rotation.y = -(yaw + lookOffset);
             camera.rotation.x = pitch + pitchOffset + Math.sin(elapsed * 0.2) * 0.01;
-            camera.position.y = 0.35 + Math.sin(elapsed * 0.3) * 0.04;
+            camera.position.y = EYE_Y + Math.sin(elapsed * 0.3) * 0.04;
 
             /* Hover */
             const hits = pointer.raycaster.intersectObjects(chapters.map((c) => c.mesh), false);
@@ -189,9 +190,9 @@ export default function kapitler({ size }) {
                 dummy.updateMatrix();
                 bars.setMatrixAt(i, dummy.matrix);
 
-                if (isHead) tmpColor.copy(palette.paper);
-                else if (f < progress) tmpColor.copy(palette.faint);
-                else tmpColor.copy(palette.shade).lerp(palette.dim, 0.5);
+                if (isHead) tmpColor.copy(palette.ink);
+                else if (f < progress) tmpColor.copy(palette.dim);
+                else tmpColor.copy(palette.muted);
                 bars.setColorAt(i, tmpColor);
             }
             bars.instanceMatrix.needsUpdate = true;
@@ -211,8 +212,7 @@ export default function kapitler({ size }) {
                 c.mesh.scale.set(c.width * scale, c.height * scale, 1);
 
                 const m = c.mesh.material;
-                m.opacity = damp(m.opacity, isActive ? 1 : isHovered ? 0.85 : 0.42, 4, dt);
-                m.color.setScalar(isActive || isHovered ? 1 : 0.7);
+                m.opacity = damp(m.opacity, isActive ? 1 : isHovered ? 0.9 : 0.5, 4, dt);
 
                 c.label.position.set(pos.x * 0.98, pos.y + (c.height * scale) / 2 + 0.25, pos.z * 0.98);
                 c.label.material.opacity = m.opacity;
@@ -220,8 +220,8 @@ export default function kapitler({ size }) {
 
             /* Dust breathes with the sound */
             dust.rotation.y += dt * (0.01 + level * 0.05);
-            dustMaterial.size = 0.03 + level * 0.03;
-            dustMaterial.opacity = 0.35 + level * 0.45;
+            dustMaterial.size = 0.025 + level * 0.025;
+            dustMaterial.opacity = 0.25 + level * 0.4;
 
             floorLine.material.opacity = 0.5 + level * 0.4;
         },

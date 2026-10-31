@@ -58,8 +58,8 @@ export default function Timeline({ segments, duration, getTime, seek, envelope }
     };
 
     const spans = (segments.length ? segments : [{ start: 0, title: '' }]).map((s, i, all) => ({
-        start: duration ? s.start / duration : 0,
-        end: duration ? (all[i + 1]?.start ?? duration) / duration : 1,
+        start: duration ? Math.min(1, s.start / duration) : 0,
+        end: duration ? Math.min(1, (all[i + 1]?.start ?? duration) / duration) : 1,
         title: s.title,
         index: i,
     }));
@@ -71,7 +71,7 @@ export default function Timeline({ segments, duration, getTime, seek, envelope }
     const bars = envelope && !envelope.synthetic ? Array.from({ length: 160 }, (_, i) => envelopeAtFraction(envelope, i / 159)) : null;
 
     const chapterBlocks = (filled) => spans.map((s) => (
-        <div key={s.index} className={`absolute top-0 h-full ${filled ? 'bg-paper' : 'bg-paper/20'}`} style={{ left: `calc(${s.start * 100}% + ${s.index ? 2 : 0}px)`, width: `calc(${(s.end - s.start) * 100}% - ${s.index ? 2 : 0}px)` }} />
+        <div key={s.index} className={`absolute top-0 h-full ${filled ? 'bg-ink' : 'bg-muted'}`} style={{ left: `calc(${s.start * 100}% + ${s.index ? 2 : 0}px)`, width: `calc(${(s.end - s.start) * 100}% - ${s.index ? 2 : 0}px)` }} />
     ));
 
     return (
@@ -85,21 +85,21 @@ export default function Timeline({ segments, duration, getTime, seek, envelope }
                 className="group relative flex-1 h-10 cursor-pointer touch-none"
             >
                 {named?.title && (
-                    <div className="pointer-events-none absolute bottom-full mb-1 -translate-x-1/2 whitespace-nowrap bg-paper text-ink px-2 py-1" style={{ left: `clamp(4rem, ${pointerAt * 100}%, calc(100% - 4rem))` }}>
+                    <div className="pointer-events-none absolute bottom-full mb-1 -translate-x-1/2 whitespace-nowrap bg-ink text-paper px-2 py-1" style={{ left: `clamp(4rem, ${pointerAt * 100}%, calc(100% - 4rem))` }}>
                         <Label>{String(named.index + 1).padStart(2, '0')} · {named.title}</Label>
                     </div>
                 )}
                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1.5 group-hover:h-3 transition-[height] duration-200">
                     {bars && (
-                        <div className="absolute inset-x-0 bottom-full mb-1 h-4 flex items-end gap-px opacity-40">
-                            {bars.map((v, i) => <div key={i} className="flex-1 bg-paper/60" style={{ height: `${Math.max(6, v * 100)}%` }} />)}
+                        <div className="absolute inset-x-0 bottom-full mb-1 h-4 flex items-end gap-px opacity-60">
+                            {bars.map((v, i) => <div key={i} className="flex-1 bg-ink/50" style={{ height: `${Math.max(6, v * 100)}%` }} />)}
                         </div>
                     )}
                     {chapterBlocks(false)}
                     <div ref={fillRef} className="absolute inset-0">{chapterBlocks(true)}</div>
                 </div>
             </div>
-            <span ref={timeRef} className="hidden sm:block shrink-0 text-[0.625rem] tabular-nums text-faint" />
+            <span ref={timeRef} className="hidden sm:block shrink-0 text-[0.625rem] tabular-nums text-hard" />
         </div>
     );
 }

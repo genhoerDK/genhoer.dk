@@ -2,13 +2,17 @@
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
 import { projects } from '@/data/projects';
+import { LayeredEngine, unlockAudio } from '@/audio/LayeredEngine';
+
+/** Interactive works are played by a LayeredEngine instead of the <audio> element */
+export const isInteractive = (track) => !!track?.player?.tracks?.length;
 
 const AudioCtx = createContext(null);
 
 export function AudioProvider({ children }) {
     /** Filter projects to only those with audio */
     const projectsWithAudio = useMemo(
-        () => projects.filter(p => !!p.audio),
+        () => projects.filter(p => !!p.audio || isInteractive(p)),
         []
     );
 
@@ -59,6 +63,12 @@ export function AudioProvider({ children }) {
     useEffect(() => {
         if (!audioRef.current || !currentTrack) return;
 
+        if (!currentTrack.audio) {
+            audioRef.current.pause();
+            audioRef.current.removeAttribute('src');
+            return;
+        }
+
         const nextSrc = new URL(
             currentTrack.audio,
             window.location.href
@@ -71,8 +81,39 @@ export function AudioProvider({ children }) {
             setDuration(0);
         }
 
-        if (isPlaying) audioRef.current.play();
+        if (isPlaying) audioRef.current.play().catch(() => {});
     }, [currentTrack, isPlaying]);
+
+    /** The engine for an interactive work — created when such a work is selected */
+    const [engine, setEngine] = useState(null);
+    const engineRef = useRef(null);
+    const pendingPlay = useRef(false);
+
+    useEffect(() => {
+        if (!isInteractive(currentTrack)) return;
+        const next = new LayeredEngine(currentTrack.player);
+        engineRef.current = next;
+        if (pendingPlay.current) { pendingPlay.current = false; next.play(); }
+        setEngine(next);
+        setCurrentTime(0);
+        setDuration(0);
+
+        const sync = () => {
+            setDuration(next.duration);
+            setCurrentTime(next.currentTime);
+            setIsPlaying(next.isPlaying);
+        };
+        const unsubscribe = next.subscribe(sync);
+        const id = setInterval(sync, 250);
+
+        return () => {
+            unsubscribe();
+            clearInterval(id);
+            next.dispose();
+            if (engineRef.current === next) engineRef.current = null;
+            setEngine(null);
+        };
+    }, [currentTrack]);
 
     /** Sync playback time and duration from the audio element */
     useEffect(() => {
@@ -114,7 +155,17 @@ export function AudioProvider({ children }) {
 
         if (!initialized) setInitialized(true);
 
-        audioRef.current.play();
+        if (isInteractive(track)) {
+            unlockAudio(); // must happen inside the click
+            audioRef.current.pause();
+            // The engine for a newly chosen work is created by the effect above; it starts
+            // as soon as it exists because the user asked to play
+            if (isSameTrack) engineRef.current?.play();
+            else pendingPlay.current = true;
+        } else {
+            engineRef.current?.pause();
+            audioRef.current.play().catch(() => {}); // interrupted when the track changes right after
+        }
         setIsPlaying(true);
     }, [currentTrack, initialized]);
 
@@ -123,6 +174,7 @@ export function AudioProvider({ children }) {
         if (!audioRef.current) return;
 
         audioRef.current.pause();
+        engineRef.current?.pause();
         setIsPlaying(false);
     }, []);
 
@@ -143,7 +195,7 @@ export function AudioProvider({ children }) {
     }, [duration]);
 
     /** Precise playback time for animation frames (state only updates a few times per second) */
-    const getTime = useCallback(() => audioRef.current?.currentTime ?? 0, []);
+    const getTime = useCallback(() => engineRef.current?.currentTime ?? audioRef.current?.currentTime ?? 0, []);
 
     /* ---------- MEDIA SESSION ---------- */
 
@@ -198,6 +250,7 @@ export function AudioProvider({ children }) {
             pause,
             seek,
             getTime,
+            engine,
         }),
         [
             projectsWithAudio,
@@ -212,6 +265,7 @@ export function AudioProvider({ children }) {
             pause,
             seek,
             getTime,
+            engine,
         ]
     );
 
