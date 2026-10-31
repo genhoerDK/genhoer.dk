@@ -71,7 +71,8 @@ export default function ImmersivePlayer() {
 
     // Remount when the work, its interface or its sound engine changes
     useEffect(() => {
-        stageRef.current?.mount(interfaces[type].factory, currentTrack?.player ?? {});
+        const work = currentTrack ? { title: currentTrack.title, location: currentTrack.location, description: currentTrack.description } : {};
+        stageRef.current?.mount(interfaces[type].factory, { ...(currentTrack?.player ?? {}), work });
     }, [type, currentTrack, engine]);
 
     useEffect(() => {

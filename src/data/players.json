@@ -1,29 +1,125 @@
 {
   "troldetoner": {
-    "type": "knapper",
+    "type": "pult",
     "hint": "Tryk og hold på en knap",
+    "panel": {
+      "text": [
+        "I Esterhøj boede der engang en venlig trold. Han var altid hjælpsom over for folk i Høve og når de hjalp ham med noget, sørgede han for at belønne dem rundhåndet.",
+        "Troldens kæreste eje var en lur – et blæseinstrument fra bronzealderen, som han havde fået af de lokale da han flyttede ind i højen."
+      ],
+      "info": [
+        "‘Troldetoner’ er et interaktivt lydværk skabt af Thomas Eg Matthiesen og Mark Ibsgaard Gregersen fra foreningen Genhør.",
+        "Med de fem knapper kan du spille toner på troldens lur. Når du spiller på luren aktiveres et lydværk og du kan fra tid til anden høre sagn om trolden.",
+        "I forbindelse med værkets tilblivelse blev der afholdt en workshop på Odsherred Musikskole. Her fortolkede og nyskrev vi troldesagn til lydværket."
+      ]
+    },
     "tracks": [
-      { "id": "flade", "label": "Flade", "src": null, "placeholder": "flade" },
-      { "id": "trommer", "label": "Trommer", "src": null, "placeholder": "trommer", "volume": 0, "active": 1, "attack": 0.6, "release": 8 },
-      { "id": "fortaeller", "label": "Fortæller", "src": null, "placeholder": "stemme", "start": "press", "loop": false }
+      {
+        "id": "flade",
+        "label": "Flade",
+        "src": null,
+        "placeholder": "flade"
+      },
+      {
+        "id": "trommer",
+        "label": "Trommer",
+        "src": null,
+        "placeholder": "trommer",
+        "volume": 0,
+        "active": 1,
+        "attack": 0.6,
+        "release": 8
+      },
+      {
+        "id": "fortaeller",
+        "label": "Fortæller",
+        "src": null,
+        "placeholder": "stemme",
+        "start": "press",
+        "loop": false
+      }
     ],
     "buttons": [
-      { "label": "1", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
-      { "label": "2", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
-      { "label": "3", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
-      { "label": "4", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] },
-      { "label": "5", "tone": null, "raises": ["trommer"], "starts": ["fortaeller"] }
+      {
+        "label": "1",
+        "tone": null,
+        "raises": [
+          "trommer"
+        ],
+        "starts": [
+          "fortaeller"
+        ]
+      },
+      {
+        "label": "2",
+        "tone": null,
+        "raises": [
+          "trommer"
+        ],
+        "starts": [
+          "fortaeller"
+        ]
+      },
+      {
+        "label": "3",
+        "tone": null,
+        "raises": [
+          "trommer"
+        ],
+        "starts": [
+          "fortaeller"
+        ]
+      },
+      {
+        "label": "4",
+        "tone": null,
+        "raises": [
+          "trommer"
+        ],
+        "starts": [
+          "fortaeller"
+        ]
+      },
+      {
+        "label": "5",
+        "tone": null,
+        "raises": [
+          "trommer"
+        ],
+        "starts": [
+          "fortaeller"
+        ]
+      }
     ]
   },
   "under-overfladen": {
     "type": "overflade",
     "hint": "Hold knappen nede for at høre under overfladen",
     "tracks": [
-      { "id": "spor", "label": "Overfladen", "src": null, "placeholder": "flade" },
-      { "id": "skjult", "label": "Under overfladen", "src": null, "placeholder": "skjult", "volume": 0, "active": 1, "attack": 0.4, "release": 3 }
+      {
+        "id": "spor",
+        "label": "Overfladen",
+        "src": null,
+        "placeholder": "flade"
+      },
+      {
+        "id": "skjult",
+        "label": "Under overfladen",
+        "src": null,
+        "placeholder": "skjult",
+        "volume": 0,
+        "active": 1,
+        "attack": 0.4,
+        "release": 3
+      }
     ],
     "buttons": [
-      { "label": "Tryk", "raises": ["skjult"] }
+      {
+        "label": "Tryk",
+        "raises": [
+          "skjult"
+        ]
+      }
     ]
   }
 }

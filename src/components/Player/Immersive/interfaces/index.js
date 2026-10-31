@@ -21,16 +21,18 @@
  *   })
  *
  * actions: { play, pause, seek(seconds), seekFraction(0–1), press(button), release(button) }
- * options: the work's `player` object, for per-work settings.
+ * options: the work's `player` object, for per-work settings, plus `work` ({ title, location, description }).
  */
 import kapitler from './kapitler';
 import landskab from './landskab';
 import knapper from './knapper';
 import overflade from './overflade';
+import pult from './pult';
 
 export const interfaces = {
     kapitler: { label: 'Kapitler', kind: 'linear', factory: kapitler },
     landskab: { label: 'Landskab', kind: 'linear', factory: landskab },
+    pult: { label: 'Pult', kind: 'interactive', factory: pult },
     knapper: { label: 'Knapper', kind: 'interactive', factory: knapper },
     overflade: { label: 'Overflade', kind: 'interactive', factory: overflade },
 };

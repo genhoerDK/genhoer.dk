@@ -143,18 +143,25 @@ export function createRoom(scene, { fogNear = 18, fogFar = 60, shadowSize = 14 }
 }
 
 /** Orbit camera around a target: azimuth/elevation/distance, eased */
-export function createOrbit(camera, { azimuth = 0, elevation = 0.75, distance = 13, target = new THREE.Vector3(), autoSpin = 0.02 } = {}) {
+export function createOrbit(camera, { azimuth = 0, elevation = 0.75, distance = 13, target = new THREE.Vector3(), autoSpin = 0.02, azimuthRange = null, elevationRange = [0.15, 1.35], returnHome = false } = {}) {
+    const home = { azimuth, elevation };
     const state = { azimuth, elevation, distance, target, autoSpin, goal: { azimuth, elevation }, idle: 10 };
     return {
         state,
         drag(dx, dy) {
             state.idle = 0;
             state.goal.azimuth -= dx * Math.PI * 1.4;
-            state.goal.elevation = THREE.MathUtils.clamp(state.goal.elevation + dy * 1.6, 0.15, 1.35);
+            if (azimuthRange) state.goal.azimuth = THREE.MathUtils.clamp(state.goal.azimuth, home.azimuth - azimuthRange, home.azimuth + azimuthRange);
+            state.goal.elevation = THREE.MathUtils.clamp(state.goal.elevation + dy * 1.6, ...elevationRange);
         },
         update(dt, extraY = 0) {
             state.idle += dt;
             if (state.idle > 3) state.goal.azimuth += state.autoSpin * dt;
+            // Drift back to the starting view after the user has looked around
+            if (returnHome && state.idle > 4) {
+                state.goal.azimuth = damp(state.goal.azimuth, home.azimuth, 0.6, dt);
+                state.goal.elevation = damp(state.goal.elevation, home.elevation, 0.6, dt);
+            }
             state.azimuth = damp(state.azimuth, state.goal.azimuth, 4, dt);
             state.elevation = damp(state.elevation, state.goal.elevation, 4, dt);
             const { azimuth: a, elevation: e, distance: d } = state;
@@ -280,3 +287,26 @@ export function createRipples(scene, { max = 40, y = 0.01, color = palette.ink }
         },
     };
 }
+
+/** Draw wrapped text on a canvas; returns the y after the last line */
+export function wrapText(ctx, text, x, y, maxWidth, lineHeight, { indent = 0 } = {}) {
+    const words = String(text).split(/\s+/);
+    let line = '';
+    let first = true;
+    for (const word of words) {
+        const test = line ? `${line} ${word}` : word;
+        const room = maxWidth - (first ? indent : 0);
+        if (ctx.measureText(test).width > room && line) {
+            ctx.fillText(line, x + (first ? indent : 0), y);
+            y += lineHeight;
+            line = word;
+            first = false;
+        } else {
+            line = test;
+        }
+    }
+    if (line) { ctx.fillText(line, x + (first ? indent : 0), y); y += lineHeight; }
+    return y;
+}
+
+export { siteFont };
