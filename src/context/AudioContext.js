@@ -142,6 +142,9 @@ export function AudioProvider({ children }) {
         setCurrentTime(safeTime);
     }, [duration]);
 
+    /** Precise playback time for animation frames (state only updates a few times per second) */
+    const getTime = useCallback(() => audioRef.current?.currentTime ?? 0, []);
+
     /* ---------- MEDIA SESSION ---------- */
 
     /** Sync Media Session metadata and handlers with current track */
@@ -194,6 +197,7 @@ export function AudioProvider({ children }) {
             play,
             pause,
             seek,
+            getTime,
         }),
         [
             projectsWithAudio,
@@ -207,6 +211,7 @@ export function AudioProvider({ children }) {
             play,
             pause,
             seek,
+            getTime,
         ]
     );
 

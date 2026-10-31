@@ -8,6 +8,7 @@
 | `Layout/` | Page frame and generic sections: `Header`, `Toolbar`, `Overlay`, `BackgroundImage`, `ContentSection`, `TextSection`, `TextImageSection` | `UI/` (Toolbar also composes Map/Player buttons) |
 | `Project/` | Everything showing projects: front page carousel/grid, cards, project page | `UI/`, `Layout/` |
 | `Map/`, `Player/`, `Forms/`, `Participate/` | One feature each | `UI/`, `Layout/` |
+| `Player/Immersive/` | The full-page three.js player. `interfaces/` holds the 3D scenes a work can choose with `player.type` in projects.json | `UI/`, `Player/` |
 
 ## Design tokens
 
