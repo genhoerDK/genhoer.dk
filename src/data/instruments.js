@@ -15,7 +15,7 @@
 
 export const instruments = {
     troldetoner: {
-        baseUrl: 'https://cdn.genhoer.dk/media/odsherred-2026/',
+        baseUrl: 'https://cdn.genhoer.dk/media/odsherred-2026/lyd/',
         samples: [
             { name: 'C', file: 'C.mp3', release: 3.0 },    // 132300
             { name: 'G', file: 'G.mp3', release: 3.5 },    // 154350
