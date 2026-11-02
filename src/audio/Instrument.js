@@ -8,7 +8,8 @@
  *  SAMPLES  One short file per button. Pressing plays the "body" from the start; letting go
  *           before the release point jumps to the release point and plays the "tail" to the end
  *           (5 ms fades, like the patch's cutoff). Holding plays straight through. Pressing a
- *           button lets go of every other button. Level 0.6.
+ *           button lets go of every other button, unless the config says polyphonic: true —
+ *           then several tones can sound together. Level 0.6.
  *
  *  MUSIC    A stereo loop that always runs: left channel = tonal music, right = rhythm.
  *           Any press fades the tonal music in over 10 s and (re)starts a 100 s countdown;
@@ -48,7 +49,15 @@ export default class Instrument {
         /* ---------- MIX (the patch's OUTPUT section) ---------- */
 
         this.master = this.ctx.createGain();
-        this.master.connect(this.ctx.destination);
+
+        // Limiter on the sum, so many tones at once don't clip. Only acts near full level
+        const limiter = this.ctx.createDynamicsCompressor();
+        limiter.threshold.value = -3;
+        limiter.knee.value = 0;
+        limiter.ratio.value = 20;
+        limiter.attack.value = 0.003;
+        limiter.release.value = 0.25;
+        this.master.connect(limiter).connect(this.ctx.destination);
 
         this.sampleBus = this.gain(config.levels.samples);
         this.musicGain = this.gain(0);
@@ -190,8 +199,10 @@ export default class Instrument {
         if (!this.loaded) return;
         this.ctx.resume();   // a press is a user gesture — unlocks audio on iOS
 
-        // Let go of the other buttons (the patch's "c-end 0; g-end 0; …")
-        this.voices.forEach((voice, j) => { if (j !== i && voice.state === 'body') this.playTail(j); });
+        // One tone at a time (like the Bela patch's "c-end 0; g-end 0; …"): let go of the others
+        if (!this.config.polyphonic) {
+            this.voices.forEach((voice, j) => { if (j !== i && voice.state === 'body') this.playTail(j); });
+        }
 
         if (this.voices[i].state === 'body') return;
         this.playVoice(i, 0);

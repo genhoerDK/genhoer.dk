@@ -7,6 +7,7 @@
 //                      starts (letting go before that jumps there; holding plays through)
 // music                Stereo loop: left channel = tonal music, right channel = rhythm
 // stories              Narrator files, played in this order and then from the start again
+// polyphonic           true = several buttons can sound at once. false = one at a time, like the Bela patch
 // levels               Mix levels (music and rhythm are 1)
 // timing               Seconds. See src/audio/Instrument.js for what each layer does
 //
@@ -25,6 +26,7 @@ export const instruments = {
         ],
         music: 'music.mp3',
         stories: ['story_1.mp3', 'story_2.mp3', 'story_3.mp3', 'story_4.mp3', 'story_5.mp3'],
+        polyphonic: true,
         levels: { samples: 0.6, story: 1.2 },
         timing: {
             musicFade: 10,          // music fades in/out over
