@@ -16,31 +16,61 @@ import { colors } from '@/styles/colors';
 
 /* ---------- DIMENSIONS (metres) ---------- */
 
-const POST_W = 0.36;                  // width (x)
+const POST_W = 0.46;                  // width (x)
 const POST_D = 0.24;                  // depth (z)
 const POST_FRONT = 1.0;               // height at the front edge
 const SLOPE = THREE.MathUtils.degToRad(30);
 const POST_BACK = POST_FRONT + POST_D * Math.tan(SLOPE);
-const BUTTON_SPACING = 0.068;
+const BUTTON_SPACING = 0.072;
+const BEVEL = 0.01;                   // rounded edges on the post
 const BUTTON_Z = 0;                   // along the top, negative = up the slope
 const CAP_TRAVEL = 0.011;            // a bit more than the real button, so it reads from a distance
 
 const HILL_H = 0.6;
 const HILL_R = 1.8;
 
-/** Post side profile in (z, y), extruded along x */
+/** Post side profile in (z, y), extruded along x, with softly rounded edges.
+ *  The profile is inset by the bevel, which then grows it back out to the full size. */
 function postGeometry(width) {
-    const d = POST_D / 2;
+    const d = POST_D / 2 - BEVEL;
     const shape = new THREE.Shape();
     shape.moveTo(d, 0);
-    shape.lineTo(d, POST_FRONT);
-    shape.lineTo(-d, POST_BACK);
+    shape.lineTo(d, POST_FRONT - BEVEL);
+    shape.lineTo(-d, POST_BACK - BEVEL);
     shape.lineTo(-d, 0);
     shape.closePath();
-    const geometry = new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: false });
+    const depth = width - BEVEL * 2;
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth, bevelEnabled: true, bevelThickness: BEVEL, bevelSize: BEVEL, bevelSegments: 4,
+    });
     geometry.rotateY(-Math.PI / 2);   // shape x → world z, extrusion → world -x
-    geometry.translate(width / 2, 0, 0);
+    geometry.translate(depth / 2, 0, 0);
     return geometry;
+}
+
+/** A soft, irregular puff of smoke, drawn from many blurred blobs */
+function smokeTexture(seed) {
+    const size = 256;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    let n = seed * 9301 + 49297;
+    const rand = () => ((n = (n * 9301 + 49297) % 233280) / 233280);
+    for (let i = 0; i < 60; i++) {
+        const angle = rand() * Math.PI * 2;
+        const dist = Math.pow(rand(), 1.5) * size * 0.28;
+        const x = size / 2 + Math.cos(angle) * dist;
+        const y = size / 2 + Math.sin(angle) * dist * 0.6;
+        const r = size * (0.08 + rand() * 0.16);
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, `rgba(255,255,255,${0.08 + rand() * 0.1})`);
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, size, size);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
 }
 
 /** Rubber bezel with two ridges, like the 1911 push button */
@@ -153,14 +183,14 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
         bctx.globalCompositeOperation = 'multiply';
         const hgrad = bctx.createLinearGradient(0, 0, 256, 0);
         hgrad.addColorStop(0, '#000');
-        hgrad.addColorStop(0.15, '#fff');
-        hgrad.addColorStop(0.85, '#fff');
+        hgrad.addColorStop(0.08, '#fff');
+        hgrad.addColorStop(0.92, '#fff');
         hgrad.addColorStop(1, '#000');
         bctx.fillStyle = hgrad;
         bctx.fillRect(0, 0, 256, 256);
 
         const backdropMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffff, transparent: true, opacity: 0, fog: false, depthWrite: false,
+            color: 0xffffff, transparent: true, opacity: 0, fog: false, depthWrite: false, toneMapped: false,
             alphaMap: new THREE.CanvasTexture(backdropFade),
         });
         const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), backdropMaterial);
@@ -182,6 +212,33 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
 
         // The photo hangs this far behind the camera's focus point; opacity < 1 lets the paper through as haze
         const BACKDROP_DISTANCE = 14;
+
+        /* ---------- SMOKE drifting between the stand and the photo ---------- */
+
+        const smokeTextures = [1, 2, 3].map(smokeTexture);
+        const smoke = Array.from({ length: 24 }, (_, i) => {
+            const material = new THREE.SpriteMaterial({
+                map: smokeTextures[i % 3], transparent: true, depthWrite: false, fog: false,
+                color: colors.paper, opacity: 0,
+            });
+            const sprite = new THREE.Sprite(material);
+            const scale = 3 + Math.random() * 4;
+            sprite.scale.set(scale * 1.6, scale, 1);
+            sprite.position.set(
+                (Math.random() - 0.5) * 22,
+                0.4 + Math.random() * 3.2,
+                -2.5 - Math.random() * 9,
+            );
+            material.rotation = Math.random() * Math.PI * 2;
+            scene.add(sprite);
+            return {
+                sprite,
+                speed: 0.08 + Math.random() * 0.14,
+                spin: (Math.random() - 0.5) * 0.03,
+                phase: Math.random() * Math.PI * 2,
+                strength: 0.55 + Math.random() * 0.45,
+            };
+        });
 
         /* ---------- STAND: a plain post with a slanted top, on the hill ---------- */
 
@@ -237,24 +294,35 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
 
         /* ---------- CAMERA FRAMING ---------- */
 
+        const MAX_ORBIT_X = 0.16;   // pointer + idle drift, radians
+
         const lookAt = new THREE.Vector3(0, HILL_H * 0.6 + POST_FRONT * 0.6, 0);
-        const baseDirection = new THREE.Vector3(0.28, 0.32, 1).normalize();
+        const baseDirection = new THREE.Vector3(0.06, 0.32, 1).normalize();   // nearly straight on
         let distance = 1.6;
 
         /** Hang the photo along the camera's view, big enough to cover the view while it drifts */
         const fitBackdrop = () => {
             const dir = baseDirection.clone().negate();
             const from = lookAt.clone().addScaledVector(baseDirection, distance);
-            backdrop.position.copy(from).addScaledVector(dir, BACKDROP_DISTANCE);
+            backdrop.position.copy(from).addScaledVector(dir, distance + BACKDROP_DISTANCE);
             backdrop.position.y += 0.6;
             backdrop.lookAt(from);
-            const viewH = 2 * BACKDROP_DISTANCE * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+
+            // What the camera sees at the photo's distance, plus room for the camera's drift
+            const far = distance + BACKDROP_DISTANCE;
+            const viewH = 2 * far * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
             const viewW = viewH * camera.aspect;
-            const cover = Math.max(viewW / backdrop.userData.aspect, viewH) * 1.25;
-            backdrop.scale.set(cover * backdrop.userData.aspect, cover, 1);
+            const drift = 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_X) + 1;
+            const needW = viewW + drift;
+            const needH = viewH + 2;
+            const height = Math.max(needW / backdrop.userData.aspect, needH);
+            backdrop.scale.set(height * backdrop.userData.aspect, height, 1);
+
             // Narrow screens only see a slice of the photo: slide it so the focus point is in it
-            const slack = Math.max(0, (backdrop.scale.x - viewW) / 2);
-            backdrop.translateX(-THREE.MathUtils.clamp((coverFocus - 0.5) * backdrop.scale.x, -slack, slack));
+            if (camera.aspect < 1) {
+                const slack = Math.max(0, (backdrop.scale.x - needW) / 2);
+                backdrop.translateX(-THREE.MathUtils.clamp((coverFocus - 0.5) * backdrop.scale.x, -slack, slack));
+            }
         };
 
         const resize = () => {
@@ -346,16 +414,30 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
 
             // Camera drifts a little with the pointer (and slowly by itself) — the backdrop
             // is far away, so it moves less than the stand: that's the depth
-            const driftX = reducedMotion ? 0 : Math.sin(t * 0.25) * 0.04;
-            orbit.x += (orbitTarget.x * 0.12 + driftX - orbit.x) * ease;
+            const driftX = reducedMotion ? 0 : Math.sin(t * 0.25) * 0.03;
+            orbit.x += (orbitTarget.x * (MAX_ORBIT_X - 0.03) + driftX - orbit.x) * ease;
             orbit.y += (orbitTarget.y * 0.1 - orbit.y) * ease;
             offset.copy(baseDirection).applyAxisAngle(up, -orbit.x).multiplyScalar(distance);
             offset.y += orbit.y * 0.4;
             camera.position.copy(lookAt).add(offset);
             camera.lookAt(lookAt);
 
-            if (backdrop.userData.fadeIn && backdropMaterial.opacity < 0.8) {
-                backdropMaterial.opacity = Math.min(0.8, backdropMaterial.opacity + dt);
+            // Smoke drifts sideways, turns slowly and breathes; wraps around at the sides
+            smoke.forEach((puff) => {
+                const { sprite } = puff;
+                if (!reducedMotion) {
+                    sprite.position.x += puff.speed * dt;
+                    if (sprite.position.x > 11) sprite.position.x -= 22;
+                    sprite.material.rotation += puff.spin * dt;
+                }
+                const breathe = 0.6 + 0.4 * Math.sin(t * 0.15 + puff.phase);
+                const edge = 1 - Math.min(1, Math.abs(sprite.position.x) / 11) ** 4;   // fade near the wrap
+                const fadeIn = Math.min(1, t / 3);
+                sprite.material.opacity = 0.95 * puff.strength * breathe * edge * fadeIn;
+            });
+
+            if (backdrop.userData.fadeIn && backdropMaterial.opacity < 0.95) {
+                backdropMaterial.opacity = Math.min(0.95, backdropMaterial.opacity + dt);
             }
 
             // Caps go down while held (by pointer or keyboard)

@@ -4,8 +4,7 @@
  * Player for sound works played with buttons (see src/audio/Instrument.js), shown as a
  * 3D listening stand (ListeningStand.js). Press and hold like the physical buttons.
  * Keys 1–5 work too.
- *
- * The readout at the bottom shows what the layers are doing — for testing, remove when done.
+
  */
 
 import { useState, useEffect } from 'react';
@@ -75,31 +74,6 @@ export default function InstrumentPlayer() {
                 <p className='absolute z-10 bottom-32 text-xs uppercase animate-pulse'>Henter lyd …</p>
             ) : null}
 
-            {state?.loaded && <Readout state={state} config={instrument.config} />}
         </div>
-    );
-}
-
-/** What the layers are doing — for testing */
-function Readout({ state, config }) {
-    const s = (sec) => `${Math.ceil(sec)} s`;
-    const rows = [
-        ['Musik', state.music, !Number.isFinite(state.musicLeft) ? 'kører' : state.musicLeft > 0 ? `fader ud om ${s(state.musicLeft)}` : 'stille'],
-        ['Rytme', state.rhythm, state.rhythmOpen ? 'åben' : `åbner efter ${s(Math.max(0, config.timing.rhythmAfter - state.musicOnFor))} musik`],
-        ['Fortælling', state.storyPlaying ? 1 : 0,
-            state.storyPlaying ? `spiller ${state.storyIndex + 1}/${config.stories.length}`
-            : state.storyCounting ? `nr. ${state.storyIndex + 1} om ${s(state.storyLeft)}` : 'venter på tryk'],
-    ];
-
-    return (
-        <dl className='absolute z-10 left-gutter bottom-28 md:bottom-8 grid grid-cols-[auto_4rem_auto] gap-x-3 gap-y-1 items-center text-[0.625rem] uppercase text-hard'>
-            {rows.map(([label, level, text]) => (
-                <div key={label} className='contents'>
-                    <dt>{label}</dt>
-                    <dd className='h-1 bg-soft'><div className='h-full bg-ink' style={{ width: `${level * 100}%` }} /></dd>
-                    <dd>{text}</dd>
-                </div>
-            ))}
-        </dl>
     );
 }
