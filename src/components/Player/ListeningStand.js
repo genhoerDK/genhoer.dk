@@ -1,10 +1,10 @@
 'use client';
 
 /**
- * 3D listening stand for button instruments (three.js) — modelled on the stand at the exhibition:
- * a post of vertical boards with a slanted top, a white sign plate with the text, and five
- * black rubber push buttons. Drawn in the site's zinc palette. The project's cover image hangs
- * far behind as a backdrop, so the camera's small movements with the pointer give real depth.
+ * 3D listening stand for button instruments (three.js): a plain post with a slanted top and
+ * five black rubber push buttons, standing on a small hill. Drawn in the site's zinc palette.
+ * The project's cover image hangs far behind as a hazy backdrop, so the camera's small
+ * movements with the pointer give real depth.
  *
  * Buttons are played with the pointer (several fingers at once on touch screens):
  * pointer down on a button = press, pointer up = let go — same as the physical buttons.
@@ -21,26 +21,20 @@ const POST_D = 0.24;                  // depth (z)
 const POST_FRONT = 1.0;               // height at the front edge
 const SLOPE = THREE.MathUtils.degToRad(30);
 const POST_BACK = POST_FRONT + POST_D * Math.tan(SLOPE);
-const BOARDS = 4;
-const BOARD_GAP = 0.006;
-
-const PLATE_W = POST_W + 0.03;
-const PLATE_L = POST_D / Math.cos(SLOPE) + 0.03;
-const PLATE_T = 0.006;
-
 const BUTTON_SPACING = 0.068;
-const BUTTON_Z = -0.012;              // along the plate, negative = up the slope
-const CAP_TRAVEL = 0.006;
+const BUTTON_Z = 0;                   // along the top, negative = up the slope
+const CAP_TRAVEL = 0.011;            // a bit more than the real button, so it reads from a distance
 
-const PIVOT = new THREE.Vector3(0, (POST_FRONT + POST_BACK) / 2, 0);
+const HILL_H = 0.6;
+const HILL_R = 1.8;
 
 /** Post side profile in (z, y), extruded along x */
-function postGeometry(width, inset = 0) {
-    const d = POST_D / 2 - inset;
+function postGeometry(width) {
+    const d = POST_D / 2;
     const shape = new THREE.Shape();
     shape.moveTo(d, 0);
-    shape.lineTo(d, POST_FRONT - inset * 0.5);
-    shape.lineTo(-d, POST_BACK - inset * 0.5);
+    shape.lineTo(d, POST_FRONT);
+    shape.lineTo(-d, POST_BACK);
     shape.lineTo(-d, 0);
     shape.closePath();
     const geometry = new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: false });
@@ -65,70 +59,6 @@ function capGeometry() {
     return new THREE.LatheGeometry(p, 48);
 }
 
-/** The sign's print: title, story, credits and logo, laid out like the real plate */
-async function plateTexture({ title, paragraphs }) {
-    await document.fonts?.ready;
-    const font = getComputedStyle(document.body).fontFamily;
-
-    const w = 2048;
-    const h = Math.round(w * PLATE_L / PLATE_W);
-    const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = colors.paper;
-    ctx.fillRect(0, 0, w, h);
-
-    const pad = w * 0.06;
-    const wrap = (text, x, y, maxWidth, lineHeight, maxLines) => {
-        const words = (text ?? '').split(' ');
-        let line = '';
-        let lines = 0;
-        for (const word of words) {
-            const test = line ? `${line} ${word}` : word;
-            if (ctx.measureText(test).width > maxWidth && line) {
-                ctx.fillText(line, x, y);
-                y += lineHeight;
-                line = word;
-                if (++lines >= maxLines) return y;
-            } else line = test;
-        }
-        ctx.fillText(line, x, y);
-        return y + lineHeight;
-    };
-
-    ctx.textBaseline = 'top';
-    ctx.fillStyle = colors.ink;
-    ctx.font = `300 ${w * 0.045}px ${font}`;
-    ctx.fillText(title ?? '', pad, pad);
-
-    ctx.fillStyle = colors.shade;
-    ctx.font = `300 ${w * 0.022}px ${font}`;
-    wrap(paragraphs?.[0], pad, pad + w * 0.07, w - pad * 2, w * 0.032, 3);
-
-    ctx.fillStyle = colors.dim;
-    ctx.font = `300 ${w * 0.018}px ${font}`;
-    wrap(paragraphs?.[1], w * 0.56, h * 0.6, w * 0.38, w * 0.027, 8);
-
-    ctx.fillStyle = colors.ink;
-    ctx.font = `800 ${w * 0.03}px ${font}`;
-    ctx.fillText('GENHØR', pad, h - pad - w * 0.03);
-
-    // Screw heads in the corners
-    ctx.fillStyle = colors.faint;
-    const s = w * 0.025;
-    [[s, s], [w - s, s], [s, h - s], [w - s, h - s]].forEach(([x, y]) => {
-        ctx.beginPath();
-        ctx.arc(x, y, w * 0.009, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    texture.anisotropy = 8;
-    return texture;
-}
-
 function disposeTree(root) {
     root.traverse((obj) => {
         obj.geometry?.dispose();
@@ -137,7 +67,7 @@ function disposeTree(root) {
     });
 }
 
-export default function ListeningStand({ instrument, ready, title, paragraphs, cover, coverFocus = 0.5 }) {
+export default function ListeningStand({ instrument, ready, cover, coverFocus = 0.5 }) {
     const containerRef = useRef(null);
     const readyRef = useRef(ready);
 
@@ -160,17 +90,17 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
         container.prepend(renderer.domElement);
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(colors.paper, 3, 12);
+        scene.fog = new THREE.Fog(colors.paper, 5, 16);
         const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 60);
 
         /* ---------- LIGHT ---------- */
 
         scene.add(new THREE.HemisphereLight(0xffffff, 0xc8c8cc, 1.6));
         const sun = new THREE.DirectionalLight(0xffffff, 2.4);
-        sun.position.set(-1.6, 3.2, 1.8);
+        sun.position.set(-2.4, 4.4, 2.6);
         sun.castShadow = true;
         sun.shadow.mapSize.set(2048, 2048);
-        Object.assign(sun.shadow.camera, { left: -1.2, right: 1.2, top: 1.8, bottom: -0.4, near: 0.5, far: 8 });
+        Object.assign(sun.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -1.5, near: 0.5, far: 12 });
         sun.shadow.bias = -0.0004;
         sun.shadow.normalBias = 0.01;
         sun.shadow.radius = 4;
@@ -195,19 +125,39 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
         ground.receiveShadow = true;
         scene.add(ground);
 
+        // A small, smooth hill for the stand to stand on
+        const hillProfile = Array.from({ length: 33 }, (_, i) => {
+            const r = (i / 32) * HILL_R;
+            return new THREE.Vector2(r, HILL_H * (1 + Math.cos(Math.PI * r / HILL_R)) / 2);
+        }).reverse();
+        const hill = new THREE.Mesh(
+            new THREE.LatheGeometry(hillProfile, 96),
+            new THREE.MeshStandardMaterial({ color: colors.muted, roughness: 1, side: THREE.DoubleSide }),
+        );
+        hill.receiveShadow = true;
+        scene.add(hill);
+
         /* ---------- BACKDROP: the cover image, far behind ---------- */
 
         // Fades out towards its lower edge, so the photo dissolves into the ground
+        // …and towards the left and right edges, so they never show
         const backdropFade = document.createElement('canvas');
-        backdropFade.width = 4;
-        backdropFade.height = 256;
+        backdropFade.width = backdropFade.height = 256;
         const bctx = backdropFade.getContext('2d');
         const vgrad = bctx.createLinearGradient(0, 0, 0, 256);
         vgrad.addColorStop(0, '#fff');
         vgrad.addColorStop(0.55, '#fff');
         vgrad.addColorStop(0.9, '#000');
         bctx.fillStyle = vgrad;
-        bctx.fillRect(0, 0, 4, 256);
+        bctx.fillRect(0, 0, 256, 256);
+        bctx.globalCompositeOperation = 'multiply';
+        const hgrad = bctx.createLinearGradient(0, 0, 256, 0);
+        hgrad.addColorStop(0, '#000');
+        hgrad.addColorStop(0.15, '#fff');
+        hgrad.addColorStop(0.85, '#fff');
+        hgrad.addColorStop(1, '#000');
+        bctx.fillStyle = hgrad;
+        bctx.fillRect(0, 0, 256, 256);
 
         const backdropMaterial = new THREE.MeshBasicMaterial({
             color: 0xffffff, transparent: true, opacity: 0, fog: false, depthWrite: false,
@@ -231,65 +181,43 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
         }
 
         // The photo hangs this far behind the camera's focus point; opacity < 1 lets the paper through as haze
-        const BACKDROP_DISTANCE = 10;
+        const BACKDROP_DISTANCE = 14;
 
-        /* ---------- POST: vertical boards around a dark core ---------- */
+        /* ---------- STAND: a plain post with a slanted top, on the hill ---------- */
 
         const stand = new THREE.Group();
+        stand.position.y = HILL_H - 0.02;
         scene.add(stand);
 
-        const boardMaterial = new THREE.MeshStandardMaterial({ color: colors.muted, roughness: 0.85 });
-        const coreMaterial = new THREE.MeshStandardMaterial({ color: colors.hard, roughness: 1 });
+        const post = new THREE.Mesh(postGeometry(POST_W), new THREE.MeshStandardMaterial({ color: colors.faint, roughness: 0.85 }));
+        post.castShadow = true;
+        post.receiveShadow = true;
+        stand.add(post);
 
-        const core = new THREE.Mesh(postGeometry(POST_W - 0.02, 0.01), coreMaterial);
-        stand.add(core);
-
-        const boardW = (POST_W - BOARD_GAP * (BOARDS - 1)) / BOARDS;
-        for (let i = 0; i < BOARDS; i++) {
-            const board = new THREE.Mesh(postGeometry(boardW), boardMaterial);
-            board.position.x = -POST_W / 2 + boardW / 2 + i * (boardW + BOARD_GAP);
-            board.castShadow = true;
-            board.receiveShadow = true;
-            stand.add(board);
-        }
-
-        /* ---------- PLATE ---------- */
-
-        // A frame on the slanted top: x right, y out of the plate, z down the slope
-        const plateFrame = new THREE.Group();
-        plateFrame.position.set(0, (POST_FRONT + POST_BACK) / 2, 0);
-        plateFrame.rotation.x = SLOPE;
-        stand.add(plateFrame);
-
-        const edgeMaterial = new THREE.MeshStandardMaterial({ color: colors.soft, roughness: 0.4, metalness: 0.2 });
-        const faceMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 });
-        const plate = new THREE.Mesh(
-            new THREE.BoxGeometry(PLATE_W, PLATE_T, PLATE_L),
-            [edgeMaterial, edgeMaterial, faceMaterial, edgeMaterial, edgeMaterial, edgeMaterial],
-        );
-        plate.position.y = PLATE_T / 2;
-        plate.castShadow = true;
-        plate.receiveShadow = true;
-        plateFrame.add(plate);
-
-        plateTexture({ title, paragraphs }).then((texture) => {
-            if (disposed) { texture.dispose(); return; }
-            faceMaterial.map = texture;
-            faceMaterial.needsUpdate = true;
-        });
+        // A frame on the slanted top: x right, y out of the top, z down the slope
+        const top = new THREE.Group();
+        top.position.set(0, (POST_FRONT + POST_BACK) / 2, 0);
+        top.rotation.x = SLOPE;
+        stand.add(top);
 
         /* ---------- BUTTONS ---------- */
 
         const rubber = new THREE.MeshStandardMaterial({ color: colors.ink, roughness: 0.9 });
         const bezelGeo = bezelGeometry();
         const capGeo = capGeometry();
-        const hitGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.04, 16);
-        const hitMaterial = new THREE.MeshBasicMaterial({ visible: false });
+        // One invisible hit area over the whole top (a bit bigger), split into a column per button —
+        // much easier to hit with a finger than the small buttons themselves
+        const hitArea = new THREE.Mesh(
+            new THREE.PlaneGeometry(POST_W + 0.06, POST_D / Math.cos(SLOPE) + 0.08),
+            new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }),
+        );
+        hitArea.rotation.x = -Math.PI / 2;
+        hitArea.position.y = 0.02;
 
         const count = instrument.config.samples.length;
         const buttons = Array.from({ length: count }, (_, i) => {
             const group = new THREE.Group();
-            group.position.set((i - (count - 1) / 2) * BUTTON_SPACING, PLATE_T, BUTTON_Z);
+            group.position.set((i - (count - 1) / 2) * BUTTON_SPACING, 0, BUTTON_Z);
 
             const bezel = new THREE.Mesh(bezelGeo, rubber);
             bezel.castShadow = true;
@@ -298,20 +226,19 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
             const cap = new THREE.Mesh(capGeo, new THREE.MeshStandardMaterial({ color: colors.ink, roughness: 0.7 }));
             cap.castShadow = true;
 
-            const hit = new THREE.Mesh(hitGeo, hitMaterial);
-            hit.position.y = 0.015;
-            hit.userData.index = i;
-
-            group.add(bezel, cap, hit);
-            plateFrame.add(group);
-            return { cap, hit, held: false };
+            group.add(bezel, cap);
+            top.add(group);
+            return { cap, held: false };
         });
-        const hitTargets = buttons.map(b => b.hit);
+        top.add(hitArea);
+        const local = new THREE.Vector3();
+        const capUp = new THREE.Color(colors.ink);
+        const capDown = new THREE.Color(colors.dim);
 
         /* ---------- CAMERA FRAMING ---------- */
 
-        const lookAt = PIVOT.clone().add(new THREE.Vector3(0, 0.12, -0.1));
-        const baseDirection = new THREE.Vector3(0.3, 0.42, 1).normalize();
+        const lookAt = new THREE.Vector3(0, HILL_H * 0.6 + POST_FRONT * 0.6, 0);
+        const baseDirection = new THREE.Vector3(0.28, 0.32, 1).normalize();
         let distance = 1.6;
 
         /** Hang the photo along the camera's view, big enough to cover the view while it drifts */
@@ -323,7 +250,7 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
             backdrop.lookAt(from);
             const viewH = 2 * BACKDROP_DISTANCE * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
             const viewW = viewH * camera.aspect;
-            const cover = Math.max(viewW / backdrop.userData.aspect, viewH) * 1.3;
+            const cover = Math.max(viewW / backdrop.userData.aspect, viewH) * 1.25;
             backdrop.scale.set(cover * backdrop.userData.aspect, cover, 1);
             // Narrow screens only see a slice of the photo: slide it so the focus point is in it
             const slack = Math.max(0, (backdrop.scale.x - viewW) / 2);
@@ -337,7 +264,7 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
             renderer.setSize(w, h, false);
             camera.aspect = w / h;
             // Keep the plate a comfortable size: further away on narrow (portrait) screens
-            distance = THREE.MathUtils.clamp(1.3 / Math.min(1, camera.aspect * 1.1), 1.3, 2.8);
+            distance = THREE.MathUtils.clamp(4.2 / Math.min(1, camera.aspect * 1.6), 4.2, 5.4);
             camera.updateProjectionMatrix();
             fitBackdrop();
         };
@@ -358,15 +285,17 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
             const rect = canvas.getBoundingClientRect();
             ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
             raycaster.setFromCamera(ndc, camera);
-            const hit = raycaster.intersectObjects(hitTargets, false)[0];
-            return hit ? hit.object.userData.index : -1;
+            const hit = raycaster.intersectObject(hitArea, false)[0];
+            if (!hit) return -1;
+            top.worldToLocal(local.copy(hit.point));
+            return THREE.MathUtils.clamp(Math.round(local.x / BUTTON_SPACING + (count - 1) / 2), 0, count - 1);
         };
 
         const onPointerDown = (e) => {
             if (!readyRef.current) return;
             const i = buttonAt(e);
             if (i < 0) return;
-            canvas.setPointerCapture(e.pointerId);
+            try { canvas.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ }
             pointers.set(e.pointerId, i);
             buttons[i].held = true;
             instrument.press(i);
@@ -417,9 +346,9 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
 
             // Camera drifts a little with the pointer (and slowly by itself) — the backdrop
             // is far away, so it moves less than the stand: that's the depth
-            const driftX = reducedMotion ? 0 : Math.sin(t * 0.25) * 0.08;
-            orbit.x += (orbitTarget.x * 0.35 + driftX - orbit.x) * ease;
-            orbit.y += (orbitTarget.y * 0.18 - orbit.y) * ease;
+            const driftX = reducedMotion ? 0 : Math.sin(t * 0.25) * 0.04;
+            orbit.x += (orbitTarget.x * 0.12 + driftX - orbit.x) * ease;
+            orbit.y += (orbitTarget.y * 0.1 - orbit.y) * ease;
             offset.copy(baseDirection).applyAxisAngle(up, -orbit.x).multiplyScalar(distance);
             offset.y += orbit.y * 0.4;
             camera.position.copy(lookAt).add(offset);
@@ -435,6 +364,7 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
                 const down = b.held || voices[i]?.state === 'body';
                 const target = down ? -CAP_TRAVEL : 0;
                 b.cap.position.y += (target - b.cap.position.y) * Math.min(1, dt * 40);
+                b.cap.material.color.lerp(down ? capDown : capUp, Math.min(1, dt * 30));
             });
 
             renderer.render(scene, camera);
@@ -455,7 +385,7 @@ export default function ListeningStand({ instrument, ready, title, paragraphs, c
             renderer.dispose();
             canvas.remove();
         };
-    }, [instrument, title, paragraphs, cover, coverFocus]);
+    }, [instrument, cover, coverFocus]);
 
     return <div ref={containerRef} className='absolute inset-0' />;
 }

@@ -29,7 +29,7 @@ export const instruments = {
         stories: ['story_1.mp3', 'story_2.mp3', 'story_3.mp3', 'story_4.mp3', 'story_5.mp3'],
         coverFocus: 0.68,           // the stone on top of Esterhøj
         polyphonic: true,
-        levels: { samples: 0.6, story: 1.2, music: 1.2, rhythm: 1.4 },
+        levels: { samples: 0.6, story: 1.2, music: 1.2, rhythm: 2 },
         timing: {
             musicFade: 10,          // music fades in/out over (only with musicHold)
             musicHold: null,        // null = music plays from the first play and loops.

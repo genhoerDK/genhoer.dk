@@ -59,8 +59,6 @@ export default function InstrumentPlayer() {
                 <ListeningStand
                     instrument={instrument}
                     ready={ready}
-                    title={currentTrack?.title}
-                    paragraphs={currentTrack?.description}
                     cover={currentTrack?.coverImageLandscape}
                     coverFocus={instrument.config.coverFocus}
                 />
