@@ -11,7 +11,6 @@ import BackgroundImage from '@/components/Layout/BackgroundImage';
 import Label from '@/components/UI/Label';
 import Text from '@/components/UI/Text';
 
-const AUTOPLAY = 8000;          // ms between projects when nobody interacts
 const MIN_DURATION = 1200;      // ms, shortest zoom between two kommuner
 const MAX_DURATION = 2600;      // ms, longest zoom (far apart, e.g. Jylland → Sjælland)
 const MARKER_RADIUS = 6;        // px on screen, independent of zoom
@@ -47,7 +46,6 @@ export default function UpcomingMap({ projects }) {
     const [shown, setShown] = useState(0);          // project in the card (changes while it is hidden)
     const [cardVisible, setCardVisible] = useState(false);
     const [cardPosition, setCardPosition] = useState(null);
-    const [paused, setPaused] = useState(false);
 
     const count = projects.length;
     const go = useCallback((index) => setActive((index + count) % count), [count]);
@@ -196,13 +194,6 @@ export default function UpcomingMap({ projects }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs on project change only
     }, [active, ready]);
 
-    // Autoplay; restarts after each change, pauses on hover and with reduced motion
-    useEffect(() => {
-        if (count < 2 || paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const timer = setTimeout(() => go(active + 1), AUTOPLAY);
-        return () => clearTimeout(timer);
-    }, [active, paused, count, go]);
-
     // Swipe on touch screens
     const touchStart = useRef(null);
     const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
@@ -225,8 +216,6 @@ export default function UpcomingMap({ projects }) {
             aria-roledescription="karrusel"
             aria-label="Kommende projekter"
             className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden animate-fade-in"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
             onKeyDown={onKeyDown}
         >
             <div
