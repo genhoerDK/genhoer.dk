@@ -10,6 +10,7 @@ import Label from '@/components/UI/Label';
 import TracksOverview from '@/components/Player/TracksOverview';
 import CircularScrubber from '@/components/Player/CircularScrubber';
 import InstrumentPlayer from '@/components/Player/InstrumentPlayer';
+import ChapterScenePlayer from '@/components/Player/ChapterScenePlayer';
 import { useAudio, isInstrument } from '@/context/AudioContext';
 
 export default function Player() {
@@ -40,6 +41,7 @@ export default function Player() {
         <Overlay active={isOpen}>
             {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} />
                 : isInstrument(currentTrack) ? <InstrumentPlayer />
+                : currentTrack?.player === 'scene' ? <ChapterScenePlayer />
                 : <CircularScrubber />}
 
             <Button variant="pill" onClick={toggleTracksOverview} className='absolute z-20 right-gutter top-10 gap-2 py-1.5 px-3'>
