@@ -23,26 +23,45 @@ const PANEL_DISTANCE = 0.6;           // buttons' distance in front of the camer
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift with the pointer + by itself, radians
 
-/** A soft, irregular puff of smoke, drawn from many blurred blobs */
+/** A wisp of smoke: fractal noise (several octaves of smooth value noise) inside a soft,
+ *  stretched falloff — so it reads as smoke with structure, not a round blob */
 function smokeTexture(seed) {
     const size = 256;
+    const grid = 16;
+    const rand = (x, y, o) => {
+        const n = Math.sin(x * 127.1 + y * 311.7 + o * 74.7 + seed * 19.3) * 43758.5453;
+        return n - Math.floor(n);
+    };
+    const smooth = (t) => t * t * (3 - 2 * t);
+    const noise = (x, y, o) => {
+        const xi = Math.floor(x), yi = Math.floor(y);
+        const xf = smooth(x - xi), yf = smooth(y - yi);
+        const a = rand(xi, yi, o), b = rand(xi + 1, yi, o), c = rand(xi, yi + 1, o), d = rand(xi + 1, yi + 1, o);
+        return a + (b - a) * xf + (c - a) * yf + (a - b - c + d) * xf * yf;
+    };
+
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = size;
     const ctx = canvas.getContext('2d');
-    let n = seed * 9301 + 49297;
-    const rand = () => ((n = (n * 9301 + 49297) % 233280) / 233280);
-    for (let i = 0; i < 70; i++) {
-        const angle = rand() * Math.PI * 2;
-        const dist = Math.pow(rand(), 1.5) * size * 0.28;
-        const x = size / 2 + Math.cos(angle) * dist;
-        const y = size / 2 + Math.sin(angle) * dist * 0.6;
-        const r = size * (0.08 + rand() * 0.16);
-        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, `rgba(255,255,255,${0.14 + rand() * 0.16})`);
-        g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, size, size);
+    const image = ctx.createImageData(size, size);
+    for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+            const u = x / size, v = y / size;
+            let f = 0, amp = 0.5, freq = 1;
+            for (let o = 0; o < 5; o++) {
+                f += amp * noise(u * grid * freq / 4, v * grid * freq / 4, o);
+                amp *= 0.5;
+                freq *= 2;
+            }
+            const dx = (u - 0.5) * 2, dy = (v - 0.5) * 2.6;
+            const falloff = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy));
+            const alpha = Math.min(1, Math.max(0, (f - 0.3) * 3.2)) * Math.pow(falloff, 1.3);
+            const k = (y * size + x) * 4;
+            image.data[k] = image.data[k + 1] = image.data[k + 2] = 255;
+            image.data[k + 3] = alpha * 255;
+        }
     }
+    ctx.putImageData(image, 0, 0);
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     return texture;
@@ -163,19 +182,21 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
 
         /* ---------- SMOKE drifting between the buttons and the photo ---------- */
 
-        const smokeTextures = [1, 2, 3].map(smokeTexture);
-        const smoke = Array.from({ length: 24 }, (_, i) => {
+        // Light wisps show over the dark parts of the photo, grey (shadowed) ones over the sky
+        const smokeTextures = [1, 2, 3, 4].map(smokeTexture);
+        const smokeTones = [colors.paper, colors.paper, colors.hard];
+        const smoke = Array.from({ length: 26 }, (_, i) => {
             const material = new THREE.SpriteMaterial({
-                map: smokeTextures[i % 3], transparent: true, depthWrite: false, fog: false,
-                color: colors.paper, opacity: 0,
+                map: smokeTextures[i % 4], transparent: true, depthWrite: false, fog: false, toneMapped: false,
+                color: smokeTones[i % 3], opacity: 0,
             });
             const sprite = new THREE.Sprite(material);
             const scale = 2.5 + Math.random() * 4;
             sprite.scale.set(scale * 1.6, scale, 1);
             sprite.position.set(
-                (Math.random() - 0.5) * 22,
-                -0.5 + Math.random() * 4.5,
-                -1 - Math.random() * 10,
+                (Math.random() - 0.5) * 16,
+                0 + Math.random() * 4,
+                -2 - Math.random() * 8,
             );
             material.rotation = Math.random() * Math.PI * 2;
             scene.add(sprite);
@@ -184,7 +205,7 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
                 speed: 0.03 + Math.random() * 0.06,
                 spin: (Math.random() - 0.5) * 0.015,
                 phase: Math.random() * Math.PI * 2,
-                strength: 0.6 + Math.random() * 0.4,
+                strength: i % 3 === 2 ? 0.35 + Math.random() * 0.2 : 0.7 + Math.random() * 0.3,
             };
         });
 
@@ -374,11 +395,11 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
                 const { sprite } = puff;
                 if (!reducedMotion) {
                     sprite.position.x += puff.speed * dt;
-                    if (sprite.position.x > 11) sprite.position.x -= 22;
+                    if (sprite.position.x > 8) sprite.position.x -= 16;
                     sprite.material.rotation += puff.spin * dt;
                 }
                 const breathe = 0.65 + 0.35 * Math.sin(t * 0.1 + puff.phase);
-                const edge = 1 - Math.min(1, Math.abs(sprite.position.x) / 11) ** 4;   // fade near the wrap
+                const edge = 1 - Math.min(1, Math.abs(sprite.position.x) / 8) ** 4;   // fade near the wrap
                 const fadeIn = Math.min(1, t / 3);
                 sprite.material.opacity = puff.strength * breathe * edge * fadeIn;
             });
