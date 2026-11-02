@@ -42,7 +42,7 @@ export default function Player() {
                 : isInstrument(currentTrack) ? <InstrumentPlayer />
                 : <CircularScrubber />}
 
-            <Button variant="pill" onClick={toggleTracksOverview} className='absolute right-4 bottom-14 md:right-1/2 md:translate-x-1/2 md:bottom-8 gap-2 py-2 px-3'>
+            <Button variant="pill" onClick={toggleTracksOverview} className='absolute z-20 right-gutter top-10 gap-2 py-1.5 px-3'>
                 {tracksOverviewOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" />}
                 <Label size="lg">Værker</Label>
             </Button>

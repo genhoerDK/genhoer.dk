@@ -253,13 +253,16 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
         const capUp = new THREE.Color(colors.ink);
         const capDown = new THREE.Color(colors.dim);
 
-        /** Size and place the row: big on wide screens, fitted to the width on narrow ones */
-        const fitPanel = () => {
+        /** Size the row (big on wide screens, fitted to the width on narrow ones) and put it near
+         *  the bottom — on phones above the mini-player bar */
+        const fitPanel = (heightPx) => {
             const viewH = 2 * PANEL_DISTANCE * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
             const viewW = viewH * camera.aspect;
-            const scale = Math.min(viewW * 0.84 / rowWidth, viewH * 0.55 / rowWidth, 1);
+            const scale = Math.min(viewW * 0.84 / rowWidth, viewH * 0.5 / rowWidth, 1);
             panel.scale.setScalar(scale);
-            panel.position.set(0, -viewH * 0.08, -PANEL_DISTANCE);
+            const marginPx = camera.aspect < 1 ? 96 : 56;
+            const y = -viewH / 2 + viewH * (marginPx / heightPx) + BUTTON_SIZE * scale * 0.75;
+            panel.position.set(0, y, -PANEL_DISTANCE);
         };
 
         /* ---------- CAMERA FRAMING ---------- */
@@ -301,7 +304,7 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
             fitBackdrop();
-            fitPanel();
+            fitPanel(h);
         };
         const resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(container);
