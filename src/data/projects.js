@@ -16,6 +16,7 @@
 // artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
 // media                Full URLs shown in the gallery. The 4th file becomes the big tile and the 11th the wide tile
 // audio, segments      Sound work and its chapters (start in seconds). null = project without sound
+// player               Key in instruments.js for works played with buttons (e.g. "troldetoner"). null = circular player
 // composer             Not shown on the site at the moment
 import data from './projects.json';
 

@@ -2,13 +2,18 @@
 
 import { createContext, useCallback, useContext, useMemo, useRef, useState, useEffect } from 'react';
 import { projects } from '@/data/projects';
+import { instruments } from '@/data/instruments';
+import Instrument from '@/audio/Instrument';
+
+/** Projects played with buttons (src/data/instruments.js) instead of as one audio file */
+export const isInstrument = (track) => !!instruments[track?.player];
 
 const AudioCtx = createContext(null);
 
 export function AudioProvider({ children }) {
-    /** Filter projects to only those with audio */
+    /** Filter projects to only those with audio — a file or an instrument */
     const projectsWithAudio = useMemo(
-        () => projects.filter(p => !!p.audio),
+        () => projects.filter(p => !!p.audio || isInstrument(p)),
         []
     );
 
@@ -34,12 +39,14 @@ export function AudioProvider({ children }) {
 
     /* ---------- INITIAL TRACK ---------- */
 
-    /** Select a random track on the client to avoid SSR hydration mismatch */
+    /** Select a random track on the client to avoid SSR hydration mismatch.
+     *  Only plain audio files: an instrument is silent until someone presses its buttons */
     useEffect(() => {
-        if (!projectsWithAudio.length) return;
+        const files = projectsWithAudio.filter(p => !!p.audio);
+        if (!files.length) return;
 
         const randomTrack =
-            projectsWithAudio[Math.floor(Math.random() * projectsWithAudio.length)];
+            files[Math.floor(Math.random() * files.length)];
 
         setCurrentTrack(randomTrack);
     }, [projectsWithAudio]);
@@ -55,9 +62,41 @@ export function AudioProvider({ children }) {
         audioRef.current.loop = true;
     }, []);
 
+    /* ---------- INSTRUMENT ---------- */
+
+    /** The running instrument (created in play() so the click unlocks audio) */
+    const instrumentRef = useRef(null);
+    const [instrument, setInstrument] = useState(null);
+
+    /** Close the instrument when another track takes over */
+    useEffect(() => {
+        if (isInstrument(currentTrack) || !instrumentRef.current) return;
+        instrumentRef.current.dispose();
+        instrumentRef.current = null;
+        setInstrument(null);
+    }, [currentTrack]);
+
+    /** Close it when the provider goes away */
+    useEffect(() => () => instrumentRef.current?.dispose(), []);
+
+    /** Mini-player progress follows the music loop */
+    useEffect(() => {
+        if (!instrument || !isPlaying) return;
+        const id = setInterval(() => {
+            setDuration(instrument.loopDuration);
+            setCurrentTime(instrument.loopPosition);
+        }, 250);
+        return () => clearInterval(id);
+    }, [instrument, isPlaying]);
+
     /** Update audio source when the active track changes */
     useEffect(() => {
         if (!audioRef.current || !currentTrack) return;
+
+        if (isInstrument(currentTrack)) {
+            audioRef.current.pause();
+            return;
+        }
 
         const nextSrc = new URL(
             currentTrack.audio,
@@ -114,7 +153,19 @@ export function AudioProvider({ children }) {
 
         if (!initialized) setInitialized(true);
 
-        audioRef.current.play();
+        if (isInstrument(track)) {
+            audioRef.current.pause();
+            if (!isSameTrack || !instrumentRef.current) {
+                instrumentRef.current?.dispose();
+                instrumentRef.current = new Instrument(instruments[track.player]);
+                setInstrument(instrumentRef.current);
+                setCurrentTime(0);
+                setDuration(0);
+            }
+            instrumentRef.current.start();
+        } else {
+            audioRef.current.play();
+        }
         setIsPlaying(true);
     }, [currentTrack, initialized]);
 
@@ -123,12 +174,13 @@ export function AudioProvider({ children }) {
         if (!audioRef.current) return;
 
         audioRef.current.pause();
+        instrumentRef.current?.pause();
         setIsPlaying(false);
     }, []);
 
     /** Seek to a specific playback time */
     const seek = useCallback((time) => {
-        if (!audioRef.current) return;
+        if (!audioRef.current || isInstrument(currentTrack)) return;
 
         const audio = audioRef.current;
 
@@ -140,7 +192,7 @@ export function AudioProvider({ children }) {
 
         audio.currentTime = safeTime;
         setCurrentTime(safeTime);
-    }, [duration]);
+    }, [duration, currentTrack]);
 
     /* ---------- MEDIA SESSION ---------- */
 
@@ -190,6 +242,7 @@ export function AudioProvider({ children }) {
             currentTime,
             duration,
             progress,
+            instrument,
             setTrack,
             play,
             pause,
@@ -203,6 +256,7 @@ export function AudioProvider({ children }) {
             currentTime,
             duration,
             progress,
+            instrument,
             setTrack,
             play,
             pause,

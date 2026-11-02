@@ -9,11 +9,14 @@ import Button from '@/components/UI/Button';
 import Label from '@/components/UI/Label';
 import TracksOverview from '@/components/Player/TracksOverview';
 import CircularScrubber from '@/components/Player/CircularScrubber';
+import InstrumentPlayer from '@/components/Player/InstrumentPlayer';
+import { useAudio, isInstrument } from '@/context/AudioContext';
 
 export default function Player() {
     /** Read URL params to check if player should be open */
     const searchParams = useSearchParams();
     const isOpen = searchParams.has('lyt');
+    const { currentTrack } = useAudio();
     useScrollLock(isOpen);
 
     /** Track if Tracks Overview panel is open */
@@ -35,7 +38,9 @@ export default function Player() {
 
     return (
         <Overlay active={isOpen}>
-            {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} /> : <CircularScrubber />}
+            {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} />
+                : isInstrument(currentTrack) ? <InstrumentPlayer />
+                : <CircularScrubber />}
 
             <Button variant="pill" onClick={toggleTracksOverview} className='absolute right-4 bottom-14 md:right-1/2 md:translate-x-1/2 md:bottom-8 gap-2 py-2 px-3'>
                 {tracksOverviewOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" />}

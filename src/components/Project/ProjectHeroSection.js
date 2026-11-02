@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useAudio } from '@/context/AudioContext';
+import { useRouter } from 'next/navigation';
+import { useAudio, isInstrument } from '@/context/AudioContext';
 import { getProjectInfo } from "@/utilities/projectInfo";
 import BackgroundImage from '@/components/Layout/BackgroundImage';
 import ProjectDescription from '@/components/Project/ProjectDescription';
@@ -12,7 +13,8 @@ export default function ProjectHeroSection({ project }) {
     const { initialized, setTrack, currentTrack, play, pause, isPlaying } = useAudio();
     const { title, slug, description, audio, sponsorLogos } = project;
     const isProjectPlaying = isPlaying && currentTrack?.slug === slug;
-    const hasAudio = !!audio;
+    const hasAudio = !!audio || isInstrument(project);
+    const router = useRouter();
 
     useEffect(() => {
         if (!isPlaying && !initialized && hasAudio) setTrack(project);
@@ -21,6 +23,8 @@ export default function ProjectHeroSection({ project }) {
     const togglePlayback = () => {
         if (!hasAudio) return;
         isProjectPlaying ? pause() : play(project);
+        // An instrument needs its buttons — open the player
+        if (!isProjectPlaying && isInstrument(project)) router.replace('?lyt', { scroll: false });
     };
 
     return (
