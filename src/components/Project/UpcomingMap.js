@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
@@ -251,21 +250,17 @@ export default function UpcomingMap({ projects }) {
                 {/* ── Project next to its kommune ── */}
                 <div
                     ref={cardRef}
-                    className={`absolute w-2/3 left-4 bottom-24 md:bottom-auto md:left-0 md:top-0 md:w-[26vw] md:max-w-sm ${cardPosition ? '' : 'md:invisible'}`}
+                    className={`absolute w-2/3 left-4 bottom-24 pointer-events-none md:bottom-auto md:left-0 md:top-0 md:w-[26vw] md:max-w-sm ${cardPosition ? '' : 'md:invisible'}`}
                     style={cardPosition ? { transform: `translate(${cardPosition.x}px, ${cardPosition.y}px)` } : undefined}
                     aria-live="polite"
                 >
-                    <Link
-                        href={project.slug}
-                        tabIndex={cardVisible ? 0 : -1}
-                        className={`block transition-[opacity,translate] duration-500 ease-out ${cardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}
-                    >
+                    <div className={`transition-[opacity,translate] duration-500 ease-out ${cardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                         <div className="relative aspect-video overflow-hidden mb-3 opacity-90">
                             <img src={project.coverImageSmall} alt="" className="object-cover size-full" />
                         </div>
                         <h3 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.title}</h3>
                         <Text size="small" className="mt-1">{formatDates(project.startDate, project.endDate)}</Text>
-                    </Link>
+                    </div>
                 </div>
 
                 {count > 1 && (
