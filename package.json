@@ -20,7 +20,6 @@
     "react-fast-marquee": "^1.6.5",
     "react-hook-form": "^7.71.1",
     "swiper": "^12.1.4",
-    "three": "^0.187.0",
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {

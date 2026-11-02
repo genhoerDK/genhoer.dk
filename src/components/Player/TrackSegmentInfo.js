@@ -3,7 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import Marquee from "react-fast-marquee";
 import { colors } from "@/styles/colors";
 
-export default function TrackSegmentInfo({ segments, radius, showImage = true }) {
+export default function TrackSegmentInfo({ segments, radius }) {
     const { currentTime } = useAudio();
     const textRef = useRef(null);
     const [isOverflowing, setIsOverflowing] = useState(false);
@@ -26,9 +26,9 @@ export default function TrackSegmentInfo({ segments, radius, showImage = true })
 
     return (
         <>
-            {showImage && <figure className="absolute rounded-full overflow-hidden bg-ink" style={{ width: radius * 1.25, height: radius * 1.25 }}>
+            <figure className="absolute rounded-full overflow-hidden bg-ink" style={{ width: radius * 1.25, height: radius * 1.25 }}>
               <img src={currentSegment.image} alt={currentSegment.title} className="size-full object-cover opacity-75" loading="lazy" />
-            </figure>}
+            </figure>
             <div className="absolute top-19 left-gutter flex max-w-80 bg-shade cursor-default">
                 <div className="bg-paper border-2 shrink-0 border-shade size-6 flex justify-center items-center">
                     <p className="uppercase text-xs leading-none">
