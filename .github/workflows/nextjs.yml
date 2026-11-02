@@ -12,7 +12,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-  # The dashboard asks for a new build when a project's public fields change in genhoer-data
+  # genhoer-data's Data workflow pushes src/data/projects.json, src/data/partners.json and public/logos
+  # to main when they change, so a normal push builds the site. The dashboard can still ask for a build
+  # directly (HJEMMESIDE_DISPATCH=1 in the dashboard's settings)
   repository_dispatch:
     types: [data]
 
@@ -57,19 +59,6 @@ jobs:
         with:
           node-version: "20"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
-      - name: Checkout genhoer-data
-        uses: actions/checkout@v4
-        with:
-          repository: genhoerDK/genhoer-data
-          ssh-key: ${{ secrets.GENHOER_DATA_KEY }}
-          path: genhoer-data
-      - name: Projects from genhoer-data
-        # Only the public fields of published projects and the sponsor logos are written; the checkout is removed again
-        # so nothing else from genhoer-data ends up in the build
-        run: |
-          npm ci --prefix genhoer-data/api --omit=dev --no-audit --no-fund
-          node genhoer-data/scripts/offentlig.js src/data/projects.json --logoer public/logos --partnere src/data/partners.json
-          rm -rf genhoer-data
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:

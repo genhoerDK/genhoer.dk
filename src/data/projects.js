@@ -1,6 +1,6 @@
-// All projects on the site. They are maintained in the dashboard (genhoer-data) and written to
-// projects.json by the build (.github/workflows/nextjs.yml runs genhoer-data/scripts/offentlig.js).
-// The committed projects.json is a snapshot so `npm run dev` works without access to genhoer-data.
+// All projects on the site. They are maintained in the dashboard (genhoer-data), whose Data workflow
+// writes projects.json, partners.json and public/logos to this repo whenever the public fields change
+// (genhoer-data/scripts/offentlig.js). Do not edit projects.json by hand; it is overwritten.
 //
 // slug                 URL of the project page (genhoer.dk/<slug>)
 // previousSlugs        Old URLs that redirect to slug (e.g. the town name before the work had a title)
