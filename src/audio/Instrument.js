@@ -12,8 +12,9 @@
  *           then several tones can sound together. Level 0.6.
  *
  *  MUSIC    A stereo loop that always runs: left channel = tonal music, right = rhythm.
- *           Any press fades the tonal music in over 10 s and (re)starts a 100 s countdown;
- *           when it runs out the music fades out over 10 s.
+ *           With timing.musicHold set (the Bela patch: 100 s), any press fades the tonal music
+ *           in over 10 s and (re)starts that countdown; when it runs out the music fades out.
+ *           With musicHold: null the tonal music plays from the first play and just loops.
  *
  *  RHYTHM   The right channel. Only opens once the music has been on for 30 s without stopping.
  *           After that it fades in over 0.5 s while a button body plays and out over 5 s after.
@@ -60,8 +61,13 @@ export default class Instrument {
         this.master.connect(limiter).connect(this.ctx.destination);
 
         this.sampleBus = this.gain(config.levels.samples);
-        this.musicGain = this.gain(0);
-        this.rhythmGain = this.gain(0);
+        // Fade (0–1, what the patch's logic looks at) → level (mix volume)
+        this.musicGain = this.ctx.createGain();
+        this.musicGain.gain.value = 0;
+        this.musicGain.connect(this.gain(config.levels.music ?? 1));
+        this.rhythmGain = this.ctx.createGain();
+        this.rhythmGain.gain.value = 0;
+        this.rhythmGain.connect(this.gain(config.levels.rhythm ?? 1));
         this.storyGain = this.gain(config.levels.story);
 
         /** Linear ramps we started, so we always know a param's current value (Pd's [line]) */
@@ -191,6 +197,13 @@ export default class Instrument {
         source.start();
         this.musicSource = source;
         this.musicStartedAt = this.ctx.currentTime;
+
+        // No countdown: the music is simply on, from the first play
+        if (this.config.timing.musicHold == null) {
+            this.musicOn = true;
+            this.musicLeft = Infinity;
+            this.rampTo(this.musicGain.gain, 1, 0.05);
+        }
     }
 
     /* ---------- BUTTONS ---------- */
@@ -260,6 +273,7 @@ export default class Instrument {
     /** "music 1": fade in and reset the countdown (MUSIC COUNTDOWN) */
     triggerMusic() {
         const t = this.config.timing;
+        if (t.musicHold == null) return;
         this.musicLeft = t.musicHold;
         if (!this.musicOn) {
             this.musicOn = true;
