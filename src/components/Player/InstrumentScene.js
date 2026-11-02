@@ -22,6 +22,7 @@ const CAP_TRAVEL = 0.009;
 const PANEL_DISTANCE = 0.6;           // buttons' distance in front of the camera
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift with the pointer + by itself, radians
+const MAX_ORBIT_Y = 0.13;             // up/down: pointer up = look up, towards the sky
 const PARALLAX = 0.16;                // how much near parts of the photo move extra (with a depth map)
 
 /** The photo, shifted per pixel by a depth map (light = near) as the camera drifts: near things
@@ -175,7 +176,8 @@ export default function InstrumentScene({ instrument, ready, cover, coverDepth, 
         backdropFade.width = backdropFade.height = 256;
         const bctx = backdropFade.getContext('2d');
         const vgrad = bctx.createLinearGradient(0, 0, 0, 256);
-        vgrad.addColorStop(0, '#fff');
+        vgrad.addColorStop(0, '#000');
+        vgrad.addColorStop(0.04, '#fff');
         vgrad.addColorStop(0.55, '#fff');
         vgrad.addColorStop(0.9, '#000');
         bctx.fillStyle = vgrad;
@@ -321,7 +323,7 @@ export default function InstrumentScene({ instrument, ready, cover, coverDepth, 
             const dir = baseDirection.clone().negate();
             const from = lookAt.clone().addScaledVector(baseDirection, distance);
             backdrop.position.copy(from).addScaledVector(dir, distance + BACKDROP_DISTANCE);
-            backdrop.position.y += 0.6;
+            backdrop.position.y -= 0.6;   // a bit low, for more sky
             backdrop.lookAt(from);
 
             // What the camera sees at the photo's distance, plus room for the camera's drift
@@ -330,7 +332,7 @@ export default function InstrumentScene({ instrument, ready, cover, coverDepth, 
             const viewW = viewH * camera.aspect;
             const drift = 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_X) + 1;
             const needW = viewW + drift;
-            const needH = viewH + 2;
+            const needH = viewH + 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_Y) + 1;
             const height = Math.max(needW / backdrop.userData.aspect, needH);
             backdrop.scale.set(height * backdrop.userData.aspect, height, 1);
 
@@ -416,6 +418,7 @@ export default function InstrumentScene({ instrument, ready, cover, coverDepth, 
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const offset = new THREE.Vector3();
         const up = new THREE.Vector3(0, 1, 0);
+        const sideways = new THREE.Vector3();
         let last = performance.now();
         let t = 0;
         let frame;
@@ -432,9 +435,10 @@ export default function InstrumentScene({ instrument, ready, cover, coverDepth, 
             // along, the photo and smoke shift behind them: that's the depth
             const driftX = reducedMotion ? 0 : Math.sin(t * 0.25) * 0.03;
             orbit.x += (orbitTarget.x * (MAX_ORBIT_X - 0.03) + driftX - orbit.x) * ease;
-            orbit.y += (orbitTarget.y * 0.1 - orbit.y) * ease;
-            offset.copy(baseDirection).applyAxisAngle(up, -orbit.x).multiplyScalar(distance);
-            offset.y += orbit.y * 0.4;
+            orbit.y += (orbitTarget.y * MAX_ORBIT_Y - orbit.y) * ease;
+            offset.copy(baseDirection).applyAxisAngle(up, -orbit.x);
+            sideways.crossVectors(up, offset).normalize();
+            offset.applyAxisAngle(sideways, orbit.y).multiplyScalar(distance);   // pointer up: camera dips, looks up
             camera.position.copy(lookAt).add(offset);
             camera.lookAt(lookAt);
 
@@ -457,7 +461,7 @@ export default function InstrumentScene({ instrument, ready, cover, coverDepth, 
             }
 
             // Near parts of the photo move further than the camera's drift alone moves it
-            backdropUniforms.uShift.value.set(-orbit.x * PARALLAX, -orbit.y * PARALLAX * 0.6);
+            backdropUniforms.uShift.value.set(-orbit.x * PARALLAX, orbit.y * PARALLAX);
 
             // Caps go down while held (by pointer or keyboard)
             const voices = instrument.voices;
