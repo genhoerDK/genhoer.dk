@@ -2,7 +2,7 @@
 
 /**
  * Player for sound works played with buttons (see src/audio/Instrument.js), shown as a
- * 3D listening stand (ListeningStand.js). Press and hold like the physical buttons.
+ * 3D scene (InstrumentScene.js). Press and hold like the physical buttons.
  * Keys 1–5 work too.
 
  */
@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 import { PlayCircleIcon } from '@heroicons/react/20/solid';
 
 /** three.js is only loaded when an instrument is opened */
-const ListeningStand = dynamic(() => import('@/components/Player/ListeningStand'), { ssr: false });
+const InstrumentScene = dynamic(() => import('@/components/Player/InstrumentScene'), { ssr: false });
 
 export default function InstrumentPlayer() {
     const { currentTrack, instrument, isPlaying, play } = useAudio();
@@ -55,7 +55,7 @@ export default function InstrumentPlayer() {
             <h2 className='absolute z-10 left-gutter top-12 leading-none font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
 
             {instrument && (
-                <ListeningStand
+                <InstrumentScene
                     instrument={instrument}
                     ready={ready}
                     cover={currentTrack?.coverImageLandscape}

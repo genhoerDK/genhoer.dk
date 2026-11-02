@@ -1,10 +1,10 @@
 'use client';
 
 /**
- * 3D listening stand for button instruments (three.js): a plain post with a slanted top and
- * five black rubber push buttons, standing on a small hill. Drawn in the site's zinc palette.
- * The project's cover image hangs far behind as a hazy backdrop, so the camera's small
- * movements with the pointer give real depth.
+ * 3D scene for button instruments (three.js): black rubber push buttons that sit right on the
+ * screen, as if mounted on the glass, with the project's cover image far behind and smoke
+ * drifting in between. The buttons ride along with the camera, so they stay put while the
+ * camera drifts a little with the pointer — the photo and smoke move behind them: depth.
  *
  * Buttons are played with the pointer (several fingers at once on touch screens):
  * pointer down on a button = press, pointer up = let go — same as the physical buttons.
@@ -16,37 +16,12 @@ import { colors } from '@/styles/colors';
 
 /* ---------- DIMENSIONS (metres) ---------- */
 
-const POST_W = 0.46;                  // width (x)
-const POST_D = 0.24;                  // depth (z)
-const POST_FRONT = 1.0;               // height at the front edge
-const SLOPE = THREE.MathUtils.degToRad(30);
-const POST_BACK = POST_FRONT + POST_D * Math.tan(SLOPE);
 const BUTTON_SPACING = 0.072;
-const BEVEL = 0.01;                   // rounded edges on the post
-const BUTTON_Z = 0;                   // along the top, negative = up the slope
-const CAP_TRAVEL = 0.011;            // a bit more than the real button, so it reads from a distance
-
-const HILL_H = 0.6;
-const HILL_R = 1.8;
-
-/** Post side profile in (z, y), extruded along x, with softly rounded edges.
- *  The profile is inset by the bevel, which then grows it back out to the full size. */
-function postGeometry(width) {
-    const d = POST_D / 2 - BEVEL;
-    const shape = new THREE.Shape();
-    shape.moveTo(d, 0);
-    shape.lineTo(d, POST_FRONT - BEVEL);
-    shape.lineTo(-d, POST_BACK - BEVEL);
-    shape.lineTo(-d, 0);
-    shape.closePath();
-    const depth = width - BEVEL * 2;
-    const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth, bevelEnabled: true, bevelThickness: BEVEL, bevelSize: BEVEL, bevelSegments: 4,
-    });
-    geometry.rotateY(-Math.PI / 2);   // shape x → world z, extrusion → world -x
-    geometry.translate(depth / 2, 0, 0);
-    return geometry;
-}
+const BUTTON_SIZE = 0.05;             // bezel diameter
+const CAP_TRAVEL = 0.009;
+const PANEL_DISTANCE = 0.6;           // buttons' distance in front of the camera
+const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
+const MAX_ORBIT_X = 0.16;             // camera drift with the pointer + by itself, radians
 
 /** A soft, irregular puff of smoke, drawn from many blurred blobs */
 function smokeTexture(seed) {
@@ -56,14 +31,14 @@ function smokeTexture(seed) {
     const ctx = canvas.getContext('2d');
     let n = seed * 9301 + 49297;
     const rand = () => ((n = (n * 9301 + 49297) % 233280) / 233280);
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 70; i++) {
         const angle = rand() * Math.PI * 2;
         const dist = Math.pow(rand(), 1.5) * size * 0.28;
         const x = size / 2 + Math.cos(angle) * dist;
         const y = size / 2 + Math.sin(angle) * dist * 0.6;
         const r = size * (0.08 + rand() * 0.16);
         const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-        g.addColorStop(0, `rgba(255,255,255,${0.08 + rand() * 0.1})`);
+        g.addColorStop(0, `rgba(255,255,255,${0.14 + rand() * 0.16})`);
         g.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, size, size);
@@ -89,6 +64,19 @@ function capGeometry() {
     return new THREE.LatheGeometry(p, 48);
 }
 
+/** Soft round shadow, for under each button */
+function shadowTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    const g = ctx.createRadialGradient(64, 64, 20, 64, 64, 64);
+    g.addColorStop(0, 'rgba(0,0,0,0.45)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(canvas);
+}
+
 function disposeTree(root) {
     root.traverse((obj) => {
         obj.geometry?.dispose();
@@ -97,7 +85,7 @@ function disposeTree(root) {
     });
 }
 
-export default function ListeningStand({ instrument, ready, cover, coverFocus = 0.5 }) {
+export default function InstrumentScene({ instrument, ready, cover, coverFocus = 0.5 }) {
     const containerRef = useRef(null);
     const readyRef = useRef(ready);
 
@@ -113,64 +101,26 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.05;
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.domElement.className = 'absolute inset-0 size-full';
         renderer.domElement.style.touchAction = 'none';
         container.prepend(renderer.domElement);
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(colors.paper, 5, 16);
         const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 60);
+        scene.add(camera);   // the buttons and their light ride along with it
 
-        /* ---------- LIGHT ---------- */
+        /* ---------- LIGHT (fixed to the camera, so the buttons always look the same) ---------- */
 
-        scene.add(new THREE.HemisphereLight(0xffffff, 0xc8c8cc, 1.6));
-        const sun = new THREE.DirectionalLight(0xffffff, 2.4);
-        sun.position.set(-2.4, 4.4, 2.6);
-        sun.castShadow = true;
-        sun.shadow.mapSize.set(2048, 2048);
-        Object.assign(sun.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -1.5, near: 0.5, far: 12 });
-        sun.shadow.bias = -0.0004;
-        sun.shadow.normalBias = 0.01;
-        sun.shadow.radius = 4;
-        scene.add(sun);
-
-        /* ---------- GROUND (fades out at the edges) ---------- */
-
-        const fadeCanvas = document.createElement('canvas');
-        fadeCanvas.width = fadeCanvas.height = 256;
-        const fctx = fadeCanvas.getContext('2d');
-        const grad = fctx.createRadialGradient(128, 128, 30, 128, 128, 128);
-        grad.addColorStop(0, '#fff');
-        grad.addColorStop(1, '#000');
-        fctx.fillStyle = grad;
-        fctx.fillRect(0, 0, 256, 256);
-
-        const ground = new THREE.Mesh(
-            new THREE.CircleGeometry(12, 64),
-            new THREE.MeshStandardMaterial({ color: colors.soft, roughness: 1, transparent: true, alphaMap: new THREE.CanvasTexture(fadeCanvas) }),
-        );
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // A small, smooth hill for the stand to stand on
-        const hillProfile = Array.from({ length: 33 }, (_, i) => {
-            const r = (i / 32) * HILL_R;
-            return new THREE.Vector2(r, HILL_H * (1 + Math.cos(Math.PI * r / HILL_R)) / 2);
-        }).reverse();
-        const hill = new THREE.Mesh(
-            new THREE.LatheGeometry(hillProfile, 96),
-            new THREE.MeshStandardMaterial({ color: colors.muted, roughness: 1, side: THREE.DoubleSide }),
-        );
-        hill.receiveShadow = true;
-        scene.add(hill);
+        camera.add(new THREE.HemisphereLight(0xffffff, 0xc8c8cc, 1.8));
+        const key = new THREE.DirectionalLight(0xffffff, 2.6);
+        key.position.set(-1, 1.6, 1.2);
+        camera.add(key);
+        key.target.position.set(0, 0, -PANEL_DISTANCE);
+        camera.add(key.target);
 
         /* ---------- BACKDROP: the cover image, far behind ---------- */
 
-        // Fades out towards its lower edge, so the photo dissolves into the ground
-        // …and towards the left and right edges, so they never show
+        // Fades out towards its lower edge and towards the sides, so no edge ever shows
         const backdropFade = document.createElement('canvas');
         backdropFade.width = backdropFade.height = 256;
         const bctx = backdropFade.getContext('2d');
@@ -210,10 +160,8 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
             });
         }
 
-        // The photo hangs this far behind the camera's focus point; opacity < 1 lets the paper through as haze
-        const BACKDROP_DISTANCE = 14;
 
-        /* ---------- SMOKE drifting between the stand and the photo ---------- */
+        /* ---------- SMOKE drifting between the buttons and the photo ---------- */
 
         const smokeTextures = [1, 2, 3].map(smokeTexture);
         const smoke = Array.from({ length: 24 }, (_, i) => {
@@ -222,83 +170,82 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
                 color: colors.paper, opacity: 0,
             });
             const sprite = new THREE.Sprite(material);
-            const scale = 3 + Math.random() * 4;
+            const scale = 2.5 + Math.random() * 4;
             sprite.scale.set(scale * 1.6, scale, 1);
             sprite.position.set(
                 (Math.random() - 0.5) * 22,
-                0.4 + Math.random() * 3.2,
-                -2.5 - Math.random() * 9,
+                -0.5 + Math.random() * 4.5,
+                -1 - Math.random() * 10,
             );
             material.rotation = Math.random() * Math.PI * 2;
             scene.add(sprite);
             return {
                 sprite,
-                speed: 0.08 + Math.random() * 0.14,
-                spin: (Math.random() - 0.5) * 0.03,
+                speed: 0.03 + Math.random() * 0.06,
+                spin: (Math.random() - 0.5) * 0.015,
                 phase: Math.random() * Math.PI * 2,
-                strength: 0.55 + Math.random() * 0.45,
+                strength: 0.6 + Math.random() * 0.4,
             };
         });
 
-        /* ---------- STAND: a plain post with a slanted top, on the hill ---------- */
+        /* ---------- BUTTONS, on the screen ---------- */
 
-        const stand = new THREE.Group();
-        stand.position.y = HILL_H - 0.02;
-        scene.add(stand);
-
-        const post = new THREE.Mesh(postGeometry(POST_W), new THREE.MeshStandardMaterial({ color: colors.faint, roughness: 0.85 }));
-        post.castShadow = true;
-        post.receiveShadow = true;
-        stand.add(post);
-
-        // A frame on the slanted top: x right, y out of the top, z down the slope
-        const top = new THREE.Group();
-        top.position.set(0, (POST_FRONT + POST_BACK) / 2, 0);
-        top.rotation.x = SLOPE;
-        stand.add(top);
-
-        /* ---------- BUTTONS ---------- */
+        // The panel faces the camera: x right, y towards the viewer (button axis), z down the screen
+        const panel = new THREE.Group();
+        panel.rotation.x = Math.PI / 2;
+        camera.add(panel);
 
         const rubber = new THREE.MeshStandardMaterial({ color: colors.ink, roughness: 0.9 });
         const bezelGeo = bezelGeometry();
         const capGeo = capGeometry();
-        // One invisible hit area over the whole top (a bit bigger), split into a column per button —
-        // much easier to hit with a finger than the small buttons themselves
+        const shadowMaterial = new THREE.MeshBasicMaterial({ map: shadowTexture(), transparent: true, depthWrite: false, toneMapped: false });
+        const shadowGeo = new THREE.PlaneGeometry(BUTTON_SIZE * 1.5, BUTTON_SIZE * 1.5);
+
+        const count = instrument.config.samples.length;
+        const rowWidth = (count - 1) * BUTTON_SPACING + BUTTON_SIZE;
+
+        // One invisible hit area over the row, split into a column per button — easy to hit
         const hitArea = new THREE.Mesh(
-            new THREE.PlaneGeometry(POST_W + 0.06, POST_D / Math.cos(SLOPE) + 0.08),
+            new THREE.PlaneGeometry(rowWidth + 0.02, BUTTON_SIZE * 1.8),
             new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }),
         );
         hitArea.rotation.x = -Math.PI / 2;
-        hitArea.position.y = 0.02;
+        hitArea.position.y = 0.012;
+        panel.add(hitArea);
 
-        const count = instrument.config.samples.length;
         const buttons = Array.from({ length: count }, (_, i) => {
             const group = new THREE.Group();
-            group.position.set((i - (count - 1) / 2) * BUTTON_SPACING, 0, BUTTON_Z);
+            group.position.x = (i - (count - 1) / 2) * BUTTON_SPACING;
+
+            const shadow = new THREE.Mesh(shadowGeo, shadowMaterial);
+            shadow.rotation.x = -Math.PI / 2;
+            shadow.position.set(0.004, -0.002, 0.006);   // light from the top left
 
             const bezel = new THREE.Mesh(bezelGeo, rubber);
-            bezel.castShadow = true;
-            bezel.receiveShadow = true;
-
             const cap = new THREE.Mesh(capGeo, new THREE.MeshStandardMaterial({ color: colors.ink, roughness: 0.7 }));
-            cap.castShadow = true;
 
-            group.add(bezel, cap);
-            top.add(group);
+            group.add(shadow, bezel, cap);
+            panel.add(group);
             return { cap, held: false };
         });
-        top.add(hitArea);
         const local = new THREE.Vector3();
         const capUp = new THREE.Color(colors.ink);
         const capDown = new THREE.Color(colors.dim);
 
+        /** Size and place the row: big on wide screens, fitted to the width on narrow ones */
+        const fitPanel = () => {
+            const viewH = 2 * PANEL_DISTANCE * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+            const viewW = viewH * camera.aspect;
+            const scale = Math.min(viewW * 0.84 / rowWidth, viewH * 0.55 / rowWidth, 1);
+            panel.scale.setScalar(scale);
+            panel.position.set(0, -viewH * 0.08, -PANEL_DISTANCE);
+        };
+
         /* ---------- CAMERA FRAMING ---------- */
 
-        const MAX_ORBIT_X = 0.16;   // pointer + idle drift, radians
-
-        const lookAt = new THREE.Vector3(0, HILL_H * 0.6 + POST_FRONT * 0.6, 0);
-        const baseDirection = new THREE.Vector3(0.06, 0.32, 1).normalize();   // nearly straight on
-        let distance = 1.6;
+        const lookAt = new THREE.Vector3(0, 1.6, 0);
+        const baseDirection = new THREE.Vector3(0, 0.08, 1).normalize();   // straight on
+        const distance = 4;
 
         /** Hang the photo along the camera's view, big enough to cover the view while it drifts */
         const fitBackdrop = () => {
@@ -331,10 +278,9 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
             if (!w || !h) return;
             renderer.setSize(w, h, false);
             camera.aspect = w / h;
-            // Keep the plate a comfortable size: further away on narrow (portrait) screens
-            distance = THREE.MathUtils.clamp(4.2 / Math.min(1, camera.aspect * 1.6), 4.2, 5.4);
             camera.updateProjectionMatrix();
             fitBackdrop();
+            fitPanel();
         };
         const resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(container);
@@ -353,9 +299,10 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
             const rect = canvas.getBoundingClientRect();
             ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
             raycaster.setFromCamera(ndc, camera);
+            camera.updateMatrixWorld();
             const hit = raycaster.intersectObject(hitArea, false)[0];
             if (!hit) return -1;
-            top.worldToLocal(local.copy(hit.point));
+            panel.worldToLocal(local.copy(hit.point));
             return THREE.MathUtils.clamp(Math.round(local.x / BUTTON_SPACING + (count - 1) / 2), 0, count - 1);
         };
 
@@ -412,8 +359,8 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
             t += dt;
             const ease = 1 - Math.exp(-dt * 4);
 
-            // Camera drifts a little with the pointer (and slowly by itself) — the backdrop
-            // is far away, so it moves less than the stand: that's the depth
+            // Camera drifts a little with the pointer (and slowly by itself); the buttons ride
+            // along, the photo and smoke shift behind them: that's the depth
             const driftX = reducedMotion ? 0 : Math.sin(t * 0.25) * 0.03;
             orbit.x += (orbitTarget.x * (MAX_ORBIT_X - 0.03) + driftX - orbit.x) * ease;
             orbit.y += (orbitTarget.y * 0.1 - orbit.y) * ease;
@@ -430,14 +377,14 @@ export default function ListeningStand({ instrument, ready, cover, coverFocus = 
                     if (sprite.position.x > 11) sprite.position.x -= 22;
                     sprite.material.rotation += puff.spin * dt;
                 }
-                const breathe = 0.6 + 0.4 * Math.sin(t * 0.15 + puff.phase);
+                const breathe = 0.65 + 0.35 * Math.sin(t * 0.1 + puff.phase);
                 const edge = 1 - Math.min(1, Math.abs(sprite.position.x) / 11) ** 4;   // fade near the wrap
                 const fadeIn = Math.min(1, t / 3);
-                sprite.material.opacity = 0.95 * puff.strength * breathe * edge * fadeIn;
+                sprite.material.opacity = puff.strength * breathe * edge * fadeIn;
             });
 
-            if (backdrop.userData.fadeIn && backdropMaterial.opacity < 0.95) {
-                backdropMaterial.opacity = Math.min(0.95, backdropMaterial.opacity + dt);
+            if (backdrop.userData.fadeIn && backdropMaterial.opacity < 1) {
+                backdropMaterial.opacity = Math.min(1, backdropMaterial.opacity + dt);
             }
 
             // Caps go down while held (by pointer or keyboard)
