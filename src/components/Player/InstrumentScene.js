@@ -22,6 +22,37 @@ const CAP_TRAVEL = 0.009;
 const PANEL_DISTANCE = 0.6;           // buttons' distance in front of the camera
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift with the pointer + by itself, radians
+const PARALLAX = 0.16;                // how much near parts of the photo move extra (with a depth map)
+
+/** The photo, shifted per pixel by a depth map (light = near) as the camera drifts: near things
+ *  move more than far ones, so the flat photo gets depth. A few fixed-point steps find which
+ *  pixel ends up where, which keeps edges from smearing. Fades out towards its edges. */
+const backdropShader = {
+    vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+    fragmentShader: `
+        uniform sampler2D uMap;
+        uniform sampler2D uDepth;
+        uniform sampler2D uFade;
+        uniform float uOpacity;
+        uniform float uHasDepth;
+        uniform vec2 uShift;
+        varying vec2 vUv;
+        void main() {
+            vec2 uv = vUv;
+            if (uHasDepth > 0.5) {
+                for (int i = 0; i < 4; i++) {
+                    uv = vUv + uShift * texture2D(uDepth, uv).r;
+                }
+            }
+            gl_FragColor = vec4(texture2D(uMap, uv).rgb, texture2D(uFade, vUv).g * uOpacity);
+            #include <colorspace_fragment>
+        }`,
+};
 
 /** A wisp of smoke: fractal noise (several octaves of smooth value noise) inside a soft,
  *  stretched falloff — so it reads as smoke with structure, not a round blob */
@@ -104,7 +135,7 @@ function disposeTree(root) {
     });
 }
 
-export default function InstrumentScene({ instrument, ready, cover, coverFocus = 0.5 }) {
+export default function InstrumentScene({ instrument, ready, cover, coverDepth, coverFocus = 0.5 }) {
     const containerRef = useRef(null);
     const readyRef = useRef(ready);
 
@@ -158,9 +189,16 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
         bctx.fillStyle = hgrad;
         bctx.fillRect(0, 0, 256, 256);
 
-        const backdropMaterial = new THREE.MeshBasicMaterial({
-            color: 0xffffff, transparent: true, opacity: 0, fog: false, depthWrite: false, toneMapped: false,
-            alphaMap: new THREE.CanvasTexture(backdropFade),
+        const backdropUniforms = {
+            uMap: { value: null },
+            uDepth: { value: null },
+            uFade: { value: new THREE.CanvasTexture(backdropFade) },
+            uOpacity: { value: 0 },
+            uHasDepth: { value: 0 },
+            uShift: { value: new THREE.Vector2() },
+        };
+        const backdropMaterial = new THREE.ShaderMaterial({
+            ...backdropShader, uniforms: backdropUniforms, transparent: true, depthWrite: false,
         });
         const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), backdropMaterial);
         backdrop.renderOrder = -1;
@@ -171,11 +209,18 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
             new THREE.TextureLoader().setCrossOrigin('anonymous').load(cover, (texture) => {
                 if (disposed) { texture.dispose(); return; }
                 texture.colorSpace = THREE.SRGBColorSpace;
-                backdropMaterial.map = texture;
-                backdropMaterial.needsUpdate = true;
+                backdropUniforms.uMap.value = texture;
                 backdrop.userData.aspect = texture.image.width / texture.image.height;
                 backdrop.userData.fadeIn = true;
                 fitBackdrop();
+            });
+        }
+
+        if (coverDepth) {
+            new THREE.TextureLoader().setCrossOrigin('anonymous').load(coverDepth, (texture) => {
+                if (disposed) { texture.dispose(); return; }
+                backdropUniforms.uDepth.value = texture;
+                backdropUniforms.uHasDepth.value = 1;
             });
         }
 
@@ -407,9 +452,12 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
                 sprite.material.opacity = puff.strength * breathe * edge * fadeIn;
             });
 
-            if (backdrop.userData.fadeIn && backdropMaterial.opacity < 1) {
-                backdropMaterial.opacity = Math.min(1, backdropMaterial.opacity + dt);
+            if (backdrop.userData.fadeIn && backdropUniforms.uOpacity.value < 1) {
+                backdropUniforms.uOpacity.value = Math.min(1, backdropUniforms.uOpacity.value + dt);
             }
+
+            // Near parts of the photo move further than the camera's drift alone moves it
+            backdropUniforms.uShift.value.set(-orbit.x * PARALLAX, -orbit.y * PARALLAX * 0.6);
 
             // Caps go down while held (by pointer or keyboard)
             const voices = instrument.voices;
@@ -435,10 +483,11 @@ export default function InstrumentScene({ instrument, ready, cover, coverFocus =
             canvas.removeEventListener('pointermove', onPointerMove);
             canvas.removeEventListener('pointerleave', onPointerLeave);
             disposeTree(scene);
+            Object.values(backdropUniforms).forEach(({ value }) => value?.isTexture && value.dispose());
             renderer.dispose();
             canvas.remove();
         };
-    }, [instrument, cover, coverFocus]);
+    }, [instrument, cover, coverDepth, coverFocus]);
 
     return <div ref={containerRef} className='absolute inset-0' />;
 }

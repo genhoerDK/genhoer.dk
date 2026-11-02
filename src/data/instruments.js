@@ -7,6 +7,8 @@
 //                      starts (letting go before that jumps there; holding plays through)
 // music                Stereo loop: left channel = tonal music, right channel = rhythm
 // stories              Narrator files, played in this order and then from the start again
+// coverDepth           Depth map of the cover (light = near) for parallax behind the buttons. Made with
+//                      scripts/depth-map.py. null = the photo moves as one flat layer
 // coverFocus           0–1 across the cover image: what stays in view behind the 3D stand on narrow screens
 // polyphonic           true = several buttons can sound at once. false = one at a time, like the Bela patch
 // levels               Mix levels (the Bela patch had samples 0.6, story 1.2, music 1, rhythm 1)
@@ -27,6 +29,7 @@ export const instruments = {
         ],
         music: 'music.mp3',
         stories: ['story_1.mp3', 'story_2.mp3', 'story_3.mp3', 'story_4.mp3', 'story_5.mp3'],
+        coverDepth: '/depth/odsherred-2026.webp',
         coverFocus: 0.68,           // the stone on top of Esterhøj
         polyphonic: true,
         levels: { samples: 0.6, story: 1.2, music: 1.2, rhythm: 2 },

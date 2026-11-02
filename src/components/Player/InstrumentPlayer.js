@@ -51,7 +51,7 @@ export default function InstrumentPlayer() {
     const ready = isPlaying && state?.loaded;
 
     return (
-        <div className='relative flex flex-col justify-center items-center size-full min-h-160 h-svh'>
+        <div className='relative flex flex-col justify-center items-center w-full h-svh'>
             <h2 className='absolute z-10 left-gutter top-12 leading-none font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
 
             {instrument && (
@@ -59,6 +59,7 @@ export default function InstrumentPlayer() {
                     instrument={instrument}
                     ready={ready}
                     cover={currentTrack?.coverImageLandscape}
+                    coverDepth={instrument.config.coverDepth}
                     coverFocus={instrument.config.coverFocus}
                 />
             )}
