@@ -6,7 +6,7 @@
 |---|---|---|
 | `UI/` | Small building blocks with no knowledge of projects or sound: `Label`, `Title`, `Text`, `Button`, `InfoList`, `Logo` | Nothing else in `components/` |
 | `Layout/` | Page frame and generic sections: `Header`, `Toolbar`, `Overlay`, `BackgroundImage`, `ContentSection`, `TextSection`, `TextImageSection` | `UI/` (Toolbar also composes Map/Player buttons) |
-| `Project/` | Everything showing projects: front page carousel/grid, cards, project page | `UI/`, `Layout/` |
+| `Project/` | Everything showing projects: front page map of upcoming projects + grid, cards, project page | `UI/`, `Layout/` |
 | `Map/`, `Player/`, `Forms/`, `Participate/` | One feature each | `UI/`, `Layout/` |
 
 ## Design tokens

@@ -1,0 +1,312 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import * as d3 from 'd3';
+import * as topojson from 'topojson-client';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
+import { colors } from '@/styles/colors';
+import { formatDates } from '@/utilities/formatDates';
+import { useIsPortrait } from '@/hooks/useIsPortrait';
+import BackgroundImage from '@/components/Layout/BackgroundImage';
+import Label from '@/components/UI/Label';
+import Text from '@/components/UI/Text';
+
+const AUTOPLAY = 8000;          // ms between projects when nobody interacts
+const MIN_DURATION = 1200;      // ms, shortest zoom between two kommuner
+const MAX_DURATION = 2600;      // ms, longest zoom (far apart, e.g. Jylland → Sjælland)
+const MARKER_RADIUS = 6;        // px on screen, independent of zoom
+const SWIPE_THRESHOLD = 50;     // px of horizontal finger movement that changes project
+
+// Same file and Bornholm offset as the map in components/Map (Bornholm is moved closer to the rest of Denmark)
+async function loadKommuner() {
+    const topology = await d3.json('/map_low_modified.json');
+    return topojson.feature(topology, topology.objects.kommuner);
+}
+const mapCoordinates = ({ coordinates: [lon, lat], komkode }) =>
+    komkode === '0400' || komkode === '0411' ? [lon - 2.5, lat + 2] : [lon, lat];
+
+// Where the kommune sits on screen and how much of the screen it may fill
+function layout(width, height, isPortrait) {
+    return isPortrait
+        ? { anchor: [width * 0.5, height * 0.36], fill: [0.5, 0.26] }
+        : { anchor: [width * 0.4, height * 0.5], fill: [0.22, 0.42] };
+}
+
+// Front page: upcoming projects on a map of Denmark. Each project zooms the map to its kommune,
+// with the cover image, title and dates next to it.
+export default function UpcomingMap({ projects }) {
+    const isPortrait = useIsPortrait();
+    const containerRef = useRef(null);
+    const svgRef = useRef(null);
+    const cardRef = useRef(null);
+    const map = useRef(null);         // { geo, path, g, markers, width, height, view }
+    const run = useRef(0);            // increases per zoom, so an interrupted zoom doesn't reveal the card
+
+    const [ready, setReady] = useState(false);
+    const [active, setActive] = useState(0);        // project the map shows / is moving to
+    const [shown, setShown] = useState(0);          // project in the card (changes while it is hidden)
+    const [cardVisible, setCardVisible] = useState(false);
+    const [cardPosition, setCardPosition] = useState(null);
+    const [paused, setPaused] = useState(false);
+
+    const count = projects.length;
+    const go = useCallback((index) => setActive((index + count) % count), [count]);
+
+    // Kommune outline in map pixels and the zoom view [x, y, width] that puts it at the anchor
+    const viewFor = useCallback((project) => {
+        const { geo, path, width, height } = map.current;
+        const features = geo.features.filter((f) => f.properties.KOMKODE === project.komkode);
+        const [[x0, y0], [x1, y1]] = path.bounds({ type: 'FeatureCollection', features });
+        const { fill } = layout(width, height, isPortrait);
+        const k = Math.max(2, Math.min(14, (width * fill[0]) / (x1 - x0), (height * fill[1]) / (y1 - y0)));
+        return { view: [(x0 + x1) / 2, (y0 + y1) / 2, width / k], bounds: [[x0, y0], [x1, y1]] };
+    }, [isPortrait]);
+
+    const applyView = useCallback(([cx, cy, w]) => {
+        const { g, markers, width, height } = map.current;
+        const [ax, ay] = layout(width, height, isPortrait).anchor;
+        const k = width / w;
+        map.current.view = [cx, cy, w];
+        g.attr('transform', `translate(${ax - cx * k},${ay - cy * k}) scale(${k})`);
+        markers.attr('r', MARKER_RADIUS / k);
+    }, [isPortrait]);
+
+    // Next to the kommune: right of it when there is room, otherwise left. Portrait: fixed by CSS.
+    const placeCard = useCallback((bounds) => {
+        if (isPortrait || !cardRef.current) return setCardPosition(null);
+        const { width, height, view: [cx, cy, w] } = map.current;
+        const [ax, ay] = layout(width, height, isPortrait).anchor;
+        const k = width / w;
+        const left = ax + (bounds[0][0] - cx) * k;
+        const right = ax + (bounds[1][0] - cx) * k;
+        const { offsetWidth: cw, offsetHeight: ch } = cardRef.current;
+        const gap = width * 0.05;
+        const margin = 24;
+        let x = right + gap;
+        if (x + cw > width - margin) x = Math.max(margin, left - gap - cw);
+        const y = Math.min(height - ch - margin * 3, Math.max(margin * 3, ay - ch / 2));
+        setCardPosition({ x, y });
+    }, [isPortrait]);
+
+    // Load the map once
+    useEffect(() => {
+        let cancelled = false;
+        loadKommuner().then((geo) => {
+            if (cancelled) return;
+            map.current = { geo };
+            setReady(true);
+        });
+        return () => { cancelled = true; };
+    }, []);
+
+    // Draw (and redraw on resize). Jumps straight to the active project, no animation.
+    useEffect(() => {
+        if (!ready) return;
+        const container = containerRef.current;
+
+        const draw = () => {
+            const { width, height } = container.getBoundingClientRect();
+            if (!width || !height) return;
+            const { geo } = map.current;
+            const projection = d3.geoMercator().fitExtent([[0, 0], [width, height]], geo);
+            const path = d3.geoPath(projection);
+
+            const svg = d3.select(svgRef.current).attr('viewBox', `0 0 ${width} ${height}`);
+            svg.interrupt();
+            const g = svg.selectAll('g.upcoming-map').data([null]).join('g').attr('class', 'upcoming-map');
+
+            g.selectAll('path.kommune')
+                .data(geo.features)
+                .join('path')
+                .attr('class', 'kommune')
+                .attr('d', path)
+                .attr('fill', colors.paper)
+                .attr('stroke', colors.paper)
+                .attr('stroke-width', 0.6)
+                .attr('vector-effect', 'non-scaling-stroke')
+                .style('transition', 'fill-opacity 700ms ease, stroke-opacity 700ms ease');
+
+            const markers = g.selectAll('circle.marker')
+                .data(projects, (d) => d.slug)
+                .join('circle')
+                .attr('class', 'marker')
+                .attr('cx', (d) => projection(mapCoordinates(d))[0])
+                .attr('cy', (d) => projection(mapCoordinates(d))[1])
+                .attr('fill', colors.ink)
+                .attr('stroke', colors.paper)
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', 3.14)
+                .attr('vector-effect', 'non-scaling-stroke');
+
+            Object.assign(map.current, { path, g, markers, width, height });
+            highlight(g, projects[active]);
+            const { view, bounds } = viewFor(projects[active]);
+            applyView(view);
+            placeCard(bounds);
+        };
+
+        draw();
+        const observer = new ResizeObserver(draw);
+        observer.observe(container);
+        return () => observer.disconnect();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- `active` is handled by the zoom effect below
+    }, [ready, projects, viewFor, applyView, placeCard]);
+
+    // Zoom to the active project: hide the card, fly out and in (d3.interpolateZoom), then show the card
+    useEffect(() => {
+        if (!ready || !map.current.g) return;
+        const id = ++run.current;
+        const { g, view: from } = map.current;
+        const project = projects[active];
+        const { view: to, bounds } = viewFor(project);
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Swap the card's content first, then measure and place it once React has rendered it
+        const reveal = () => {
+            if (id !== run.current) return;
+            highlight(g, project);
+            setShown(active);
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                if (id !== run.current) return;
+                placeCard(bounds);
+                setCardVisible(true);
+            }));
+        };
+
+        const alreadyThere = from && from.every((v, i) => Math.abs(v - to[i]) < 0.5);
+        if (reduceMotion || !from || alreadyThere) {
+            applyView(to);
+            reveal();
+            return;
+        }
+
+        setCardVisible(false);
+        highlight(g, null);
+        const zoom = d3.interpolateZoom(from, to);
+        const duration = Math.min(MAX_DURATION, Math.max(MIN_DURATION, zoom.duration * 1.1));
+
+        d3.select(svgRef.current)
+            .interrupt()
+            .transition()
+            .duration(duration)
+            .ease(d3.easeCubicInOut)
+            .tween('zoom', () => (t) => applyView(zoom(t)))
+            .end()
+            .then(reveal, () => {}); // rejected when a newer zoom interrupts this one
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs on project change only
+    }, [active, ready]);
+
+    // Autoplay; restarts after each change, pauses on hover and with reduced motion
+    useEffect(() => {
+        if (count < 2 || paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const timer = setTimeout(() => go(active + 1), AUTOPLAY);
+        return () => clearTimeout(timer);
+    }, [active, paused, count, go]);
+
+    // Swipe on touch screens
+    const touchStart = useRef(null);
+    const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
+    const onTouchEnd = (e) => {
+        if (touchStart.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchStart.current;
+        touchStart.current = null;
+        if (Math.abs(dx) > SWIPE_THRESHOLD) go(active + (dx < 0 ? 1 : -1));
+    };
+
+    const onKeyDown = (e) => {
+        if (e.key === 'ArrowRight') go(active + 1);
+        if (e.key === 'ArrowLeft') go(active - 1);
+    };
+
+    const project = projects[shown];
+
+    return (
+        <section
+            aria-roledescription="karrusel"
+            aria-label="Kommende projekter"
+            className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden animate-fade-in"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onKeyDown={onKeyDown}
+        >
+            <div
+                ref={containerRef}
+                className="relative size-full overflow-hidden bg-ink text-paper"
+                onTouchStart={onTouchStart}
+                onTouchEnd={onTouchEnd}
+            >
+                {projects.map((p, i) => (
+                    <BackgroundImage key={p.slug} portrait={p.coverImagePortrait} landscape={p.coverImageLandscape} visible={i === active} />
+                ))}
+
+                <svg ref={svgRef} className="absolute inset-0 size-full pointer-events-none" aria-hidden="true" />
+
+                {/* ── Heading ── */}
+                <div className="absolute top-14 left-4 md:top-6 md:left-6 flex items-baseline gap-3">
+                    <h2><Label size="lg" className="font-bold tracking-wider">Kommende projekter</Label></h2>
+                    {count > 1 && <Label size="lg" className="opacity-60 tabular-nums" as="span">{active + 1} / {count}</Label>}
+                </div>
+
+                {/* ── Project next to its kommune ── */}
+                <div
+                    ref={cardRef}
+                    className={`absolute w-2/3 left-4 bottom-24 md:bottom-auto md:left-0 md:top-0 md:w-[26vw] md:max-w-sm ${cardPosition ? '' : 'md:invisible'}`}
+                    style={cardPosition ? { transform: `translate(${cardPosition.x}px, ${cardPosition.y}px)` } : undefined}
+                    aria-live="polite"
+                >
+                    <Link
+                        href={project.slug}
+                        tabIndex={cardVisible ? 0 : -1}
+                        className={`block transition-[opacity,translate] duration-500 ease-out ${cardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}
+                    >
+                        <div className="relative aspect-video overflow-hidden mb-3 opacity-90">
+                            <img src={project.coverImageSmall} alt="" className="object-cover size-full" />
+                        </div>
+                        <h3 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.title}</h3>
+                        <Text size="small" className="mt-1">{formatDates(project.startDate, project.endDate)}</Text>
+                    </Link>
+                </div>
+
+                {count > 1 && (
+                    <>
+                        {/* ── Pagination lines ── */}
+                        <div className="absolute left-4 bottom-[60px] md:bottom-[18px] flex gap-2">
+                            {projects.map((p, i) => (
+                                <button key={p.slug} onClick={() => go(i)} aria-label={`Vis ${p.title}`} aria-current={i === active} className="py-3 cursor-pointer">
+                                    <span className={`block h-px transition-all duration-300 ${i === active ? 'w-8 bg-paper/80' : 'w-4 bg-paper/25'}`} />
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* ── Arrows ── */}
+                        <div className="absolute right-4 bottom-[52px] md:bottom-[10px] flex gap-1">
+                            <ArrowButton onClick={() => go(active - 1)} label="Forrige projekt"><ChevronLeftIcon className="size-3" /></ArrowButton>
+                            <ArrowButton onClick={() => go(active + 1)} label="Næste projekt"><ChevronRightIcon className="size-3" /></ArrowButton>
+                        </div>
+                    </>
+                )}
+            </div>
+        </section>
+    );
+}
+
+function ArrowButton({ onClick, label, children }) {
+    return (
+        <button
+            onClick={onClick}
+            aria-label={label}
+            className="grid place-items-center size-6 border border-paper/50 text-paper cursor-pointer transition-colors duration-200 hover:bg-paper hover:text-ink focus-visible:outline-1 focus-visible:outline-paper"
+        >
+            {children}
+        </button>
+    );
+}
+
+// Active kommune filled white, all others as thin outlines. project = null: outlines only.
+function highlight(g, project) {
+    // style (not attr), so the CSS transition set in the draw effect fades the change
+    g.selectAll('path.kommune')
+        .style('fill-opacity', (f) => (project && f.properties.KOMKODE === project.komkode ? 1 : 0))
+        .style('stroke-opacity', (f) => (project && f.properties.KOMKODE === project.komkode ? 1 : 0.18));
+}

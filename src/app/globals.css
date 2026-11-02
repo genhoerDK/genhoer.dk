@@ -37,7 +37,7 @@
     }
 }
 
-/* Swiper (carousel and tracks overview) */
+/* Swiper (tracks overview) */
 
 :root {
     --swiper-theme-color: var(--color-paper) !important;
@@ -50,24 +50,4 @@
     :root {
         --swiper-pagination-bottom: 18px !important;
     }
-}
-
-.swiper-pagination-custom.swiper-pagination-horizontal {
-    left: 13px !important;
-    width: auto !important;
-    justify-content: flex-start;
-}
-
-.swiper-pagination-custom .swiper-pagination-bullet {
-    width: 1rem;
-    height: 1px;
-    border-radius: 0;
-    background: color-mix(in srgb, var(--color-paper) 25%, transparent);
-    opacity: 1;
-    transition: background 0.3s, width 0.3s;
-}
-
-.swiper-pagination-custom .swiper-pagination-bullet-active {
-    background: color-mix(in srgb, var(--color-paper) 80%, transparent);
-    width: 2rem;
 }
