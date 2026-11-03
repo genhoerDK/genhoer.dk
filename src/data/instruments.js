@@ -32,7 +32,7 @@ export const instruments = {
         coverDepth: '/depth/odsherred-2026.webp',
         coverFocus: 0.68,           // the stone on top of Esterhøj
         polyphonic: true,
-        levels: { samples: 0.6, story: 1.2, music: 1.2, rhythm: 2 },
+        levels: { samples: 0.6, story: 1.2, music: 1.2, rhythm: 1.6 },
         timing: {
             musicFade: 10,          // music fades in/out over (only with musicHold)
             musicHold: null,        // null = music plays from the first play and loops.
