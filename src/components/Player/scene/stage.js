@@ -74,8 +74,8 @@ function edgeFadeTexture() {
     const v = ctx.createLinearGradient(0, 0, 0, 256);
     v.addColorStop(0, '#000');
     v.addColorStop(0.04, '#fff');
-    v.addColorStop(0.55, '#fff');
-    v.addColorStop(0.9, '#000');
+    v.addColorStop(0.7, '#fff');
+    v.addColorStop(0.97, '#000');
     ctx.fillStyle = v;
     ctx.fillRect(0, 0, 256, 256);
     ctx.globalCompositeOperation = 'multiply';
@@ -275,8 +275,10 @@ export function createStage(container, { focus = 0.5, onResize, onFrame } = {}) 
         const far = distance + BACKDROP_DISTANCE;
         const viewH = 2 * far * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
         const viewW = viewH * camera.aspect;
-        const needW = viewW + 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_X) + 1;
-        const needH = viewH + 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_Y) + 1;
+        // Only part of the drift: at the far ends the photo's soft edges may just show, which
+        // looks fine and keeps the photo from being enlarged more than needed
+        const needW = viewW + 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_X) * 0.6;
+        const needH = viewH + 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_Y) * 0.5;
         const height = Math.max(needW / planeAspect, needH);
         backdrop.scale.set(height * planeAspect, height, 1);
 
