@@ -5,8 +5,8 @@
  * at each. The files play through the audio element, one at a time.
  *
  * A map of the streets (src/data/maps/) lies as a sheet in perspective, tipping and turning with
- * the pointer (or a finger on it) and drifting a little by itself; the places stand on it as stops
- * on the walk, their names as signs. The one you are at is lit, and the photo behind is that
+ * the pointer (or a finger on it) and drifting a little by itself; the places stand on it with
+ * their names as signs (the streets carry no names, so the places' stand out). The one you are at is lit, and the photo behind is that
  * place's. Under the map, the stories at the place: a button per character, with the playing one
  * filled and a line running under it. When a story ends, the next one at the same place follows,
  * so you can hear a whole place and walk on. Keys 1–3 pick a story, ←/→ walk, space pauses and plays.
@@ -155,16 +155,6 @@ export default function WalkPlayer() {
                         {/* The wider streets: a dark casing, then the street, so they read at the crossings */}
                         {map.main.map((d) => <path key={d} d={d} fill='none' stroke={colors.ink} strokeOpacity='0.55' strokeWidth='22' strokeLinecap='round' strokeLinejoin='round' />)}
                         {map.main.map((d) => <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.55' strokeWidth='12' strokeLinecap='round' strokeLinejoin='round' />)}
-                        {map.labels.map((l) => (
-                            <text key={l.text} x={l.x} y={l.y} transform={`rotate(${l.angle} ${l.x} ${l.y})`} textAnchor='middle' fontSize='30' letterSpacing='4' fill='currentColor' fillOpacity='0.6' className='uppercase'>
-                                {l.text}
-                            </text>
-                        ))}
-                        {/* The walk, from place to place */}
-                        <polyline
-                            points={places.map(({ at }) => at.join(',')).join(' ')}
-                            fill='none' stroke='currentColor' strokeOpacity='0.7' strokeWidth='4' strokeDasharray='8 14' strokeLinecap='round'
-                        />
                     </svg>
                     {places.map((stop, p) => {
                         const isHere = p === here;

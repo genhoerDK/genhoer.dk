@@ -7,7 +7,8 @@
 //   main     The wider streets (drawn with a dark casing)
 //   side     The lanes
 //   zone     The walking street and the square, drawn as a soft band under everything
-//   labels   Street names: where they stand and their angle in degrees
+//   labels   Street names: where they stand and their angle in degrees (kept for reference; the
+//            walk interface leaves them out, so the places' names stand out)
 
 export const nakskov = {
     width: 1480,
