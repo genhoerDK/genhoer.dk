@@ -20,6 +20,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PlayIcon, PauseIcon } from '@heroicons/react/20/solid';
 import { useAudio } from '@/context/AudioContext';
 import { maps } from '@/data/maps/nakskov';
+import { colors } from '@/styles/colors';
 import { keyIsTaken } from '@/components/Player/interfaces/keys';
 import PlayerShell, { Controls } from '@/components/Player/PlayerShell';
 import Label from '@/components/UI/Label';
@@ -133,7 +134,7 @@ export default function WalkPlayer() {
         <PlayerShell track={currentTrack} image={place.image} smoke={0.3}>
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
                 {/* ---------- THE MAP ---------- */}
-                <div className='w-full max-w-sm md:max-w-md' style={{ perspective: '900px' }}>
+                <div className='w-full max-w-sm md:max-w-lg' style={{ perspective: '900px' }}>
                 <nav
                     ref={sheetRef}
                     aria-label='Steder'
@@ -144,19 +145,25 @@ export default function WalkPlayer() {
                     <div className='absolute -inset-[12%] bg-ink/60 blur-xl rounded-[40%]' style={{ transform: 'translateZ(-30px)' }} aria-hidden='true' />
                     <div className='absolute -inset-[6%] bg-linear-to-b from-paper/12 to-paper/4' style={{ maskImage: 'radial-gradient(ellipse at 50% 50%, black 50%, transparent 100%)' }} aria-hidden='true' />
                     <svg viewBox={`0 0 ${map.width} ${map.height}`} className='absolute inset-0 size-full overflow-visible' style={{ maskImage: 'radial-gradient(ellipse at 50% 50%, black 60%, transparent 100%)' }} aria-hidden='true'>
-                        <path d={map.water} fill='currentColor' fillOpacity='0.12' />
-                        {map.streets.map((d) => (
-                            <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.45' strokeWidth='11' strokeLinecap='round' strokeLinejoin='round' />
-                        ))}
+                        {/* The harbour and the quay's edge */}
+                        <path d={map.water} fill='currentColor' fillOpacity='0.1' />
+                        <path d={map.quay} fill='none' stroke='currentColor' strokeOpacity='0.5' strokeWidth='3' strokeDasharray='6 9' strokeLinecap='round' />
+                        {/* The walking street and the square, a soft band */}
+                        {map.zone.map((d) => <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.07' strokeWidth='64' strokeLinecap='round' strokeLinejoin='round' />)}
+                        {/* The lanes */}
+                        {map.side.map((d) => <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.3' strokeWidth='6' strokeLinecap='round' strokeLinejoin='round' />)}
+                        {/* The wider streets: a dark casing, then the street, so they read at the crossings */}
+                        {map.main.map((d) => <path key={d} d={d} fill='none' stroke={colors.ink} strokeOpacity='0.55' strokeWidth='22' strokeLinecap='round' strokeLinejoin='round' />)}
+                        {map.main.map((d) => <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.55' strokeWidth='12' strokeLinecap='round' strokeLinejoin='round' />)}
                         {map.labels.map((l) => (
-                            <text key={l.text} x={l.x} y={l.y} transform={`rotate(${l.angle} ${l.x} ${l.y})`} textAnchor='middle' fontSize='34' fill='currentColor' fillOpacity='0.5' className='uppercase'>
+                            <text key={l.text} x={l.x} y={l.y} transform={`rotate(${l.angle} ${l.x} ${l.y})`} textAnchor='middle' fontSize='30' letterSpacing='4' fill='currentColor' fillOpacity='0.6' className='uppercase'>
                                 {l.text}
                             </text>
                         ))}
                         {/* The walk, from place to place */}
                         <polyline
                             points={places.map(({ at }) => at.join(',')).join(' ')}
-                            fill='none' stroke='currentColor' strokeOpacity='0.6' strokeWidth='5' strokeDasharray='10 16' strokeLinecap='round'
+                            fill='none' stroke='currentColor' strokeOpacity='0.7' strokeWidth='4' strokeDasharray='8 14' strokeLinecap='round'
                         />
                     </svg>
                     {places.map((stop, p) => {

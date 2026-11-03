@@ -63,9 +63,9 @@ export const players = {
             { id: 'aksel', name: 'Aksel', year: 1931 },
         ],
         places: [
-            { name: 'Det Gamle Færgeleje', image: cdn('nakskov-2026', 'image-03.webp'), at: [228, 300], label: 'right' },
-            { name: 'Axeltorv', image: cdn('nakskov-2026', 'image-01.webp'), at: [843, 556], label: 'below' },
-            { name: 'Dronningens Pakhus', image: cdn('nakskov-2026', 'image-02.webp'), at: [1113, 892], label: 'above' },
+            { name: 'Det Gamle Færgeleje', image: cdn('nakskov-2026', 'image-03.webp'), at: [230, 300], label: 'right' },
+            { name: 'Axeltorv', image: cdn('nakskov-2026', 'image-01.webp'), at: [845, 556], label: 'below' },
+            { name: 'Dronningens Pakhus', image: cdn('nakskov-2026', 'image-02.webp'), at: [1115, 890], label: 'above' },
         ].map((place, p) => ({
             ...place,
             stories: ['kirstine', 'knud', 'aksel'].map((character, c) => ({
