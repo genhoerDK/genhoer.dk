@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
@@ -37,6 +37,7 @@ export default function UpcomingMap({ projects }) {
     const isPortrait = useIsPortrait();
     const containerRef = useRef(null);
     const svgRef = useRef(null);
+    const clipId = useId().replace(/:/g, ''); // unique clipPath ids, valid inside url(#…)
     const cardRef = useRef(null);
     const map = useRef(null);         // { geo, path, g, markers, width, height, view }
     const run = useRef(0);            // increases per zoom, so an interrupted zoom doesn't reveal the card
@@ -123,6 +124,30 @@ export default function UpcomingMap({ projects }) {
                 .attr('stroke-width', 0.6)
                 .attr('vector-effect', 'non-scaling-stroke')
                 .style('transition', 'fill-opacity 700ms ease, stroke-opacity 700ms ease');
+
+            // Each project's cover image, cut to the shape of its kommune and drawn on top of the white fill
+            const kommuneOf = (project) => ({ type: 'FeatureCollection', features: geo.features.filter((f) => f.properties.KOMKODE === project.komkode) });
+            svg.selectAll('defs').data([null]).join('defs')
+                .selectAll('clipPath')
+                .data(projects, (d) => d.slug)
+                .join((enter) => enter.append('clipPath').call((c) => c.append('path')))
+                .attr('id', (d) => `${clipId}-${d.slug}`)
+                .select('path')
+                .attr('d', (d) => path(kommuneOf(d)));
+
+            g.selectAll('image.cover')
+                .data(projects, (d) => d.slug)
+                .join('image')
+                .attr('class', 'cover')
+                .attr('href', (d) => d.coverImageSmall)
+                .attr('preserveAspectRatio', 'xMidYMid slice')
+                .attr('clip-path', (d) => `url(#${clipId}-${d.slug})`)
+                .each(function (d) {
+                    const [[x0, y0], [x1, y1]] = path.bounds(kommuneOf(d));
+                    d3.select(this).attr('x', x0).attr('y', y0).attr('width', x1 - x0).attr('height', y1 - y0);
+                })
+                .style('transition', 'opacity 700ms ease')
+                .on('error', function () { d3.select(this).attr('display', 'none'); }); // keep the white fill, not a broken image
 
             const markers = g.selectAll('circle.marker')
                 .data(projects, (d) => d.slug)
@@ -287,10 +312,13 @@ function ArrowButton({ onClick, label, children }) {
     );
 }
 
-// Active kommune filled white, all others as thin outlines. project = null: outlines only.
+// Active kommune filled with the project's cover image (white underneath while it loads), all others as thin outlines.
+// project = null: outlines only.
 function highlight(g, project) {
     // style (not attr), so the CSS transition set in the draw effect fades the change
     g.selectAll('path.kommune')
         .style('fill-opacity', (f) => (project && f.properties.KOMKODE === project.komkode ? 1 : 0))
         .style('stroke-opacity', (f) => (project && f.properties.KOMKODE === project.komkode ? 1 : 0.18));
+    g.selectAll('image.cover')
+        .style('opacity', (d) => (project && d.slug === project.slug ? 1 : 0));
 }
