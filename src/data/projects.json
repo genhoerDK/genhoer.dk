@@ -1120,27 +1120,32 @@
       {
         "title": "Ankomst",
         "start": 0,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-01.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-01.webp",
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-01.webp"
       },
       {
         "title": "Godshåndtering",
         "start": 154,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-02.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-02.webp",
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-02.webp"
       },
       {
         "title": "Togfløjtesynth",
         "start": 310,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-03.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-03.webp",
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-03.webp"
       },
       {
         "title": "Ventetid",
         "start": 426,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-04.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-04.webp",
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-04.webp"
       },
       {
         "title": "Afgang",
         "start": 548,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-05.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-05.webp",
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-05.webp"
       }
     ],
     "player": "timeline",

@@ -16,7 +16,8 @@ export default function TimelinePlayer() {
     const { currentTrack, currentTime } = useAudio();
     const segments = currentTrack?.segments ?? [];
     const chapter = segments.reduce((found, s, i) => (s.start <= currentTime ? i : found), 0);
-    const image = segments[chapter]?.image ?? currentTrack?.coverImageLandscape;
+    // A landscape version of the chapter's image if there is one — the square one is cropped hard on wide screens
+    const image = segments[chapter]?.imageLandscape ?? segments[chapter]?.image ?? currentTrack?.coverImageLandscape;
 
     return (
         <div className='relative w-full h-svh'>

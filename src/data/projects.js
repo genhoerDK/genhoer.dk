@@ -16,6 +16,7 @@
 // artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
 // media                Full URLs shown in the gallery. The 4th file becomes the big tile and the 11th the wide tile
 // audio, segments      Sound work and its chapters (start in seconds). null = project without sound
+//                      A segment's imageLandscape (optional) is used behind the timeline player instead of image
 // player               Key in instruments.js for works played with buttons (e.g. "troldetoner"),
 //                      "timeline" = timeline with the chapter images (with depth). null = circular player.
 //                      See src/components/Player/interfaces/index.js
