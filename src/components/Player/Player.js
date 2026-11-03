@@ -10,14 +10,23 @@ import Label from '@/components/UI/Label';
 import TracksOverview from '@/components/Player/TracksOverview';
 import CircularScrubber from '@/components/Player/CircularScrubber';
 import InstrumentPlayer from '@/components/Player/InstrumentPlayer';
-import ChapterScenePlayer from '@/components/Player/ChapterScenePlayer';
-import { useAudio, isInstrument } from '@/context/AudioContext';
+import TimelinePlayer from '@/components/Player/TimelinePlayer';
+import { interfaceFor } from '@/components/Player/interfaces';
+import { useAudio } from '@/context/AudioContext';
+
+/** The interface module for each kind of player — see interfaces/index.js */
+const interfaces = {
+    circular: CircularScrubber,
+    timeline: TimelinePlayer,
+    buttons: InstrumentPlayer,
+};
 
 export default function Player() {
     /** Read URL params to check if player should be open */
     const searchParams = useSearchParams();
     const isOpen = searchParams.has('lyt');
     const { currentTrack } = useAudio();
+    const Interface = interfaces[interfaceFor(currentTrack)];
     useScrollLock(isOpen);
 
     /** Track if Tracks Overview panel is open */
@@ -39,10 +48,7 @@ export default function Player() {
 
     return (
         <Overlay active={isOpen}>
-            {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} />
-                : isInstrument(currentTrack) ? <InstrumentPlayer />
-                : currentTrack?.player === 'scene' ? <ChapterScenePlayer />
-                : <CircularScrubber />}
+            {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} /> : <Interface />}
 
             <Button variant="pill" onClick={toggleTracksOverview} className='absolute z-20 right-gutter top-10 gap-2 py-1.5 px-3'>
                 {tracksOverviewOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" />}
