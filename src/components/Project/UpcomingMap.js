@@ -15,6 +15,7 @@ const MIN_DURATION = 1200;      // ms, shortest zoom between two kommuner
 const MAX_DURATION = 2600;      // ms, longest zoom (far apart, e.g. Jylland → Sjælland)
 const MARKER_RADIUS = 6;        // px on screen, independent of zoom
 const SWIPE_THRESHOLD = 50;     // px of horizontal finger movement that changes project
+const COVER_OPACITY = 0.6;      // cover image in the kommune; the white fill shows through, so lower = paler
 
 // Same file and Bornholm offset as the map in components/Map (Bornholm is moved closer to the rest of Denmark)
 async function loadKommuner() {
@@ -290,5 +291,5 @@ function highlight(g, project) {
         .style('fill-opacity', (f) => (project && f.properties.KOMKODE === project.komkode ? 1 : 0))
         .style('stroke-opacity', (f) => (project && f.properties.KOMKODE === project.komkode ? 1 : 0.18));
     g.selectAll('image.cover')
-        .style('opacity', (d) => (project && d.slug === project.slug ? 1 : 0));
+        .style('opacity', (d) => (project && d.slug === project.slug ? COVER_OPACITY : 0));
 }
