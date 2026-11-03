@@ -130,10 +130,11 @@ const backdropShader = {
  * @param {HTMLElement} container  Gets the canvas
  * @param {object} options
  * @param {number} [options.focus=0.5]  0–1 across the photo: what stays in view on narrow screens
+ * @param {number} [options.smoke=1]  0–1: how much smoke (0 = none)
  * @param {(stage) => void} [options.onResize]  Lay out the panel; stage.view has the panel's visible size
  * @param {(dt, t) => void} [options.onFrame]
  */
-export function createStage(container, { focus = 0.5, onResize, onFrame } = {}) {
+export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, onResize, onFrame } = {}) {
     let disposed = false;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -237,7 +238,7 @@ export function createStage(container, { focus = 0.5, onResize, onFrame } = {}) 
     // Light wisps show over the dark parts of the photo, grey (shadowed) ones over the sky
     const smokeTextures = [1, 2, 3, 4].map(smokeTexture);
     const smokeTones = [colors.paper, colors.paper, colors.hard];
-    const smoke = Array.from({ length: 26 }, (_, i) => {
+    const smoke = Array.from({ length: smokeLevel > 0 ? 26 : 0 }, (_, i) => {
         const material = new THREE.SpriteMaterial({
             map: smokeTextures[i % 4], transparent: true, depthWrite: false, fog: false, toneMapped: false,
             color: smokeTones[i % 3], opacity: 0,
@@ -341,7 +342,8 @@ export function createStage(container, { focus = 0.5, onResize, onFrame } = {}) 
     const tick = () => {
         frame = requestAnimationFrame(tick);
         const now = performance.now();
-        const dt = Math.min((now - last) / 1000, 0.05);
+        const elapsed = (now - last) / 1000;      // wall time, for the fades
+        const dt = Math.min(elapsed, 0.05);       // capped, for the motion (no jumps after a stall)
         last = now;
         t += dt;
         const ease = 1 - Math.exp(-dt * 4);
@@ -358,9 +360,9 @@ export function createStage(container, { focus = 0.5, onResize, onFrame } = {}) 
 
         // Near parts of the photo move further than the camera's drift alone moves it
         uniforms.uShift.value.set(-orbit.x * PARALLAX, orbit.y * PARALLAX);
-        if (uniforms.uMapA.value && uniforms.uOpacity.value < 1) uniforms.uOpacity.value = Math.min(1, uniforms.uOpacity.value + dt);
+        if (uniforms.uMapA.value && uniforms.uOpacity.value < 1) uniforms.uOpacity.value = Math.min(1, uniforms.uOpacity.value + elapsed);
         if (fading) {
-            uniforms.uMix.value = Math.min(1, uniforms.uMix.value + dt / 1.2);
+            uniforms.uMix.value = Math.min(1, uniforms.uMix.value + elapsed / 1.2);
             if (uniforms.uMix.value >= 1) settle();
         }
 
@@ -374,7 +376,7 @@ export function createStage(container, { focus = 0.5, onResize, onFrame } = {}) 
             }
             const breathe = 0.65 + 0.35 * Math.sin(t * 0.1 + puff.phase);
             const edge = 1 - Math.min(1, Math.abs(sprite.position.x) / 8) ** 4;
-            sprite.material.opacity = puff.strength * breathe * edge * Math.min(1, t / 3);
+            sprite.material.opacity = puff.strength * smokeLevel * breathe * edge * Math.min(1, t / 3);
         });
 
         onFrame?.(dt, t);

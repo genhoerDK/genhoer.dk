@@ -5,25 +5,16 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useScrollLock } from "@/hooks/useScrollLock";
 import Overlay from '@/components/Layout/Overlay';
 import TracksOverview from '@/components/Player/TracksOverview';
-import CircularScrubber from '@/components/Player/CircularScrubber';
-import InstrumentPlayer from '@/components/Player/InstrumentPlayer';
-import TimelinePlayer from '@/components/Player/TimelinePlayer';
-import { interfaceFor } from '@/components/Player/interfaces';
+import { components } from '@/components/Player/interfaces';
+import { settingsFor, DEFAULT_INTERFACE } from '@/components/Player/interfaces/registry';
 import { useAudio } from '@/context/AudioContext';
 
-/** The interface module for each kind of player — see interfaces/index.js */
-const interfaces = {
-    circular: CircularScrubber,
-    timeline: TimelinePlayer,
-    buttons: InstrumentPlayer,
-};
-
+/** The player overlay (?lyt): the current work in its interface, or the overview of works (?lyt=vaerker) */
 export default function Player() {
-    /** Read URL params to check if player should be open */
     const searchParams = useSearchParams();
     const isOpen = searchParams.has('lyt');
     const { currentTrack } = useAudio();
-    const Interface = interfaces[interfaceFor(currentTrack)];
+    const Interface = components[currentTrack?.player?.interface ?? DEFAULT_INTERFACE];
     useScrollLock(isOpen);
 
     /** The overview of works is part of the address (?lyt=vaerker); its button is in the toolbar */
@@ -31,16 +22,19 @@ export default function Player() {
     const tracksOverviewOpen = searchParams.get('lyt') === 'vaerker';
     const closeTracksOverview = () => router.replace('?lyt', { scroll: false });
 
+    /** Light for the overview, otherwise what the interface asks for */
+    const tone = tracksOverviewOpen ? 'paper' : settingsFor(currentTrack).tone;
+
     /** Track if component has mounted to prevent hydration errors */
     const [mounted, setMounted] = useState(false);
-
-    /** Set mounted to true after first render */
     useEffect(() => { setMounted(true); }, []);
     if (!mounted) return null;
 
     return (
-        <Overlay active={isOpen}>
-            {tracksOverviewOpen ? <TracksOverview toggleOverview={closeTracksOverview} /> : <Interface />}
+        <Overlay active={isOpen} tone={tone}>
+            {tracksOverviewOpen
+                ? <TracksOverview toggleOverview={closeTracksOverview} />
+                : currentTrack && <Interface key={currentTrack.slug} />}
         </Overlay>
     );
 }

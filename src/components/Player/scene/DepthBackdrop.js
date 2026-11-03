@@ -9,24 +9,25 @@
  * @param {string} image   Photo URL
  * @param {string} [depth] Depth map URL (light = near). Without one the photo moves as a flat layer
  * @param {number} [focus] 0–1 across the photo: what stays in view on narrow screens
+ * @param {number} [smoke] 0–1: how much smoke drifts in front of the photo
  */
 
 import { useEffect, useRef } from 'react';
 import { createStage } from '@/components/Player/scene/stage';
 
-export default function DepthBackdrop({ image, depth, focus = 0.5 }) {
+export default function DepthBackdrop({ image, depth, focus = 0.5, smoke = 1 }) {
     const containerRef = useRef(null);
     const stageRef = useRef(null);
 
     useEffect(() => {
-        const stage = createStage(containerRef.current, { focus });
+        const stage = createStage(containerRef.current, { focus, smoke });
         stage.start();
         stageRef.current = stage;
         return () => {
             stage.dispose();
             stageRef.current = null;
         };
-    }, [focus]);
+    }, [focus, smoke]);
 
     useEffect(() => {
         if (image) stageRef.current?.setBackdrop(image, depth);

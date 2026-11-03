@@ -389,6 +389,10 @@ export default class Instrument {
         return this.musicBuffer?.duration ?? 0;
     }
 
+    /** Like the other engines (src/audio/engines.js): where the music loop is */
+    get duration() { return this.loopDuration; }
+    get position() { return this.loopPosition; }
+
     get loopPosition() {
         if (!this.musicSource) return 0;
         return (this.ctx.currentTime - this.musicStartedAt) % this.loopDuration;

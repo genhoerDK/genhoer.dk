@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAudio, isInstrument } from '@/context/AudioContext';
+import { useAudio } from '@/context/AudioContext';
+import { settingsFor } from '@/components/Player/interfaces/registry';
 import { getProjectInfo } from "@/utilities/projectInfo";
 import BackgroundImage from '@/components/Layout/BackgroundImage';
 import ProjectDescription from '@/components/Project/ProjectDescription';
@@ -11,9 +12,9 @@ import ProjectSponsors from '@/components/Project/ProjectSponsors';
 
 export default function ProjectHeroSection({ project }) {
     const { initialized, setTrack, currentTrack, play, pause, isPlaying } = useAudio();
-    const { title, slug, description, audio, sponsorLogos } = project;
+    const { title, slug, description, player, sponsorLogos } = project;
     const isProjectPlaying = isPlaying && currentTrack?.slug === slug;
-    const hasAudio = !!audio || isInstrument(project);
+    const hasAudio = !!player;
     const router = useRouter();
 
     useEffect(() => {
@@ -22,9 +23,10 @@ export default function ProjectHeroSection({ project }) {
 
     const togglePlayback = () => {
         if (!hasAudio) return;
-        isProjectPlaying ? pause() : play(project);
-        // An instrument needs its buttons — open the player
-        if (!isProjectPlaying && isInstrument(project)) router.replace('?lyt', { scroll: false });
+        if (isProjectPlaying) return pause();
+        play(project);
+        // A work that is played with its interface (buttons, a walk …) opens the player
+        if (settingsFor(project).opens) router.replace('?lyt', { scroll: false });
     };
 
     return (

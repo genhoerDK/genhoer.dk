@@ -17,7 +17,8 @@
 // artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
 // media                Full URLs shown in the gallery. The 4th file becomes the big tile and the 11th the wide tile
 // audio, segments      Sound work and its chapters (start in seconds). null = project without sound
-// player               Not from genhoer-data yet: laid over from players.js (with a chapter's imageLandscape)
+// player               How the work is played — not from genhoer-data yet: laid over from players.js
+//                      ({ interface, files, ... } or null; a chapter may get an imageLandscape)
 // composer             Not shown on the site at the moment
 import data from './projects.json';
 import { withPlayer } from './players';

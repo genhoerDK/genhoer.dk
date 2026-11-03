@@ -1,0 +1,72 @@
+# Afspilleren
+
+Hvert lydværk på genhoer.dk afspilles i et *interface*, der passer til den form, værket havde i
+virkeligheden. Afspilleren er sat sammen af tre lag:
+
+```
+src/data/players.js                       Hvilket interface hvert værk får, og dets indstillinger
+src/components/Player/interfaces/         Interfacene (det man ser og rører ved)
+src/audio/                                Lydmotorerne (det man hører)
+src/context/AudioContext.js               Binder dem sammen: ét værk er "det aktuelle" ad gangen
+```
+
+## Et værks afspiller
+
+`players.js` lægger et `player`-objekt på projektet fra genhoer-data (`projects.json`):
+
+```js
+'tvaerveje': { interface: 'walk', places: [...], characters: [...] },
+```
+
+Et værk med en lydfil (`audio` fra genhoer-data) og ingen linje her får **tidslinjen**. Et værk uden
+lyd får ingen afspiller. Lydfiler, der endnu ikke ligger på CDN'et, skrives som
+`placeholder:<navn>?s=<sekunder>&seed=<tal>` og syntetiseres i browseren (`src/audio/placeholder.js`);
+byt strengen ud med filens URL, og intet andet ændrer sig.
+
+Indstillingerne hører hjemme i genhoer-data på sigt (en `afspiller`-blok under `hjemmeside` i
+projektfilen, skrevet ind i `projects.json` af Data-workflowet). Indtil da ligger de her, så de
+overlever, at `projects.json` skrives forfra.
+
+## Interfacene
+
+| interface   | værk                    | motor        | hvad man gør |
+|-------------|-------------------------|--------------|--------------|
+| `timeline`  | de fleste               | `file`       | Spoler på en linje med ét stykke pr. kapitel, kapitelliste, tastatur (mellemrum, pile, 1–9) |
+| `circular`  | (den gamle runde)       | `file`       | Den runde spoler fra før; kan stadig vælges |
+| `buttons`   | Troldetoner             | `instrument` | Trykker på fem 3D-knapper, der spiller toner over et musikloop (`src/audio/Instrument.js`) |
+| `loop`      | Under overfladen        | `loop`       | Et loop kører under overfladen; én knap bringer det op i ti sekunder (`src/audio/Loop.js`) |
+| `countdown` | 53 sekunder til fælles  | `file`       | Elevatorens knap og display: hvert tryk er en tur med den næste af tolv variationer |
+| `walk`      | Tværveje                | `file`       | Et lille kort med tre steder; på hvert sted de tre karakterers fortællinger |
+| `quad`      | Kanon i G3              | `quad`       | Fire højttalere omkring lytteren (HRTF, bedst med hovedtelefoner); man drejer sig (`src/audio/Quad.js`) |
+
+`interfaces/registry.js` siger, hvad hvert interface behøver (motor, lys eller mørk baggrund, om det
+åbner afspilleren fra projektsiden, om filen looper). `interfaces/index.js` peger på komponenterne.
+
+**Motorerne.** `file` er lydelementet i `AudioContext.js`: ét spor ad gangen, låseskærm og
+baggrundsafspilning på telefoner. Værker med flere filer (countdown, walk) vælger selv en fil med
+`playFile()`. De øvrige motorer er klasser i `src/audio/` med samme overflade: `start()`, `pause()`,
+`dispose()`, `getState()` og `position` / `duration` til minispilleren. De oprettes i `play()`, så
+klikket låser lyden op (iOS).
+
+## Rammen
+
+Alle interfaces står i `PlayerShell.js`: værkets foto bagved (med dybde, `scene/DepthBackdrop.js`,
+three.js hentes først når afspilleren åbnes), dæmpet og i sort-hvid, mørkere i top og bund; titel,
+sted og en linje om, hvordan værket spilles, øverst til venstre; interfacets knapper i baren nederst
+(`<Controls>`). Afspilleren er mørk ligesom projektsidens hero, så man går fra siden ind i rummet,
+hvor værket spiller. Headeren og værktøjslinjen bliver lyse ovenpå (`useChrome`).
+
+## Et nyt interface
+
+1. En komponent i `interfaces/`, der bruger `PlayerShell`, `Controls` og `useAudio()` (og
+   `useEngineState()` for en motor). Tastatur: lad `keyIsTaken(e)` afgøre, hvad der ikke skal røres.
+2. En linje i `interfaces/registry.js` og i `interfaces/index.js`.
+3. Skal det have sin egen lyd, en klasse i `src/audio/` og en linje i `src/audio/engines.js`.
+4. Værkets indstillinger i `src/data/players.js`.
+
+## Test
+
+`scripts/` i repoet har ingen browsertest. Under udviklingen blev interfacene kørt igennem med
+Playwright på desktop (1440 × 900) og iPhone 14: afspil og pause, spoling med mus og finger,
+kapitellisten, tastaturet, knappen over overfladen og tiden under, nedtællingens tempo, gåturen
+mellem stederne og den fortælling, der følger efter, og drejningen i rummet.

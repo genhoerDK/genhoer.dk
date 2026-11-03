@@ -1,35 +1,24 @@
 'use client';
 
 /**
- * Player for sound works played with buttons (see src/audio/Instrument.js), shown as a
- * 3D scene (InstrumentScene.js). Press and hold like the physical buttons.
- * Keys 1–5 work too.
-
+ * Interface: buttons — a work played with buttons (src/audio/Instrument.js), shown as a 3D scene
+ * (InstrumentScene.js) that draws its own photo behind the buttons. Press and hold like the
+ * physical buttons; keys 1–5 work too.
  */
 
-import { useState, useEffect } from 'react';
-import { useAudio } from '@/context/AudioContext';
+import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { PlayCircleIcon } from '@heroicons/react/20/solid';
+import { useAudio } from '@/context/AudioContext';
+import { useEngineState } from '@/components/Player/interfaces/useEngineState';
+import PlayerShell, { Controls, Status } from '@/components/Player/PlayerShell';
+import StartButton from '@/components/Player/interfaces/StartButton';
 
 /** three.js is only loaded when an instrument is opened */
 const InstrumentScene = dynamic(() => import('@/components/Player/InstrumentScene'), { ssr: false });
 
 export default function InstrumentPlayer() {
-    const { currentTrack, instrument, isPlaying, play } = useAudio();
-    const [state, setState] = useState(null);
-
-    /** Read the instrument's state every frame */
-    useEffect(() => {
-        if (!instrument) return;
-        let frame;
-        const read = () => {
-            setState(instrument.getState());
-            frame = requestAnimationFrame(read);
-        };
-        read();
-        return () => cancelAnimationFrame(frame);
-    }, [instrument]);
+    const { currentTrack, engine: instrument, isPlaying, play } = useAudio();
+    const state = useEngineState(instrument, 60);
 
     /** Keys 1–5 press and release the buttons */
     useEffect(() => {
@@ -51,30 +40,24 @@ export default function InstrumentPlayer() {
     const ready = isPlaying && state?.loaded;
 
     return (
-        <div className='relative flex flex-col justify-center items-center w-full h-svh'>
-            <h2 className='absolute z-10 left-gutter top-12 leading-none font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
-
+        <PlayerShell track={currentTrack} backdrop={false} hint='Spil på troldens lur: tryk på knapperne, og hold dem nede for lange toner. Lyt efter sagnene undervejs.'>
             {instrument && (
                 <InstrumentScene
                     instrument={instrument}
                     ready={ready}
-                    cover={currentTrack?.coverImageLandscape}
+                    cover={currentTrack.coverImageLandscape}
                     coverDepth={instrument.config.coverDepth}
                     coverFocus={instrument.config.coverFocus}
                 />
             )}
 
             {!isPlaying ? (
-                <button className="absolute inset-0 flex items-center justify-center cursor-pointer z-10" onClick={() => play()}>
-                    <div className="absolute size-80 bg-paper blur-xl opacity-80 rounded-full"></div>
-                    <PlayCircleIcon className="size-24 text-ink z-10" />
-                </button>
+                <StartButton onClick={() => play()} />
             ) : state?.error ? (
-                <p className='absolute z-10 bottom-32 text-xs uppercase'>Lydfilerne kunne ikke hentes</p>
+                <Controls className='flex justify-center'><Status>Lydfilerne kunne ikke hentes</Status></Controls>
             ) : !state?.loaded ? (
-                <p className='absolute z-10 bottom-32 text-xs uppercase animate-pulse'>Henter lyd …</p>
+                <Controls className='flex justify-center'><Status pulse>Henter lyd …</Status></Controls>
             ) : null}
-
-        </div>
+        </PlayerShell>
     );
 }
