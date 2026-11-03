@@ -1,30 +1,35 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useScrollLock } from "@/hooks/useScrollLock";
-import { XMarkIcon, MusicalNoteIcon } from '@heroicons/react/20/solid';
 import Overlay from '@/components/Layout/Overlay';
-import Button from '@/components/UI/Button';
-import Label from '@/components/UI/Label';
 import TracksOverview from '@/components/Player/TracksOverview';
 import CircularScrubber from '@/components/Player/CircularScrubber';
+import InstrumentPlayer from '@/components/Player/InstrumentPlayer';
+import TimelinePlayer from '@/components/Player/TimelinePlayer';
+import { interfaceFor } from '@/components/Player/interfaces';
+import { useAudio } from '@/context/AudioContext';
+
+/** The interface module for each kind of player — see interfaces/index.js */
+const interfaces = {
+    circular: CircularScrubber,
+    timeline: TimelinePlayer,
+    buttons: InstrumentPlayer,
+};
 
 export default function Player() {
     /** Read URL params to check if player should be open */
     const searchParams = useSearchParams();
     const isOpen = searchParams.has('lyt');
+    const { currentTrack } = useAudio();
+    const Interface = interfaces[interfaceFor(currentTrack)];
     useScrollLock(isOpen);
 
-    /** Track if Tracks Overview panel is open */
-    const [tracksOverviewOpen, setTracksOverviewOpen] = useState(false);
-
-    useEffect(() => {
-        setTracksOverviewOpen(false);
-    }, [isOpen]);
-
-    /** Toggle Tracks Overview panel open/closed */
-    const toggleTracksOverview = () => { setTracksOverviewOpen(prev => !prev); }
+    /** The overview of works is part of the address (?lyt=vaerker); its button is in the toolbar */
+    const router = useRouter();
+    const tracksOverviewOpen = searchParams.get('lyt') === 'vaerker';
+    const closeTracksOverview = () => router.replace('?lyt', { scroll: false });
 
     /** Track if component has mounted to prevent hydration errors */
     const [mounted, setMounted] = useState(false);
@@ -35,12 +40,7 @@ export default function Player() {
 
     return (
         <Overlay active={isOpen}>
-            {tracksOverviewOpen ? <TracksOverview toggleOverview={toggleTracksOverview} /> : <CircularScrubber />}
-
-            <Button variant="pill" onClick={toggleTracksOverview} className='absolute right-4 bottom-14 md:right-1/2 md:translate-x-1/2 md:bottom-8 gap-2 py-2 px-3'>
-                {tracksOverviewOpen ? <XMarkIcon className="size-5" /> : <MusicalNoteIcon className="size-5" />}
-                <Label size="lg">Værker</Label>
-            </Button>
+            {tracksOverviewOpen ? <TracksOverview toggleOverview={closeTracksOverview} /> : <Interface />}
         </Overlay>
     );
 }

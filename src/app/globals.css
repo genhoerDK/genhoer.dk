@@ -37,6 +37,30 @@
     }
 }
 
+/*
+ * Chrome: the colours of the header and the toolbar (logo, links, buttons).
+ * Classes: text-chrome, bg-chrome, bg-chrome-bg, bg-chrome-soft, fill-chrome …
+ * data-chrome="light" on an element switches everything inside it to light on dark
+ * (src/hooks/useChrome.js decides when, from what is under the header).
+ */
+@theme inline {
+    --color-chrome: var(--chrome);
+    --color-chrome-bg: var(--chrome-bg);
+    --color-chrome-soft: var(--chrome-soft);
+}
+
+:root {
+    --chrome: var(--color-ink);
+    --chrome-bg: var(--color-paper);
+    --chrome-soft: var(--color-soft);
+}
+
+[data-chrome="light"] {
+    --chrome: var(--color-paper);
+    --chrome-bg: var(--color-ink);
+    --chrome-soft: var(--color-shade);   /* opaque, so overlapping pieces (the mini player's icon and pill) don't show */
+}
+
 /* Swiper (tracks overview) */
 
 :root {

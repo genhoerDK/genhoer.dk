@@ -1,0 +1,80 @@
+'use client';
+
+/**
+ * Player for sound works played with buttons (see src/audio/Instrument.js), shown as a
+ * 3D scene (InstrumentScene.js). Press and hold like the physical buttons.
+ * Keys 1–5 work too.
+
+ */
+
+import { useState, useEffect } from 'react';
+import { useAudio } from '@/context/AudioContext';
+import dynamic from 'next/dynamic';
+import { PlayCircleIcon } from '@heroicons/react/20/solid';
+
+/** three.js is only loaded when an instrument is opened */
+const InstrumentScene = dynamic(() => import('@/components/Player/InstrumentScene'), { ssr: false });
+
+export default function InstrumentPlayer() {
+    const { currentTrack, instrument, isPlaying, play } = useAudio();
+    const [state, setState] = useState(null);
+
+    /** Read the instrument's state every frame */
+    useEffect(() => {
+        if (!instrument) return;
+        let frame;
+        const read = () => {
+            setState(instrument.getState());
+            frame = requestAnimationFrame(read);
+        };
+        read();
+        return () => cancelAnimationFrame(frame);
+    }, [instrument]);
+
+    /** Keys 1–5 press and release the buttons */
+    useEffect(() => {
+        if (!instrument) return;
+        const index = (e) => {
+            const i = Number(e.key) - 1;
+            return Number.isInteger(i) && i >= 0 && i < instrument.voices.length ? i : -1;
+        };
+        const down = (e) => { const i = index(e); if (i >= 0 && !e.repeat) instrument.press(i); };
+        const up = (e) => { const i = index(e); if (i >= 0) instrument.release(i); };
+        window.addEventListener('keydown', down);
+        window.addEventListener('keyup', up);
+        return () => {
+            window.removeEventListener('keydown', down);
+            window.removeEventListener('keyup', up);
+        };
+    }, [instrument]);
+
+    const ready = isPlaying && state?.loaded;
+
+    return (
+        <div className='relative flex flex-col justify-center items-center w-full h-svh'>
+            <h2 className='absolute z-10 left-gutter top-12 leading-none font-extralight text-lg md:text-xl'>{currentTrack?.title}</h2>
+
+            {instrument && (
+                <InstrumentScene
+                    instrument={instrument}
+                    ready={ready}
+                    cover={currentTrack?.coverImageLandscape}
+                    coverDepth={instrument.config.coverDepth}
+                    coverFocus={instrument.config.coverFocus}
+                />
+            )}
+
+            {!isPlaying ? (
+                <button className="absolute inset-0 flex items-center justify-center cursor-pointer z-10" onClick={() => play()}>
+                    <div className="absolute size-80 bg-paper blur-xl opacity-80 rounded-full"></div>
+                    <PlayCircleIcon className="size-24 text-ink z-10" />
+                </button>
+            ) : state?.error ? (
+                <p className='absolute z-10 bottom-32 text-xs uppercase'>Lydfilerne kunne ikke hentes</p>
+            ) : !state?.loaded ? (
+                <p className='absolute z-10 bottom-32 text-xs uppercase animate-pulse'>Henter lyd …</p>
+            ) : null}
+
+        </div>
+    );
+}
