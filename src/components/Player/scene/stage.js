@@ -2,7 +2,8 @@
  * The shared 3D stage behind the 3D players (three.js):
  *
  *  - a photo far behind, shifted per pixel by a depth map (light = near) as the camera drifts, so
- *    near things move more than far ones — a multiplane look from one photo. Changing the photo
+ *    near things move more than far ones — a multiplane look from one photo. Without a depth map
+ *    the lower part of the photo counts as near and the top as far. Changing the photo
  *    cross-fades. Fades out at its edges so no edge ever shows.
  *  - smoke drifting between the photo and the viewer.
  *  - a camera that drifts a little by itself and with the pointer (up = look up at the sky).
@@ -104,14 +105,21 @@ const backdropShader = {
     fragmentShader: `
         uniform sampler2D uMapA, uDepthA, uMapB, uDepthB, uFade;
         uniform vec2 uScaleA, uScaleB, uShift;
-        uniform float uHasDepthA, uHasDepthB, uMix, uOpacity;
+        uniform float uHasDepthA, uHasDepthB, uMix, uOpacity, uMono;
         varying vec2 vUv;
+
+        // Without a depth map: the ground (the lower part of the photo) is near, the sky is far
+        float guessedDepth(vec2 uv) {
+            return pow(clamp(1.0 - uv.y, 0.0, 1.0), 1.7) * 0.8;
+        }
 
         vec3 sampleShifted(sampler2D map, sampler2D depth, float hasDepth, vec2 scale) {
             vec2 base = (vUv - 0.5) * scale + 0.5;
             vec2 uv = base;
             if (hasDepth > 0.5) {
                 for (int i = 0; i < 4; i++) uv = base + uShift * texture2D(depth, uv).r;
+            } else {
+                for (int i = 0; i < 4; i++) uv = base + uShift * guessedDepth(uv);
             }
             return texture2D(map, uv).rgb;
         }
@@ -119,7 +127,9 @@ const backdropShader = {
         void main() {
             vec3 a = sampleShifted(uMapA, uDepthA, uHasDepthA, uScaleA);
             vec3 b = uMix > 0.0 ? sampleShifted(uMapB, uDepthB, uHasDepthB, uScaleB) : a;
-            gl_FragColor = vec4(mix(a, b, uMix), texture2D(uFade, vUv).g * uOpacity);
+            vec3 colour = mix(a, b, uMix);
+            float grey = dot(colour, vec3(0.299, 0.587, 0.114));
+            gl_FragColor = vec4(mix(colour, vec3(grey), uMono), texture2D(uFade, vUv).g * uOpacity);
             #include <colorspace_fragment>
         }`,
 };
@@ -131,10 +141,11 @@ const backdropShader = {
  * @param {object} options
  * @param {number} [options.focus=0.5]  0–1 across the photo: what stays in view on narrow screens
  * @param {number} [options.smoke=1]  0–1: how much smoke (0 = none)
+ * @param {boolean} [options.mono=true]  The photo in black and white, like the covers
  * @param {(stage) => void} [options.onResize]  Lay out the panel; stage.view has the panel's visible size
- * @param {(dt, t) => void} [options.onFrame]
+ * @param {(dt, t, elapsed) => void} [options.onFrame]  dt is capped (motion), elapsed is wall time (easing)
  */
-export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, onResize, onFrame } = {}) {
+export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mono = true, onResize, onFrame } = {}) {
     let disposed = false;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -171,6 +182,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, onR
         uMapB: { value: null }, uDepthB: { value: null }, uScaleB: { value: new THREE.Vector2(1, 1) }, uHasDepthB: { value: 0 },
         uMix: { value: 0 },
         uOpacity: { value: 0 },
+        uMono: { value: mono ? 1 : 0 },
         uShift: { value: new THREE.Vector2() },
         uFade: { value: edgeFadeTexture() },
     };
@@ -321,14 +333,18 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, onR
         return raycaster.intersectObjects(objects, false);
     };
 
+    // The camera follows the mouse, and on touch screens a finger on the photo (back to the middle when it lifts)
     const onPointerMove = (e) => {
-        if (e.pointerType !== 'mouse') return;
+        if (e.pointerType !== 'mouse' && !e.isPrimary) return;
         const rect = canvas.getBoundingClientRect();
         orbitTarget.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
     };
     const onPointerLeave = () => orbitTarget.set(0, 0);
+    const onPointerEnd = (e) => { if (e.pointerType !== 'mouse') orbitTarget.set(0, 0); };
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerleave', onPointerLeave);
+    canvas.addEventListener('pointerup', onPointerEnd);
+    canvas.addEventListener('pointercancel', onPointerEnd);
 
     /* ---------- LOOP ---------- */
 
@@ -379,7 +395,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, onR
             sprite.material.opacity = puff.strength * smokeLevel * breathe * edge * Math.min(1, t / 3);
         });
 
-        onFrame?.(dt, t);
+        onFrame?.(dt, t, elapsed);
         renderer.render(scene, camera);
     };
 
@@ -398,6 +414,8 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, onR
             resizeObserver.disconnect();
             canvas.removeEventListener('pointermove', onPointerMove);
             canvas.removeEventListener('pointerleave', onPointerLeave);
+            canvas.removeEventListener('pointerup', onPointerEnd);
+            canvas.removeEventListener('pointercancel', onPointerEnd);
             scene.traverse((obj) => {
                 obj.geometry?.dispose();
                 const materials = Array.isArray(obj.material) ? obj.material : obj.material ? [obj.material] : [];

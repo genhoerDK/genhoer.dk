@@ -8,6 +8,7 @@
 //            quad         src/audio/Quad.js — four speakers around the listener (HRTF)
 //   tone     ink (dark, the photo behind) or paper (light) — the overlay's background
 //   opens    true: playing it from the project page opens the player, because it needs its interface
+//   silent   true: opening it from the project page starts nothing — its own button does (the elevator)
 //   loop     file engines: the file starts over when it ends (false: it stops, and the interface decides)
 
 export const INTERFACES = {
@@ -15,7 +16,7 @@ export const INTERFACES = {
     circular:  { engine: 'file', tone: 'paper', opens: false, loop: true },
     buttons:   { engine: 'instrument', tone: 'ink', opens: true },
     loop:      { engine: 'loop', tone: 'ink', opens: true },
-    countdown: { engine: 'file', tone: 'ink', opens: true, loop: false },
+    countdown: { engine: 'file', tone: 'ink', opens: true, silent: true, loop: false },
     walk:      { engine: 'file', tone: 'ink', opens: true, loop: false },
     quad:      { engine: 'quad', tone: 'ink', opens: true },
 };

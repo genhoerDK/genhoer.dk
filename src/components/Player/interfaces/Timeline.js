@@ -3,11 +3,11 @@
 /**
  * Interface: timeline — for a work that is one file, with or without chapters (segments).
  *
- * In the bar at the bottom, on one line: a round play / pause button, the timeline across the
- * screen — one piece per chapter, as long as the chapter, filled as it plays, with a needle at
- * the playing position — and the time. Above the line stands the chapter marker (number + title)
- * at the playing chapter's piece; hovering the line moves it to the chapter under the pointer.
- * The marker opens the list of chapters.
+ * In the bar at the bottom: the work's title, then the chapter marker (number + title) at the
+ * left, which names the playing chapter — or the one under the pointer — and opens the list of
+ * chapters. Under it, on one line: a round play / pause button, the timeline across the screen —
+ * one piece per chapter, as long as the chapter, filled as it plays, with a needle at the
+ * playing position — and the time.
  *
  *  - tap / click / drag on the line to seek
  *  - keyboard on the line: ←/→ ±10 s, Home / End; anywhere: space = play / pause, 1–9 = chapter,
@@ -45,7 +45,7 @@ export default function Timeline({ track }) {
     });
     const current = pieces.reduce((found, p) => (p.start <= currentTime ? p.index : found), 0);
     const total = pieces.reduce((sum, p) => sum + p.length, 0);
-    const leftOf = (i) => (pieces.slice(0, i).reduce((sum, p) => sum + p.length, 0) / total) * 100;   // % along the line
+    const leftOf = (i) => (pieces.slice(0, i).reduce((sum, p) => sum + p.length, 0) / total) * 100;   // % along the line, for the needle
     const filledOf = (p) => (duration ? Math.min(Math.max((currentTime - p.start) / (p.end - p.start), 0), 1) : 0);
     const needle = leftOf(current) + (pieces[current].length / total) * 100 * filledOf(pieces[current]);
 
@@ -123,7 +123,23 @@ export default function Timeline({ track }) {
     const shown = hover ?? { index: current };
 
     return (
-        <Controls className='flex items-center gap-3 md:gap-4'>
+        <Controls title={track.title}>
+            {/* ---------- MARKER / LIST (the list opens upwards from the marker's place) ---------- */}
+            <div className='relative mb-3 h-7'>
+                {listOpen ? (
+                    <ChapterList ref={listRef} pieces={pieces} current={current} onPick={(i) => { jumpTo(i); setListOpen(false); }} onClose={() => setListOpen(false)} />
+                ) : (
+                    <ChapterMarker
+                        number={shown.index + 1}
+                        count={segments.length}
+                        title={segments[shown.index].title}
+                        hovering={!!hover && shown.index !== current}
+                        onClick={hasChapters ? () => setListOpen(true) : undefined}
+                    />
+                )}
+            </div>
+
+            <div className='flex items-center gap-3 md:gap-4'>
             {/* ---------- PLAY / PAUSE ---------- */}
             <button
                 onClick={togglePlayback}
@@ -133,21 +149,8 @@ export default function Timeline({ track }) {
                 {isPlaying ? <PauseIcon className='size-5' /> : <PlayIcon className='size-5 ml-0.5' />}
             </button>
 
-            {/* ---------- MARKER / LIST, AND THE LINE ---------- */}
+            {/* ---------- THE LINE ---------- */}
             <div className='relative flex-1 min-w-0'>
-                {listOpen ? (
-                    <ChapterList ref={listRef} pieces={pieces} current={current} onPick={(i) => { jumpTo(i); setListOpen(false); }} onClose={() => setListOpen(false)} />
-                ) : (
-                    <ChapterMarker
-                        number={shown.index + 1}
-                        count={segments.length}
-                        title={segments[shown.index].title}
-                        at={leftOf(shown.index)}
-                        hovering={!!hover && shown.index !== current}
-                        onClick={hasChapters ? () => setListOpen(true) : undefined}
-                    />
-                )}
-
                 <div
                     ref={lineRef}
                     role='slider'
@@ -192,20 +195,20 @@ export default function Timeline({ track }) {
             <Label size='lg' className='shrink-0 tabular-nums text-muted'>
                 {buffering && isPlaying ? <span className='animate-pulse'>Henter …</span> : <>{formatTime(currentTime)} <span className='text-hard'>/ {formatTime(duration)}</span></>}
             </Label>
+            </div>
         </Controls>
     );
 }
 
-/** Number and title of a chapter, standing above its piece of the line. Opens the list when there are chapters */
-function ChapterMarker({ number, count, title, at, hovering, onClick }) {
+/** Number and title of a chapter. Opens the list when there are chapters */
+function ChapterMarker({ number, count, title, hovering, onClick }) {
     const Tag = onClick ? 'button' : 'div';
     return (
         <Tag
             onClick={onClick}
             aria-haspopup={onClick ? 'listbox' : undefined}
             aria-label={onClick ? `Kapitel ${number} af ${count}: ${title}. Vis kapitlerne` : undefined}
-            className={`absolute bottom-full mb-3 flex items-stretch max-w-full transition-[left,translate] duration-300 ease-out motion-reduce:transition-none group/marker ${onClick ? 'cursor-pointer' : 'pointer-events-none'}`}
-            style={{ left: `${at}%`, translate: `-${at}% 0` }}
+            className={`flex items-stretch max-w-full group/marker ${onClick ? 'cursor-pointer' : 'pointer-events-none'}`}
         >
             <span className={`flex items-center px-1.5 tabular-nums transition-colors ${hovering ? 'bg-muted' : 'bg-paper'} text-ink`}>
                 <Label size='lg'>{pad(number)}<span className='opacity-50'>/{pad(count)}</span></Label>
@@ -221,7 +224,7 @@ function ChapterMarker({ number, count, title, at, hovering, onClick }) {
 /** The chapters, to jump between */
 function ChapterList({ ref, pieces, current, onPick, onClose }) {
     return (
-        <div ref={ref} role='listbox' aria-label='Kapitler' className='absolute bottom-full left-0 mb-3 w-full max-w-sm max-h-[55svh] overflow-y-auto bg-ink/85 backdrop-blur-md text-paper'>
+        <div ref={ref} role='listbox' aria-label='Kapitler' className='absolute bottom-0 left-0 w-full max-w-sm max-h-[55svh] overflow-y-auto bg-ink/85 backdrop-blur-md text-paper'>
             <div className='flex items-center justify-between pl-3 pr-1 py-1 border-b border-paper/10'>
                 <Label size='lg' className='text-faint'>Kapitler</Label>
                 <button onClick={onClose} aria-label='Luk' className='p-1.5 cursor-pointer text-faint md:hover:text-paper'><XMarkIcon className='size-4' /></button>

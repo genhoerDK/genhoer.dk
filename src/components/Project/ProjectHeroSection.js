@@ -24,9 +24,11 @@ export default function ProjectHeroSection({ project }) {
     const togglePlayback = () => {
         if (!hasAudio) return;
         if (isProjectPlaying) return pause();
-        play(project);
+        const settings = settingsFor(project);
+        // A work with its own start button (the elevator) only opens; the others start playing
+        if (settings.silent) setTrack(project); else play(project);
         // A work that is played with its interface (buttons, a walk …) opens the player
-        if (settingsFor(project).opens) router.replace('?lyt', { scroll: false });
+        if (settings.opens) router.replace('?lyt', { scroll: false });
     };
 
     return (

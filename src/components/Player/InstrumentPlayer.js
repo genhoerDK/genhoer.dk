@@ -40,7 +40,7 @@ export default function InstrumentPlayer() {
     const ready = isPlaying && state?.loaded;
 
     return (
-        <PlayerShell track={currentTrack} backdrop={false} hint='Spil på troldens lur: tryk på knapperne, og hold dem nede for lange toner. Lyt efter sagnene undervejs.'>
+        <PlayerShell track={currentTrack} backdrop={false}>
             {instrument && (
                 <InstrumentScene
                     instrument={instrument}
@@ -53,11 +53,11 @@ export default function InstrumentPlayer() {
 
             {!isPlaying ? (
                 <StartButton onClick={() => play()} />
-            ) : state?.error ? (
-                <Controls className='flex justify-center'><Status>Lydfilerne kunne ikke hentes</Status></Controls>
-            ) : !state?.loaded ? (
-                <Controls className='flex justify-center'><Status pulse>Henter lyd …</Status></Controls>
-            ) : null}
+            ) : (
+                <Controls title={currentTrack.title} hint={state?.error ? undefined : 'Tryk på knapperne — hold for lange toner'}>
+                    {state?.error ? <Status>Lydfilerne kunne ikke hentes</Status> : !state?.loaded ? <Status pulse>Henter lyd …</Status> : null}
+                </Controls>
+            )}
         </PlayerShell>
     );
 }

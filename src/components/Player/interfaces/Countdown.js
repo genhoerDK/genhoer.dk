@@ -3,12 +3,12 @@
 /**
  * Interface: countdown — the elevator's button and display (53 sekunder til fælles).
  *
- * Each press is a ride: the next of the variations plays (a file each, through the audio element),
- * the display lights up with the number and after a few seconds counts down, one count per
- * `tempo` seconds — some rides count slower or faster, and one breaks down on the way. When the
- * ride ends the display goes dark; the next press takes the next variation. A press during a ride
- * does nothing, like the button in the elevator; the dots under the display pick a variation
- * directly. Space or Enter press the button.
+ * Nothing plays until the button is pressed. Each press is a ride: the next of the variations
+ * plays (a file each, through the audio element), the display lights up with the number and
+ * after a few seconds counts down, one count per `tempo` seconds — some rides count slower or
+ * faster, and one breaks down on the way. When the ride ends the display goes dark; the next
+ * press takes the next variation. A press during a ride does nothing, like the button in the
+ * elevator. Space or Enter press the button.
  *
  *   player.from     the number the display starts at (53)
  *   player.delay    seconds before it starts counting
@@ -16,11 +16,10 @@
  */
 
 import { useEffect } from 'react';
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useAudio } from '@/context/AudioContext';
+import { keyIsTaken } from '@/components/Player/interfaces/keys';
 import PlayerShell, { Controls } from '@/components/Player/PlayerShell';
 import Label from '@/components/UI/Label';
-import { keyIsTaken } from '@/components/Player/interfaces/keys';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -55,8 +54,8 @@ export default function CountdownPlayer() {
     });
 
     return (
-        <PlayerShell track={currentTrack} smoke={0.25} hint='Tryk på knappen, og kør med. Hver tur er en ny variation af de 53 sekunder.'>
-            <Controls className='flex flex-col items-center gap-5 md:gap-6'>
+        <PlayerShell track={currentTrack} smoke={0.25}>
+            <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-5 md:gap-6'>
                 {/* ---------- THE DISPLAY ---------- */}
                 <div className='flex flex-col items-center'>
                     <div
@@ -65,8 +64,8 @@ export default function CountdownPlayer() {
                     >
                         {pad(count)}
                     </div>
-                    <Label size='lg' className='mt-3 text-muted'>
-                        {on ? `${track.title} af ${tracks.length}` : loaded >= 0 ? `Næste: ${tracks[nextIndex].title}` : 'Tryk, og kør med'}
+                    <Label size='lg' className='mt-3 text-faint'>
+                        {on ? `${track.title} af ${tracks.length}` : 'Tryk, og kør med'}
                     </Label>
                 </div>
 
@@ -77,26 +76,8 @@ export default function CountdownPlayer() {
                     aria-disabled={riding}
                     className={`flex items-center justify-center size-20 rounded-full border transition-colors group ${riding ? 'border-paper/60 cursor-default' : 'border-paper/30 cursor-pointer md:hover:border-paper'}`}
                 >
-                    <span className={`flex items-center justify-center size-14 rounded-full transition-colors ${riding ? 'bg-paper text-ink animate-pulse' : 'bg-paper text-ink md:group-hover:bg-muted'}`}>
-                        <ArrowRightIcon className='size-7' />
-                    </span>
+                    <span className={`block size-14 rounded-full transition-colors ${riding ? 'bg-paper/20' : 'bg-paper md:group-hover:bg-muted'}`} />
                 </button>
-
-                {/* ---------- THE VARIATIONS ---------- */}
-                <ol className='flex gap-2.5' aria-label='Variationer'>
-                    {tracks.map((t, i) => (
-                        <li key={t.file}>
-                            <button
-                                onClick={() => playFile(t.file)}
-                                aria-label={t.title}
-                                aria-current={i === loaded ? 'true' : undefined}
-                                className='flex items-center justify-center size-5 -m-1 cursor-pointer group'
-                            >
-                                <span className={`block size-2 rounded-full transition-colors ${i === loaded ? 'bg-paper' : i === nextIndex ? 'bg-paper/50' : 'bg-paper/20'} md:group-hover:bg-paper`} />
-                            </button>
-                        </li>
-                    ))}
-                </ol>
             </Controls>
         </PlayerShell>
     );

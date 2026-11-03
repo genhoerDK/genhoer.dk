@@ -31,13 +31,13 @@ overlever, at `projects.json` skrives forfra.
 
 | interface   | værk                    | motor        | hvad man gør |
 |-------------|-------------------------|--------------|--------------|
-| `timeline`  | de fleste               | `file`       | Spoler på en linje med ét stykke pr. kapitel, kapitelliste, tastatur (mellemrum, pile, 1–9) |
+| `timeline`  | de fleste               | `file`       | Spoler på en linje med ét stykke pr. kapitel; kapitelmarkøren til venstre åbner kapitellisten; tastatur (mellemrum, pile, 1–9) |
 | `circular`  | (den gamle runde)       | `file`       | Den runde spoler fra før; kan stadig vælges |
 | `buttons`   | Troldetoner             | `instrument` | Trykker på fem 3D-knapper, der spiller toner over et musikloop (`src/audio/Instrument.js`) |
-| `loop`      | Under overfladen        | `loop`       | Et loop kører under overfladen; én knap bringer det op i ti sekunder (`src/audio/Loop.js`) |
-| `countdown` | 53 sekunder til fælles  | `file`       | Elevatorens knap og display: hvert tryk er en tur med den næste af tolv variationer |
-| `walk`      | Tværveje                | `file`       | Et lille kort med tre steder; på hvert sted de tre karakterers fortællinger |
-| `quad`      | Kanon i G3              | `quad`       | Fire højttalere omkring lytteren (HRTF, bedst med hovedtelefoner); man drejer sig (`src/audio/Quad.js`) |
+| `loop`      | Under overfladen        | `loop`       | Et loop kører under overfladen; knappen bringer det op, holder det oppe så længe den holdes nede, og hvert tryk starter de ti sekunder forfra (`src/audio/Loop.js`) |
+| `countdown` | 53 sekunder til fælles  | `file`       | Elevatorens knap og display: intet spiller, før knappen trykkes; hvert tryk er en tur med den næste af tolv variationer |
+| `walk`      | Tværveje                | `file`       | Et kort over gaderne (`src/data/maps/`) med tre steder; på hvert sted de tre karakterers fortællinger |
+| `quad`      | Kanon i G3              | `quad`       | Kanonstillingen i 3D (`public/models/`) med fire højttalere omkring lytteren (HRTF, bedst med hovedtelefoner); musen drejer én (`src/audio/Quad.js`, `QuadScene.js`) |
 
 `interfaces/registry.js` siger, hvad hvert interface behøver (motor, lys eller mørk baggrund, om det
 åbner afspilleren fra projektsiden, om filen looper). `interfaces/index.js` peger på komponenterne.
@@ -50,11 +50,16 @@ klikket låser lyden op (iOS).
 
 ## Rammen
 
-Alle interfaces står i `PlayerShell.js`: værkets foto bagved (med dybde, `scene/DepthBackdrop.js`,
-three.js hentes først når afspilleren åbnes), dæmpet og i sort-hvid, mørkere i top og bund; titel,
-sted og en linje om, hvordan værket spilles, øverst til venstre; interfacets knapper i baren nederst
-(`<Controls>`). Afspilleren er mørk ligesom projektsidens hero, så man går fra siden ind i rummet,
-hvor værket spiller. Headeren og værktøjslinjen bliver lyse ovenpå (`useChrome`).
+Alle interfaces står i `PlayerShell.js`: værkets foto bagved med dybde (`scene/DepthBackdrop.js`,
+three.js hentes først når afspilleren åbnes), dæmpet og i sort-hvid, mørkere i top og bund;
+interfacets knapper i baren nederst (`<Controls>`) med værkets titel (lille) og, hvor der er brug for
+det, én linje om, hvordan værket spilles. Afspilleren er mørk ligesom projektsidens hero, så man går
+fra siden ind i rummet, hvor værket spiller. Headeren og værktøjslinjen bliver lyse ovenpå (`useChrome`).
+
+**Dybden.** Fotoet forskydes pixel for pixel efter et dybdekort (lyst = nær), mens kameraet driver og
+følger musen eller en finger. Dybdekortene ligger i `public/depth/<mappe>/<navn>.webp`, ét for hvert
+foto afspilleren viser, lavet med `scripts/depth-map.py` (Depth Anything V2). Et foto uden dybdekort
+får et gæt: det nederste er nær, det øverste fjernt.
 
 ## Et nyt interface
 

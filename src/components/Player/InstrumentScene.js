@@ -43,7 +43,7 @@ export default function InstrumentScene({ instrument, ready, cover, coverDepth, 
             onResize: ({ view }) => {
                 const scale = Math.min(view.width * 0.84 / rowWidth, view.height * 0.5 / rowWidth, 1);
                 row.scale.setScalar(scale);
-                const marginPx = view.aspect < 1 ? 96 : 56;
+                const marginPx = view.aspect < 1 ? 150 : 56;   // room for the title bar under them on phones
                 row.position.y = -view.height / 2 + view.height * (marginPx / view.pixelHeight) + BUTTON_SIZE * scale * 0.75;
             },
             /** Caps go down while held (by pointer or keyboard) */

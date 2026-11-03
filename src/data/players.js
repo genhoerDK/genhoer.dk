@@ -52,18 +52,20 @@ export const players = {
     },
 
     /* Tværveje: three places in Nakskov, and at each the three characters' stories (nine mono files).
-       at = where the place sits on the little map (0–1 across and down) */
+       map = the streets (src/data/maps/), at = where the place sits on it, label = where its name
+       stands (left, right, above, below the dot). The walk goes through the places in this order */
     'tvaerveje': {
         interface: 'walk',
+        map: 'nakskov',
         characters: [
             { id: 'kirstine', name: 'Kirstine', year: 1620 },
             { id: 'knud', name: 'Knud', year: 1808 },
             { id: 'aksel', name: 'Aksel', year: 1931 },
         ],
         places: [
-            { name: 'Axeltorv', image: cdn('nakskov-2026', 'image-01.webp'), at: [0.62, 0.28] },
-            { name: 'Dronningens Pakhus', image: cdn('nakskov-2026', 'image-02.webp'), at: [0.42, 0.52] },
-            { name: 'Det Gamle Færgeleje', image: cdn('nakskov-2026', 'image-03.webp'), at: [0.18, 0.74] },
+            { name: 'Det Gamle Færgeleje', image: cdn('nakskov-2026', 'image-03.webp'), at: [228, 300], label: 'right' },
+            { name: 'Axeltorv', image: cdn('nakskov-2026', 'image-01.webp'), at: [843, 556], label: 'below' },
+            { name: 'Dronningens Pakhus', image: cdn('nakskov-2026', 'image-02.webp'), at: [1113, 892], label: 'above' },
         ].map((place, p) => ({
             ...place,
             stories: ['kirstine', 'knud', 'aksel'].map((character, c) => ({
@@ -73,11 +75,13 @@ export const players = {
         })),
     },
 
-    /* Kanon i G3: four speakers in the bunker, around the listener. angle = where the speaker stands,
-       degrees clockwise from straight ahead. A stereo file's channel is picked with channel: 0 | 1 */
+    /* Kanon i G3: four speakers hanging evenly around the gun emplacement, with the listener in the
+       middle. angle = where a speaker hangs, degrees clockwise from straight ahead. A stereo file's
+       channel is picked with channel: 0 | 1. model = the emplacement in 3D (a sketch for now) */
     'kanon-i-g3': {
         interface: 'quad',
         image: cdn('bornholm-2026', 'image-03.webp'),
+        model: '/models/kanonstilling.stl',
         speakers: [
             { label: 'Forrest til venstre', angle: -45, file: placeholder('kanon-1', 40, 31, '&kind=pulse') },
             { label: 'Forrest til højre', angle: 45, file: placeholder('kanon-2', 40, 32, '&kind=pulse') },

@@ -22,8 +22,8 @@ export default function Player() {
     const tracksOverviewOpen = searchParams.get('lyt') === 'vaerker';
     const closeTracksOverview = () => router.replace('?lyt', { scroll: false });
 
-    /** Light for the overview, otherwise what the interface asks for */
-    const tone = tracksOverviewOpen ? 'paper' : settingsFor(currentTrack).tone;
+    /** Dark for the overview, otherwise what the interface asks for */
+    const tone = tracksOverviewOpen ? 'ink' : settingsFor(currentTrack).tone;
 
     /** Track if component has mounted to prevent hydration errors */
     const [mounted, setMounted] = useState(false);

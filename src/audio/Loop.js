@@ -3,11 +3,12 @@
  * a while — a Web Audio port of the Pure Data patch behind Under overfladen.
  *
  * Two layers of the same loop play in step: `below`, the processed version you hear at rest, and
- * `above`, the clear one. The button crosses to `above` in `up` seconds, holds it for `hold`
- * seconds and sinks back over `down` seconds. Presses while up are ignored, like the patch.
+ * `above`, the clear one. Pressing the button (down) crosses to `above` in `up` seconds and keeps
+ * it there while the button is held; letting go (up) starts the countdown: `hold` seconds at the
+ * surface, then sinking back over `down` seconds. Every press starts over, also on the way down.
  * All timing runs on the AudioContext clock, so pausing freezes it.
  *
- * No React in here; AudioContext.js owns one instance and the interface calls press().
+ * No React in here; AudioContext.js owns one instance and the interface calls down() and up().
  *
  *   config.layers   { below, above }  file URLs (or placeholders)
  *   config.surface  { up, hold, down } seconds
@@ -28,7 +29,8 @@ export default class Loop {
         this.buffers = null;
         this.sources = null;
         this.startedAt = 0;
-        this.surfacedAt = -Infinity;
+        this.held = false;
+        this.releasedAt = -Infinity;
         this.started = false;
         this.loaded = false;
         this.error = null;
@@ -91,25 +93,34 @@ export default class Loop {
 
     /* ---------- THE BUTTON ---------- */
 
-    /** Up to the surface. Returns false when ignored (not running, or already up) */
-    press() {
-        if (!this.sources || this.phase !== 'below') return false;
+    /** Pressed: up to the surface (or stay there). Returns false when not running */
+    down() {
+        if (!this.sources) return false;
+        const now = this.ctx.currentTime;
+        this.held = true;
+        ramp(this.gains.above.gain, 1, now, this.config.surface.up);
+        ramp(this.gains.below.gain, 0, now, this.config.surface.up);
+        return true;
+    }
+
+    /** Let go: the time at the surface starts now, and then the sinking — scheduled, so it happens even if the tab is throttled */
+    up() {
+        if (!this.held) return;
         const { up, hold, down } = this.config.surface;
         const now = this.ctx.currentTime;
-        this.surfacedAt = now;
-        ramp(this.gains.above.gain, 1, now, up);
-        ramp(this.gains.below.gain, 0, now, up);
-        // Scheduled now, so the sinking happens even if the tab is throttled
-        this.gains.above.gain.setValueAtTime(1, now + hold);
-        this.gains.above.gain.linearRampToValueAtTime(0, now + hold + down);
-        this.gains.below.gain.setValueAtTime(0, now + hold);
-        this.gains.below.gain.linearRampToValueAtTime(1, now + hold + down);
-        return true;
+        this.held = false;
+        this.releasedAt = now;
+        const at = now + Math.max(hold, up);
+        this.gains.above.gain.setValueAtTime(1, at);
+        this.gains.above.gain.linearRampToValueAtTime(0, at + down);
+        this.gains.below.gain.setValueAtTime(0, at);
+        this.gains.below.gain.linearRampToValueAtTime(1, at + down);
     }
 
     /** below · above · sinking */
     get phase() {
-        const since = this.ctx.currentTime - this.surfacedAt;
+        if (this.held) return 'above';
+        const since = this.ctx.currentTime - this.releasedAt;
         const { hold, down } = this.config.surface;
         return since < hold ? 'above' : since < hold + down ? 'sinking' : 'below';
     }
@@ -121,16 +132,17 @@ export default class Loop {
 
     getState() {
         const { hold, down } = this.config.surface;
-        const since = this.ctx.currentTime - this.surfacedAt;
+        const since = this.ctx.currentTime - this.releasedAt;
         const phase = this.phase;
         return {
             loaded: this.loaded,
             error: this.error,
             running: !!this.sources,
             phase,
-            // How far through the time at the surface (1 → 0) or the sinking (1 → 0)
-            left: phase === 'above' ? 1 - since / hold : phase === 'sinking' ? 1 - (since - hold) / down : 0,
-            secondsLeft: phase === 'above' ? Math.ceil(hold - since) : 0,
+            held: this.held,
+            // How far through the time at the surface (1 → 0) or the sinking (1 → 0); full while held
+            left: this.held ? 1 : phase === 'above' ? 1 - since / hold : phase === 'sinking' ? 1 - (since - hold) / down : 0,
+            secondsLeft: this.held ? hold : phase === 'above' ? Math.ceil(hold - since) : 0,
             position: this.position,
             duration: this.duration,
         };

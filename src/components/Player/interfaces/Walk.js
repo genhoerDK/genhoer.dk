@@ -4,27 +4,39 @@
  * Interface: walk — a work that stood at several places in a town (Tværveje), with a few stories
  * at each. The files play through the audio element, one at a time.
  *
- * A small map shows the places as stops on the walk; the one you are at is lit, and the photo
- * behind is that place's. Under the map, the stories at the place: a button per character, with
- * the playing one filled and a line running under it. When a story ends, the next one at the same
- * place follows, so you can hear a whole place and walk on. Keys 1–3 pick a story, ←/→ walk.
+ * A map of the streets (src/data/maps/) shows the places as stops on the walk; the one you are at
+ * is lit, and the photo behind is that place's. Under the map, the stories at the place: a button
+ * per character, with the playing one filled and a line running under it. When a story ends, the
+ * next one at the same place follows, so you can hear a whole place and walk on. Keys 1–3 pick a
+ * story, ←/→ walk, space pauses and plays.
  *
+ *   player.map         A map in src/data/maps/
  *   player.characters  [{ id, name, year }]
- *   player.places      [{ name, image, at: [x, y], stories: [{ character, file }] }]  at: 0–1 on the map
+ *   player.places      [{ name, image, at: [x, y], label, stories: [{ character, file }] }]  at: on the map
  */
 
 import { useEffect, useRef, useState } from 'react';
 import { PlayIcon, PauseIcon } from '@heroicons/react/20/solid';
 import { useAudio } from '@/context/AudioContext';
+import { maps } from '@/data/maps/nakskov';
+import { keyIsTaken } from '@/components/Player/interfaces/keys';
 import PlayerShell, { Controls } from '@/components/Player/PlayerShell';
 import Label from '@/components/UI/Label';
-import { keyIsTaken } from '@/components/Player/interfaces/keys';
 
 const pad = (n) => String(n).padStart(2, '0');
+
+/** Where a place's name stands, around its dot */
+const LABEL = {
+    right: 'left-full top-1/2 -translate-y-1/2 ml-1',
+    left: 'right-full top-1/2 -translate-y-1/2 mr-1',
+    above: 'bottom-full left-1/2 -translate-x-1/2 mb-0.5',
+    below: 'top-full left-1/2 -translate-x-1/2 mt-0.5',
+};
 
 export default function WalkPlayer() {
     const { currentTrack, currentFile, isPlaying, progress, play, pause, playFile, ended } = useAudio();
     const { places, characters } = currentTrack.player;
+    const map = maps[currentTrack.player.map];
 
     /** Where the playing story is: { p, s } or null */
     const playing = (() => {
@@ -67,40 +79,51 @@ export default function WalkPlayer() {
         return () => window.removeEventListener('keydown', onKey);
     }, [places]);
 
+    const x = (at) => `${(at[0] / map.width) * 100}%`;
+    const y = (at) => `${(at[1] / map.height) * 100}%`;
+
     return (
-        <PlayerShell track={currentTrack} image={place.image} smoke={0.3} hint='Gå fra sted til sted, og hør de tre fortællinger dér, hvor de udspiller sig.'>
-            <Controls className='flex flex-col md:flex-row md:items-end gap-5 md:gap-12'>
+        <PlayerShell track={currentTrack} image={place.image} smoke={0.3}>
+            <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
                 {/* ---------- THE MAP ---------- */}
-                <nav aria-label='Steder' className='relative w-full max-w-xs md:w-72 aspect-[5/3] shrink-0'>
-                    <svg viewBox='0 0 100 60' className='absolute inset-0 size-full overflow-visible' aria-hidden='true'>
+                <nav aria-label='Steder' className='relative w-full max-w-sm md:max-w-md' style={{ aspectRatio: `${map.width} / ${map.height}` }}>
+                    <svg viewBox={`0 0 ${map.width} ${map.height}`} className='absolute inset-0 size-full overflow-visible' aria-hidden='true'>
+                        <path d={map.water} fill='currentColor' fillOpacity='0.08' />
+                        {map.streets.map((d) => (
+                            <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.3' strokeWidth='9' strokeLinecap='round' strokeLinejoin='round' />
+                        ))}
+                        {map.labels.map((l) => (
+                            <text key={l.text} x={l.x} y={l.y} transform={`rotate(${l.angle} ${l.x} ${l.y})`} textAnchor='middle' fontSize='30' fill='currentColor' fillOpacity='0.4' className='uppercase'>
+                                {l.text}
+                            </text>
+                        ))}
+                        {/* The walk, from place to place */}
                         <polyline
-                            points={places.map(({ at }) => `${at[0] * 100},${at[1] * 60}`).join(' ')}
-                            fill='none' stroke='currentColor' strokeOpacity='0.35' strokeWidth='0.6' strokeDasharray='1.5 2' strokeLinecap='round'
+                            points={places.map(({ at }) => at.join(',')).join(' ')}
+                            fill='none' stroke='currentColor' strokeOpacity='0.6' strokeWidth='5' strokeDasharray='10 16' strokeLinecap='round'
                         />
                     </svg>
                     {places.map((stop, p) => {
                         const isHere = p === here;
                         const playsHere = playing?.p === p && isPlaying;
-                        // The name stands under the dot — to its right near the left edge, to its left near the right edge
-                        const align = stop.at[0] < 0.3 ? 'left-0' : stop.at[0] > 0.7 ? 'right-0' : 'left-1/2 -translate-x-1/2';
                         return (
                             <button
                                 key={stop.name}
                                 onClick={() => walkTo(p)}
                                 aria-current={isHere ? 'location' : undefined}
-                                className='absolute flex items-center justify-center size-6 -translate-x-1/2 -translate-y-1/2 cursor-pointer group'
-                                style={{ left: `${stop.at[0] * 100}%`, top: `${stop.at[1] * 100}%` }}
+                                className='absolute flex items-center justify-center size-7 -translate-x-1/2 -translate-y-1/2 cursor-pointer group'
+                                style={{ left: x(stop.at), top: y(stop.at) }}
                             >
                                 {playsHere && <span className='absolute inset-0 rounded-full bg-paper/40 animate-ping motion-reduce:hidden' />}
-                                <span className={`relative block rounded-full transition-all ${isHere ? 'size-3.5 bg-paper' : 'size-2.5 bg-paper/40 ring-1 ring-paper/60 md:group-hover:bg-paper/70'}`} />
-                                <span className={`absolute top-full mt-1 block uppercase leading-none text-xs whitespace-nowrap transition-colors ${align} ${isHere ? 'text-paper' : 'text-faint md:group-hover:text-muted'}`}>{stop.name}</span>
+                                <span className={`relative block rounded-full transition-all ${isHere ? 'size-4 bg-paper' : 'size-3 bg-ink ring-1 ring-paper md:group-hover:bg-paper/70'}`} />
+                                <span className={`absolute block uppercase leading-none text-xs whitespace-nowrap px-1 transition-colors ${LABEL[stop.label] ?? LABEL.below} ${isHere ? 'text-paper' : 'text-muted md:group-hover:text-paper'}`}>{stop.name}</span>
                             </button>
                         );
                     })}
                 </nav>
 
                 {/* ---------- THE STORIES HERE ---------- */}
-                <div className='w-full max-w-md'>
+                <div className='w-full max-w-sm md:max-w-md'>
                     <Label size='lg' className='mb-2 text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
                     <div className='grid grid-cols-3 gap-1.5 md:gap-2'>
                         {place.stories.map((story, s) => {
@@ -113,13 +136,13 @@ export default function WalkPlayer() {
                                     onClick={() => (isThis ? (isPlaying ? pause() : play()) : start(here, s))}
                                     aria-label={`${character.name} ${character.year ?? ''}: ${active ? 'pause' : 'afspil'}`}
                                     aria-pressed={isThis}
-                                    className={`relative flex flex-col items-start gap-1.5 px-3 py-2.5 text-left overflow-hidden cursor-pointer transition-colors ${isThis ? 'bg-paper text-ink' : 'bg-paper/10 text-paper md:hover:bg-paper/20'}`}
+                                    className={`relative flex items-center justify-center gap-1.5 h-12 sm:h-10 px-2 overflow-hidden cursor-pointer border transition-colors ${isThis ? 'bg-paper text-ink border-paper' : 'border-paper/30 text-paper md:hover:border-paper md:hover:bg-paper/10'}`}
                                 >
-                                    <span className='flex items-center gap-1.5'>
-                                        {active ? <PauseIcon className='size-4' /> : <PlayIcon className='size-4' />}
+                                    {active ? <PauseIcon className='size-3.5 shrink-0' /> : <PlayIcon className='size-3.5 shrink-0' />}
+                                    <span className='flex flex-col items-start sm:flex-row sm:items-center gap-1 sm:gap-0'>
                                         <Label size='lg'>{character.name}</Label>
+                                        {character.year && <Label size='lg' className={isThis ? 'text-hard' : 'text-faint'}><span className='hidden sm:inline'> · </span>{character.year}</Label>}
                                     </span>
-                                    {character.year && <Label size='lg' className={`tabular-nums ${isThis ? 'text-hard' : 'text-faint'}`}>{character.year}</Label>}
                                     {isThis && (
                                         <span className='absolute inset-x-0 bottom-0 h-0.5 bg-ink/15'>
                                             <span className='block h-full bg-ink' style={{ width: `${progress * 100}%` }} />
