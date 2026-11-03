@@ -269,9 +269,6 @@ export default function UpcomingMap({ projects }) {
                     aria-live="polite"
                 >
                     <div className={`transition-[opacity,translate] duration-500 ease-out ${cardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                        <div className="relative aspect-video overflow-hidden mb-3 opacity-90">
-                            <img src={project.coverImageSmall} alt="" className="object-cover size-full" />
-                        </div>
                         <h3 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.title}</h3>
                         <Text size="small" className="mt-1">{formatDates(project.startDate, project.endDate)}</Text>
                     </div>
