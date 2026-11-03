@@ -28,7 +28,7 @@ export default function ProjectHeroSection({ project }) {
     };
 
     return (
-        <section className='relative bg-ink text-paper overflow-hidden pointer-events-none'>
+        <section data-header='light' className='relative bg-ink text-paper overflow-hidden pointer-events-none'>
             <BackgroundImage portrait={project.coverImagePortrait} landscape={project.coverImageLandscape} />
             <ProjectDescription title={title} text={description} info={getProjectInfo(project)}>
                 <ProjectPlayButton active={hasAudio} playing={isProjectPlaying} togglePlayback={togglePlayback}/>

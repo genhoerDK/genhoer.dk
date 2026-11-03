@@ -2,7 +2,7 @@
 // Use buttonVariants directly to style a <Link> as a button.
 
 export const buttonVariants = {
-    ghost: "md:hover:bg-ink md:hover:text-paper",                             // Toolbar
+    ghost: "md:hover:bg-chrome md:hover:text-chrome-bg",                      // Toolbar (follows the header's colours)
     soft: "bg-soft md:hover:bg-ink md:hover:text-paper",                      // Calls to action on light background
     solid: "bg-ink text-paper hover:bg-hard",                                 // Form buttons
     pill: "rounded-full bg-ink text-paper md:hover:bg-muted md:hover:text-ink", // Floating button in overlays

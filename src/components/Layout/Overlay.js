@@ -11,9 +11,10 @@ import { useState, useEffect, useRef } from 'react';
  *
  * @param {boolean} active - Whether the overlay is visible
  * @param {'slide'|'fade'} exit - How the overlay animates when closing
+ * @param {'dark'|'light'} header - The see-through header's colours while open (useChrome)
  */
 
-export default function Overlay({ active, exit = 'slide', children }) {
+export default function Overlay({ active, exit = 'slide', header = 'dark', children }) {
     const ref = useRef(null);
     const [resetting, setResetting] = useState(false);
     const [instant, setInstant] = useState(false);
@@ -45,7 +46,7 @@ export default function Overlay({ active, exit = 'slide', children }) {
         : 'translate-y-full opacity-100';
 
     return (
-        <article ref={ref} onTransitionEnd={handleTransitionEnd} style={instant ? { transitionDuration: '0ms' } : undefined} className={`fixed inset-0 transition-all duration-300 z-10 ${active ? 'translate-y-0 opacity-100' : closedClasses}`}>
+        <article ref={ref} data-header={active ? header : undefined} onTransitionEnd={handleTransitionEnd} style={instant ? { transitionDuration: '0ms' } : undefined} className={`fixed inset-0 transition-all duration-300 z-10 ${active ? 'translate-y-0 opacity-100' : closedClasses}`}>
             <section className="relative flex justify-center items-center w-screen min-h-svh bg-paper">
                 {children}
             </section>
