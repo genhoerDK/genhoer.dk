@@ -1,7 +1,7 @@
 [
   {
     "slug": "naestved",
-    "title": "Næstved",
+    "title": "Så træder vi an!",
     "location": "Næstved",
     "coordinates": [
       11.7489,
@@ -19,7 +19,7 @@
     "komkode": "0370",
     "startDate": "2026-11-19",
     "endDate": "2027-04-04",
-    "partners": "Næstved Kommune, Næstved Ungdomsskole, Kompagni47 og Næstved Museum",
+    "partners": "Næstved Museum, Næstved Ungdomsskole, Næstved Musikskole, Næstved Kommune, Kompagni47 og Grønnegades Kaserne Kulturcenter",
     "sponsorLogos": [
       "trelleborg-fonden",
       "naestved-kommune",
@@ -45,7 +45,7 @@
   },
   {
     "slug": "kolding",
-    "title": "Kolding",
+    "title": "Lydene under biblioteket",
     "location": "Kolding Bibliotek",
     "coordinates": [
       9.4776,
@@ -63,7 +63,7 @@
     "komkode": "0621",
     "startDate": "2026-11-13",
     "endDate": "2026-12-18",
-    "partners": "Kolding Stadsarkiv, Kolding Bibliotekerne, Kolding Ungdomsskole, TRIO og Godset",
+    "partners": "Kolding Stadsarkiv, Kolding Ungdomsskole, TRIO, Kolding Bibliotekerne og Godset",
     "sponsorLogos": [
       "region-syddanmark",
       "nordjyllands-fonden",
@@ -106,7 +106,7 @@
     "komkode": "0360",
     "startDate": "2026-10-22",
     "endDate": "2026-12-18",
-    "partners": "Museum Lolland-Falster og Lolland Ungdomsskole",
+    "partners": "Museum Lolland-Falster, Lolland Ungdomsskole og Headspace Lolland",
     "sponsorLogos": [
       "nakskov-2030",
       "lolland-kommune",
@@ -163,7 +163,7 @@
     "komkode": "0791",
     "startDate": "2026-10-08",
     "endDate": "2026-11-05",
-    "partners": "Viborg Kommune, Paletten, Kulturambassadører Viborg og Viborg Museum",
+    "partners": "Viborg Museum, Paletten, Kulturambassadører Viborg og Viborg Kommune",
     "sponsorLogos": [
       "nordjyllands-fonden",
       "william-demant-fonden",
@@ -305,7 +305,7 @@
     "komkode": "0306",
     "startDate": "2026-06-24",
     "endDate": "2026-07-31",
-    "partners": "Odsherred Musikskole, Geopark Odsherred og Høve Bylaug",
+    "partners": "Geopark Odsherred, Odsherred Musikskole, Ung i Odsherred og Høve Bylaug",
     "sponsorLogos": [
       "nordjyllands-fonden",
       "fonden-for-sjf-bank",
@@ -361,7 +361,7 @@
     "komkode": "0400",
     "startDate": "2026-05-30",
     "endDate": "2026-09-20",
-    "partners": "Friskolen Østerlars og Bornholms Museum",
+    "partners": "Bornholms Museum, Bornholms Forsvarsmuseum og Friskolen Østerlars",
     "sponsorLogos": [
       "nordjyllands-fonden",
       "ewii",
@@ -475,7 +475,7 @@
     "komkode": "0607",
     "startDate": "2025-11-07",
     "endDate": "2025-12-19",
-    "partners": "Kulturkasernen, Fredericia Lokalhistoriske Arkiv, Bülows Makerspace og Den Kreative Skole",
+    "partners": "Fredericia Lokalhistoriske Arkiv, Erritsø Fællesskole, Den Kreative Skole, Kulturkasernen og Bülows Makerspace",
     "sponsorLogos": [
       "spar-nord-fonden",
       "william-demant-fonden",
@@ -607,7 +607,7 @@
     "komkode": "0259",
     "startDate": "2025-10-11",
     "endDate": "2025-11-22",
-    "partners": "Køge Arkiverne, Køge Bibliotekerne og Køge Ungdomsskole",
+    "partners": "Køge Arkiverne, Køge Ungdomsskole og Køge Bibliotekerne",
     "sponsorLogos": [
       "spar-nord-fonden",
       "oernes-kunstfond",
@@ -810,7 +810,7 @@
     "komkode": "0430",
     "startDate": "2025-06-20",
     "endDate": "2025-09-27",
-    "partners": "Fonden Slagteribygningen og Øhavsmuseet",
+    "partners": "Øhavsmuseet, Faaborg-Midtfyn Ungdomsskole og Fonden Slagteribygningen",
     "sponsorLogos": [
       "spar-nord-fonden",
       "oernes-kunstfond",
@@ -893,7 +893,7 @@
     "komkode": "0510",
     "startDate": "2025-06-19",
     "endDate": "2025-08-01",
-    "partners": "Historie Haderslev",
+    "partners": "Historie Haderslev, SoundDome og Haderslev Musikskole",
     "sponsorLogos": [
       "spar-nord-fonden",
       "william-demant-fonden",
@@ -975,7 +975,7 @@
     "komkode": "0390",
     "startDate": "2025-04-05",
     "endDate": "2025-09-06",
-    "partners": "Poly – Udstillingsplatform og Vordingborg Lokalhistoriske Arkiv",
+    "partners": "Museum Sydøstdanmark, Vordingborg Lokalhistoriske Arkiv og Poly – Udstillingsplatform",
     "sponsorLogos": [
       "spar-nord-fonden",
       "william-demant-fonden",
@@ -1078,7 +1078,7 @@
     "komkode": "0530",
     "startDate": "2024-06-14",
     "endDate": "2024-10-31",
-    "partners": "UKH Grindsted og Mark | Museet for en Ny Danmarkshistorie",
+    "partners": "Mark | Museet for en Ny Danmarkshistorie og UKH Grindsted",
     "sponsorLogos": [
       "billund-kommune",
       "den-jyske-sparekasses-stoettefond",
