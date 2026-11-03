@@ -58,7 +58,7 @@
 [data-chrome="light"] {
     --chrome: var(--color-paper);
     --chrome-bg: var(--color-ink);
-    --chrome-soft: rgb(250 250 250 / 0.18);
+    --chrome-soft: var(--color-shade);   /* opaque, so overlapping pieces (the mini player's icon and pill) don't show */
 }
 
 /* Swiper (tracks overview) */
