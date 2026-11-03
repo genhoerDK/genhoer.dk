@@ -16,11 +16,9 @@
 // artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
 // media                Full URLs shown in the gallery. The 4th file becomes the big tile and the 11th the wide tile
 // audio, segments      Sound work and its chapters (start in seconds). null = project without sound
-//                      A segment's imageLandscape (optional) is used behind the timeline player instead of image
-// player               Key in instruments.js for works played with buttons (e.g. "troldetoner"),
-//                      "timeline" = timeline with the chapter images (with depth). null = circular player.
-//                      See src/components/Player/interfaces/index.js
+// player               Not from genhoer-data yet: laid over from players.js (with a chapter's imageLandscape)
 // composer             Not shown on the site at the moment
 import data from './projects.json';
+import { withPlayer } from './players';
 
-export const projects = data;
+export const projects = data.map(withPlayer);

@@ -4,7 +4,7 @@
 //   interface   how it's played: circular, timeline or buttons
 //   background  e.g. a photo with depth (scene/DepthBackdrop.js)
 //
-// project.player (set in genhoer-data) chooses:
+// project.player (from src/data/players.js for now) chooses:
 //
 //   null / "circular"   circular player (2D) — the default
 //   "timeline"          timeline, with each chapter's image (with depth) behind it

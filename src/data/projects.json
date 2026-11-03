@@ -21,9 +21,10 @@
     "endDate": "2027-04-04",
     "partners": "Næstved Kommune, Næstved Ungdomsskole, Kompagni47 og Næstved Museum",
     "sponsorLogos": [
+      "trelleborg-fonden",
+      "naestved-kommune",
       "nordjyllands-fonden",
-      "william-demant-fonden",
-      "trelleborg-fonden"
+      "william-demant-fonden"
     ],
     "description": [
       "Flere detaljer kommer snart."
@@ -36,7 +37,6 @@
     "media": null,
     "audio": null,
     "segments": null,
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -65,9 +65,9 @@
     "endDate": "2026-12-18",
     "partners": "Kolding Stadsarkiv, Kolding Ungdomsskole, TRIO og Godset",
     "sponsorLogos": [
+      "region-syddanmark",
       "nordjyllands-fonden",
-      "william-demant-fonden",
-      "region-syddanmark"
+      "william-demant-fonden"
     ],
     "description": [
       "Flere detaljer kommer snart."
@@ -80,7 +80,6 @@
     "media": null,
     "audio": null,
     "segments": null,
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -109,11 +108,11 @@
     "endDate": "2026-12-18",
     "partners": "Museum Lolland-Falster og Lolland Ungdomsskole",
     "sponsorLogos": [
-      "nordjyllands-fonden",
-      "william-demant-fonden",
-      "kulturstroemmen",
       "nakskov-2030",
-      "lolland-kommune"
+      "lolland-kommune",
+      "nordjyllands-fonden",
+      "kulturstroemmen",
+      "william-demant-fonden"
     ],
     "description": [
       "Flere detaljer kommer snart."
@@ -121,7 +120,7 @@
     "coverImagePortrait": "https://cdn.genhoer.dk/media/nakskov-2026/cover-image-portrait.webp",
     "coverImageLandscape": "https://cdn.genhoer.dk/media/nakskov-2026/cover-image-landscape.webp",
     "coverImageSmall": "https://cdn.genhoer.dk/media/nakskov-2026/cover-image-small.webp",
-    "coverVideo": null,
+    "coverVideo": "https://cdn.genhoer.dk/media/nakskov-2026/cover-video.mp4",
     "artwork": null,
     "media": [
       "https://cdn.genhoer.dk/media/nakskov-2026/image-01.webp",
@@ -138,7 +137,6 @@
     ],
     "audio": null,
     "segments": null,
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -168,15 +166,16 @@
     "partners": "Viborg Kommune, Paletten, Kulturambassadører Viborg og Viborg Museum",
     "sponsorLogos": [
       "nordjyllands-fonden",
-      "william-demant-fonden"
+      "william-demant-fonden",
+      "viborg-kommune"
     ],
     "description": [
-      "Flere detaljer kommer snart."
+      "Flere detaljer kommer snart..."
     ],
     "coverImagePortrait": "https://cdn.genhoer.dk/media/viborg-2026/cover-image-portrait.webp",
     "coverImageLandscape": "https://cdn.genhoer.dk/media/viborg-2026/cover-image-landscape.webp",
     "coverImageSmall": "https://cdn.genhoer.dk/media/viborg-2026/cover-image-small.webp",
-    "coverVideo": null,
+    "coverVideo": "https://cdn.genhoer.dk/media/viborg-2026/cover-video.mp4",
     "artwork": null,
     "media": [
       "https://cdn.genhoer.dk/media/viborg-2026/image-01.webp",
@@ -193,7 +192,6 @@
     ],
     "audio": null,
     "segments": null,
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -281,7 +279,6 @@
         "image": "https://cdn.genhoer.dk/media/hvide-sande-2026/cover-image-small.webp"
       }
     ],
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -311,8 +308,8 @@
     "partners": "Odsherred Musikskole, Geopark Odsherred og Høve Bylaug",
     "sponsorLogos": [
       "nordjyllands-fonden",
-      "william-demant-fonden",
-      "fonden-for-sjf-bank"
+      "fonden-for-sjf-bank",
+      "william-demant-fonden"
     ],
     "description": [
       "I Esterhøj boede der engang en venlig trold. Han var altid hjælpsom over for folk i Høve og når de hjalp ham med noget, sørgede han altid for at belønne dem rundhåndet. Troldens kæreste eje var en lur – et blæseinstrument fra bronzealderen, som han havde fået af de lokale da han flyttede ind i højen.",
@@ -338,7 +335,6 @@
     ],
     "audio": null,
     "segments": null,
-    "player": "troldetoner",
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -368,9 +364,9 @@
     "partners": "Friskolen Østerlars og Bornholms Museum",
     "sponsorLogos": [
       "nordjyllands-fonden",
-      "william-demant-fonden",
       "ewii",
-      "sparekassen-bornholms-fond"
+      "sparekassen-bornholms-fond",
+      "william-demant-fonden"
     ],
     "description": [
       "Værket rummer en fiktiv fortælling inspireret af historiske beretninger fra \"Et centrum i periferien\" af Jørgen H. Barfod, om de små modstandshandlinger som fandt sted i dagligdagen på Bornholm under besættelsen.",
@@ -396,7 +392,6 @@
     ],
     "audio": null,
     "segments": null,
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -425,10 +420,10 @@
     "endDate": "2026-09-25",
     "partners": "Esbjerg Kommune og Huset Esbjerg",
     "sponsorLogos": [
-      "nordjyllands-fonden",
-      "william-demant-fonden",
       "region-syddanmark",
-      "johan-hoffmann-fonden"
+      "nordjyllands-fonden",
+      "johan-hoffmann-fonden",
+      "william-demant-fonden"
     ],
     "description": [
       "Huset blev bygget i 1888. Først som administrations- og direktørbolig til Esbjerg Andels-Svineslagteri og siden da har det fungeret som museum, biograf, koncertsted og studenterhus. I dag er det byens ungekulturhus.",
@@ -454,7 +449,6 @@
     ],
     "audio": null,
     "segments": null,
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -587,7 +581,6 @@
         "image": "https://cdn.genhoer.dk/media/fredericia-2025/segment-15.webp"
       }
     ],
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -617,8 +610,9 @@
     "partners": "Køge Arkiverne, Køge Bibliotekerne og Køge Ungdomsskole",
     "sponsorLogos": [
       "spar-nord-fonden",
+      "oernes-kunstfond",
       "william-demant-fonden",
-      "oernes-kunstfond"
+      "koege-kommune"
     ],
     "description": [
       "På Kirkestrædedagen opsatte vi et udendørs og rumligt lydværk der præsenterede fortidens lydmiljø på stedet. Publikum inviteredes på en lydlig rejse tilbage til perioden i slut 1800-tallet, hvor strædet havde et helt andet liv end i dag. Lyden fra tidligere forretninger, værksteder og gadeliv klingede mellem de historiske bindingsværkshuse. Med et lydsystem bestående af 8 højttalere afdækkede lydinstallationen et område på cirka 30 meter.",
@@ -675,7 +669,6 @@
         "image": "https://cdn.genhoer.dk/media/koege-2025/segment-06.webp"
       }
     ],
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -705,8 +698,9 @@
     "partners": "Holbæk Stadsarkiv og Ung Skriv",
     "sponsorLogos": [
       "spar-nord-fonden",
-      "william-demant-fonden",
       "oernes-kunstfond",
+      "william-demant-fonden",
+      "holbaek-kommune",
       "fonden-for-sjf-bank",
       "nordea-fonden"
     ],
@@ -790,7 +784,6 @@
         "image": "https://cdn.genhoer.dk/media/holbaek-2025/segment-11.webp"
       }
     ],
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -820,8 +813,8 @@
     "partners": "Fonden Slagteribygningen og Øhavsmuseet",
     "sponsorLogos": [
       "spar-nord-fonden",
-      "william-demant-fonden",
       "oernes-kunstfond",
+      "william-demant-fonden",
       "faaborg-midtfyn-kommune"
     ],
     "description": [
@@ -874,7 +867,6 @@
         "image": "https://cdn.genhoer.dk/media/faaborg-2025/segment-05.webp"
       }
     ],
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -904,7 +896,8 @@
     "partners": "Historie Haderslev",
     "sponsorLogos": [
       "spar-nord-fonden",
-      "william-demant-fonden"
+      "william-demant-fonden",
+      "haderslev-kommune"
     ],
     "description": [
       "Opført i 1500-tallet af Philip af Neuss, skifferdækker ved hoffet på det hedengangne renæssanceslot Hansborg, står et hus i Haderslev, der gennem fem århundreder har været vidne til lidt af hvert. Fra Torstenssonfejden, uro og epidemi i 1600-tallet til at huse herbergsvirksomhed og hestevogne til personbefordring i 1701. Fra gadekampe under Treårskrigen i 1849 over industrialiseringens buldrende indtog, til i 1909 med tætpakkede lejligheder at blive hjem for syv hustande, herunder 23 personer, mange af dem børn.",
@@ -956,7 +949,6 @@
         "image": "https://cdn.genhoer.dk/media/haderslev-2025/segment-05.webp"
       }
     ],
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -983,7 +975,7 @@
     "komkode": "0390",
     "startDate": "2025-04-05",
     "endDate": "2025-09-06",
-    "partners": "Poly- Udstillingsplatform og Vordingborg Lokalhistoriske Arkiv",
+    "partners": "Poly – Udstillingsplatform og Vordingborg Lokalhistoriske Arkiv",
     "sponsorLogos": [
       "spar-nord-fonden",
       "william-demant-fonden",
@@ -1060,7 +1052,6 @@
         "image": "https://cdn.genhoer.dk/media/vordingborg-2025/segment-09.webp"
       }
     ],
-    "player": null,
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"
@@ -1120,35 +1111,29 @@
       {
         "title": "Ankomst",
         "start": 0,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-01.webp",
-        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-01.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-01.webp"
       },
       {
         "title": "Godshåndtering",
         "start": 154,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-02.webp",
-        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-02.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-02.webp"
       },
       {
         "title": "Togfløjtesynth",
         "start": 310,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-03.webp",
-        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-03.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-03.webp"
       },
       {
         "title": "Ventetid",
         "start": 426,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-04.webp",
-        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-04.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-04.webp"
       },
       {
         "title": "Afgang",
         "start": 548,
-        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-05.webp",
-        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-05.webp"
+        "image": "https://cdn.genhoer.dk/media/grindsted-2024/segment-05.webp"
       }
     ],
-    "player": "timeline",
     "composer": [
       "Thomas Eg Matthiesen",
       "Mark Ibsgaard Gregersen"

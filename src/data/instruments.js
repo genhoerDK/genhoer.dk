@@ -1,5 +1,5 @@
 // Sound works played with buttons instead of the circular player.
-// A project uses one by setting `player` to its key (e.g. player: "troldetoner") in genhoer-data.
+// A project uses one by setting `player` to its key (e.g. player: "troldetoner") in players.js.
 // Projects without `player` get the circular player.
 //
 // baseUrl              Folder on the CDN the files below are read from
