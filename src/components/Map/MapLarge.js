@@ -48,6 +48,7 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
                 opened,
                 position,
                 labelOffsetKey: "labelOffsetLarge",
+                labelBesideKommune: true,
             });
 
             openedGroups

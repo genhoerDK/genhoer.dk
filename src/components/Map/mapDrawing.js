@@ -12,6 +12,7 @@ export const MARKER_RADIUS = 6;
 export const MARKER_STROKE_WIDTH = 2;
 export const HIGHLIGHT_DELAY = 200;  // ms before highlight starts
 export const DURATION = 500;         // ms for zoom/highlight transitions
+const LABEL_GAP = 24;                // px between the kommune's edge and the label (labelBesideKommune)
 
 /** Load a TopoJSON file of Danish kommuner and convert it to GeoJSON */
 export async function loadKommuner(url) {
@@ -24,9 +25,10 @@ export async function loadKommuner(url) {
  *
  * @param {Function} position - Returns [x, y] in the svg for a project
  * @param {string} labelOffsetKey - Which offset from projects.js to place labels by ('labelOffsetLarge' | 'labelOffsetSmall')
+ * @param {boolean} labelBesideKommune - Place labels just outside the kommune instead, on the side the offset's x points to
  * @returns Selections the map components animate or attach events to
  */
-export function drawMap(g, geoData, projection, { upcoming, opened, position, labelOffsetKey }) {
+export function drawMap(g, geoData, projection, { upcoming, opened, position, labelOffsetKey, labelBesideKommune = false }) {
     const path = d3.geoPath().projection(projection);
 
     // Kommuner
@@ -83,25 +85,46 @@ export function drawMap(g, geoData, projection, { upcoming, opened, position, la
         .style("opacity", 0)
         .style("pointer-events", "none");
 
-    labels.each(function (d) {
+    // A fixed offset in pixels can end up inside the kommune when the map is big (large screens),
+    // where the white kommune hides the label. Measured from the kommune's edge it always stays outside.
+    const besideKommune = (d) => {
         const offset = d[labelOffsetKey];
+        const features = geoData.features.filter((f) => f.properties.KOMKODE === d.komkode);
+        if (!features.length) return offset;
+        const [[x0], [x1]] = path.bounds({ type: "FeatureCollection", features });
+        const [x] = position(d);
+        const toLeft = offset.x < 0;
+        return {
+            x: toLeft ? (x0 - x) * ZOOM_SCALE - LABEL_GAP : (x1 - x) * ZOOM_SCALE + LABEL_GAP,
+            y: 0,
+            anchor: toLeft ? "end" : "start",
+        };
+    };
+
+    labels.each(function (d) {
+        const offset = labelBesideKommune ? besideKommune(d) : d[labelOffsetKey];
+        const anchor = offset.anchor ?? "start";
+        const indent = anchor === "start" ? 1 : 0; // small lines sit 1px in from the title
         const label = d3.select(this);
 
         label.append("text")
             .attr("class", "fill-paper text-xs uppercase")
+            .attr("text-anchor", anchor)
             .attr("x", offset.x)
             .attr("y", offset.y + 6)
             .text(d.title);
 
         label.append("text")
             .attr("class", "fill-paper text-[0.5rem] uppercase")
-            .attr("x", offset.x + 1)
+            .attr("text-anchor", anchor)
+            .attr("x", offset.x + indent)
             .attr("y", offset.y + 20)
             .text(formatDates(d.startDate, d.endDate));
 
         label.append("text")
             .attr("class", "fill-paper text-[0.5rem] uppercase")
-            .attr("x", offset.x + 1)
+            .attr("text-anchor", anchor)
+            .attr("x", offset.x + indent)
             .attr("y", offset.y + 32)
             .text(d.kommune);
     });

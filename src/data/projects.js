@@ -1,12 +1,13 @@
-// All projects on the site. They are maintained in the dashboard (genhoer-data) and written to
-// projects.json by the build (.github/workflows/nextjs.yml runs genhoer-data/scripts/offentlig.js).
-// The committed projects.json is a snapshot so `npm run dev` works without access to genhoer-data.
+// All projects on the site. They are maintained in the dashboard (genhoer-data), whose Data workflow
+// writes projects.json, partners.json and public/logos to this repo whenever the public fields change
+// (genhoer-data/scripts/offentlig.js). Do not edit projects.json by hand; it is overwritten.
 //
 // slug                 URL of the project page (genhoer.dk/<slug>)
 // previousSlugs        Old URLs that redirect to slug (e.g. the town name before the work had a title)
 // title, location      Shown on cards, project page and map
 // coordinates          [longitude, latitude] of the marker on the map
-// labelOffsetSmall/-Large  Where the map label sits relative to the marker (mobile / desktop)
+// labelOffsetSmall/-Large  Where the map label sits relative to the marker (mobile / desktop).
+//                      Desktop only uses the sign of x: label right (+) or left (-) of the kommune
 // kommune, komkode     Kommune name and code — komkode lights up the kommune on the map
 // startDate, endDate   'YYYY-MM-DD'. endDate null = permanent installation
 // partners             Text shown under "Partnere"
