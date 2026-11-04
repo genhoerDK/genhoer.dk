@@ -5,13 +5,20 @@
  *
  * No React in here; AudioContext.js owns one instance, the interface turns it and reads levels.
  *
+ * In step: all the files are decoded before any plays, then every channel is started at the same
+ * moment on the audio clock (AudioBufferSourceNode.start(at)), so they run sample for sample
+ * together, and pausing suspends the whole context, so they stay so. Should the files differ in
+ * length by a few samples, they all loop at the shortest, so they don't drift apart loop by loop.
+ * The files are fetched all at once but decoded one at a time, to keep down the memory a phone
+ * needs at once (a decoded minute of mono is about 10 MB).
+ *
  *   config.speakers  [{ label, angle, file, channel? }]  angle: degrees clockwise from straight
  *                    ahead; channel: 0 | 1 picks one side of a stereo file
  *   config.reverb    0–1, how much of the room's echo (0 = none)
  *   config.loop      false = play once (default true)
  */
 
-import { loadBuffer, createContext, channelOf } from './load';
+import { fetchSound, decodeSound, createContext, channelOf } from './load';
 
 const DISTANCE = 1.6;   // metres from the listener to each speaker
 
@@ -44,7 +51,7 @@ export default class Quad {
         this.loaded = false;
         this.error = null;
         this.disposed = false;
-        this.levelData = new Uint8Array(256);
+        this.levelData = new Float32Array(256);
 
         const { listener } = this.ctx;
         if (listener.positionX) {
@@ -66,8 +73,14 @@ export default class Quad {
 
     async load() {
         try {
-            this.channels = await Promise.all(this.config.speakers.map(async (speaker) => {
-                const buffer = channelOf(this.ctx, await loadBuffer(this.ctx, speaker.file), speaker.channel ?? 0);
+            const { speakers } = this.config;
+            const fetching = speakers.map((s) => fetchSound(s.file));
+            fetching.forEach((p) => p.catch(() => {}));   // a failure is reported when its turn comes
+            this.channels = [];
+            for (const [i, speaker] of speakers.entries()) {
+                const bytes = await fetching[i];
+                if (this.disposed) return;
+                const buffer = channelOf(this.ctx, await decodeSound(this.ctx, speaker.file, bytes), speaker.channel ?? 0);
                 const a = (speaker.angle * Math.PI) / 180;
                 const panner = new PannerNode(this.ctx, {
                     panningModel: 'HRTF',
@@ -82,8 +95,11 @@ export default class Quad {
                 panner.connect(this.master);
                 panner.connect(analyser);
                 if (this.reverb) panner.connect(this.reverb);
-                return { ...speaker, buffer, panner, analyser, source: null };
-            }));
+                this.channels.push({ ...speaker, buffer, panner, analyser, source: null });
+            }
+            const lengths = this.channels.map((c) => c.buffer.length);
+            this.length = Math.min(...lengths);
+            if (Math.max(...lengths) !== this.length) console.warn('Quad: the files differ in length (samples):', lengths);
             this.loaded = true;
         } catch (err) {
             this.error = err;
@@ -105,6 +121,7 @@ export default class Quad {
                 const source = this.ctx.createBufferSource();
                 source.buffer = channel.buffer;
                 source.loop = this.config.loop !== false;
+                source.loopEnd = this.length / channel.buffer.sampleRate;
                 source.connect(channel.panner);
                 source.start(at);
                 channel.source = source;
@@ -139,21 +156,22 @@ export default class Quad {
 
     /* ---------- STATE ---------- */
 
-    get duration() { return this.channels?.[0]?.buffer.duration ?? 0; }
+    get duration() { return this.loaded ? this.length / this.ctx.sampleRate : 0; }
     get position() {
         if (!this.channels?.[0]?.source || !this.duration) return 0;
         const t = Math.max(0, this.ctx.currentTime - this.startedAt);
         return this.config.loop === false ? Math.min(t, this.duration) : t % this.duration;
     }
 
-    /** How loud each speaker is right now, 0–1 */
+    /** How loud each speaker is right now, 0–1 on a decibel scale (−54 dB and below = 0, −6 dB = 1), so quiet passages show too */
     levels() {
         if (!this.channels) return [];
         return this.channels.map(({ analyser }) => {
-            analyser.getByteTimeDomainData(this.levelData);
+            analyser.getFloatTimeDomainData(this.levelData);
             let sum = 0;
-            for (let i = 0; i < this.levelData.length; i++) { const v = (this.levelData[i] - 128) / 128; sum += v * v; }
-            return Math.min(1, Math.sqrt(sum / this.levelData.length) * 4);
+            for (let i = 0; i < this.levelData.length; i++) sum += this.levelData[i] * this.levelData[i];
+            const db = 10 * Math.log10(sum / this.levelData.length + 1e-12);
+            return Math.min(1, Math.max(0, (db + 54) / 48));
         });
     }
 

@@ -37,7 +37,7 @@ overlever, at `projects.json` skrives forfra.
 | `loop`      | Under overfladen        | `loop`       | Et loop kører under overfladen; knappen bringer det op, holder det oppe så længe den holdes nede, og hvert tryk starter de ti sekunder forfra (`src/audio/Loop.js`) |
 | `countdown` | 53 sekunder til fælles  | `file`       | Elevatorens knap og display: intet spiller, før knappen trykkes; hvert tryk er en tur med den næste af tolv variationer |
 | `walk`      | Tværveje                | `file`       | Et kort over gaderne (`src/data/maps/`) med tre steder; på hvert sted de tre karakterers fortællinger |
-| `quad`      | Kanon i G3              | `quad`       | Kanonstillingen i 3D (`public/models/`) med fire højttalere omkring lytteren (HRTF, bedst med hovedtelefoner); musen drejer én (`src/audio/Quad.js`, `QuadScene.js`) |
+| `quad`      | Kanon i G3              | `quad`       | Kanonstillingen i 3D, bygget i kode efter Jørgen Lumbyes opmåling (`scene/kanonstilling.js`, beton i `scene/concrete.js`), fire højttalere på ammunitionskasserne og lytteren som en kugle over midten (HRTF, bedst med hovedtelefoner); bølger går fra højttalerne ind mod kuglen, så kraftigt som de spiller; musen til højre drejer dig til højre. Fire monofiler, startet på samme sample (`src/audio/Quad.js`, `QuadScene.js`) |
 
 `interfaces/registry.js` siger, hvad hvert interface behøver (motor, lys eller mørk baggrund, om det
 åbner afspilleren fra projektsiden, om filen looper). `interfaces/index.js` peger på komponenterne.

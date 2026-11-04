@@ -1,11 +1,21 @@
 import { isPlaceholder, placeholderBuffer } from './placeholder';
 
-/** A sound file as an AudioBuffer — a placeholder is synthesised instead of fetched */
-export async function loadBuffer(ctx, url) {
-    if (isPlaceholder(url)) return placeholderBuffer(ctx, url);
+/** A sound file's bytes (null for a placeholder, which is synthesised instead) */
+export async function fetchSound(url) {
+    if (isPlaceholder(url)) return null;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`${url}: ${res.status}`);
-    return ctx.decodeAudioData(await res.arrayBuffer());
+    return res.arrayBuffer();
+}
+
+/** Fetched bytes (see fetchSound) as an AudioBuffer */
+export async function decodeSound(ctx, url, bytes) {
+    return bytes ? ctx.decodeAudioData(bytes) : placeholderBuffer(ctx, url);
+}
+
+/** A sound file as an AudioBuffer — a placeholder is synthesised instead of fetched */
+export async function loadBuffer(ctx, url) {
+    return decodeSound(ctx, url, await fetchSound(url));
 }
 
 /** A new AudioContext that plays through iOS's silent switch, like an audio element does */

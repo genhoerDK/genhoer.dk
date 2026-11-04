@@ -75,18 +75,20 @@ export const players = {
         })),
     },
 
-    /* Kanon i G3: four speakers hanging evenly around the gun emplacement, with the listener in the
-       middle. angle = where a speaker hangs, degrees clockwise from straight ahead. A stereo file's
-       channel is picked with channel: 0 | 1. model = the emplacement in 3D (a sketch for now) */
+    /* Kanon i G3: four speakers on the ammunition boxes by the pit's wall, clockwise from front left,
+       with the listener floating over the middle. angle = where a speaker stands, degrees clockwise
+       from straight ahead. Four mono files, started on the same sample. A stereo file's channel is
+       picked with channel: 0 | 1. The emplacement is built in code (scene/kanonstilling.js);
+       textured: false shows it in plain grey */
     'kanon-i-g3': {
         interface: 'quad',
         image: cdn('bornholm-2026', 'image-03.webp'),
-        model: '/models/kanonstilling.stl',
+        textured: true,
         speakers: [
-            { label: 'Forrest til venstre', angle: -45, file: placeholder('kanon-1', 40, 31, '&kind=pulse') },
-            { label: 'Forrest til højre', angle: 45, file: placeholder('kanon-2', 40, 32, '&kind=pulse') },
-            { label: 'Bagest til højre', angle: 135, file: placeholder('kanon-3', 40, 33) },
-            { label: 'Bagest til venstre', angle: -135, file: placeholder('kanon-4', 40, 34) },
+            { label: 'Forrest til venstre', angle: -45, file: cdn('bornholm-2026', 'kanon-i-g3-1.mp3') },
+            { label: 'Forrest til højre', angle: 45, file: cdn('bornholm-2026', 'kanon-i-g3-2.mp3') },
+            { label: 'Bagest til højre', angle: 135, file: cdn('bornholm-2026', 'kanon-i-g3-3.mp3') },
+            { label: 'Bagest til venstre', angle: -135, file: cdn('bornholm-2026', 'kanon-i-g3-4.mp3') },
         ],
         reverb: 0.2,   // 0–1: a little of the bunker's echo on top (synthesised)
     },

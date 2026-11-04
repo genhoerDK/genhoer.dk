@@ -142,10 +142,12 @@ const backdropShader = {
  * @param {number} [options.focus=0.5]  0–1 across the photo: what stays in view on narrow screens
  * @param {number} [options.smoke=1]  0–1: how much smoke (0 = none)
  * @param {boolean} [options.mono=true]  The photo in black and white, like the covers
+ * @param {number} [options.light=1]  How strong the panel's fixed light is (a scene with its own sun turns it down)
+ * @param {boolean} [options.shadows=false]  Shadows for lights that cast them
  * @param {(stage) => void} [options.onResize]  Lay out the panel; stage.view has the panel's visible size
  * @param {(dt, t, elapsed) => void} [options.onFrame]  dt is capped (motion), elapsed is wall time (easing)
  */
-export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mono = true, onResize, onFrame } = {}) {
+export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mono = true, light = 1, shadows = false, onResize, onFrame } = {}) {
     let disposed = false;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -154,6 +156,8 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
+    renderer.shadowMap.enabled = shadows;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     const canvas = renderer.domElement;
     canvas.className = 'absolute inset-0 size-full';
     canvas.style.touchAction = 'none';
@@ -165,8 +169,8 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     scene.add(camera);
 
     /* Light for the panel, fixed to the camera so things on it always look the same */
-    camera.add(new THREE.HemisphereLight(0xffffff, 0xc8c8cc, 1.8));
-    const key = new THREE.DirectionalLight(0xffffff, 2.6);
+    camera.add(new THREE.HemisphereLight(0xffffff, 0xc8c8cc, 1.8 * light));
+    const key = new THREE.DirectionalLight(0xffffff, 2.6 * light);
     key.position.set(-1, 1.6, 1.2);
     key.target.position.set(0, 0, -PANEL_DISTANCE);
     camera.add(key, key.target);
