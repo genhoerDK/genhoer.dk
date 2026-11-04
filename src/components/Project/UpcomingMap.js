@@ -36,6 +36,7 @@ function layout(width, height, isPortrait) {
 // filled with its cover image. Title and dates sit in the bottom left corner.
 export default function UpcomingMap({ projects }) {
     const isPortrait = useIsPortrait();
+    const sectionRef = useRef(null);
     const containerRef = useRef(null);
     const svgRef = useRef(null);
     const clipId = useId().replace(/:/g, ''); // unique clipPath ids, valid inside url(#…)
@@ -67,6 +68,26 @@ export default function UpcomingMap({ projects }) {
         map.current.view = [cx, cy, w];
         g.attr('transform', `translate(${ax - cx * k},${ay - cy * k}) scale(${k})`);
         markers.attr('r', MARKER_RADIUS / k);
+    }, [isPortrait]);
+
+    // Phones: some browsers (iOS 26 Safari with its floating bar) size 100svh like the whole screen, so the
+    // bottom of the section ends up behind the toolbar and browser bar. Use the visible height instead,
+    // measured again only when the width changes, so the page doesn't jump when the browser bar collapses.
+    useEffect(() => {
+        const section = sectionRef.current;
+        if (!isPortrait) {
+            section.style.height = '';
+            return;
+        }
+        let width = 0;
+        const measure = () => {
+            if (window.innerWidth === width) return;
+            width = window.innerWidth;
+            section.style.height = `${window.innerHeight}px`;
+        };
+        measure();
+        window.addEventListener('resize', measure);
+        return () => window.removeEventListener('resize', measure);
     }, [isPortrait]);
 
     // Load the map once
@@ -214,6 +235,7 @@ export default function UpcomingMap({ projects }) {
 
     return (
         <section
+            ref={sectionRef}
             aria-roledescription="karrusel"
             aria-label="Kommende projekter"
             className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden animate-fade-in"
