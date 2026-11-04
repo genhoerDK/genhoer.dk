@@ -28,7 +28,7 @@ const mapCoordinates = ({ coordinates: [lon, lat], komkode }) =>
 // Where the kommune sits on screen and how much of the screen it may fill
 function layout(width, height, isPortrait) {
     return isPortrait
-        ? { anchor: [width * 0.5, height * 0.36], fill: [0.5, 0.26] }
+        ? { anchor: [width * 0.5, height * 0.46], fill: [0.5, 0.26] }
         : { anchor: [width * 0.5, height * 0.46], fill: [0.3, 0.46] };
 }
 
