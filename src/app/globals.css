@@ -37,6 +37,20 @@
     }
 }
 
+/*
+ * Page height: the visible height of the browser window. Use h-page / min-h-page, not h-svh / min-h-svh.
+ * iOS 26 Safari (floating address bar) sizes 100svh like the whole screen, so the bottom of a full-height
+ * section (sponsor logos, carousel controls) ends up behind the toolbar. --page-height is set from
+ * window.innerHeight by the script in src/app/layout.js; 100svh is only the fallback until it has run.
+ */
+@utility h-page {
+    height: var(--page-height, 100svh);
+}
+
+@utility min-h-page {
+    min-height: var(--page-height, 100svh);
+}
+
 /* Swiper (tracks overview) */
 
 :root {

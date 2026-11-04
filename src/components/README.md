@@ -16,6 +16,7 @@ Defined in `src/app/globals.css` (`@theme`) and mirrored in `src/styles/colors.j
 - **Colors**, light to dark: `paper` `soft` `muted` `faint` `hard` `dim` `shade` `ink`, plus `error` / `error-strong`. Use as `bg-ink`, `text-paper` etc. — never raw `zinc-*` or hex values.
 - **Gutter**: `px-gutter`, `left-gutter`, `gap-x-gutter` — the page side padding (0.5rem, 1rem from md).
 - **Fade-in**: `animate-fade-in` on sections that should fade in on load.
+- **Full height**: `h-page` / `min-h-page` for full-screen sections — never `h-svh`, which iOS Safari sizes too tall, so the bottom ends up behind the toolbar.
 
 ## Typography and buttons
 
