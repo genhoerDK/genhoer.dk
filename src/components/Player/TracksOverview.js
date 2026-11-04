@@ -57,7 +57,7 @@ export default function TracksOverview({ toggleOverview }) {
                                     className={`flex flex-col items-center gap-4 w-full cursor-pointer transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-40 md:hover:opacity-70'}`}
                                 >
                                     <span className={`relative block size-48 md:size-64 rounded-full overflow-hidden transition-shadow duration-300 ${isActive ? 'ring-1 ring-paper/70' : ''}`}>
-                                        <img src={project.coverImageSmall} alt='' className='size-full object-cover grayscale' loading='lazy' draggable={false} />
+                                        <img src={project.coverImageSmall} alt='' className='size-full object-cover grayscale' draggable={false} />
                                         {isActive && (
                                             <span className='absolute inset-0 flex items-center justify-center'>
                                                 <span className='flex items-center justify-center size-16 rounded-full bg-paper text-ink'>
