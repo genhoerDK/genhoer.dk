@@ -260,9 +260,9 @@ export default function UpcomingMap({ projects }) {
                         </div>
 
                         {/* ── Arrows ── */}
-                        <div className="absolute right-4 bottom-[52px] md:bottom-[10px] flex gap-1">
-                            <ArrowButton onClick={() => go(active - 1)} label="Forrige projekt"><ChevronLeftIcon className="size-3" /></ArrowButton>
-                            <ArrowButton onClick={() => go(active + 1)} label="Næste projekt"><ChevronRightIcon className="size-3" /></ArrowButton>
+                        <div className="absolute right-4 bottom-[56px] md:bottom-[14px] flex gap-1.5">
+                            <ArrowButton onClick={() => go(active - 1)} label="Forrige projekt"><ChevronLeftIcon className="size-4" /></ArrowButton>
+                            <ArrowButton onClick={() => go(active + 1)} label="Næste projekt"><ChevronRightIcon className="size-4" /></ArrowButton>
                         </div>
                     </>
                 )}
@@ -276,7 +276,7 @@ function ArrowButton({ onClick, label, children }) {
         <button
             onClick={onClick}
             aria-label={label}
-            className="grid place-items-center size-6 border border-paper/50 text-paper cursor-pointer transition-colors duration-200 hover:bg-paper hover:text-ink focus-visible:outline-1 focus-visible:outline-paper"
+            className="grid place-items-center size-8 border border-paper/50 text-paper cursor-pointer transition-colors duration-200 hover:bg-paper hover:text-ink focus-visible:outline-1 focus-visible:outline-paper"
         >
             {children}
         </button>
