@@ -315,21 +315,6 @@ function hitCircle(p0, d, r) {
     return [p0[0] + d[0] * t, p0[1] + d[1] * t];
 }
 
-/** A polyline moved `d` metres to its left, its corners mitred */
-function offsetLeft(points, d) {
-    const normal = (i) => {
-        const [x0, y0] = points[i], [x1, y1] = points[i + 1];
-        const l = Math.hypot(x1 - x0, y1 - y0);
-        return [-(y1 - y0) / l, (x1 - x0) / l];
-    };
-    const last = points.length - 1;
-    return points.map((p, i) => {
-        const a = normal(Math.max(0, i - 1)), b = normal(Math.min(last - 1, i));
-        const k = d / (1 + a[0] * b[0] + a[1] * b[1]);
-        return [p[0] + (a[0] + b[0]) * k, p[1] + (a[1] + b[1]) * k];
-    });
-}
-
 /* ---------- THE PARTS ---------- */
 
 const RUST = new THREE.Color(0.6, 0.42, 0.32);
@@ -406,8 +391,7 @@ function ringWall(parts) {
         parts.push(revolve([[Ri, head], [Ri, T - 0.04], [Ri + 0.04, T], [Ro - 0.04, T], [Ro, T - 0.04], [Ro, head], [Ri, head]], {
             from: { axis: a, half: -half }, to: { axis: a, half: -half },
         }));
-        // Four steps up from the walk (photos 52, 54): the lowest outside, wider, two inside, then the floor
-        parts.push(box(-half - 0.15, half + 0.15, Ro - 0.05, Ro + 0.3, P - 0.1, P + 0.15, { turn: a }));
+        // Steps up from the walk (photos 52, 54): two inside the doorway, then the floor
         parts.push(box(-half, half, Ro - 0.28, Ro + 0.005, P - 0.1, P + 0.3, { turn: a }));
         parts.push(box(-half, half, Ro - 0.56, Ro - 0.28, P - 0.1, P + 0.45, { turn: a }));
         parts.push(box(-half, half, Ri - 0.005, Ro - 0.56, P - 0.1, sill, { turn: a }));
@@ -525,11 +509,12 @@ function machineBlock(parts) {
     const vRounds = [{ y: 17.49, z: vent.top - 0.7, r: 0.15 }, { y: 17.08, z: roof + 0.22, r: 0.165 }];
 
     // Openings: a door to the north and one to the east, the machine hall's entrance to the west (the
-    // plan), a window high in the west wall north of the entrance (photo 0046), a small one by the corner (58)
-    const north = { u0: 3.0, u1: 3.85, z0: 0, z1: 2.3, depth: 2.5 };
-    const east = { u0: 17.65, u1: 18.6, z0: 0, z1: 2.3, depth: 2.5 };
+    // plan), all three a metre above the ground (photos 58, 64); a window high in the west wall north
+    // of the entrance (photo 0046), a small one by the corner (58)
+    const north = { u0: 3.0, u1: 3.85, z0: 1.0, z1: 3.05, depth: 2.5 };
+    const east = { u0: 17.65, u1: 18.6, z0: 1.0, z1: 3.05, depth: 2.5 };
     const west = [
-        { u0: 13.15, u1: 15.25, z0: 0, z1: 2.6, depth: 2.5 },
+        { u0: 13.15, u1: 15.25, z0: 1.0, z1: 3.3, depth: 2.5 },
         { u0: 16.85, u1: 17.55, z0: roof - 1.8, z1: roof - 1.05, depth: 1.0 },
         { u0: 12.45, u1: 12.85, z0: 0.7, z1: 1.2, depth: 0.5 },
     ];
@@ -611,12 +596,12 @@ function machineBlock(parts) {
  * Built face by face, so every face is one surface:
  *
  *   - at the walk its back wall runs along the walk's edge (r 13.7) from end to end; near each end
- *     an opening in it into a dark room, a short piece of the wall between the opening and the end
+ *     an opening in it into a dark room, its floor a step above the walk, a short piece of the
+ *     wall between the opening and the end
  *   - from 2.3 m over the walk the block hangs out over the walk to r 12.35, in one face up to its
  *     top: at the north end squared off along the end's diagonal, at the south end curving back to
  *     where the wall ends
  *   - its middle rises 0.8 m higher than its ends (Lumbye's drawing of the front)
- *   - a low bench along the back wall between the openings
  *   - a small opening in the south end, 1.2 m over the ground, into the block (photo 41)
  */
 function sideBlock(parts, side) {
@@ -672,13 +657,14 @@ function sideBlock(parts, side) {
     });
     parts.push(niche([ha[0] * mx, ha[1]], [hb[0] * mx, hb[1]], [inS[0] * mx, inS[1]], 0.4, hz[0], hz[1]));
 
-    // The back wall along the walk's edge, from the walk up to the overhang, the two openings in it,
-    // dark rooms behind them
-    cyl([0, 0], Rb, back, F0, S, { facing: 'in', holes: doors.map((d) => ({ ...d, z0: F0, z1: S })) });
+    // The back wall along the walk's edge, from the walk up to the overhang, the two openings in it
+    // (up to the overhang), dark rooms behind them, their floor a step above the walk (photo 63)
+    const roomFloor = P + 0.2;
+    cyl([0, 0], Rb, back, F0, S, { facing: 'in', holes: doors.map((d) => ({ ...d, z0: roomFloor, z1: S })) });
     for (const d of doors) {
         const mid = (d.a0 + d.a1) / 2, out = [Math.sin(rad(mid)), Math.cos(rad(mid))];
         const [p0, p1] = [onBack(d.a0), onBack(d.a1)];
-        parts.push(niche([p0[0] * mx, p0[1]], [p1[0] * mx, p1[1]], [out[0] * mx, out[1]], 1.5, P, S));
+        parts.push(niche([p0[0] * mx, p0[1]], [p1[0] * mx, p1[1]], [out[0] * mx, out[1]], 1.5, roomFloor, S));
     }
 
     // The overhang's underside
@@ -699,10 +685,6 @@ function sideBlock(parts, side) {
     add([[-X, step], ...highF.map(onFront), ...highB.slice(1).map(onBend), [-X, -step]].map(([x, y]) => [x, y, top]), [0, 0, 1]);
     add([[-X, step, shoulder], [sA[0], step, shoulder], [sA[0], step, top], [-X, step, top]], [0, 1, 0]);
     add([[-X, -step, shoulder], [sB[0], -step, shoulder], [sB[0], -step, top], [-X, -step, top]], [0, -1, 0]);
-
-    // The bench along the back wall between the openings, 0.45 m deep and 0.35 m high
-    const benchLine = back.filter((a) => a >= doors[1].a1 + 0.3 && a <= doors[0].a0 - 0.3).reverse().map(onBack);
-    parts.push(outline([...benchLine, ...offsetLeft(benchLine, 0.45).reverse()].map(([x, y]) => [x * mx, y]), P - 0.05, P + 0.35));
 }
 
 function emplacementGeometry() {
