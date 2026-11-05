@@ -78,12 +78,12 @@ export const players = {
     /* Kanon i G3: four speakers round the pit, clockwise from front left, with the listener floating
        over the middle. angle = where a speaker stands, degrees clockwise from straight ahead. Four
        mono files, started on the same sample. A stereo file's channel is picked with channel: 0 | 1.
-       The emplacement is built in code (scene/kanonstilling.js); textured: true lays the concrete
-       texture on it (off for now: plain grey) */
+       The emplacement is built in code (scene/kanonstilling.js); textured: true weathers its
+       concrete (scene/concrete.js), false leaves it plain grey */
     'kanon-i-g3': {
         interface: 'quad',
         image: cdn('bornholm-2026', 'image-03.webp'),
-        textured: false,
+        textured: true,
         speakers: [
             { label: 'Forrest til venstre', angle: -45, file: cdn('bornholm-2026', 'kanon-i-g3-1.mp3') },
             { label: 'Forrest til højre', angle: 45, file: cdn('bornholm-2026', 'kanon-i-g3-2.mp3') },
