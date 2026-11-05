@@ -302,9 +302,6 @@ function cylFace(centre, r, angles, z0, z1, { facing = 'in', holes = [], shade =
     return fromTriangles(tris);
 }
 
-/** Turn [x, y] round the centre by an angle (our angles: clockwise) */
-const turned = ([x, y], a) => { const t = -rad(a); return [x * Math.cos(t) - y * Math.sin(t), x * Math.sin(t) + y * Math.cos(t)]; };
-
 /** Pieces of a full turn left between gaps, as pairs of cuts ({ axis, half }) */
 function between(gaps, half) {
     const sorted = [...gaps].map((a) => ((a % 360) + 360) % 360).sort((a, b) => a - b);
@@ -336,13 +333,10 @@ function offsetLeft(points, d) {
 /* ---------- THE PARTS ---------- */
 
 const RUST = new THREE.Color(0.6, 0.42, 0.32);
-const SMALL_PIT = [[-0.42, 4.32], [0.42, 4.32], [0.42, 4.96], [-0.42, 4.96]];   // a small pit in the floor by the cone, north-east
 
 /** The base slab: the pit's floor and the walk outside the ring wall, one height */
 function baseSlab(parts) {
-    const pit = SMALL_PIT.map((q) => turned(q, 24.7));
-    parts.push(outline(arc(WALL.inner + 0.02, 0, 360, 0.5).slice(0, -1), P - 0.3, P, { holes: [pit] }));
-    parts.push(shaft(pit, P - 0.3, 0.3, { light: 0.45, dark: 0.15 }));
+    parts.push(outline(arc(WALL.inner + 0.02, 0, 360, 0.5).slice(0, -1), P - 0.3, P));
     parts.push(revolve([[WALL.outer, P], [LEDGE.outer, P], [LEDGE.outer, -0.3]]));
 }
 
@@ -402,10 +396,9 @@ function ringWall(parts) {
         }
     }
 
-    const iron = (a, r, z, out) => {   // a climbing iron, a bar standing 13 cm off the face at radius r
-        const s = out ? 1 : -1;
-        parts.push(box(-0.16, 0.16, r + s * 0.1, r + s * 0.13, z, z + 0.03, { turn: a, tint: RUST, shade: 0.45 }));
-        for (const k of [-1, 1]) parts.push(box(k * 0.16 - 0.015, k * 0.16 + 0.015, r - s * 0.01, r + s * 0.13, z, z + 0.03, { turn: a, tint: RUST, shade: 0.45 }));
+    const iron = (a, r, z) => {   // a climbing iron on the inner face, a bar standing 13 cm off it
+        parts.push(box(-0.16, 0.16, r - 0.13, r - 0.1, z, z + 0.03, { turn: a, tint: RUST, shade: 0.45 }));
+        for (const k of [-1, 1]) parts.push(box(k * 0.16 - 0.015, k * 0.16 + 0.015, r - 0.13, r + 0.01, z, z + 0.03, { turn: a, tint: RUST, shade: 0.45 }));
     };
 
     for (const a of WALL.passages) {
@@ -413,24 +406,16 @@ function ringWall(parts) {
         parts.push(revolve([[Ri, head], [Ri, T - 0.04], [Ri + 0.04, T], [Ro - 0.04, T], [Ro, T - 0.04], [Ro, head], [Ri, head]], {
             from: { axis: a, half: -half }, to: { axis: a, half: -half },
         }));
-        if (a !== 180) {
-            // Four steps up from the walk (photos 52, 54): the lowest outside, wider, two inside, then the floor
-            parts.push(box(-half - 0.15, half + 0.15, Ro - 0.05, Ro + 0.3, P - 0.1, P + 0.15, { turn: a }));
-            parts.push(box(-half, half, Ro - 0.28, Ro + 0.005, P - 0.1, P + 0.3, { turn: a }));
-            parts.push(box(-half, half, Ro - 0.56, Ro - 0.28, P - 0.1, P + 0.45, { turn: a }));
-            parts.push(box(-half, half, Ri - 0.005, Ro - 0.56, P - 0.1, sill, { turn: a }));
-        } else {
-            // A level floor at the sill and a loose block on the walk before it (photo 53), climbing
-            // irons up the outside to its west
-            parts.push(box(-half, half, Ri - 0.005, Ro + 0.005, P - 0.1, sill, { turn: a }));
-            parts.push(box(-0.3, 0.3, Ro + 0.3, Ro + 0.72, P - 0.05, P + 0.32, { turn: a }));
-            for (let k = 0; k < 9; k++) iron(a + deg((half + 0.55) / Ro), Ro, P + 0.35 + k * 0.28, true);
-        }
+        // Four steps up from the walk (photos 52, 54): the lowest outside, wider, two inside, then the floor
+        parts.push(box(-half - 0.15, half + 0.15, Ro - 0.05, Ro + 0.3, P - 0.1, P + 0.15, { turn: a }));
+        parts.push(box(-half, half, Ro - 0.28, Ro + 0.005, P - 0.1, P + 0.3, { turn: a }));
+        parts.push(box(-half, half, Ro - 0.56, Ro - 0.28, P - 0.1, P + 0.45, { turn: a }));
+        parts.push(box(-half, half, Ri - 0.005, Ro - 0.56, P - 0.1, sill, { turn: a }));
         for (const s of [-1, 1]) parts.push(box(s * half, s * (half - 0.08), 10.15, 10.5, sill, head, { turn: a }));   // the door's rebate
         // Climbing irons on the inner face beside the passage, on its north side (photos 05 and 0024:
         // between the doorway and the corner foundation), up to the top
         const side = a + (a > 0 && a < 180 ? -1 : 1) * deg(1.15 / Ri);
-        for (let k = 0; k < 8; k++) iron(side, Ri, P + 0.3 + k * 0.32, false);
+        for (let k = 0; k < 8; k++) iron(side, Ri, P + 0.3 + k * 0.32);
     }
 }
 
