@@ -35,7 +35,7 @@ export const PIT = { radius: 9.35, floor: P };
 export const WALL = { inner: 9.35, outer: 11.3, top: P + 2.85, passages: [-60.6, 60.6, 180], passage: 1.25 };
 export const LEDGE = { outer: 13.1 };
 const CONE = { base: 3.9, foot: 3.75, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-61, 61], bolts: 1.72, shaft: 0.8 };
-const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: 4.5, band: 16.2, crest: P + 5.2 };   // the machine block
+const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: 4.5, band: 16.2, crest: P + 5.8 };   // the machine block
 const SIDE = { outer: 15, face: 12.95, band: 13.66, top: 5.3, shoulder: 4.55 };   // the side blocks: their front, as drawn
 
 /* ---------- GEOMETRY HELPERS ---------- */
@@ -234,46 +234,6 @@ function room(x0, x1, y0, y1, z0, z1, open) {
 
 /** Turn [x, y] round the centre by an angle (our angles: clockwise) */
 const turned = ([x, y], a) => { const t = -rad(a); return [x * Math.cos(t) - y * Math.sin(t), x * Math.sin(t) + y * Math.cos(t)]; };
-
-/**
- * A curved band between radii r0 and r1, cut off by the planes x = ±halfWidth, from a bottom up to a
- * top; each a height or a function of x
- */
-function band(r0, r1, halfWidth, bottom, top, shade = 1) {
-    const zAt = (h, x) => (typeof h === 'function' ? h(x) : h);
-    const from = { axis: 0, half: -halfWidth }, to = { axis: 0, half: -halfWidth };
-    const c = grey(shade), cs = grey(shade * 0.85);
-    const n = 160;
-    const ring = (r, t) => { const a0 = cutAngle(from, r, 'from'); return a0 + (cutAngle(to, r, 'to') - a0) * t; };
-    const pt = (r, t, low) => { const p = at(r, ring(r, t), 0); p.z = zAt(low ? bottom : top, p.x); return p; };
-    const radial = (r, t, sign) => { const a = rad(ring(r, t)); return new THREE.Vector3(Math.sin(a) * sign, Math.cos(a) * sign, 0); };
-    const tris = [];
-    for (let j = 0; j < n; j++) {
-        const t0 = j / n, t1 = (j + 1) / n;
-        // top
-        const A = pt(r0, t0), B = pt(r1, t0), C = pt(r1, t1), D = pt(r0, t1);
-        const up = new THREE.Vector3().crossVectors(B.clone().sub(A), D.clone().sub(A)).normalize();
-        if (up.z < 0) up.negate();
-        tris.push({ p: [A, B, C], n: [up, up, up], c: [c, c, c] }, { p: [A, C, D], n: [up, up, up], c: [c, c, c] });
-        // underside
-        const down = up.clone().negate();
-        const Ab = pt(r0, t0, true), Bb = pt(r1, t0, true), Cb = pt(r1, t1, true), Db = pt(r0, t1, true);
-        tris.push({ p: [Ab, Bb, Cb], n: [down, down, down], c: [cs, cs, cs] }, { p: [Ab, Cb, Db], n: [down, down, down], c: [cs, cs, cs] });
-        // inner and outer faces
-        for (const [r, sign] of [[r0, -1], [r1, 1]]) {
-            const E = pt(r, t0, true), F = pt(r, t0), G = pt(r, t1), K = pt(r, t1, true);
-            const n0 = radial(r, t0, sign), n1 = radial(r, t1, sign);
-            tris.push({ p: [E, F, G], n: [n0, n0, n1], c: [cs, c, c] }, { p: [E, G, K], n: [n0, n1, n1], c: [cs, c, cs] });
-        }
-    }
-    // the ends
-    for (const [t, cut, end] of [[0, from, 'from'], [1, to, 'to']]) {
-        const nn = cutNormal(cut, end);
-        const A = pt(r0, t, true), B = pt(r1, t, true), C = pt(r1, t), D = pt(r0, t);
-        tris.push({ p: [A, B, C], n: [nn, nn, nn], c: [cs, cs, c] }, { p: [A, C, D], n: [nn, nn, nn], c: [cs, c, c] });
-    }
-    return fromTriangles(tris);
-}
 
 /** Pieces of a full turn left between gaps, as pairs of cuts ({ axis, half }) */
 function between(gaps, half) {
@@ -487,8 +447,7 @@ function machineBlock(parts) {
     // The side to the pit, as in the section: an overhang (1.1 m out, 2.0–3.15 m over the ledge);
     // above it the top slab (0.7 m out, to 3.9 m), a curved band reaching out over the roof and a
     // little past the block's sides; and on it the crest — the section's dashed pentagon, 1.8 m
-    // wide, up to 5 m over the pit's floor — level in the middle and sloping down at its ends, as
-    // the photos from the pit and of its end show
+    // wide, its top 5.5–5.8 m over the pit's floor (read off the photo from the south passage)
     const reach = 35.5;
     parts.push(revolve([[Rf + 0.05, P + 2.0, 0.5], [Rf - 1.1, P + 2.0, 0.55], [Rf - 1.1, P + 3.15, 0.85], [Rf + 0.6, P + 3.15, 0.85]], {
         from: -reach, to: reach, closeEnds: [[Rf - 1.1, P + 2.0, 0.7], [Rf + 0.6, P + 2.0, 0.7], [Rf + 0.6, P + 3.15, 0.8], [Rf - 1.1, P + 3.15, 0.8]],
@@ -497,13 +456,14 @@ function machineBlock(parts) {
         from: -reach, to: reach, closeEnds: [[Rf - 0.7, P + 3.15, 0.8], [BLOCK.band, P + 3.15, 0.8], [BLOCK.band, P + 3.9, 0.9], [Rf - 0.7, P + 3.9, 0.9]],
     }));
     for (const s of [-1, 1]) parts.push(sector(Rf - 0.05, BLOCK.band, s > 0 ? 29 : -reach, s > 0 ? reach : -29, -0.3, P + 3.2, { bevel: 0.03, shade: 0.92 }));   // where it reaches past the block, down to the ground
-    // The crest: level along the middle, cut off straight at its ends; a coping along its top (photo 21)
-    const crest = (x) => {
-        const t = THREE.MathUtils.clamp((Math.abs(x) - 6.4) / (8.25 - 6.4), 0, 1);
-        return BLOCK.crest + (P + 3.9 - BLOCK.crest) * t;
-    };
-    parts.push(band(Rf - 0.77, Rf + 1.05, 8.25, P + 3.85, crest));
-    parts.push(band(Rf - 0.8, Rf + 1.08, 8.27, (x) => crest(x) - 0.22, (x) => crest(x) + 0.03, 0.97));
+    // The crest: an arc 1.8 m thick standing on the top slab, the same height all along, its ends
+    // cut off straight towards the centre (the photo from the south passage and the drone photo),
+    // its top sloping down towards the pit (the photo from the pit's east side)
+    const c0 = Rf - 0.77, c1 = Rf + 1.05, base = P + 3.85, inner = BLOCK.crest - 0.3, outer = BLOCK.crest;
+    const ends = deg(Math.asin(7.85 / ((c0 + c1) / 2)));
+    parts.push(revolve([
+        [c0, base, 0.75], [c0, inner - 0.05, 0.95], [c0 + 0.05, inner, 1], [c1 - 0.05, outer, 1], [c1, outer - 0.05, 0.95], [c1, base, 0.8],
+    ], { from: -ends, to: ends, closeEnds: [[c0, base, 0.8], [c1, base, 0.8], [c1, outer, 0.92], [c0, inner, 0.92]] }));
 
     // On the roof, to the west: a raised slab with sloping sides, from the band to near the back
     // (drone and air photos)
