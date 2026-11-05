@@ -485,14 +485,14 @@ function machineBlock(parts) {
     parts.push(frustum([[-X, 14.6], [-X, 24.7], [-2.0, 24.7], [-2.0, 14.6]], [[-X, 14.6], [-X, 24.05], [-2.65, 24.05], [-2.65, 14.6]], roof - 0.05, P + 3.86, 0.97));
     // To the east, by the band: the boiler room's vent — a shaft rising out of the roof, its top
     // narrowing to a flat ridge, an opening in its west face (photos 0036 and 0311)
-    const vent = { x0: 6.15, x1: X, y0: 15.7, y1: 18.1 };
-    parts.push(box(vent.x0, vent.x1, vent.y0, vent.y1, roof - 0.05, roof + 1.1, { bevel: 0.02, shade: 0.95 }));
+    const vent = { x0: 6.5, x1: X - 0.05, y0: 16.2, y1: 17.6, top: roof + 2.3 };
+    parts.push(box(vent.x0, vent.x1, vent.y0, vent.y1, roof - 0.05, vent.top, { bevel: 0.02, shade: 0.95 }));
     parts.push(frustum(
         [[vent.x0, vent.y0], [vent.x1, vent.y0], [vent.x1, vent.y1], [vent.x0, vent.y1]],
-        [[vent.x0, 16.45], [vent.x1, 16.45], [vent.x1, 17.35], [vent.x0, 17.35]],
-        roof + 1.1 - 0.001, roof + 2.0, 0.95,
+        [[vent.x0, 16.65], [vent.x1, 16.65], [vent.x1, 17.15], [vent.x0, 17.15]],
+        vent.top - 0.001, vent.top + 0.55, 0.95,
     ));
-    parts.push(box(vent.x0 - 0.02, vent.x0 + 0.02, 16.6, 17.2, roof + 1.05, roof + 1.55, { bevel: 0, shade: DARK }));
+    parts.push(box(vent.x0 - 0.02, vent.x0 + 0.02, 16.6, 17.2, vent.top - 0.75, vent.top - 0.2, { bevel: 0, shade: DARK }));   // the opening
     // Small openings high in the west wall
     for (const y of [18, 21, 24]) parts.push(box(-X - 0.02, -X + 0.03, y, y + 0.4, 3.3, 3.7, { bevel: 0, shade: DARK }));
 }
