@@ -20,7 +20,7 @@
  *     boiler room's vent on its roof, the machine hall's entrance to the west
  *   - east and west: the side blocks, their middle higher than their ends; over the walk their
  *     upper part hangs out from the back wall, square at the north end and curving back at the
- *     south; under it a bench, a pier at each end and a dark alcove behind it
+ *     south; the back wall runs along the walk's edge, an opening into a dark room near each end
  *
  * Heights the drawings don't give are read off the photos. The machine block and the side blocks
  * are built face by face: each face one surface with its openings cut into it, meeting its
@@ -40,7 +40,7 @@ export const WALL = { inner: 9.35, outer: 11.3, top: P + 2.85, passages: [-59.85
 export const LEDGE = { outer: 13.75 };
 const CONE = { base: 3.7, foot: 3.75, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-59.85, 59.85], bolts: 1.72, shaft: 0.8 };
 const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: P + 4.37 };   // the machine block: its roof as in the section
-const SIDE = { outer: 15, back: 13.7, alcove: 14.0, front: 12.35, pier: 13.1, pierInner: 13.0, top: 5.45, shoulder: 4.65, step: 5.45 };
+const SIDE = { outer: 15, back: 13.7, front: 12.35, top: 5.45, shoulder: 4.65, step: 5.45 };
 const WALK = { soffit: P + 2.3 };                    // the underside of the overhangs over the walk
 
 /* ---------- GEOMETRY HELPERS ---------- */
@@ -610,13 +610,13 @@ function machineBlock(parts) {
  * east one and the photos from the walk (31, 32, 41, 48–51); drawn for the west, mirrored for the east.
  * Built face by face, so every face is one surface:
  *
- *   - at the walk its back wall stands where the walk ends (r 13.7), set deeper at both ends (an
- *     alcove behind a pier, splayed into the middle); a low bench runs along it
- *   - the piers stand on the walk's outer edge (their front at r 13.1, so the walk passes them)
+ *   - at the walk its back wall runs along the walk's edge (r 13.7) from end to end; near each end
+ *     an opening in it into a dark room, a short piece of the wall between the opening and the end
  *   - from 2.3 m over the walk the block hangs out over the walk to r 12.35, in one face up to its
- *     top: at the north end squared off along the end's diagonal, at the south end curving back
- *     onto the pier
+ *     top: at the north end squared off along the end's diagonal, at the south end curving back to
+ *     where the wall ends
  *   - its middle rises 0.8 m higher than its ends (Lumbye's drawing of the front)
+ *   - a low bench along the back wall between the openings
  *   - a small opening in the south end, 1.2 m over the ground, into the block (photo 41)
  */
 function sideBlock(parts, side) {
@@ -624,72 +624,65 @@ function sideBlock(parts, side) {
     const add = (points, [nx, ny, nz], options) => parts.push(face(points.map(([x, y, z]) => [x * mx, y, z]), [nx * mx, ny, nz], options));
     const cyl = ([cx, cy], r, angles, z0, z1, options) => parts.push(cylFace([cx * mx, cy], r, angles.map((a) => a * mx), z0, z1, options));
     const S = WALK.soffit, F0 = P - 0.05, base = -0.3;
-    const { outer: X, back: Rb, alcove: Xa, front: Rf, pier: Rp, pierInner: Xp, top, shoulder, step } = SIDE;
-    const yN = 7.0, yS = -6.6, yAN = 6.5, yAS = -6.1, yP = 5.3, ySplay = 2.05, yDeep = 2.6;
+    const { outer: X, back: Rb, front: Rf, top, shoulder, step } = SIDE;
+    const yN = 7.0, yS = -6.6;
     const unit = ([x, y]) => { const l = Math.hypot(x, y); return [x / l, y / l]; };
     const along = (p, d, k) => [p[0] + d[0] * k, p[1] + d[1] * k];
     const angleAt = ([x, y], [cx, cy] = [0, 0]) => deg(Math.atan2(x - cx, y - cy));
 
-    // The ends' diagonals, as drawn, from the end walls towards the ring
+    // The ends' diagonals, as drawn, from the end walls towards the ring; where they meet the back
+    // wall's circle (C0, P0) and the overhang's front (C2)
     const B = [-12.8, yN], Q = [-12.8, yS];
     const dN = unit([1.3, -0.9]), dS = unit([1.4, 1.25]), inS = [-dS[1], dS[0]];
-    const C1 = hitCircle(B, dN, Rp), C2 = hitCircle(B, dN, Rf), P1 = hitCircle(Q, dS, Rp);
-    const D = [-Math.sqrt(Rp * Rp - yP * yP), yP], O = [D[0], -yP];
-    const I = [-Math.sqrt(Rb * Rb - ySplay * ySplay), ySplay], J = [I[0], -ySplay];
-    // The overhang's south end curves back onto the pier, round cB
-    const rho = 1.1;
-    const cB = hitCircle(along(Q, inS, rho), dS, Rf + rho);
-    const T1 = onCircle(Rf, angleAt(cB)), T2 = along(cB, inS, -rho);
+    const C0 = hitCircle(B, dN, Rb), C2 = hitCircle(B, dN, Rf), P0 = hitCircle(Q, dS, Rb);
+    // The overhang's south end curves back to where the wall ends: a circle touching its front and
+    // the south diagonal at P0
+    const dot = P0[0] * inS[0] + P0[1] * inS[1];
+    const rho = (Rb * Rb - Rf * Rf) / (2 * (Rf - dot));
+    const cB = along(P0, inS, rho);
+    const T1 = onCircle(Rf, angleAt(cB));
     // Where the top steps up to the middle: on the front's arc to the north, on the curve to the south
     const aStep = angleAt([-Math.sqrt(Rf * Rf - step * step), step]);
     const bStep = deg(Math.acos((-step - cB[1]) / rho));
 
+    // The openings into the dark rooms: 1.2 m wide, 1 m in from each end of the wall
+    const piece = deg(1.0 / Rb), doorway = deg(1.2 / Rb);
+    const aN = angleAt(C0), aS = angleAt(P0);
+    const doors = [
+        { a0: aN - piece - doorway, a1: aN - piece },
+        { a0: aS + piece, a1: aS + piece + doorway },
+    ];
+
     // The columns of the curved faces, shared by the faces that meet them
     const front = stops(angleAt(C2), angleAt(T1), 0.5, [aStep]);
-    const bend = stops(angleAt(T1, cB), angleAt(T2, cB), 5, [bStep]);
-    const nPier = stops(angleAt(C1), angleAt(D), 0.5);
-    const sPier = stops(angleAt(O), angleAt(P1), 0.5);
-    const back = stops(angleAt(I), angleAt(J), 0.5);
-    const onFront = (a) => onCircle(Rf, a), onBend = (a) => onCircle(rho, a, cB), onPier = (a) => onCircle(Rp, a), onBack = (a) => onCircle(Rb, a);
+    const bend = stops(angleAt(T1, cB), angleAt(P0, cB), 4, [bStep]);
+    const back = stops(aS, aN, 0.5, doors.flatMap((d) => [d.a0, d.a1]));
+    const onFront = (a) => onCircle(Rf, a), onBend = (a) => onCircle(rho, a, cB), onBack = (a) => onCircle(Rb, a);
 
     // The outer faces: the west one in one piece up to the stepped top, the ends
     add([[-X, yS, base], [-X, yN, base], [-X, yN, shoulder], [-X, step, shoulder], [-X, step, top], [-X, -step, top], [-X, -step, shoulder], [-X, yS, shoulder]], [-1, 0, 0]);
     add([[-X, yN, base], [B[0], yN, base], [B[0], yN, shoulder], [-X, yN, shoulder]], [0, 1, 0]);
     add([[-X, yS, base], [Q[0], yS, base], [Q[0], yS, shoulder], [-X, yS, shoulder]], [0, -1, 0]);
-    // The north end, along its diagonal: the pier below, the overhang above, one face
-    add([[...B, base], [...C1, base], [...C1, F0], [...C1, S], [...C2, S], [...C2, shoulder], [...B, shoulder]], [-dN[1], dN[0], 0]);
+    // The north end, along its diagonal: the wall's end below, the overhang above, one face
+    add([[...B, base], [...C0, base], [...C0, F0], [...C0, S], [...C2, S], [...C2, shoulder], [...B, shoulder]], [-dN[1], dN[0], 0]);
     // The south end, along its diagonal, with the small opening in it
-    const ha = along(Q, dS, 0.14), hb = along(Q, dS, 0.63), hz = [P + 0.1, P + 0.6];
-    add([[...Q, base], [...P1, base], [...P1, F0], [...P1, S], [...T2, S], [...T2, shoulder], [...Q, shoulder]], [dS[1], -dS[0], 0], {
+    const ha = along(Q, dS, 0.12), hb = along(Q, dS, 0.56), hz = [P + 0.1, P + 0.6];
+    add([[...Q, base], [...P0, base], [...P0, F0], [...P0, S], [...P0, shoulder], [...Q, shoulder]], [dS[1], -dS[0], 0], {
         holes: [[[...ha, hz[0]], [...hb, hz[0]], [...hb, hz[1]], [...ha, hz[1]]]],
     });
     parts.push(niche([ha[0] * mx, ha[1]], [hb[0] * mx, hb[1]], [inS[0] * mx, inS[1]], 0.4, hz[0], hz[1]));
 
-    // Under the overhang, from the walk up to its underside: the piers, the alcoves behind them (in
-    // shadow, darker), the back wall
-    const wall = (p0, p1, normal, shade = 1) => add([[...p0, F0], [...p1, F0], [...p1, S], [...p0, S]], normal, { shade });
-    const dark = 0.45;
-    const sN = unit([I[0] + Xa, I[1] - yDeep]), sS = unit([-Xa - J[0], -yDeep - J[1]]);
-    cyl([0, 0], Rp, nPier, F0, S, { facing: 'in' });
-    wall(D, [-Xp, yP], [0, -1, 0]);
-    wall([-Xp, yP], [-Xp, yAN], [-1, 0, 0], dark);
-    wall([-Xp, yAN], [-Xa, yAN], [0, -1, 0], dark);
-    wall([-Xa, yAN], [-Xa, yDeep], [1, 0, 0], dark);
-    wall([-Xa, yDeep], I, [-sN[1], sN[0], 0]);
-    cyl([0, 0], Rb, back, F0, S, { facing: 'in' });
-    wall(J, [-Xa, -yDeep], [-sS[1], sS[0], 0]);
-    wall([-Xa, -yDeep], [-Xa, yAS], [1, 0, 0], dark);
-    wall([-Xa, yAS], [-Xp, yAS], [0, 1, 0], dark);
-    wall([-Xp, yAS], [-Xp, -yP], [-1, 0, 0], dark);
-    wall([-Xp, -yP], O, [0, 1, 0]);
-    cyl([0, 0], Rp, sPier, F0, S, { facing: 'in' });
+    // The back wall along the walk's edge, from the walk up to the overhang, the two openings in it,
+    // dark rooms behind them
+    cyl([0, 0], Rb, back, F0, S, { facing: 'in', holes: doors.map((d) => ({ ...d, z0: F0, z1: S })) });
+    for (const d of doors) {
+        const mid = (d.a0 + d.a1) / 2, out = [Math.sin(rad(mid)), Math.cos(rad(mid))];
+        const [p0, p1] = [onBack(d.a0), onBack(d.a1)];
+        parts.push(niche([p0[0] * mx, p0[1]], [p1[0] * mx, p1[1]], [out[0] * mx, out[1]], 1.5, P, S));
+    }
 
     // The overhang's underside
-    add([
-        ...front.map(onFront), ...bend.slice(1).map(onBend), ...sPier.slice().reverse().map(onPier),
-        [-Xp, -yP], [-Xp, yAS], [-Xa, yAS], [-Xa, -yDeep], ...back.slice().reverse().map(onBack),
-        [-Xa, yDeep], [-Xa, yAN], [-Xp, yAN], [-Xp, yP], ...nPier.slice().reverse().map(onPier),
-    ].map(([x, y]) => [x, y, S]), [0, 0, -1]);
+    add([...front.map(onFront), ...bend.slice(1).map(onBend), ...back.slice(1).map(onBack)].map(([x, y]) => [x, y, S]), [0, 0, -1]);
 
     // The overhang's front, in one face up to the top, and its curving south end
     const highF = front.filter((a) => a <= aStep + 1e-9), lowF = front.filter((a) => a >= aStep - 1e-9);
@@ -707,16 +700,9 @@ function sideBlock(parts, side) {
     add([[-X, step, shoulder], [sA[0], step, shoulder], [sA[0], step, top], [-X, step, top]], [0, 1, 0]);
     add([[-X, -step, shoulder], [sB[0], -step, shoulder], [sB[0], -step, top], [-X, -step, top]], [0, -1, 0]);
 
-    // The alcoves' floors, beyond the walk's edge (reaching 5 cm in over it)
-    const L = LEDGE.outer - 0.05;
-    const edgeAt = (y) => [-Math.sqrt(L * L - y * y), y];
-    const floor = (points) => add(points.map(([x, y]) => [x, y, P]), [0, 0, 1], { shade: 0.85 });
-    floor([...stops(angleAt(edgeAt(yP)), angleAt(I), 0.5).map((a) => onCircle(L, a)), [-Xa, yDeep], [-Xa, yAN], [-Xp, yAN], [-Xp, yP]]);
-    floor([...stops(angleAt(edgeAt(-yP)), angleAt(J), 0.5).map((a) => onCircle(L, a)), [-Xa, -yDeep], [-Xa, yAS], [-Xp, yAS], [-Xp, -yP]]);
-
-    // The bench along the back wall, 0.45 m deep and 0.35 m high
-    const backLine = [[-Xa, yP], [-Xa, yDeep], ...back.map(onBack), [-Xa, -yDeep], [-Xa, -yP]];
-    parts.push(outline([...backLine, ...offsetLeft(backLine, 0.45).reverse()].map(([x, y]) => [x * mx, y]), P - 0.05, P + 0.35));
+    // The bench along the back wall between the openings, 0.45 m deep and 0.35 m high
+    const benchLine = back.filter((a) => a >= doors[1].a1 + 0.3 && a <= doors[0].a0 - 0.3).reverse().map(onBack);
+    parts.push(outline([...benchLine, ...offsetLeft(benchLine, 0.45).reverse()].map(([x, y]) => [x * mx, y]), P - 0.05, P + 0.35));
 }
 
 function emplacementGeometry() {
