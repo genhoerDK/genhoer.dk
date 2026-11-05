@@ -309,10 +309,15 @@ function ringWall(parts) {
     }
 
     for (const a of WALL.passages) {
-        parts.push(box(-half, half, Ri - 0.03, Ro + 0.03, P + 2.2, T, { turn: a, bevel: 0.02, shade: 0.9 }));           // over the door
-        parts.push(box(-half, half, Ri - 0.02, Ro + 0.02, P - 0.1, P + 0.2, { turn: a, bevel: 0, shade: 0.72 }));         // its floor: a raised sill
-        parts.push(box(-half - 0.1, half + 0.1, Ri - 0.38, Ri + 0.01, P - 0.05, P + 0.18, { turn: a, bevel: 0.02, shade: 0.88 }));   // the step up to it, inside
-        for (const s of [-1, 1]) parts.push(box(s * half, s * (half - 0.12), 10.15, 10.5, P, P + 2.2, { turn: a, bevel: 0, shade: 0.75 }));   // the rebate
+        // The doorway sits high in the wall (photo 0024): its floor 0.6 m over the pit's floor, a sheer
+        // drop on the inside, steps up to it on the outside; the opening 1.95 m high, 25 cm of wall over it
+        const sill = P + 0.6, head = sill + 1.95, steps = 3, run = 0.3;
+        parts.push(box(-half, half, Ri - 0.03, Ro + 0.03, head, T, { turn: a, bevel: 0.02, shade: 0.9 }));                     // over it
+        parts.push(box(-half, half, Ri - 0.005, Ro - steps * run, P - 0.1, sill, { turn: a, bevel: 0, shade: 0.74 }));          // its floor
+        for (let k = 0; k < steps; k++) {                                                                                     // the steps outside
+            parts.push(box(-half, half, Ro - (k + 1) * run, Ro + (k === 0 ? 0.02 : 0) - k * run, P - 0.1, P + ((sill - P) * (k + 1)) / steps, { turn: a, bevel: 0.01, shade: 0.88 - k * 0.03 }));
+        }
+        for (const s of [-1, 1]) parts.push(box(s * half, s * (half - 0.12), 10.15, 10.5, sill, head, { turn: a, bevel: 0, shade: 0.75 }));   // the rebate
         // Climbing irons on the inner face beside the passage, on its north side (photos 05 and 0024:
         // between the doorway and the corner foundation), up to the top
         const side = a + (a > 0 && a < 180 ? -1 : 1) * deg(1.15 / Ri);
