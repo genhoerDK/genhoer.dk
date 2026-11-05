@@ -18,8 +18,7 @@
  *   - the crane-rail foundations: two rectangular, four triangular in the corners by the wall
  *   - north: the machine block, its curved side to the pit with an overhang, a door in the middle,
  *     a raised slab on its roof, the boiler room's vent and the machine hall's entrance to the west
- *   - east and west: the side blocks, stepped down at their ends, a curved face to the ring, an
- *     open shaft at their north ends; the brick shaft (east) and the shaft cover (west) before them
+ *   - east and west: the side blocks, stepped down at their ends, a curved face to the ring
  *
  * Heights the drawings don't give are read off the photos. Everything is merged into one mesh with
  * vertex colours (shade in the corners, the dark openings, the rusty iron), one draw call.
@@ -525,35 +524,14 @@ function sideBlock(parts, side) {
     const m = ([x, y]) => [x * -side, y];   // drawn for the west, mirrored for the east
     const { outer: X, face: Rf, band: Rb, top, shoulder } = SIDE;
     const top0 = deg(Math.atan2(-12.07, 6.39)), bottom0 = deg(Math.atan2(-12.22, -6.11));
-    const slit = [[-14.0, 6.5], [-13.05, 6.5], [-13.05, 5.4], [-13.45, 3.0], [-13.6, 2.1], [-14.0, 2.7]];
     // The mass, at the height of its ends
-    parts.push(outline([[-X, 7.0], [-13.3, 7.0], ...arc(Rb, top0, bottom0, 1), [-13.2, -6.6], [-X, -6.6]].map(m), -0.3, shoulder, {
-        bevel: 0.04, holes: [slit.map(m)],
-    }));
+    parts.push(outline([[-X, 7.0], [-13.3, 7.0], ...arc(Rb, top0, bottom0, 1), [-13.2, -6.6], [-X, -6.6]].map(m), -0.3, shoulder, { bevel: 0.04 }));
     // Its middle rises higher
     const yTop = 5.9, yBottom = -5.5;
     const a0 = deg(Math.atan2(-Math.sqrt(Rb * Rb - yTop * yTop), yTop)), a1 = deg(Math.atan2(-Math.sqrt(Rb * Rb - yBottom * yBottom), yBottom));
-    parts.push(outline([[-X, yTop], ...arc(Rb, a0, a1, 1), [-X, yBottom]].map(m), shoulder - 0.05, top, {
-        bevel: 0.05, holes: [slit.map(([x, y]) => [x, Math.min(y, yTop - 0.05)]).map(m)],
-    }));
+    parts.push(outline([[-X, yTop], ...arc(Rb, a0, a1, 1), [-X, yBottom]].map(m), shoulder - 0.05, top, { bevel: 0.05 }));
     // The curved face to the ring, a step lower
     parts.push(side < 0 ? sector(Rf, Rb + 0.02, bottom0, top0, P - 0.1, shoulder) : sector(Rf, Rb + 0.02, -top0, -bottom0, P - 0.1, shoulder));
-    // The open shaft at its north end: dark at the bottom
-    parts.push(outline(slit.map(m), -0.3, 0.1, { bevel: 0, shade: 0.08 }));
-    // A loophole in its south end
-    parts.push(box(...(side < 0 ? [-14.4, -13.9] : [13.9, 14.4]), -6.64, -6.58, 2.9, 3.3, { bevel: 0, shade: DARK }));
-
-    if (side < 0) {
-        // West: the shaft's cover at the ground, 1.25 × 1.3 m with an 0.8 m opening
-        const hole = [[-15.95, -0.2], [-15.15, -0.2], [-15.15, 0.6], [-15.95, 0.6]];
-        parts.push(outline([[-16.25, -0.45], [-15.0, -0.45], [-15.0, 0.85], [-16.25, 0.85]], -0.2, 0.3, { bevel: 0.03, holes: [hole] }));
-        parts.push(outline(hole, -0.25, -0.2, { bevel: 0, shade: 0.04 }));
-    } else {
-        // East: what is left of the brick shaft, 1.25 × 1.5 m
-        const inner = [[15.22, -0.38], [16.03, -0.38], [16.03, 0.68], [15.22, 0.68]];
-        parts.push(outline([[15.0, -0.6], [16.25, -0.6], [16.25, 0.9], [15.0, 0.9]], -0.2, 1.1, { bevel: 0.02, shade: 0.88, holes: [inner] }));
-        parts.push(outline(inner, -0.25, -0.2, { bevel: 0, shade: 0.04 }));
-    }
 }
 
 function emplacementGeometry() {
