@@ -537,20 +537,23 @@ function sideBlock(parts, side) {
     // photos from the walk)
     const S = WALK.soffit, E = Rf - 1.0;
     const top0 = deg(Math.atan2(-12.07, 6.39)), bottom0 = deg(Math.atan2(-12.22, -6.11));   // north and south ends
-    // A doorway at the north end of the back wall, into the block
-    const doorA = top0 - deg(1.3 / Rf), dh = 0.5, depth = 1.7, doorEdge = deg(dh / Rf);
-    // The mass behind the back wall, a notch for the doorway
-    parts.push(outline([
-        [-X, 7.0], [-13.3, 7.0], ...arc(Rb, top0, doorA + doorEdge, 0.5), at(Rf + depth, doorA + doorEdge, 0), at(Rf + depth, doorA - doorEdge, 0),
-        ...arc(Rb, doorA - doorEdge, bottom0, 1), [-13.2, -6.6], [-X, -6.6],
-    ].map((p) => m(Array.isArray(p) ? p : [p.x, p.y])), -0.3, shoulder, { bevel: 0.04 }));
+    // The mass behind the back wall
+    parts.push(outline([[-X, 7.0], [-13.3, 7.0], ...arc(Rb, top0, bottom0, 1), [-12.15, -5.85], [-X, -5.85]].map(m), -0.3, shoulder, { bevel: 0.04 }));
     // The back wall, from the walk up to the soffit
-    parts.push(sector(Rf, Rb + 0.02, ...span(doorA + doorEdge, top0), P - 0.1, S + 0.01, { bevel: 0.02 }));
-    parts.push(sector(Rf, Rb + 0.02, ...span(bottom0, doorA - doorEdge), P - 0.1, S + 0.01, { bevel: 0.02 }));
-    const da = A(doorA);
-    const inside = room(-dh + 0.07, dh - 0.07, Rf - 0.2, Rf + depth - 0.07, P, P + 2.0, '-y');
-    inside.rotateZ(-rad(da));
-    parts.push(inside, box(-dh, dh, Rf - 0.01, Rf + depth, P + 2.0, shoulder, { turn: da, bevel: 0 }));
+    parts.push(sector(Rf, Rb + 0.02, ...span(bottom0, top0), P - 0.1, S + 0.01, { bevel: 0.02 }));
+    // Its south end wall reaches in to the ledge's edge, so the ledge runs right up to it, and has a
+    // doorway in it (photo from outside the ledge)
+    const L = LEDGE.outer, y0 = -6.6, y1 = -5.85;
+    const xL = (y) => -Math.sqrt(L * L - y * y) - 0.02;
+    const door = { x0: -12.95, x1: -12.15, z0: 0.95, z1: 1.75 };
+    const wall = (pts, z0, z1) => parts.push(outline(pts.map(m), z0, z1, { bevel: 0.02 }));
+    wall([[door.x1, y0], [xL(y0), y0], [xL(y1), y1], [door.x1, y1]], -0.3, S);
+    wall([[door.x1, y0], [-12.2, y0], [-12.2, y1], [door.x1, y1]], S - 0.02, shoulder);
+    wall([[-X, y0], [door.x0, y0], [door.x0, y1], [-X, y1]], -0.3, shoulder);
+    wall([[door.x0, y0], [door.x1, y0], [door.x1, y1], [door.x0, y1]], -0.3, door.z0);
+    wall([[door.x0, y0], [door.x1, y0], [door.x1, y1], [door.x0, y1]], door.z1, shoulder);
+    const [dx0, dx1] = side < 0 ? [door.x0, door.x1] : [-door.x1, -door.x0];
+    parts.push(room(dx0 + 0.03, dx1 - 0.03, y0 - 0.03, y1 + 0.6, door.z0 + 0.03, door.z1 - 0.03, '-y'));
     // The overhang, from the soffit to the top
     const [north, south] = [A(top0), A(bottom0)];
     parts.push(outline(overhangPlan(E, Rb + 0.02, Rf, south, north), S, top, { bevel: 0.04 }));
@@ -558,13 +561,10 @@ function sideBlock(parts, side) {
     const yTop = 5.9, yBottom = -5.5;
     const a0 = deg(Math.atan2(-Math.sqrt(Rb * Rb - yTop * yTop), yTop)), a1 = deg(Math.atan2(-Math.sqrt(Rb * Rb - yBottom * yBottom), yBottom));
     parts.push(outline([[-X, yTop], ...arc(Rb, a0, a1, 1), [-X, yBottom]].map(m), shoulder - 0.05, top, { bevel: 0.05 }));
-    // The pier under the south end of the overhang
+    // The pier under the south end of the overhang, and the bench along the back wall
     const pa = deg(WALK.pier / Rf);
     parts.push(sector(E, Rf + 0.02, ...span(bottom0, bottom0 + pa), P - 0.1, S + 0.01, { bevel: 0.02, shade: 0.94 }));
-    // The bench along the back wall
-    const [from, to] = span(bottom0 + pa, top0);
-    const gap = span(doorA - doorEdge - 0.3, doorA + doorEdge + 0.3);
-    walkFloor(parts, { from, to, back: Rf, gaps: [gap] });
+    walkFloor(parts, { from: span(bottom0 + pa, top0)[0], to: span(bottom0 + pa, top0)[1], back: Rf });
 }
 
 function emplacementGeometry() {
