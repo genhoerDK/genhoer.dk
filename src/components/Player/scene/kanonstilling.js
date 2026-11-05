@@ -12,7 +12,7 @@
  *     edge standing 1.1 m above the ground
  *   - the ring wall (2.85 m above the floor, 1.95 m thick) with three passages through it, each
  *     with a door rebate and climbing irons beside it, and a row of small holes in its inner face
- *   - the pivot cone: four flights of stairs up between parallel cheeks; on top a rim round a
+ *   - the pivot cone: steep, four flights of stairs cut into it; on top a rim round a
  *     sunken floor with 24 bolts and the square shaft down to the engineers' passage; the rim is
  *     open where the south stair and two cable runs (±61°, in line with the passages) go through
  *   - the crane-rail foundations: two rectangular, four triangular in the corners by the wall
@@ -35,7 +35,7 @@ const P = 1.1;                                       // top of the base slab: th
 export const PIT = { radius: 9.35, floor: P };
 export const WALL = { inner: 9.35, outer: 11.3, top: P + 2.85, passages: [-60.6, 60.6, 180], passage: 1.25 };
 export const LEDGE = { outer: 13.1 };
-const CONE = { base: 3.85, foot: 4.25, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-61, 61], bolts: 1.72, shaft: 0.8 };
+const CONE = { base: 3.9, foot: 3.75, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-61, 61], bolts: 1.72, shaft: 0.8 };
 const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: 4.5, band: 16.2, crest: P + 5.2 };   // the machine block
 const SIDE = { outer: 15, face: 12.95, band: 13.66, top: 5.3, shoulder: 4.55 };   // the side blocks: their front, as drawn
 
@@ -179,20 +179,6 @@ function frustum(base, top, z0, z1, shade = 1) {
     const up = new THREE.Vector3(0, 0, 1);
     for (const f of THREE.ShapeUtils.triangulateShape(top.map(([x, y]) => new THREE.Vector2(x, y)), [])) {
         tris.push({ p: f.map((k) => T[k]), n: [up, up, up], c: [c, c, c] });
-    }
-    return fromTriangles(tris);
-}
-
-/** A convex solid from its corners and faces (lists of corner indices); normals face outward */
-function solid(corners, faces, shade = 1) {
-    const V = corners.map(([x, y, z]) => new THREE.Vector3(x, y, z));
-    const centre = V.reduce((m, p) => m.add(p), new THREE.Vector3()).divideScalar(V.length);
-    const c = grey(shade);
-    const tris = [];
-    for (const f of faces) {
-        const n = new THREE.Vector3().crossVectors(V[f[1]].clone().sub(V[f[0]]), V[f[2]].clone().sub(V[f[0]])).normalize();
-        if (n.dot(V[f[0]].clone().sub(centre)) < 0) n.negate();
-        for (let k = 1; k < f.length - 1; k++) tris.push({ p: [V[f[0]], V[f[k]], V[f[k + 1]]], n: [n, n, n], c: [c, c, c] });
     }
     return fromTriangles(tris);
 }
@@ -345,8 +331,8 @@ function ringWall(parts) {
 }
 
 /**
- * The pivot cone: steep (about 60°, as the photos show it), its four flights of stairs sunk in
- * between cheeks that stand out from the cone towards their feet; on top the rim round the
+ * The pivot cone: steep (about 55°, as the photos show it), its four flights of stairs cut into
+ * it; on top the rim round the
  * sunken floor, the bolts close inside the rim and the shaft in the middle
  */
 function pivotCone(parts) {
@@ -387,30 +373,17 @@ function pivotCone(parts) {
         parts.push(prism(bolt, F - 0.01, H + 0.12, { bevel: 0.006, shade: 0.42, tint: new THREE.Color(0.95, 0.9, 0.85), curveSegments: 8 }));
     }
 
-    // The stairs, sunk in: from their feet just outside the cone up to one step below the rim (on
-    // three sides) or onto the sunken floor (from the south), between cheeks whose tops run from
-    // 0.5 m over the floor at their feet up to the rim
+    // The stairs, cut into the cone: from a short notch at its foot up to one step below the rim
+    // (on three sides) or onto the sunken floor (from the south). The cone's own cut faces are their
+    // sides, and the steps lie 0.2–0.45 m below its surface all the way up (photos 3 and 7)
     for (const a of CONE.stairs) {
         const toFloor = a === 180;
-        const n = toFloor ? 5 : 7;
-        const top = toFloor ? F : H - 0.18;
+        const n = toFloor ? 5 : 6;
+        const top = toFloor ? F : H - 0.2;
         const rise = (top - P) / n;
         for (let i = 0; i < n; i++) {
             const front = Rs - (i * (Rs - R1)) / n;
-            parts.push(box(-half, half, toFloor ? RI - 0.05 : R1 - 0.02, front, P - 0.05, P + rise * (i + 1), { turn: a, bevel: 0.01, shade: 0.86 - i * 0.01 }));
-        }
-        if (!toFloor) parts.push(box(-half, half, R1 - 0.02, R1 + 0.25, P - 0.05, H - 0.18 + 0.001, { turn: a, bevel: 0, shade: 0.84 }));
-        // The cheeks: a flat top 0.3 m wide running parallel to the stair, from 0.5 m over the
-        // floor at its foot up to the rim, its outer face battered like the cone, so it grows out of it
-        const batter = 1 / Math.tan(rad(60));
-        for (const side of [-1, 1]) {
-            const corner = (u, across, z) => { const [x, y] = turned([side * across, u], a); return [x, y, z]; };
-            const lowTop = P + 0.5;
-            parts.push(solid([
-                corner(Rs, half, P - 0.05), corner(Rs, half + 0.3 + (lowTop - P) * batter, P - 0.05),
-                corner(R1, half + 0.3 + (H - P) * batter, P - 0.05), corner(R1, half, P - 0.05),
-                corner(Rs, half, lowTop), corner(Rs, half + 0.3, lowTop), corner(R1, half + 0.3, H), corner(R1, half, H),
-            ], [[4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [3, 0, 4, 7], [2, 3, 7, 6]], 0.93));
+            parts.push(box(-half, half, toFloor ? RI - 0.05 : R1 - 0.02, front, P - 0.05, P + rise * (i + 1), { turn: a, bevel: 0.01, shade: 0.86 - i * 0.012 }));
         }
     }
 
@@ -483,16 +456,15 @@ function machineBlock(parts) {
     // On the roof, to the west: a raised slab with sloping sides, from the band to near the back
     // (drone and air photos)
     parts.push(frustum([[-X, 14.6], [-X, 24.7], [-2.0, 24.7], [-2.0, 14.6]], [[-X, 14.6], [-X, 24.05], [-2.65, 24.05], [-2.65, 14.6]], roof - 0.05, P + 3.86, 0.97));
-    // To the east, by the band: the boiler room's vent — a shaft rising out of the roof, its top
-    // narrowing to a flat ridge, an opening in its west face (photos 0036 and 0311)
-    const vent = { x0: 6.5, x1: X - 0.05, y0: 16.2, y1: 17.6, top: roof + 2.3 };
-    parts.push(box(vent.x0, vent.x1, vent.y0, vent.y1, roof - 0.05, vent.top, { bevel: 0.02, shade: 0.95 }));
+    // To the east, by the band: the boiler room's vent — seen from the west a triangle with its top
+    // cut off, rising straight out of the roof, an opening high in its west face (photos 0311, 0036)
+    const vent = { x0: 6.3, x1: X - 0.02, y0: 15.6, y1: 18.7, top: roof + 2.1 };
     parts.push(frustum(
         [[vent.x0, vent.y0], [vent.x1, vent.y0], [vent.x1, vent.y1], [vent.x0, vent.y1]],
-        [[vent.x0, 16.65], [vent.x1, 16.65], [vent.x1, 17.15], [vent.x0, 17.15]],
-        vent.top - 0.001, vent.top + 0.55, 0.95,
+        [[vent.x0, 16.85], [vent.x1, 16.85], [vent.x1, 17.45], [vent.x0, 17.45]],
+        roof - 0.05, vent.top, 0.95,
     ));
-    parts.push(box(vent.x0 - 0.02, vent.x0 + 0.02, 16.6, 17.2, vent.top - 0.75, vent.top - 0.2, { bevel: 0, shade: DARK }));   // the opening
+    parts.push(box(vent.x0 - 0.02, vent.x0 + 0.02, 16.9, 17.4, vent.top - 0.95, vent.top - 0.45, { bevel: 0, shade: DARK }));   // the opening
     // Small openings high in the west wall
     for (const y of [18, 21, 24]) parts.push(box(-X - 0.02, -X + 0.03, y, y + 0.4, 3.3, 3.7, { bevel: 0, shade: DARK }));
 }
