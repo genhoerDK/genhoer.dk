@@ -9,6 +9,8 @@
  *
  *   - the base slab: the pit's floor and, outside the ring wall, the walk round it at the same
  *     height, out to r 13.75 — where the machine block's wall and the side blocks' back walls stand
+ *   - round it all the forest floor, one smooth surface: flush with the walk's edge to the south-
+ *     east, 1.5 m below it to the north-west, as measured on site, falling to the west
  *   - the ring wall (2.85 m above the floor, 1.95 m thick) with three passages through it, their
  *     floors 0.6 m over the pit's (a sheer drop inside, steps up from the walk), climbing irons
  *     beside them, a row of holes in its inner face
@@ -42,6 +44,13 @@ const CONE = { base: 3.7, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, 
 const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: P + 4.37 };   // the machine block: its roof as in the section
 const SIDE = { outer: 15, back: 13.7, front: 12.35, top: 5.45, shoulder: 4.65, step: 5.45 };
 const WALK = { soffit: P + 2.3 };                    // the underside of the overhangs over the walk
+const BELOW = -2.5;                                  // how deep the slab and the walls reach into the ground
+
+// How far the forest floor lies below the walk's top edge at four places round it, measured on site
+// and marked on the drone photo: [degrees clockwise from north, metres]. Between them the drop is
+// eased round the ring; away from the ring the ground goes on with the same lean (it falls to the
+// west) and gently uneven
+const FLOOR_DROPS = [[-139.2, 0.5], [-48.7, 1.5], [42.7, 0.1], [132.0, 0]];
 
 /* ---------- GEOMETRY HELPERS ---------- */
 
@@ -315,6 +324,68 @@ function hitCircle(p0, d, r) {
     return [p0[0] + d[0] * t, p0[1] + d[1] * t];
 }
 
+/* ---------- THE FOREST FLOOR ---------- */
+
+const smoothstep = (e0, e1, x) => { const t = THREE.MathUtils.clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+
+/** How far below the walk's top edge the forest floor lies at an angle round the ring */
+function dropAt(a) {
+    const n = FLOOR_DROPS.length;
+    for (let i = 0; i < n; i++) {
+        const [a0, d0] = FLOOR_DROPS[i], [a1raw, d1] = FLOOR_DROPS[(i + 1) % n];
+        const a1 = i + 1 < n ? a1raw : a1raw + 360;
+        const x = a < a0 ? a + 360 : a;
+        if (x >= a0 && x <= a1) return d0 + (d1 - d0) * smoothstep(0, 1, (x - a0) / (a1 - a0));
+    }
+    return FLOOR_DROPS[0][1];
+}
+
+/** The forest floor's height at (x, y): at the walk's edge as measured, beyond it leaning and a little uneven */
+export function groundAt(x, y) {
+    const r = Math.hypot(x, y), a = deg(Math.atan2(x, y));
+    const rim = P - Math.max(dropAt(a), 0.02);
+    const out = THREE.MathUtils.clamp(r - LEDGE.outer, 0, 18);
+    const lean = 0.035 * Math.sin(rad(a)) * out;
+    const uneven = (0.16 * Math.sin(0.31 * x + 0.7) * Math.cos(0.27 * y - 0.4)
+        + 0.1 * Math.sin(0.53 * x - 0.41 * y + 1.3) + 0.06 * Math.cos(0.9 * x + 0.77 * y)) * smoothstep(15.5, 22, r);
+    return rim + lean + uneven;
+}
+
+/**
+ * The forest floor round the emplacement: one smooth surface shaped by groundAt, from just under the
+ * walk's edge out to 40 m, fading out at its far edge so the photo behind shows
+ */
+function forestFloor() {
+    const R0 = LEDGE.outer - 0.05, R1 = 40, steps = 288;
+    const radii = [];
+    for (let r = R0; r < R1; r += r < 20 ? 0.3 : 0.75) radii.push(r);
+    radii.push(R1);
+    const position = [], colour = [], index = [];
+    for (const r of radii) {
+        const alpha = 1 - smoothstep(26, R1, r);
+        for (let j = 0; j < steps; j++) {
+            const a = (j / steps) * 360;
+            const [x, y] = onCircle(r, a);
+            position.push(x, y, groundAt(x, y));
+            colour.push(1, 1, 1, alpha);
+        }
+    }
+    for (let i = 0; i < radii.length - 1; i++) {
+        for (let j = 0; j < steps; j++) {
+            const a = i * steps + j, b = i * steps + ((j + 1) % steps), c = a + steps, d = b + steps;
+            index.push(a, b, c, b, d, c);   // facing up
+        }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(colour, 4));
+    g.setIndex(index);
+    g.computeVertexNormals();
+    const mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x55534c, roughness: 1, vertexColors: true, transparent: true }));
+    mesh.receiveShadow = true;
+    return mesh;
+}
+
 /* ---------- THE PARTS ---------- */
 
 const RUST = new THREE.Color(0.6, 0.42, 0.32);
@@ -322,7 +393,7 @@ const RUST = new THREE.Color(0.6, 0.42, 0.32);
 /** The base slab: the pit's floor and the walk outside the ring wall, one height */
 function baseSlab(parts) {
     parts.push(outline(arc(WALL.inner + 0.02, 0, 360, 0.5).slice(0, -1), P - 0.3, P));
-    parts.push(revolve([[WALL.outer, P], [LEDGE.outer, P], [LEDGE.outer, -0.3]]));
+    parts.push(revolve([[WALL.outer, P], [LEDGE.outer, P], [LEDGE.outer, BELOW]]));
 }
 
 /** The ring wall, its three passages (steps, door rebate, climbing irons), the holes in its inner face */
@@ -499,7 +570,7 @@ function craneFoundations(parts) {
  */
 function machineBlock(parts) {
     const { face: Rf, x: X, back: Y, roof } = BLOCK;
-    const S = WALK.soffit, base = -0.3, F0 = P - 0.05;
+    const S = WALK.soffit, base = BELOW, F0 = P - 0.05;
     const corner = deg(Math.atan2(7.55, 11.47));          // where the curved face ends: the corners, cut off radially
     const cE = onCircle(Rf, corner), cW = onCircle(Rf, -corner);
 
@@ -512,12 +583,14 @@ function machineBlock(parts) {
     const vRounds = [{ y: 17.49, z: vent.top - 0.7, r: 0.15 }, { y: 17.08, z: roof + 0.22, r: 0.165 }];
 
     // Openings: a door to the north and one to the east, the machine hall's entrance to the west (the
-    // plan), all three a metre above the ground (photos 58, 64); a window high in the west wall north
-    // of the entrance (photo 0046), a small one by the corner (58)
-    const north = { u0: 3.0, u1: 3.85, z0: 1.0, z1: 3.05, depth: 2.5 };
-    const east = { u0: 17.65, u1: 18.6, z0: 1.0, z1: 3.05, depth: 2.5 };
+    // plan), each a metre above the forest floor in front of it (photos 58, 64); a window high in the
+    // west wall north of the entrance (photo 0046), a small one by the corner (58)
+    const sill = (x, y) => groundAt(x, y) + 1.0;
+    const nz = sill(3.42, Y + 0.6), ez = sill(X + 0.6, 18.12), wz = sill(-X - 0.6, 14.2);
+    const north = { u0: 3.0, u1: 3.85, z0: nz, z1: nz + 2.05, depth: 2.5 };
+    const east = { u0: 17.65, u1: 18.6, z0: ez, z1: ez + 2.05, depth: 2.5 };
     const west = [
-        { u0: 13.15, u1: 15.25, z0: 1.0, z1: 3.3, depth: 2.5 },
+        { u0: 13.15, u1: 15.25, z0: wz, z1: wz + 2.3, depth: 2.5 },
         { u0: 16.85, u1: 17.55, z0: roof - 1.8, z1: roof - 1.05, depth: 1.0 },
         { u0: 12.45, u1: 12.85, z0: 0.7, z1: 1.2, depth: 0.5 },
     ];
@@ -613,7 +686,7 @@ function sideBlock(parts, side) {
     const cyl = ([cx, cy], r, angles, z0, z1, { holes = [], ...options } = {}) => parts.push(cylFace([cx * mx, cy], r, angles.map((a) => a * mx), z0, z1, {
         ...options, holes: holes.map((h) => ({ ...h, a0: h.a0 * mx, a1: h.a1 * mx })),
     }));
-    const S = WALK.soffit, F0 = P - 0.05, base = -0.3;
+    const S = WALK.soffit, F0 = P - 0.05, base = BELOW;
     const { outer: X, back: Rb, front: Rf, top, shoulder, step } = SIDE;
     const yN = 7.0, yS = -6.6;
     const unit = ([x, y]) => { const l = Math.hypot(x, y); return [x / l, y / l]; };
@@ -704,26 +777,6 @@ function emplacementGeometry() {
     return mergeGeometries(parts);
 }
 
-/** Forest floor round the emplacement, fading out at its edge */
-function groundMesh() {
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 256;
-    const ctx = canvas.getContext('2d');
-    const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-    g.addColorStop(0, '#fff');
-    g.addColorStop(0.6, '#aaa');
-    g.addColorStop(1, '#000');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 256, 256);
-    const alphaMap = new THREE.CanvasTexture(canvas);
-    const mesh = new THREE.Mesh(
-        new THREE.RingGeometry(LEDGE.outer - 0.05, 40, 256, 1),
-        new THREE.MeshStandardMaterial({ color: 0x4a4944, roughness: 1, alphaMap, transparent: true, opacity: 0.8, depthWrite: false }),
-    );
-    mesh.receiveShadow = true;
-    return mesh;
-}
-
 /**
  * The emplacement as a group (metres, z up).
  *   textured  true = the weathered concrete; false (default) = plain grey concrete
@@ -733,7 +786,7 @@ export function buildKanonstilling({ textured = false } = {}) {
     const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, floors: [0, P, CONE.floor, BLOCK.roof] }));
     model.castShadow = true;
     model.receiveShadow = true;
-    group.add(model, groundMesh());
+    group.add(model, forestFloor());
     return {
         group,
         /** Across the walk round the ring, for fitting it to the screen */
