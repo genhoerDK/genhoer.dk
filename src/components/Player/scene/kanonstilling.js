@@ -607,7 +607,9 @@ function machineBlock(parts) {
 function sideBlock(parts, side) {
     const mx = -side;                                    // x × 1 for the west, × −1 for the east
     const add = (points, [nx, ny, nz], options) => parts.push(face(points.map(([x, y, z]) => [x * mx, y, z]), [nx * mx, ny, nz], options));
-    const cyl = ([cx, cy], r, angles, z0, z1, options) => parts.push(cylFace([cx * mx, cy], r, angles.map((a) => a * mx), z0, z1, options));
+    const cyl = ([cx, cy], r, angles, z0, z1, { holes = [], ...options } = {}) => parts.push(cylFace([cx * mx, cy], r, angles.map((a) => a * mx), z0, z1, {
+        ...options, holes: holes.map((h) => ({ ...h, a0: h.a0 * mx, a1: h.a1 * mx })),
+    }));
     const S = WALK.soffit, F0 = P - 0.05, base = -0.3;
     const { outer: X, back: Rb, front: Rf, top, shoulder, step } = SIDE;
     const yN = 7.0, yS = -6.6;
