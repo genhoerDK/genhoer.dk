@@ -2,13 +2,13 @@
 
 /**
  * 3D scene for a work made for four speakers (three.js): the gun emplacement seen from above
- * (scene/kanonstilling.js), the four speakers standing on its ammunition boxes, and the listener — a ball
- * floating over the middle of the pit. The photo (with depth) and smoke lie behind, on the shared
+ * (scene/kanonstilling.js) and the listener — a ball floating over the middle of the pit. The
+ * speakers themselves aren't shown. The photo (with depth) and smoke lie behind, on the shared
  * stage (scene/stage.js). A low sun from beyond the room throws its shadows towards the viewer,
  * so the pit's depth shows whichever way the room is turned.
  *
- * The sound: each speaker's front glows as loud as it plays, and sends wavefronts in towards the
- * listener — more and brighter the louder it is.
+ * The sound: from where each speaker stands, wavefronts travel in towards the listener — more and
+ * brighter the louder it plays.
  *
  * The pointer turns you: to the right and you turn right — the room turns anticlockwise under you,
  * so what was on your right comes round to the front, as you hear it. A full turn from one edge of
@@ -16,7 +16,7 @@
  * (src/audio/Quad.js) is told which way the listener faces.
  *
  * @param {Quad} engine
- * @param {boolean} [textured=true]  The concrete texture (false: plain grey)
+ * @param {boolean} [textured=false] The concrete texture (false: plain grey)
  * @param {number[]} angles          Where the speakers stand, degrees clockwise from straight ahead
  * @param {string} cover             Photo URL behind
  * @param {string} [coverDepth]
@@ -70,7 +70,7 @@ function glowTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
-export default function QuadScene({ engine, textured = true, angles, cover, coverDepth, turnRef, onTurn }) {
+export default function QuadScene({ engine, textured = false, angles, cover, coverDepth, turnRef, onTurn }) {
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -108,34 +108,11 @@ export default function QuadScene({ engine, textured = true, angles, cover, cove
         listener.add(aura);
         room.add(listener);
 
-        /* ---------- THE SPEAKERS: cabinets on the wall, facing in ---------- */
+        /* ---------- THE SOUND: wavefronts from where each speaker stands ---------- */
 
-        const cabinetGeo = new THREE.BoxGeometry(0.62, 0.5, 0.82);   // a little larger than life, to be seen
-        cabinetGeo.translate(0, 0, 0.41);
-        const coneGeo = new THREE.CircleGeometry(0.2, 32);
         const waveGeo = new THREE.SphereGeometry(1, 48, 24);
-        const cabinetMaterial = new THREE.MeshStandardMaterial({ color: colors.ink, roughness: 0.6 });
-
         const speakers = angles.map((deg) => {
-            const group = new THREE.Group();
-            group.position.copy(emplacement.speakerSpot(deg));
-            group.rotation.z = -THREE.MathUtils.degToRad(deg);   // local +y points out from the middle
-            const cabinet = new THREE.Mesh(cabinetGeo, cabinetMaterial);
-            cabinet.castShadow = true;
-            cabinet.scale.setScalar(1.4);
-            const cone = new THREE.Mesh(coneGeo, new THREE.MeshBasicMaterial({ color: colors.paper, toneMapped: false }));
-            cone.position.set(0, -0.255, 0.46);
-            cone.rotation.x = Math.PI / 2;                       // faces the middle (-y)
-            const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, transparent: true, depthWrite: false, toneMapped: false, opacity: 0, blending: THREE.AdditiveBlending }));
-            halo.position.set(0, -0.36, 0.46);
-            cabinet.add(cone, halo);
-            group.add(cabinet);
-            room.add(group);
-
-            // Where the sound leaves the speaker, and which way the listener is from there (room space)
-            group.updateMatrix();
-            cabinet.updateMatrix();
-            const mouth = new THREE.Vector3(0, -0.26, 0.46).applyMatrix4(cabinet.matrix).applyMatrix4(group.matrix);
+            const mouth = emplacement.speakerSpot(deg);
             const toward = listenerAt.clone().sub(mouth);
             const reach = toward.length();
             toward.normalize();
@@ -151,7 +128,7 @@ export default function QuadScene({ engine, textured = true, angles, cover, cove
                 room.add(mesh);
                 return { mesh, age: 0, strength: 0, alive: false };
             });
-            return { cone, halo, waves, reach, level: 0, since: Math.random() * WAVE_EVERY };
+            return { waves, reach, level: 0, since: Math.random() * WAVE_EVERY };
         });
 
         /* ---------- LAYOUT ---------- */
@@ -159,8 +136,8 @@ export default function QuadScene({ engine, textured = true, angles, cover, cove
         let scale = 1;
         const layout = () => {
             const { view } = stage;
-            // The ring fills a good part of the screen, a little above the title bar; the bunker
-            // ahead may run off the top
+            // The ledge round the ring fills a good part of the screen, a little above the title
+            // bar; the machine block ahead may run off the top
             const across = Math.min(view.width * 0.9, view.height * 0.66);
             scale = across / emplacement.size;
             room.scale.setScalar(scale);
@@ -168,7 +145,7 @@ export default function QuadScene({ engine, textured = true, angles, cover, cove
             tilt.position.y = view.aspect < 1 ? -view.height * 0.02 : -view.height * 0.04;
             // The sun's shadow covers the whole emplacement, in the scaled room's units
             const cam = sun.shadow.camera;
-            const reach = 30 * scale;
+            const reach = 34 * scale;
             Object.assign(cam, { left: -reach, right: reach, top: reach, bottom: -reach, near: 2 * scale, far: 100 * scale });
             cam.updateProjectionMatrix();
             sun.shadow.bias = -0.0004;
@@ -214,10 +191,6 @@ export default function QuadScene({ engine, textured = true, angles, cover, cove
                     speaker.level += (raw - speaker.level) * (raw > speaker.level ? 0.5 : 0.12);
                     const { level } = speaker;
                     total += level;
-                    const glowing = 0.25 + level * 0.75;
-                    speaker.cone.material.color.setRGB(glowing, glowing, glowing);
-                    speaker.halo.material.opacity = level * 0.9;
-                    speaker.halo.scale.setScalar(0.6 + level * 1.6);
 
                     // A new wavefront every so often while it plays
                     speaker.since += dt;

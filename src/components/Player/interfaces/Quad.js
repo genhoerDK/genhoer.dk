@@ -2,11 +2,11 @@
 
 /**
  * Interface: quad — a work made for four speakers around the listener (src/audio/Quad.js), shown
- * as a 3D scene (QuadScene.js): the gun emplacement seen from above, the speakers on its wall
- * sending their sound in towards you, a ball floating over the middle. Move the pointer to turn: with headphones each speaker stays
+ * as a 3D scene (QuadScene.js): the gun emplacement seen from above, the sound travelling in from
+ * the speakers towards you, a ball floating over the middle. Move the pointer to turn: with headphones each speaker stays
  * where it hangs. ←/→ turn too, and on a phone the compass can turn it. Space pauses and plays.
  *
- *   player.textured  false = the emplacement in plain grey concrete (default: with texture)
+ *   player.textured  true = the concrete texture on the emplacement (default: plain grey)
  *   player.image     Photo behind
  *   player.speakers  [{ label, angle, file, channel? }]  angle: degrees clockwise from straight ahead
  *   player.reverb    0–1, the room's echo on top
@@ -77,7 +77,7 @@ export default function QuadPlayer() {
     return (
         <PlayerShell track={currentTrack} backdrop={false}>
             {engine && (
-                <QuadScene engine={engine} textured={textured !== false} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} />
+                <QuadScene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} />
             )}
 
             {!isPlaying && !engine ? (
