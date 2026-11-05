@@ -20,7 +20,7 @@
  *     a raised slab on its roof, the boiler room's vent and the machine hall's entrance to the west
  *   - east and west: the side blocks, stepped down at their ends
  *   - round the ring, outside its wall, a covered walk: the machine block and the side blocks
- *     overhang it, a recess with a bench under each
+ *     overhang it from their back walls, a low bench along each
  *
  * Heights the drawings don't give are read off the photos. Everything is merged into one mesh with
  * vertex colours (shade in the corners, the dark openings, the rusty iron), one draw call.
@@ -37,7 +37,7 @@ export const PIT = { radius: 9.35, floor: P };
 export const WALL = { inner: 9.35, outer: 11.3, top: P + 2.85, passages: [-60.6, 60.6, 180], passage: 1.25 };
 export const LEDGE = { outer: 13.1 };
 const CONE = { base: 3.9, foot: 3.75, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-61, 61], bolts: 1.72, shaft: 0.8 };
-const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: 4.5, crest: P + 5.75 };   // the machine block
+const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: P + 4.37 };   // the machine block: its roof as in the section   // the machine block
 const SIDE = { outer: 15, face: 12.95, band: 13.66, top: 5.3, shoulder: 4.55 };   // the side blocks: their front, as drawn
 
 /* ---------- GEOMETRY HELPERS ---------- */
@@ -416,24 +416,37 @@ function craneFoundations(parts) {
 
 /**
  * The covered walk round the ring, outside the ring wall (photos from the walk): the machine block
- * and the side blocks overhang it, their soffit 2.3 m over the ledge. Under the overhang a recess,
- * its floor at the ledge's height, a low bench along its back wall (but where `gaps` are), and —
- * where `piers` — a pier at each end, from its back wall forward to the overhang's front
+ * and the side blocks overhang it from their straight back walls, the soffit 2.3 m over the ledge.
+ * Here: the walk's floor in front of a back wall at r `back` (at the ledge's height), and a low bench
+ * along the wall, but where `gaps` are
  */
-const WALK = { soffit: P + 2.3, pier: 0.6 };
-function recess(parts, { from, to, front, back, piers = false, gaps = [] }) {
-    const S = WALK.soffit;
-    const pa = piers ? deg(WALK.pier / ((front + back) / 2)) : 0;
-    if (piers) for (const [a0, a1] of [[from, from + pa], [to - pa, to]]) parts.push(sector(front, back + 0.05, a0, a1, P - 0.1, S + 0.01, { bevel: 0.02, shade: 0.93 }));
-    parts.push(sector(LEDGE.outer - 0.3, back + 0.05, from, to, -0.3, P, { bevel: 0, shade: 0.9 }));
-    const cuts = [from + pa, ...gaps.flat(), to - pa];
-    for (let i = 0; i < cuts.length; i += 2) parts.push(sector(back - 0.55, back + 0.03, cuts[i], cuts[i + 1], P - 0.05, P + 0.4, { bevel: 0.03, shade: 0.9 }));
+const WALK = { soffit: P + 2.3, pier: 0.5 };
+function walkFloor(parts, { from, to, back, gaps = [] }) {
+    if (back > LEDGE.outer) parts.push(sector(LEDGE.outer - 0.3, back + 0.05, from, to, -0.3, P, { bevel: 0, shade: 0.9 }));
+    const cuts = [from, ...gaps.flat(), to];
+    for (let i = 0; i < cuts.length; i += 2) parts.push(sector(back - 0.45, back + 0.03, cuts[i], cuts[i + 1], P - 0.05, P + 0.35, { bevel: 0.03, shade: 0.9 }));
+}
+
+/**
+ * The outline in plan of an overhang along an arc: its back on r `back`, its front on r `front`, the
+ * front curving back at one end (angle `round`, the other is `square`) in a quarter circle to r `wall`
+ */
+function overhangPlan(front, back, wall, square, round) {
+    const sgn = Math.sign(round - square), d = wall - front;
+    const ac = round - sgn * deg(d / wall);
+    const u = [Math.sin(rad(ac)), Math.cos(rad(ac))], v = [Math.cos(rad(ac)) * sgn, -Math.sin(rad(ac)) * sgn];
+    const C = [wall * u[0], wall * u[1]];
+    const curve = Array.from({ length: 13 }, (_, i) => {
+        const t = rad(90 - (i * 90) / 12);
+        return [C[0] - d * Math.cos(t) * u[0] + d * Math.sin(t) * v[0], C[1] - d * Math.cos(t) * u[1] + d * Math.sin(t) * v[1]];
+    });
+    return [...arc(back, square, round, 0.5), [wall * Math.sin(rad(round)), wall * Math.cos(rad(round))], ...curve, ...arc(front, ac, square, 0.5).slice(1)];
 }
 
 /** The machine block, north of the pit */
 function machineBlock(parts) {
     const { face: Rf, x: X, back: Y, roof } = BLOCK;
-    // Its corners meet the curved face
+    // Its corners meet the curved face, cut off in line with the ends of its side to the pit
     const corner = deg(Math.atan2(7.55, 11.47));
     const door = deg(Math.asin(0.6 / Rf));
     // Openings through its outer walls (0.6 m thick), each into a dark room: the door in the middle of
@@ -443,11 +456,11 @@ function machineBlock(parts) {
     parts.push(outline([
         [-X, Y], [3.0, Y], [3.0, Y - D], [3.85, Y - D], [3.85, Y], [X, Y],
         [X, 18.6], [X - D, 18.6], [X - D, 17.65], [X, 17.65],
-        [X, 12.4], [7.55, 11.47],
+        [X, 12.15], [7.55, 11.47],
         ...arc(Rf, corner, door, 1).slice(1),
         [0.45, 14.0], [0.45, Rf + D], [-0.45, Rf + D], [-0.45, 14.0],
         ...arc(Rf, -door, -corner, 1),
-        [-X, 12.4], [-X, 13.1], [-7.6, 13.35], [-X + D, 13.35], [-X + D, 15.05], [-7.6, 15.05], [-X, 15.3],
+        [-X, 12.15], [-X, 13.1], [-7.6, 13.35], [-X + D, 13.35], [-X + D, 15.05], [-7.6, 15.05], [-X, 15.3],
     ], -0.3, roof, { bevel: 0.05 }));
     const openings = [
         { notch: [3.0, 3.85, Y - D, Y], room: [3.0, 3.85, Y - D, Y - 0.6], open: '+y', z: 0, h: 2.3 },
@@ -462,26 +475,33 @@ function machineBlock(parts) {
     }
     parts.push(box(-0.6, 0.6, 13.6, Rf + D, P - 0.1, P, { bevel: 0, shade: 0.7 }));            // the door's floor, at the ledge
 
-    // The side to the pit, in one piece (its profile as seen at its ends, the photo along the walk;
-    // Lumbye's section): from the back of the block's corner (r 14.43) straight up, a chamfer at
-    // the top, the flat top sloping a little down to the pit, the crest's front straight down to a
-    // narrow ledge, the fascia, the soffit back to the block's face; its ends cut off at the corners
+    // The side to the pit, in one piece — Lumbye's section of it ("Profil af maskinblokkens side ind
+    // mod kanonbrønden", 1.95 m of ring wall = 106 px), heights over the walk: the soffit at 2.31 m,
+    // the fascia 0.92 m high standing 1.13 m out from the face, a ledge 0.52 m deep; from it a face
+    // leaning a little out towards the pit up through the roof (4.37 m) to the pentagon on top —
+    // its front corner at 5.41 m, its ridge at 5.68 m, its back sloping down to 5.50 m and then
+    // straight down to the roof. The ends are cut off at the block's corners (the photos of its end)
     const ends = deg(Math.atan2(7.55, 11.47));   // the block's corners
-    const E = Rf - 1.1, front = E + 0.53, back = E + 1.8, fascia = P + 3.4, S = WALK.soffit;
-    const topBack = BLOCK.crest, topFront = BLOCK.crest - 0.2;
+    const S = WALK.soffit, z = (h) => P + h;
+    const prof = { fascia: Rf - 1.13, ledge: Rf - 0.61, lean: Rf - 0.85, ridge: Rf + 0.34, back: 14.55 };
     parts.push(revolve([
-        [Rf + 0.05, S, 0.5], [E, S, 0.55], [E, fascia - 0.04, 0.88], [E + 0.04, fascia, 0.92], [front, fascia, 0.85],
-        [front, topFront - 0.04, 0.97], [front + 0.04, topFront, 1], [back - 0.22, topBack, 1], [back, topBack - 0.65, 0.95], [back, roof - 0.1, 0.8],
+        [Rf + 0.05, S, 0.5], [prof.fascia + 0.04, S, 0.55], [prof.fascia, S + 0.04, 0.7], [prof.fascia, z(3.19), 0.88], [prof.fascia + 0.04, z(3.23), 0.92],
+        [prof.ledge, z(3.23), 0.85], [prof.ledge, z(3.52), 0.9], [prof.lean, z(5.41), 0.98], [prof.ridge, z(5.68), 1],
+        [prof.back - 0.1, z(5.5), 0.96], [prof.back, z(5.3), 0.9], [prof.back, roof - 0.05, 0.85],
     ], {
         from: -ends, to: ends,
-        closeEnds: [[Rf + 0.05, S, 0.7], [E, S, 0.7], [E, fascia, 0.85], [front, fascia, 0.85], [front, topFront, 0.92], [back - 0.22, topBack, 0.92], [back, topBack - 0.65, 0.9], [back, S, 0.8]],
+        closeEnds: [[Rf + 0.05, S, 0.7], [prof.fascia, S, 0.7], [prof.fascia, z(3.23), 0.85], [prof.ledge, z(3.23), 0.85], [prof.ledge, z(3.52), 0.88],
+            [prof.lean, z(5.41), 0.92], [prof.ridge, z(5.68), 0.94], [prof.back - 0.1, z(5.5), 0.92], [prof.back, z(5.3), 0.9], [prof.back, S, 0.8]],
     }));
+    // At its ends the profile goes on down to the walk: the block's corner, cut off in the same plane
+    const pa = deg(0.5 / Rf);
+    for (const [a0, a1] of [[-ends, -ends + pa], [ends - pa, ends]]) parts.push(sector(Rf - 0.02, prof.back, a0, a1, -0.3, S + 0.01, { bevel: 0.02, shade: 0.93 }));
     const doorAt = deg(Math.asin(0.75 / Rf));
-    recess(parts, { from: -ends, to: ends, front: E, back: Rf, gaps: [[-doorAt, doorAt]] });
+    walkFloor(parts, { from: -ends + pa, to: ends - pa, back: Rf, gaps: [[-doorAt, doorAt]] });
 
     // On the roof, to the west: a raised slab with sloping sides, from the band to near the back
     // (drone and air photos)
-    parts.push(frustum([[-X, 14.6], [-X, 24.7], [-2.0, 24.7], [-2.0, 14.6]], [[-X, 14.6], [-X, 24.05], [-2.65, 24.05], [-2.65, 14.6]], roof - 0.05, P + 3.86, 0.97));
+    parts.push(frustum([[-X, 14.6], [-X, 24.7], [-2.0, 24.7], [-2.0, 14.6]], [[-X, 14.6], [-X, 24.05], [-2.65, 24.05], [-2.65, 14.6]], roof - 0.05, roof + 0.45, 0.97));
     // To the east, by the band: the boiler room's vent — seen from the west a triangle with its top
     // cut off, rising straight out of the roof, an opening high in its west face (photos 0311, 0036)
     const vent = { x0: 6.3, x1: X - 0.02, y0: 15.6, y1: 18.7, top: roof + 2.1 };
@@ -495,34 +515,43 @@ function machineBlock(parts) {
 
 /** A side block, west (side −1) or east (+1) of the pit */
 function sideBlock(parts, side) {
-    const m = ([x, y]) => [x * -side, y];   // drawn for the west, mirrored for the east
+    const m = ([x, y]) => [x * -side, y];      // drawn for the west, mirrored for the east
+    const A = (a) => (side < 0 ? a : -a);      // an angle drawn for the west, for this side
+    const span = (a0, a1) => [Math.min(A(a0), A(a1)), Math.max(A(a0), A(a1))];
     const { outer: X, face: Rf, band: Rb, top, shoulder } = SIDE;
-    const S = WALK.soffit, back = 14.05;     // under its front, a recess back to 14.05 m
-    const top0 = deg(Math.atan2(-12.07, 6.39)), bottom0 = deg(Math.atan2(-12.22, -6.11));
-    const pa = deg(WALK.pier / ((Rf + back) / 2));
-    // A doorway at the north end of the recess, into the block (photos from the walk)
-    const doorA = top0 - pa - deg(1.0 / back), dh = 0.5, depth = 1.6;
-    const notch = [turned([dh, back + depth], doorA), turned([-dh, back + depth], doorA)];
-    const doorEdge = deg(dh / back);
-    // The mass, at the height of its ends — below the soffit set back over the recess, between the piers
+    // Over the walk: the back wall as drawn (r 12.95); the block above it overhangs it by 1.0 m in one
+    // piece up to its top, its north end curving back to the wall, a pier under its south end (the
+    // photos from the walk)
+    const S = WALK.soffit, E = Rf - 1.0;
+    const top0 = deg(Math.atan2(-12.07, 6.39)), bottom0 = deg(Math.atan2(-12.22, -6.11));   // north and south ends
+    // A doorway at the north end of the back wall, into the block
+    const doorA = top0 - deg(1.3 / Rf), dh = 0.5, depth = 1.7, doorEdge = deg(dh / Rf);
+    // The mass behind the back wall, a notch for the doorway
     parts.push(outline([
-        [-X, 7.0], [-13.3, 7.0], ...arc(Rb, top0, top0 - pa, 0.5), ...arc(back, top0 - pa, doorA + doorEdge, 0.5),
-        ...notch, ...arc(back, doorA - doorEdge, bottom0 + pa, 1), ...arc(Rb, bottom0 + pa, bottom0, 0.5), [-13.2, -6.6], [-X, -6.6],
-    ].map(m), -0.3, S, { bevel: 0.04 }));
-    parts.push(outline([[-X, 7.0], [-13.3, 7.0], ...arc(Rb, top0, bottom0, 1), [-13.2, -6.6], [-X, -6.6]].map(m), S - 0.02, shoulder, { bevel: 0.04 }));
-    // Its middle rises higher
+        [-X, 7.0], [-13.3, 7.0], ...arc(Rb, top0, doorA + doorEdge, 0.5), at(Rf + depth, doorA + doorEdge, 0), at(Rf + depth, doorA - doorEdge, 0),
+        ...arc(Rb, doorA - doorEdge, bottom0, 1), [-13.2, -6.6], [-X, -6.6],
+    ].map((p) => m(Array.isArray(p) ? p : [p.x, p.y])), -0.3, shoulder, { bevel: 0.04 }));
+    // The back wall, from the walk up to the soffit
+    parts.push(sector(Rf, Rb + 0.02, ...span(doorA + doorEdge, top0), P - 0.1, S + 0.01, { bevel: 0.02 }));
+    parts.push(sector(Rf, Rb + 0.02, ...span(bottom0, doorA - doorEdge), P - 0.1, S + 0.01, { bevel: 0.02 }));
+    const da = A(doorA);
+    const inside = room(-dh + 0.07, dh - 0.07, Rf - 0.2, Rf + depth - 0.07, P, P + 2.0, '-y');
+    inside.rotateZ(-rad(da));
+    parts.push(inside, box(-dh, dh, Rf - 0.01, Rf + depth, P + 2.0, shoulder, { turn: da, bevel: 0 }));
+    // The overhang, from the soffit to the top
+    const [north, south] = [A(top0), A(bottom0)];
+    parts.push(outline(overhangPlan(E, Rb + 0.02, Rf, south, north), S, top, { bevel: 0.04 }));
+    // Behind it the block's middle rises as high, its ends stay lower (Lumbye's drawing of its back)
     const yTop = 5.9, yBottom = -5.5;
     const a0 = deg(Math.atan2(-Math.sqrt(Rb * Rb - yTop * yTop), yTop)), a1 = deg(Math.atan2(-Math.sqrt(Rb * Rb - yBottom * yBottom), yBottom));
     parts.push(outline([[-X, yTop], ...arc(Rb, a0, a1, 1), [-X, yBottom]].map(m), shoulder - 0.05, top, { bevel: 0.05 }));
-    // The curved face to the ring, a step lower: above the soffit it overhangs the walk
-    const [from, to] = side < 0 ? [bottom0, top0] : [-top0, -bottom0];
-    parts.push(sector(Rf, Rb + 0.02, from, to, S, shoulder));
-    // The recess, its piers, bench and the doorway's dark inside
-    const da = side < 0 ? doorA : -doorA;
-    recess(parts, { from, to, front: Rf, back, piers: true, gaps: [[da - doorEdge - 0.3, da + doorEdge + 0.3].sort((p, q) => p - q)] });
-    const inside = room(-dh + 0.07, dh - 0.07, back - 0.2, back + depth - 0.07, P, P + 1.9, '-y');
-    inside.rotateZ(-rad(da));
-    parts.push(inside, box(-dh, dh, back - 0.15, back + depth, P + 1.9, S, { turn: da, bevel: 0 }));
+    // The pier under the south end of the overhang
+    const pa = deg(WALK.pier / Rf);
+    parts.push(sector(E, Rf + 0.02, ...span(bottom0, bottom0 + pa), P - 0.1, S + 0.01, { bevel: 0.02, shade: 0.94 }));
+    // The bench along the back wall
+    const [from, to] = span(bottom0 + pa, top0);
+    const gap = span(doorA - doorEdge - 0.3, doorA + doorEdge + 0.3);
+    walkFloor(parts, { from, to, back: Rf, gaps: [gap] });
 }
 
 function emplacementGeometry() {
