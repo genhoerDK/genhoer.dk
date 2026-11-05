@@ -38,7 +38,7 @@ const P = 1.1;                                       // top of the base slab: th
 export const PIT = { radius: 9.35, floor: P };
 export const WALL = { inner: 9.35, outer: 11.3, top: P + 2.85, passages: [-59.85, 59.85, 180], passage: 0.95 };
 export const LEDGE = { outer: 13.75 };
-const CONE = { base: 3.7, foot: 3.75, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-59.85, 59.85], bolts: 1.72, shaft: 0.8 };
+const CONE = { base: 3.7, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-59.85, 59.85], bolts: 1.72, shaft: 0.8 };
 const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: P + 4.37 };   // the machine block: its roof as in the section
 const SIDE = { outer: 15, back: 13.7, front: 12.35, top: 5.45, shoulder: 4.65, step: 5.45 };
 const WALK = { soffit: P + 2.3 };                    // the underside of the overhangs over the walk
@@ -408,7 +408,7 @@ function ringWall(parts) {
  * it; on top the rim round the sunken floor, the bolts close inside the rim, the shaft in the middle
  */
 function pivotCone(parts) {
-    const { base: R0, foot: Rs, edge: R1, rim: RI, top: H, floor: F } = CONE;
+    const { base: R0, edge: R1, rim: RI, top: H, floor: F } = CONE;
     const half = CONE.stair / 2;
 
     // The slope between the four flights of stairs; its inner face shows where the rim is open
@@ -445,16 +445,19 @@ function pivotCone(parts) {
         parts.push(prism(bolt, F - 0.01, H + 0.25, { shade: 0.42, tint: new THREE.Color(0.95, 0.9, 0.85), curveSegments: 8 }));
     }
 
-    // The stairs, cut into the cone: from its foot up to one step below the rim (on three sides) or
-    // onto the sunken floor (from the south). The cone's own cut faces are their sides (photos 56, 57)
+    // The stairs, cut into the cone (photos 56, 57, 67–69): from the floor at its foot up to one step
+    // below the rim (on three sides) or onto the sunken floor (from the south). The cone's own cut
+    // faces are their sides, and every step's nosing lies just inside the cone's slope, so the stair
+    // is sunk into the cone all the way up
+    const slopeAt = (z) => R0 - ((z - P) * (R0 - R1 - 0.04)) / (H - 0.05 - P);   // the cone's radius at height z
     for (const a of CONE.stairs) {
         const toFloor = a === 180;
         const n = toFloor ? 5 : 6;
         const top = toFloor ? F : H - 0.2;
         const rise = (top - P) / n;
         for (let i = 0; i < n; i++) {
-            const front = Rs - (i * (Rs - R1)) / n;
-            parts.push(box(-half, half, toFloor ? RI - 0.05 : R1 - 0.02, front, P - 0.05, P + rise * (i + 1), { turn: a }));
+            const tread = P + rise * (i + 1);
+            parts.push(box(-half, half, toFloor ? RI - 0.05 : R1 - 0.02, slopeAt(tread) - 0.08, P - 0.05, tread, { turn: a }));
         }
     }
 
