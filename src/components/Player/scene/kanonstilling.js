@@ -455,6 +455,9 @@ function machineBlock(parts) {
     // the curved face, the machine hall's entrance to the west, a door to the east and one to the
     // north (the plan); a 2.6 m deep notch in the outline, roofed over above the opening
     const D = 2.6;
+    // A window high in the west wall, north of the machine hall's entrance (photo 0046): 0.7 m square,
+    // about 1 m under the top of the wall
+    const win = { y0: 16.85, y1: 17.55, z0: roof - 1.8, z1: roof - 1.05, depth: 1.2 };
     parts.push(outline([
         [-X, Y], [3.0, Y], [3.0, Y - D], [3.85, Y - D], [3.85, Y], [X, Y],
         [X, 18.6], [X - D, 18.6], [X - D, 17.65], [X, 17.65],
@@ -463,19 +466,22 @@ function machineBlock(parts) {
         [0.45, 14.0], [0.45, Rf + D], [-0.45, Rf + D], [-0.45, 14.0],
         ...arc(Rf, -door, -corner, 1),
         [-X, 12.15], [-X, 13.1], [-7.6, 13.35], [-X + D, 13.35], [-X + D, 15.05], [-7.6, 15.05], [-X, 15.3],
+        [-X, win.y0], [-X + win.depth, win.y0], [-X + win.depth, win.y1], [-X, win.y1],
     ], -0.3, roof, { bevel: 0.05 }));
     const openings = [
-        { notch: [3.0, 3.85, Y - D, Y], room: [3.0, 3.85, Y - D, Y - 0.6], open: '+y', z: 0, h: 2.3 },
-        { notch: [X - D, X, 17.65, 18.6], room: [X - D, X - 0.6, 17.65, 18.6], open: '+x', z: 0, h: 2.3 },
-        { notch: [-X, -X + D, 13.1, 15.3], room: [-X + 0.6, -X + D, 13.35, 15.05], open: '-x', z: 0, h: 2.6 },
-        { notch: [-0.6, 0.6, Rf - 0.03, Rf + D], room: [-0.45, 0.45, 15.0, Rf + D], open: '-y', z: P, h: 2.0 },
+        { notch: [3.0, 3.85, Y - D, Y], room: [3.0, 3.85, Y - D, Y + 0.04], open: '+y', z: 0, h: 2.3 },
+        { notch: [X - D, X, 17.65, 18.6], room: [X - D, X + 0.04, 17.65, 18.6], open: '+x', z: 0, h: 2.3 },
+        { notch: [-X, -X + D, 13.1, 15.3], room: [-X - 0.04, -X + D, 13.35, 15.05], open: '-x', z: 0, h: 2.6 },
+        { notch: [-0.6, 0.6, Rf - 0.03, Rf + D], room: [-0.45, 0.45, Rf - 0.04, Rf + D], open: '-y', z: P, h: 2.0 },
     ];
     for (const { notch: [x0, x1, y0, y1], room: r, open, z, h } of openings) {
         parts.push(box(x0, x1, y0, y1, z + h, roof, { bevel: 0 }));                               // over it
         const e = 0.07;   // inside the outline's bevel, which narrows the notch by 5 cm each side
         parts.push(room(r[0] + e, r[1] - e, r[2] + e, r[3] - e, z, z + h - 0.06, open));
     }
-    parts.push(box(-0.6, 0.6, 13.6, Rf + D, P - 0.1, P, { bevel: 0, shade: 0.7 }));            // the door's floor, at the ledge
+    parts.push(box(-0.6, 0.6, 13.6, Rf + D, P - 0.1, P, { bevel: 0, shade: 0.7 }));
+    parts.push(box(-X, -X + win.depth, win.y0, win.y1, -0.3, win.z0, { bevel: 0 }), box(-X, -X + win.depth, win.y0, win.y1, win.z1, roof, { bevel: 0 }));
+    parts.push(room(-X + 0.02, -X + win.depth - 0.07, win.y0 + 0.07, win.y1 - 0.07, win.z0 + 0.01, win.z1 - 0.01, '-x'));            // the door's floor, at the ledge
 
     // The side to the pit, in one piece — Lumbye's section of it ("Profil af maskinblokkens side ind
     // mod kanonbrønden", 1.95 m of ring wall = 106 px), heights over the walk: the soffit at 2.31 m,
