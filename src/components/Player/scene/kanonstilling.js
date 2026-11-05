@@ -260,9 +260,9 @@ function ringWall(parts) {
     const { inner: Ri, outer: Ro, top: T, passage } = WALL;
     const half = passage / 2;
 
-    // The holes for the crane rail's brackets: a row high in the inner face, every 12°, real
-    // holes 14 cm square and 30 cm deep (photos 0023, 0024, 05)
-    const hole = { z0: P + 2.2, z1: P + 2.34, half: deg(0.07 / Ri), depth: 0.3 };
+    // The holes for the crane rail's brackets: a row in the inner face 1.8 m over the floor, every
+    // 12°, real holes 14 cm square and 30 cm deep (photos 0023, 0024, 05)
+    const hole = { z0: P + 1.75, z1: P + 1.89, half: deg(0.07 / Ri), depth: 0.3 };
     const holes = [];
     for (let a = 6; a < 360; a += 12) {
         if (!WALL.passages.some((p) => Math.abs(((a - p + 540) % 360) - 180) < 7)) holes.push(a > 180 ? a - 360 : a);
@@ -310,10 +310,12 @@ function ringWall(parts) {
 
     for (const a of WALL.passages) {
         parts.push(box(-half, half, Ri - 0.03, Ro + 0.03, P + 2.2, T, { turn: a, bevel: 0.02, shade: 0.9 }));           // over the door
-        parts.push(box(-half, half, Ri - 0.02, Ro + 0.02, P - 0.1, P + 0.005, { turn: a, bevel: 0, shade: 0.7 }));        // its floor
+        parts.push(box(-half, half, Ri - 0.02, Ro + 0.02, P - 0.1, P + 0.2, { turn: a, bevel: 0, shade: 0.72 }));         // its floor: a raised sill
+        parts.push(box(-half - 0.1, half + 0.1, Ri - 0.38, Ri + 0.01, P - 0.05, P + 0.18, { turn: a, bevel: 0.02, shade: 0.88 }));   // the step up to it, inside
         for (const s of [-1, 1]) parts.push(box(s * half, s * (half - 0.12), 10.15, 10.5, P, P + 2.2, { turn: a, bevel: 0, shade: 0.75 }));   // the rebate
-        // Climbing irons on the inner face, beside the passage, up to the top
-        const side = a + deg(1.15 / Ri);
+        // Climbing irons on the inner face beside the passage, on its north side (photos 05 and 0024:
+        // between the doorway and the corner foundation), up to the top
+        const side = a + (a > 0 && a < 180 ? -1 : 1) * deg(1.15 / Ri);
         for (let k = 0; k < 8; k++) {
             const z = P + 0.3 + k * 0.32;
             parts.push(box(-0.16, 0.16, Ri - 0.13, Ri - 0.1, z, z + 0.03, { turn: side, bevel: 0, shade: 0.45, tint: RUST }));
