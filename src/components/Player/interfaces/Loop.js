@@ -5,8 +5,8 @@
  * brings it up, as the button at the installation did.
  *
  * The photo lies under water: blurred and dim. Pressing the button clears it and the sound; as
- * long as the button is held it stays up, and when it is let go the seconds at the surface count
- * down in the button and in the ring around it, and then photo and sound sink back. Every press
+ * long as the button is held it stays up, and when it is let go the time at the surface runs
+ * down in the ring around the button — no numbers — and then photo and sound sink back. Every press
  * starts over. Space or Enter press the button too.
  *
  *   player.layers   { below, above }  the two versions of the loop
@@ -69,7 +69,6 @@ export default function LoopPlayer() {
                             onPointerCancel={onPointerUp}
                             onContextMenu={(e) => e.preventDefault()}
                             aria-label='Op til overfladen'
-                            aria-live='polite'
                             className='relative flex items-center justify-center size-28 rounded-full cursor-pointer touch-none select-none group'
                         >
                             {/* The ring: the time left at the surface, then the sinking */}
@@ -81,9 +80,7 @@ export default function LoopPlayer() {
                                     strokeDashoffset={CIRCUMFERENCE * (1 - (phase === 'below' ? 0 : state.left))}
                                 />
                             </svg>
-                            <span className={`flex items-center justify-center size-20 rounded-full font-extralight tabular-nums text-3xl transition-colors duration-300 ${phase === 'below' ? 'bg-paper text-ink md:group-hover:bg-muted' : 'bg-paper/15 text-paper'}`}>
-                                {phase === 'above' ? state.secondsLeft : ''}
-                            </span>
+                            <span className={`size-20 rounded-full transition-colors duration-300 ${phase === 'below' ? 'bg-paper md:group-hover:bg-muted' : 'bg-paper/15'}`} />
                         </button>
                     )}
                 </Controls>

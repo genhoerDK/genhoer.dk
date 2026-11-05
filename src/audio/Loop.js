@@ -142,7 +142,6 @@ export default class Loop {
             held: this.held,
             // How far through the time at the surface (1 → 0) or the sinking (1 → 0); full while held
             left: this.held ? 1 : phase === 'above' ? 1 - since / hold : phase === 'sinking' ? 1 - (since - hold) / down : 0,
-            secondsLeft: this.held ? hold : phase === 'above' ? Math.ceil(hold - since) : 0,
             position: this.position,
             duration: this.duration,
         };
