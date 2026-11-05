@@ -125,10 +125,10 @@ function revolve(profile, { from = 0, to = 360, segments = 256, tint, closeEnds 
 }
 
 /** A flat shape (x, y in metres) raised from z0 to z1, its edges bevelled */
-function prism(shape, z0, z1, { bevel = 0.03, shade = 1, tint, curveSegments = 12 } = {}) {
+function prism(shape, z0, z1, { bevel = 0.03, segments = 2, shade = 1, tint, curveSegments = 12 } = {}) {
     const b = Math.min(bevel, (z1 - z0) / 3);
     const g = new THREE.ExtrudeGeometry(shape, {
-        depth: z1 - z0 - 2 * b, bevelEnabled: b > 0, bevelThickness: b, bevelSize: b, bevelSegments: 2, curveSegments,
+        depth: z1 - z0 - 2 * b, bevelEnabled: b > 0, bevelThickness: b, bevelSize: b, bevelSegments: segments, curveSegments,
     });
     g.translate(0, 0, z0 + b);
     g.deleteAttribute('uv');
@@ -207,19 +207,46 @@ function shaft(corners, zTop, depth, { light = 0.7, dark = 0.16 } = {}) {
     return fromTriangles(tris);
 }
 
+/**
+ * The dark inside of a building, seen through an opening: floor, ceiling and walls facing in, open on
+ * one side ('+x', '-x', '+y' or '-y'), darkest at the back
+ */
+function room(x0, x1, y0, y1, z0, z1, open) {
+    const axis = open[1], sign = open[0] === '+' ? 1 : -1;
+    const lit = grey(0.2), dim = grey(0.04);
+    const depthOf = (p) => (axis === 'x' ? (sign > 0 ? x1 - p.x : p.x - x0) / (x1 - x0) : (sign > 0 ? y1 - p.y : p.y - y0) / (y1 - y0));
+    const colour = (p) => lit.clone().lerp(dim, depthOf(p));
+    const V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const faces = [
+        { q: [V(x0, y0, z0), V(x1, y0, z0), V(x1, y1, z0), V(x0, y1, z0)], n: V(0, 0, 1) },
+        { q: [V(x0, y0, z1), V(x1, y0, z1), V(x1, y1, z1), V(x0, y1, z1)], n: V(0, 0, -1) },
+        { q: [V(x0, y0, z0), V(x0, y1, z0), V(x0, y1, z1), V(x0, y0, z1)], n: V(1, 0, 0), side: '-x' },
+        { q: [V(x1, y0, z0), V(x1, y1, z0), V(x1, y1, z1), V(x1, y0, z1)], n: V(-1, 0, 0), side: '+x' },
+        { q: [V(x0, y0, z0), V(x1, y0, z0), V(x1, y0, z1), V(x0, y0, z1)], n: V(0, 1, 0), side: '-y' },
+        { q: [V(x0, y1, z0), V(x1, y1, z0), V(x1, y1, z1), V(x0, y1, z1)], n: V(0, -1, 0), side: '+y' },
+    ].filter((f) => f.side !== open);
+    const tris = [];
+    for (const { q, n } of faces) {
+        const c = q.map(colour);
+        tris.push({ p: [q[0], q[1], q[2]], n: [n, n, n], c: [c[0], c[1], c[2]] }, { p: [q[0], q[2], q[3]], n: [n, n, n], c: [c[0], c[2], c[3]] });
+    }
+    return fromTriangles(tris);
+}
+
 /** Turn [x, y] round the centre by an angle (our angles: clockwise) */
 const turned = ([x, y], a) => { const t = -rad(a); return [x * Math.cos(t) - y * Math.sin(t), x * Math.sin(t) + y * Math.cos(t)]; };
 
 /**
- * A curved band between radii r0 and r1, cut off by the planes x = ±halfWidth, from z0 up to a top
- * whose height follows x: top(x)
+ * A curved band between radii r0 and r1, cut off by the planes x = ±halfWidth, from a bottom up to a
+ * top; each a height or a function of x
  */
-function band(r0, r1, halfWidth, z0, top, shade = 1) {
+function band(r0, r1, halfWidth, bottom, top, shade = 1) {
+    const zAt = (h, x) => (typeof h === 'function' ? h(x) : h);
     const from = { axis: 0, half: -halfWidth }, to = { axis: 0, half: -halfWidth };
     const c = grey(shade), cs = grey(shade * 0.85);
     const n = 160;
     const ring = (r, t) => { const a0 = cutAngle(from, r, 'from'); return a0 + (cutAngle(to, r, 'to') - a0) * t; };
-    const pt = (r, t, z) => { const p = at(r, ring(r, t), 0); p.z = z ?? top(p.x); return p; };
+    const pt = (r, t, low) => { const p = at(r, ring(r, t), 0); p.z = zAt(low ? bottom : top, p.x); return p; };
     const radial = (r, t, sign) => { const a = rad(ring(r, t)); return new THREE.Vector3(Math.sin(a) * sign, Math.cos(a) * sign, 0); };
     const tris = [];
     for (let j = 0; j < n; j++) {
@@ -229,9 +256,13 @@ function band(r0, r1, halfWidth, z0, top, shade = 1) {
         const up = new THREE.Vector3().crossVectors(B.clone().sub(A), D.clone().sub(A)).normalize();
         if (up.z < 0) up.negate();
         tris.push({ p: [A, B, C], n: [up, up, up], c: [c, c, c] }, { p: [A, C, D], n: [up, up, up], c: [c, c, c] });
+        // underside
+        const down = up.clone().negate();
+        const Ab = pt(r0, t0, true), Bb = pt(r1, t0, true), Cb = pt(r1, t1, true), Db = pt(r0, t1, true);
+        tris.push({ p: [Ab, Bb, Cb], n: [down, down, down], c: [cs, cs, cs] }, { p: [Ab, Cb, Db], n: [down, down, down], c: [cs, cs, cs] });
         // inner and outer faces
         for (const [r, sign] of [[r0, -1], [r1, 1]]) {
-            const E = pt(r, t0, z0), F = pt(r, t0), G = pt(r, t1), K = pt(r, t1, z0);
+            const E = pt(r, t0, true), F = pt(r, t0), G = pt(r, t1), K = pt(r, t1, true);
             const n0 = radial(r, t0, sign), n1 = radial(r, t1, sign);
             tris.push({ p: [E, F, G], n: [n0, n0, n1], c: [cs, c, c] }, { p: [E, G, K], n: [n0, n1, n1], c: [cs, c, cs] });
         }
@@ -239,7 +270,7 @@ function band(r0, r1, halfWidth, z0, top, shade = 1) {
     // the ends
     for (const [t, cut, end] of [[0, from, 'from'], [1, to, 'to']]) {
         const nn = cutNormal(cut, end);
-        const A = pt(r0, t, z0), B = pt(r1, t, z0), C = pt(r1, t), D = pt(r0, t);
+        const A = pt(r0, t, true), B = pt(r1, t, true), C = pt(r1, t), D = pt(r0, t);
         tris.push({ p: [A, B, C], n: [nn, nn, nn], c: [cs, cs, c] }, { p: [A, C, D], n: [nn, nn, nn], c: [cs, c, c] });
     }
     return fromTriangles(tris);
@@ -392,48 +423,67 @@ function pivotCone(parts) {
     parts.push(shaft(pit, P + 0.001, 0.6, { light: 0.6, dark: 0.15 }));
 }
 
-/** The crane rail's foundations in the pit: 45 cm high, three slots each (the drawing's measures) */
+/**
+ * The crane rail's foundations in the pit, as drawn: 45 cm high, their top edges chamfered at 45°
+ * (9 cm), three slots in each. Two rectangular ones and four right-angled triangles (2.25 × 2.2 m)
+ * in the corners, their long side straight, standing just free of the curved wall
+ */
 function craneFoundations(parts) {
-    const z1 = P + 0.45;
+    const z1 = P + 0.45, z0 = P - 0.25;   // the lower chamfer is under the floor
+    const look = { bevel: 0.09, segments: 1, shade: 0.97 };
     // Two rectangular ones, 1.6 × 1.4 m, north and south of the cone (a little east of the middle)
     for (const sy of [1, -1]) {
         const cx = 0.7, cy = 6.25 * sy;
         const slot = (x0, x1) => [[cx + x0, cy - 0.5], [cx + x1, cy - 0.5], [cx + x1, cy + 0.5], [cx + x0, cy + 0.5]];
-        parts.push(outline([[cx - 0.8, cy - 0.7], [cx + 0.8, cy - 0.7], [cx + 0.8, cy + 0.7], [cx - 0.8, cy + 0.7]], P - 0.05, z1, {
-            bevel: 0.06, holes: [slot(-0.6, -0.43), slot(-0.2, 0.2), slot(0.43, 0.61)],
+        const w = 0.8 - 0.09, d = 0.7 - 0.09;   // the chamfer adds its width round the outline
+        parts.push(outline([[cx - w, cy - d], [cx + w, cy - d], [cx + w, cy + d], [cx - w, cy + d]], z0, z1, {
+            ...look, holes: [slot(-0.6, -0.43), slot(-0.2, 0.2), slot(0.43, 0.61)],
         }));
-        parts.push(box(cx - 0.75, cx + 0.75, cy - 0.65, cy + 0.65, P, P + 0.2, { bevel: 0, shade: 0.2 }));   // the slots' bottoms
+        parts.push(box(cx - 0.75, cx + 0.75, cy - 0.65, cy + 0.65, P, P + 0.15, { bevel: 0, shade: 0.25 }));   // the slots' bottoms
     }
-    // Four triangular ones in the corners: two legs along the axes, the third side the wall
+    // Four triangles in the corners: the right angle towards the cone, the legs along the axes
     for (const [sx, sy] of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) {
-        const R = WALL.inner + 0.05;
-        const yw = Math.sqrt(R * R - 5.2 * 5.2), xw = Math.sqrt(R * R - 5.55 * 5.55);
-        const a0 = deg(Math.atan2(5.2, yw)), a1 = deg(Math.atan2(xw, 5.55));
-        const pts = [[5.2, 5.55], [5.2, yw], ...arc(R, a0, a1, 1).slice(1, -1), [xw, 5.55]].map(([x, y]) => [x * sx, y * sy]);
-        const slot = (x0, x1, y0, y1) => [[x0 * sx, y0 * sy], [x1 * sx, y0 * sy], [x1 * sx, y1 * sy], [x0 * sx, y1 * sy]];
-        parts.push(outline(pts, P - 0.05, z1, { bevel: 0.05, holes: [slot(6.4, 6.6, 5.75, 6.35), slot(5.65, 6.1, 5.75, 6.7), slot(5.35, 5.55, 5.75, 6.7)] }));
-        parts.push(box(Math.min(5.3 * sx, 6.65 * sx), Math.max(5.3 * sx, 6.65 * sx), Math.min(5.7 * sy, 6.75 * sy), Math.max(5.7 * sy, 6.75 * sy), P, P + 0.2, { bevel: 0, shade: 0.2 }));
+        const m = ([x, y]) => [x * sx, y * sy];
+        const c = 0.09;
+        const pts = [[5.2 + c, 5.55 + c], [5.2 + c, 7.75 - 2.2 * c], [7.45 - 2.2 * c, 5.55 + c]].map(m);
+        const slot = (x0, x1, y0, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(m);
+        parts.push(outline(pts, z0, z1, { ...look, holes: [slot(6.4, 6.6, 5.75, 6.35), slot(5.65, 6.1, 5.75, 6.7), slot(5.35, 5.55, 5.75, 6.7)] }));
+        const [bx0, by0] = m([5.3, 5.7]), [bx1, by1] = m([6.65, 6.75]);
+        parts.push(box(Math.min(bx0, bx1), Math.max(bx0, bx1), Math.min(by0, by1), Math.max(by0, by1), P, P + 0.15, { bevel: 0, shade: 0.25 }));
     }
 }
 
 /** The machine block, north of the pit */
 function machineBlock(parts) {
     const { face: Rf, x: X, back: Y, roof } = BLOCK;
-    // Its corners meet the curved face; the door in the middle of the face, the machine hall's entrance on the west
+    // Its corners meet the curved face
     const corner = deg(Math.atan2(7.55, 11.47));
     const door = deg(Math.asin(0.6 / Rf));
+    // Openings through its outer walls (0.6 m thick), each into a dark room: the door in the middle of
+    // the curved face, the machine hall's entrance to the west, a door to the east and one to the
+    // north (the plan); a 2.6 m deep notch in the outline, roofed over above the opening
+    const D = 2.6;
     parts.push(outline([
-        [-X, Y], [X, Y], [X, 12.4], [7.55, 11.47],
+        [-X, Y], [3.0, Y], [3.0, Y - D], [3.85, Y - D], [3.85, Y], [X, Y],
+        [X, 18.6], [X - D, 18.6], [X - D, 17.65], [X, 17.65],
+        [X, 12.4], [7.55, 11.47],
         ...arc(Rf, corner, door, 1).slice(1),
-        [0.45, 14.0], [0.45, 15.1], [-0.45, 15.1], [-0.45, 14.0],
+        [0.45, 14.0], [0.45, Rf + D], [-0.45, Rf + D], [-0.45, 14.0],
         ...arc(Rf, -door, -corner, 1),
-        [-X, 12.4], [-X, 13.1], [-7.5, 13.35], [-7.5, 15.05], [-X, 15.3],
+        [-X, 12.4], [-X, 13.1], [-7.6, 13.35], [-X + D, 13.35], [-X + D, 15.05], [-7.6, 15.05], [-X, 15.3],
     ], -0.3, roof, { bevel: 0.05 }));
-    parts.push(box(-0.6, 0.6, 13.6, 15.1, P + 2.0, roof, { bevel: 0 }));                     // over the door
-    parts.push(box(-0.45, 0.45, 15.05, 15.1, P, P + 2.0, { bevel: 0, shade: DARK }));
-    parts.push(box(-0.6, 0.6, 13.6, 15.1, P - 0.1, P, { bevel: 0, shade: 0.7 }));
-    parts.push(box(-X, -7.5, 13.1, 15.3, 2.6, roof, { bevel: 0 }));                          // over the entrance
-    parts.push(box(-7.55, -7.5, 13.35, 15.05, 0, 2.6, { bevel: 0, shade: DARK }));
+    const openings = [
+        { notch: [3.0, 3.85, Y - D, Y], room: [3.0, 3.85, Y - D, Y - 0.6], open: '+y', z: 0, h: 2.3 },
+        { notch: [X - D, X, 17.65, 18.6], room: [X - D, X - 0.6, 17.65, 18.6], open: '+x', z: 0, h: 2.3 },
+        { notch: [-X, -X + D, 13.1, 15.3], room: [-X + 0.6, -X + D, 13.35, 15.05], open: '-x', z: 0, h: 2.6 },
+        { notch: [-0.6, 0.6, 13.6, Rf + D], room: [-0.45, 0.45, 15.0, Rf + D], open: '-y', z: P, h: 2.0 },
+    ];
+    for (const { notch: [x0, x1, y0, y1], room: r, open, z, h } of openings) {
+        parts.push(box(x0, x1, y0, y1, z + h, roof, { bevel: 0 }));                               // over it
+        const e = 0.07;   // inside the outline's bevel, which narrows the notch by 5 cm each side
+        parts.push(room(r[0] + e, r[1] - e, r[2] + e, r[3] - e, z, z + h - 0.06, open));
+    }
+    parts.push(box(-0.6, 0.6, 13.6, Rf + D, P - 0.1, P, { bevel: 0, shade: 0.7 }));            // the door's floor, at the ledge
 
     // The side to the pit, as in the section: an overhang (1.1 m out, 2.0–3.15 m over the ledge);
     // above it the top slab (0.7 m out, to 3.9 m), a curved band reaching out over the roof and a
@@ -448,10 +498,13 @@ function machineBlock(parts) {
         from: -reach, to: reach, closeEnds: [[Rf - 0.7, P + 3.15, 0.8], [BLOCK.band, P + 3.15, 0.8], [BLOCK.band, P + 3.9, 0.9], [Rf - 0.7, P + 3.9, 0.9]],
     }));
     for (const s of [-1, 1]) parts.push(sector(Rf - 0.05, BLOCK.band, s > 0 ? 29 : -reach, s > 0 ? reach : -29, -0.3, P + 3.2, { bevel: 0.03, shade: 0.92 }));   // where it reaches past the block, down to the ground
-    parts.push(band(Rf - 0.77, Rf + 1.05, 8.25, P + 3.85, (x) => {
-        const t = THREE.MathUtils.clamp((Math.abs(x) - 5.2) / (8.25 - 5.2), 0, 1);
-        return BLOCK.crest + (P + 3.9 - BLOCK.crest) * t * t * (3 - 2 * t);
-    }));
+    // The crest: level along the middle, cut off straight at its ends; a coping along its top (photo 21)
+    const crest = (x) => {
+        const t = THREE.MathUtils.clamp((Math.abs(x) - 6.4) / (8.25 - 6.4), 0, 1);
+        return BLOCK.crest + (P + 3.9 - BLOCK.crest) * t;
+    };
+    parts.push(band(Rf - 0.77, Rf + 1.05, 8.25, P + 3.85, crest));
+    parts.push(band(Rf - 0.8, Rf + 1.08, 8.27, (x) => crest(x) - 0.22, (x) => crest(x) + 0.03, 0.97));
 
     // On the roof, to the west: a raised slab with sloping sides, from the band to near the back
     // (drone and air photos)
@@ -465,8 +518,6 @@ function machineBlock(parts) {
         roof - 0.05, vent.top, 0.95,
     ));
     parts.push(box(vent.x0 - 0.02, vent.x0 + 0.02, 16.9, 17.4, vent.top - 0.95, vent.top - 0.45, { bevel: 0, shade: DARK }));   // the opening
-    // Small openings high in the west wall
-    for (const y of [18, 21, 24]) parts.push(box(-X - 0.02, -X + 0.03, y, y + 0.4, 3.3, 3.7, { bevel: 0, shade: DARK }));
 }
 
 /** A side block, west (side −1) or east (+1) of the pit */
