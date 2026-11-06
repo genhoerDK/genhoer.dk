@@ -85,8 +85,10 @@ function weatherTexture(size = 512) {
  *   scale     metres one texture tile covers
  *   lichen    0–1 how much lichen on top faces
  *   boards    0–1 how much the formwork's boards show on upright faces
+ *   sheltered [r0, r1, z1]: a covered, shaded walk round the centre (r0–r1, under z1), where moss
+ *             and algae cover the walls
  */
-export function concreteMaterial({ textured = true, floors = [0], walk = 0, scale = 4, lichen = 0.6, boards = 1, color = 0xc4c3bf, lichenColor = 0x5b5f50, mossColor = 0x2f3529 } = {}) {
+export function concreteMaterial({ textured = true, floors = [0], walk = 0, scale = 4, lichen = 0.6, boards = 1, color = 0xc4c3bf, lichenColor = 0x5b5f50, mossColor = 0x2f3529, greenColor = 0x46552b, sheltered = [0, 0, -1000] } = {}) {
     const material = new THREE.MeshStandardMaterial({ color, roughness: 0.95, metalness: 0, vertexColors: true });
     if (!textured) return material;
 
@@ -103,6 +105,8 @@ export function concreteMaterial({ textured = true, floors = [0], walk = 0, scal
             uMossColor: { value: new THREE.Color(mossColor) },
             uFloors: { value: new THREE.Vector4(...floorList) },
             uWalk: { value: walk },
+            uGreen: { value: new THREE.Color(greenColor) },
+            uShelter: { value: new THREE.Vector3(...sheltered) },
         });
         shader.vertexShader = shader.vertexShader
             .replace('#include <common>', `#include <common>
@@ -126,7 +130,7 @@ export function concreteMaterial({ textured = true, floors = [0], walk = 0, scal
             .replace('#include <common>', `#include <common>
                 uniform sampler2D uWeather;
                 uniform float uTexScale, uLichen, uBoards, uWalk;
-                uniform vec3 uLichenColor, uMossColor;
+                uniform vec3 uLichenColor, uMossColor, uGreen, uShelter;
                 uniform vec4 uFloors;
                 varying vec3 vModelPos, vModelNormal, vBary, vConvex, vConcave;
                 varying vec2 vExtraConvex, vExtraConcave;
@@ -212,10 +216,29 @@ export function concreteMaterial({ textured = true, floors = [0], walk = 0, scal
 
                 // Lichen on the tops
                 float lichen = smoothstep(0.6, 0.82, near.a * 0.5 + far.a * 0.6) * smoothstep(0.3, 0.9, cn.z) * uLichen * (1.0 - wet);
-                vec3 col = vec3(tone) + lime * 0.28;
+                // Moss and algae, where it stays damp: patchy on the north faces, thick on the walls of the
+                // covered walk, climbing from the ground; in clumps on the tops and along the inner corners
+                // of the floors; dark algae running down the walls from the joints and streaks
+                vec4 patches = triplanar(cp * 0.6 + 0.53, cw);
+                float north = smoothstep(-0.1, 0.9, cn.y) * upright;
+                float rr = length(vModelPos.xy);
+                float shelter = smoothstep(uShelter.x - 0.5, uShelter.x - 0.05, rr) * (1.0 - smoothstep(uShelter.y, uShelter.y + 0.4, rr))
+                    * (1.0 - smoothstep(uShelter.z + 0.2, uShelter.z + 1.2, vModelPos.z + (far.g - 0.5) * 1.5)) * upright;
+                float growth = max(max(north * 0.65, shelter), damp);
+                float clumps = smoothstep(0.42, 0.62, patches.g * 0.7 + near.a * 0.45 + (fine.g - 0.5) * 0.35);
+                float thick = smoothstep(0.25, 0.5, patches.g * 0.6 + fine.g * 0.5);
+                float mossWall = growth * mix(clumps, thick, shelter) * (1.0 - exposed * 0.4);
+                float onTop = smoothstep(0.6, 0.95, cn.z) * (vModelPos.z > uWalk + 0.3 ? 1.0 : 0.35 + 0.65 * corner);
+                float mossTop = onTop * smoothstep(0.55, 0.75, patches.a * 0.6 + far.g * 0.45 + corner * 0.25) * (1.0 - wet * 0.6);
+                float algae = upright * max(smoothstep(0.55, 0.8, runs.b), seam * 0.6) * smoothstep(0.35, 0.65, patches.g) * (0.35 + 0.65 * growth);
+                float green = clamp(max(mossWall * 0.9, mossTop * 0.85), 0.0, 1.0);
+
+                vec3 col = vec3(tone) + lime * 0.28 * (1.0 - green);
                 col = mix(col, uLichenColor * (0.65 + near.r * 0.5), lichen);
                 col = mix(col, uMossColor * (0.6 + fine.r * 0.8), moss * 0.85);
                 col = mix(col, col * vec3(0.8, 0.83, 0.78), damp * 0.7);
+                col = mix(col, col * vec3(0.55, 0.66, 0.52), algae * 0.75);
+                col = mix(col, uGreen * (0.5 + fine.r * 0.8 + patches.b * 0.35), green);
                 col *= mix(vec3(1.02, 1.0, 0.96), vec3(0.96, 0.98, 1.02), stain);   // warmer and cooler stains
                 diffuseColor.rgb *= col * 1.6;
 
@@ -224,9 +247,10 @@ export function concreteMaterial({ textured = true, floors = [0], walk = 0, scal
                 float u = clamp(1.0 - dOut / wearW, 0.0, 1.0);
                 float roundOff = wearW * (1.0 - sqrt(max(0.0, 1.0 - u * u)));
                 float weatherHeight = (near.r * 0.0012 + fine.r * 0.0018 + exposed * fine.r * 0.004 - seam * 0.0025 * wall
-                    - chip * fine.r * 0.012 - roundOff) * vModelScale;`)
+                    - chip * fine.r * 0.012 - roundOff + green * fine.g * 0.006) * vModelScale;`)
             .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-                roughnessFactor = mix(roughnessFactor, 0.55, wet);`)
+                roughnessFactor = mix(roughnessFactor, 0.55, wet);
+                roughnessFactor = mix(roughnessFactor, 1.0, green);`)
             .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
                 // the fine relief fades where a centimetre is less than a pixel, so far off it doesn't shimmer
                 float pixelSize = length(fwidth(vModelPos));

@@ -340,34 +340,75 @@ function dropAt(a) {
     return FLOOR_DROPS[0][1];
 }
 
-/** The forest floor's height at (x, y): at the walk's edge as measured, beyond it leaning and a little uneven */
+/** How far (x, y) is from the bunker's footprint (the walk's edge, the machine block, the side blocks), in metres */
+function bunkerDistance(x, y) {
+    const rect = (x0, x1, y0, y1) => {
+        const dx = Math.max(x0 - x, 0, x - x1), dy = Math.max(y0 - y, 0, y - y1);
+        return dx || dy ? Math.hypot(dx, dy) : -Math.min(x - x0, x1 - x, y - y0, y1 - y);
+    };
+    return Math.min(Math.hypot(x, y) - LEDGE.outer, rect(-BLOCK.x, BLOCK.x, 11.5, BLOCK.back), rect(-15, -12.5, -6.6, 7), rect(12.5, 15, -6.6, 7));
+}
+
+/** Smooth value noise in two dimensions, −1 to 1 */
+function noise2(x, y) {
+    const h = (i, j) => { const n = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return (n - Math.floor(n)) * 2 - 1; };
+    const xi = Math.floor(x), yi = Math.floor(y), u = x - xi, v = y - yi;
+    const su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v);
+    const a = h(xi, yi), b = h(xi + 1, yi), c = h(xi, yi + 1), d = h(xi + 1, yi + 1);
+    return a + (b - a) * su + (c - a) * sv + (a - b - c + d) * su * sv;
+}
+
+/**
+ * The forest floor's height at (x, y): at the walk's edge as measured; soil heaped up against the
+ * bunker here and there (up to 0.8 m against its walls, never over the walk's edge); beyond, the
+ * ground goes on with the same lean, in low hummocks and hollows, small bumps of roots and litter
+ */
 export function groundAt(x, y) {
     const r = Math.hypot(x, y), a = deg(Math.atan2(x, y));
     const rim = P - Math.max(dropAt(a), 0.02);
     const out = THREE.MathUtils.clamp(r - LEDGE.outer, 0, 18);
     const lean = 0.035 * Math.sin(rad(a)) * out;
-    const uneven = (0.16 * Math.sin(0.31 * x + 0.7) * Math.cos(0.27 * y - 0.4)
-        + 0.1 * Math.sin(0.53 * x - 0.41 * y + 1.3) + 0.06 * Math.cos(0.9 * x + 0.77 * y)) * smoothstep(15.5, 22, r);
-    return rim + lean + uneven;
+    const away = smoothstep(0.5, 6, bunkerDistance(x, y));
+    const hummocks = (0.35 * noise2(x * 0.12 + 3.1, y * 0.12 - 1.7) + 0.18 * noise2(x * 0.31, y * 0.31 + 5.2)) * smoothstep(15, 21, r);
+    const bumps = (0.06 * noise2(x * 0.9 + 1.3, y * 0.9) + 0.03 * noise2(x * 2.1, y * 2.1 - 4.4)) * (0.4 + 0.6 * away);
+    // Soil heaped against the bunker, in drifts along it
+    const d = Math.max(0, bunkerDistance(x, y));
+    const drift = smoothstep(0.05, 0.7, 0.5 + 0.5 * noise2(x * 0.22 + 7.7, y * 0.22 + 2.9) + 0.25 * noise2(x * 0.6, y * 0.6 + 9.1));
+    const heap = 0.8 * drift * Math.exp(-d / 1.3) * smoothstep(0, 0.4, d + 0.3);
+    let z = rim + lean + hummocks + bumps + heap;
+    const nearRing = 1 - smoothstep(0.3, 1.8, r - LEDGE.outer);
+    return Math.min(z, z + (P - 0.04 - z) * nearRing * (z > P - 0.04 ? 1 : 0));
+}
+
+/** The forest floor's colour at (x, y): dark humus, lighter needles and leaves, moss near the walls and in hollows */
+function groundColour(x, y, z) {
+    const n1 = noise2(x * 0.35 + 2.2, y * 0.35), n2 = noise2(x * 1.1 - 3.3, y * 1.1 + 1.7), n3 = noise2(x * 0.18, y * 0.18 - 6.1);
+    const humus = [0.11, 0.095, 0.075], litter = [0.24, 0.19, 0.13], moss = [0.12, 0.15, 0.07];
+    const nearWall = Math.exp(-Math.max(0, bunkerDistance(x, y)) / 2.5);
+    const t = smoothstep(-0.3, 0.6, n1 + n2 * 0.4);
+    const m = smoothstep(0.1, 0.7, n3 * 0.7 + nearWall * 0.6 + n2 * 0.2);
+    const c = humus.map((h, i) => h + (litter[i] - h) * t);
+    return c.map((v, i) => (v + (moss[i] - v) * m * 0.75) * (0.85 + 0.25 * (n2 * 0.5 + 0.5)));
 }
 
 /**
- * The forest floor round the emplacement: one smooth surface shaped by groundAt, from just under the
- * walk's edge out to 40 m, fading out at its far edge so the photo behind shows
+ * The forest floor round the emplacement: one surface shaped by groundAt and coloured by
+ * groundColour, from just under the walk's edge out to 40 m, fading out at its far edge so the
+ * photo behind shows
  */
 function forestFloor() {
-    const R0 = LEDGE.outer - 0.05, R1 = 40, steps = 288;
+    const R0 = LEDGE.outer - 0.05, R1 = 40, steps = 480;
     const radii = [];
-    for (let r = R0; r < R1; r += r < 20 ? 0.3 : 0.75) radii.push(r);
+    for (let r = R0; r < R1; r += r < 22 ? 0.2 : 0.6) radii.push(r);
     radii.push(R1);
     const position = [], colour = [], index = [];
     for (const r of radii) {
         const alpha = 1 - smoothstep(26, R1, r);
         for (let j = 0; j < steps; j++) {
-            const a = (j / steps) * 360;
-            const [x, y] = onCircle(r, a);
-            position.push(x, y, groundAt(x, y));
-            colour.push(1, 1, 1, alpha);
+            const [x, y] = onCircle(r, (j / steps) * 360);
+            const z = groundAt(x, y);
+            position.push(x, y, z);
+            colour.push(...groundColour(x, y, z), alpha);
         }
     }
     for (let i = 0; i < radii.length - 1; i++) {
@@ -381,7 +422,7 @@ function forestFloor() {
     g.setAttribute('color', new THREE.Float32BufferAttribute(colour, 4));
     g.setIndex(index);
     g.computeVertexNormals();
-    const mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x55534c, roughness: 1, vertexColors: true, transparent: true }));
+    const mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, vertexColors: true, transparent: true }));
     mesh.receiveShadow = true;
     return mesh;
 }
@@ -1040,7 +1081,7 @@ function placedLoudspeaker(angle) {
  */
 export function buildKanonstilling({ textured = false } = {}) {
     const group = new THREE.Group();
-    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, floors: [P, CONE.floor, BLOCK.roof], walk: P }));
+    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.castShadow = true;
     model.receiveShadow = true;
     group.add(model, forestFloor());
