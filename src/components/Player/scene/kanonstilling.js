@@ -774,7 +774,163 @@ function emplacementGeometry() {
     machineBlock(parts);
     sideBlock(parts, -1);
     sideBlock(parts, 1);
-    return mergeGeometries(parts);
+    const geometry = mergeGeometries(parts);
+    markEdges(geometry);
+    unsettle(geometry);
+    return geometry;
+}
+
+/* ---------- WEAR ---------- */
+
+/**
+ * Find the creases, for the concrete to wear them: for every triangle, how far each of its edges is
+ * from its other corner (its altitude), kept only where the edge is a crease — an outer corner
+ * (aConvex) or an inner one (aConcave); with a one-hot aBary per corner, the shader then knows how
+ * far any point is from the nearest outer and inner edge. An edge is a crease where the surface
+ * beyond it turns by more than 35°; the surface beyond is the triangle sharing the edge, or, where
+ * none does (a T-junction, a face meeting another mid-way), whatever triangle its midpoint lies on.
+ */
+function markEdges(geometry, creaseDeg = 35) {
+    const pos = geometry.attributes.position.array;
+    const nTri = pos.length / 9;
+    const V = (t, k) => new THREE.Vector3(pos[t * 9 + k * 3], pos[t * 9 + k * 3 + 1], pos[t * 9 + k * 3 + 2]);
+    const tris = Array.from({ length: nTri }, (_, t) => new THREE.Triangle(V(t, 0), V(t, 1), V(t, 2)));
+    const normals = tris.map((tr) => tr.getNormal(new THREE.Vector3()));
+    const cosCrease = Math.cos(rad(creaseDeg));
+
+    // Triangles sharing an edge exactly
+    const q = (v) => `${Math.round(v.x * 1000)},${Math.round(v.y * 1000)},${Math.round(v.z * 1000)}`;
+    const edgeKey = (a, b) => { const ka = q(a), kb = q(b); return ka < kb ? ka + '|' + kb : kb + '|' + ka; };
+    const corners = (t) => [tris[t].a, tris[t].b, tris[t].c];
+    const edges = new Map();
+    for (let t = 0; t < nTri; t++) {
+        const c = corners(t);
+        for (let i = 0; i < 3; i++) {
+            const key = edgeKey(c[(i + 1) % 3], c[(i + 2) % 3]);
+            if (!edges.has(key)) edges.set(key, []);
+            edges.get(key).push(t);
+        }
+    }
+    // Triangles by the cells (0.5 m) their bounds touch
+    const cell = 0.5, grid = new Map();
+    const cellKey = (x, y, z) => `${x},${y},${z}`;
+    const box3 = new THREE.Box3();
+    for (let t = 0; t < nTri; t++) {
+        box3.setFromPoints(corners(t));
+        const [x0, y0, z0] = box3.min.toArray().map((v) => Math.floor(v / cell));
+        const [x1, y1, z1] = box3.max.toArray().map((v) => Math.floor(v / cell));
+        if ((x1 - x0 + 1) * (y1 - y0 + 1) * (z1 - z0 + 1) > 4000) continue;   // the ground-sized faces don't meet anything mid-way
+        for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) {
+            const k = cellKey(x, y, z);
+            if (!grid.has(k)) grid.set(k, []);
+            grid.get(k).push(t);
+        }
+    }
+    const closest = new THREE.Vector3();
+    const beyond = (t, a, b) => {   // the triangles the surface goes on into across edge a–b of t
+        const shared = edges.get(edgeKey(a, b)).filter((u) => u !== t);
+        if (shared.length) return shared;
+        const m = a.clone().add(b).multiplyScalar(0.5);
+        const found = grid.get(cellKey(Math.floor(m.x / cell), Math.floor(m.y / cell), Math.floor(m.z / cell))) ?? [];
+        return found.filter((u) => u !== t && tris[u].closestPointToPoint(m, closest).distanceTo(m) < 0.003);
+    };
+
+    const bary = new Float32Array(nTri * 9), convex = new Float32Array(nTri * 9), concave = new Float32Array(nTri * 9);
+    const none = 1e4;
+    const creasesAt = new Map();   // corner → the creases ending there: { a, b, outer, n, t }
+    for (let t = 0; t < nTri; t++) {
+        const c = corners(t), n = normals[t];
+        const area = tris[t].getArea();
+        const cx = new Float32Array(3).fill(none), cv = new Float32Array(3).fill(none);
+        if (area > 1e-7) {
+            for (let i = 0; i < 3; i++) {
+                const a = c[(i + 1) % 3], b = c[(i + 2) % 3];
+                // A narrow strip (a chamfer) is worn all over, so its two triangles agree
+                const height = (2 * area) / a.distanceTo(b);
+                const altitude = height < 0.12 ? 0.001 : height;
+                const next = beyond(t, a, b);
+                if (!next.length) { cx[i] = altitude; continue; }   // an open edge: an outer one
+                const turned = next.filter((u) => normals[u].dot(n) < cosCrease);
+                if (!turned.length) continue;
+                // Outer where the surface beyond falls away behind this face
+                const centre = new THREE.Vector3();
+                tris[turned[0]].getMidpoint(centre);
+                const outer = centre.sub(a).dot(n) < 0;
+                if (outer) cx[i] = altitude; else cv[i] = altitude;
+                for (const end of [a, b]) {
+                    const key = q(end);
+                    if (!creasesAt.has(key)) creasesAt.set(key, []);
+                    creasesAt.get(key).push({ a, b, outer, n, t });
+                }
+            }
+        }
+        for (let k = 0; k < 3; k++) {
+            bary[t * 9 + k * 3 + k] = 1;
+            convex.set(cx, t * 9 + k * 3);
+            concave.set(cv, t * 9 + k * 3);
+        }
+    }
+    // A crease can end at a triangle's corner without being one of its edges — where the face is cut
+    // into strips, only one of a strip's two triangles has the crease as an edge. In its own plane the
+    // distance to a straight line changes evenly, so each corner's distance to up to two such creases
+    // is enough for the shader to know it everywhere on the triangle — for creases that run alongside
+    // the whole triangle
+    const extraOut = new Float32Array(nTri * 6).fill(none), extraIn = new Float32Array(nTri * 6).fill(none);
+    const toLine = (p, a, b) => {
+        const d = b.clone().sub(a).normalize();
+        return p.clone().sub(a).sub(d.multiplyScalar(p.clone().sub(a).dot(d)));
+    };
+    for (let t = 0; t < nTri; t++) {
+        const c = corners(t), n = normals[t];
+        const own = new Set([0, 1, 2].map((i) => edgeKey(c[(i + 1) % 3], c[(i + 2) % 3])));
+        const found = { out: new Map(), in: new Map() };
+        for (const corner of c) {
+            for (const cr of creasesAt.get(q(corner)) ?? []) {
+                const key = edgeKey(cr.a, cr.b);
+                if (cr.t === t || own.has(key) || cr.n.dot(n) < 0.98) continue;
+                found[cr.outer ? 'out' : 'in'].set(key, cr);
+            }
+        }
+        const centroid = c[0].clone().add(c[1]).add(c[2]).divideScalar(3);
+        // only a crease that runs alongside the whole triangle (not a short one it merely touches)
+        const alongside = (cr) => {
+            const d = cr.b.clone().sub(cr.a), len = d.length();
+            d.divideScalar(len);
+            return c.every((corner) => { const u = corner.clone().sub(cr.a).dot(d); return u > -0.02 && u < len + 0.02; });
+        };
+        for (const [list, target] of [[found.out, extraOut], [found.in, extraIn]]) {
+            [...list.values()].filter(alongside).slice(0, 2).forEach((cr, slot) => {
+                const side = toLine(centroid, cr.a, cr.b);
+                const len = side.length() || 1;
+                side.divideScalar(len);
+                c.forEach((corner, k) => { target[t * 6 + k * 2 + slot] = Math.max(0, toLine(corner, cr.a, cr.b).dot(side)); });
+            });
+        }
+    }
+    geometry.setAttribute('aExtraConvex', new THREE.BufferAttribute(extraOut, 2));
+    geometry.setAttribute('aExtraConcave', new THREE.BufferAttribute(extraIn, 2));
+    geometry.setAttribute('aBary', new THREE.BufferAttribute(bary, 3));
+    geometry.setAttribute('aConvex', new THREE.BufferAttribute(convex, 3));
+    geometry.setAttribute('aConcave', new THREE.BufferAttribute(concave, 3));
+}
+
+/**
+ * Nothing about it is quite straight any more: every point is moved a little (up to about 3 cm) by
+ * a smooth field, the same wherever two pieces meet, so they stay joined while their walls lean,
+ * sag and bulge a little and their corners stop being true
+ */
+function unsettle(geometry) {
+    const pos = geometry.attributes.position;
+    const field = (x, y, z, s) => Math.sin(0.83 * x + 0.37 * y + 1.13 * z + s) * Math.cos(0.41 * x - 0.92 * y + 0.27 * z + 2 * s);
+    for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+        const fine = (s) => 0.006 * Math.sin(3.1 * x + 2.3 * z + s) * Math.cos(2.7 * y - 1.9 * z + s);
+        pos.setXYZ(i,
+            x + 0.018 * field(x, y, z, 0.3) + fine(1.1),
+            y + 0.018 * field(y, z, x, 1.7) + fine(2.3),
+            z + 0.012 * field(z, x, y, 2.9) + fine(3.7));
+    }
+    pos.needsUpdate = true;
 }
 
 /* ---------- THE LOUDSPEAKERS ---------- */
@@ -884,7 +1040,7 @@ function placedLoudspeaker(angle) {
  */
 export function buildKanonstilling({ textured = false } = {}) {
     const group = new THREE.Group();
-    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, floors: [0, P, CONE.floor, BLOCK.roof] }));
+    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, floors: [P, CONE.floor, BLOCK.roof], walk: P }));
     model.castShadow = true;
     model.receiveShadow = true;
     group.add(model, forestFloor());

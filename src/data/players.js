@@ -83,7 +83,7 @@ export const players = {
     'kanon-i-g3': {
         interface: 'quad',
         image: cdn('bornholm-2026', 'image-03.webp'),
-        textured: false,   // the weathered concrete: not yet
+        textured: true,
         speakers: [
             { label: 'Forrest til venstre', angle: -45, file: cdn('bornholm-2026', 'kanon-i-g3-1.mp3') },
             { label: 'Forrest til højre', angle: 45, file: cdn('bornholm-2026', 'kanon-i-g3-2.mp3') },
