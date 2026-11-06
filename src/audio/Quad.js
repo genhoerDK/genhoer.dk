@@ -5,6 +5,18 @@
  *
  * No React in here; AudioContext.js owns one instance, the interface turns it and reads levels.
  *
+ * Making the directions felt: the panners alone leave the sound a little dull and close, so
+ *   - each speaker gets a little more presence when you face it and a little less when it is
+ *     behind you (a gentle high shelf, ±3 dB), on top of what the HRTF does — front and back are
+ *     the hardest to tell apart
+ *   - the binaural mix is widened (mid/side), so left and right stand further apart
+ *   - an EQ evens out what the HRTF does to the tone (less boom, a little more air), so the work
+ *     sounds as bright as the files themselves
+ *   - the room's echo is fed from the dry sound, after 25 ms, and kept low, so the direct sound
+ *     comes first and the ear can place it, while the echo puts it outside the head
+ * The context runs at the files' own sample rate (44.1 kHz), so they are not resampled on the way
+ * in; the browser converts the finished mix to whatever the sound card runs at.
+ *
  * In step: all the files are decoded before any plays, then every channel is started at the same
  * moment on the audio clock (AudioBufferSourceNode.start(at)), so they run sample for sample
  * together, and pausing suspends the whole context, so they stay so. Should the files differ in
@@ -20,30 +32,53 @@
 
 import { fetchSound, decodeSound, createContext, channelOf } from './load';
 
-const DISTANCE = 1.6;   // metres from the listener to each speaker
+const DISTANCE = 2;      // metres from the listener to each speaker
+const SAMPLE_RATE = 44100;
+const WIDTH = 1.35;      // how much the binaural mix is widened (1 = as the HRTF makes it)
 
-/** A short decaying noise burst: a concrete room's echo */
-function impulseResponse(ctx, seconds = 1.6) {
-    const n = Math.floor(seconds * ctx.sampleRate);
-    const buffer = ctx.createBuffer(2, n, ctx.sampleRate);
+/** A short decaying noise burst, different in each ear: a concrete room's echo, 25 ms after the sound */
+function impulseResponse(ctx, seconds = 1.2, predelay = 0.025) {
+    const n = Math.floor(seconds * ctx.sampleRate), d = Math.floor(predelay * ctx.sampleRate);
+    const buffer = ctx.createBuffer(2, n + d, ctx.sampleRate);
     for (let c = 0; c < 2; c++) {
         const data = buffer.getChannelData(c);
         let low = 0;
         for (let i = 0; i < n; i++) {
             const white = Math.random() * 2 - 1;
-            low += 0.12 * (white - low);   // the echo loses its highs as it goes
-            data[i] = (white * 0.4 + low * 0.6) * Math.pow(1 - i / n, 3.2);
+            low += (0.35 - 0.25 * (i / n)) * (white - low);   // the echo loses its highs as it goes
+            data[d + i] = (white * 0.5 + low * 0.5) * Math.pow(1 - i / n, 3.5);
         }
     }
     return buffer;
 }
 
+/** Widen a stereo signal: input → returned node; L' = M + w·S, R' = M − w·S */
+function widener(ctx, width) {
+    const split = ctx.createChannelSplitter(2), merge = ctx.createChannelMerger(2);
+    const g = (v) => { const n = ctx.createGain(); n.gain.value = v; return n; };
+    const same = (1 + width) / 2, cross = (1 - width) / 2;
+    split.connect(g(same), 0).connect(merge, 0, 0);
+    split.connect(g(cross), 1).connect(merge, 0, 0);
+    split.connect(g(same), 1).connect(merge, 0, 1);
+    split.connect(g(cross), 0).connect(merge, 0, 1);
+    return { input: split, output: merge };
+}
+
 export default class Quad {
     constructor(config) {
         this.config = config;
-        this.ctx = createContext();
+        this.ctx = createContext({ sampleRate: SAMPLE_RATE });
         this.master = this.ctx.createGain();
         this.master.connect(this.ctx.destination);
+
+        // The binaural mix: widened, its tone evened out
+        const ctx = this.ctx;
+        const wide = widener(ctx, WIDTH);
+        const lows = new BiquadFilterNode(ctx, { type: 'lowshelf', frequency: 180, gain: -2.5 });
+        const air = new BiquadFilterNode(ctx, { type: 'highshelf', frequency: 6000, gain: 2.5 });
+        this.direct = ctx.createGain();
+        this.direct.connect(wide.input);
+        wide.output.connect(lows).connect(air).connect(this.master);
         this.channels = null;
         this.startedAt = 0;
         this.yaw = 0;
@@ -77,6 +112,7 @@ export default class Quad {
             const fetching = speakers.map((s) => fetchSound(s.file));
             fetching.forEach((p) => p.catch(() => {}));   // a failure is reported when its turn comes
             this.channels = [];
+            this.setYaw(this.yaw);
             for (const [i, speaker] of speakers.entries()) {
                 const bytes = await fetching[i];
                 if (this.disposed) return;
@@ -85,21 +121,26 @@ export default class Quad {
                 const panner = new PannerNode(this.ctx, {
                     panningModel: 'HRTF',
                     distanceModel: 'inverse',
-                    refDistance: 1,
+                    refDistance: 1.25,   // as loud as before the speakers moved out to 2 m
                     positionX: Math.sin(a) * DISTANCE,
                     positionY: 0,
                     positionZ: -Math.cos(a) * DISTANCE,   // forward is -z
                 });
+                // input → presence (towards you or away) → panner → the binaural mix; the level
+                // and the echo are taken from the dry sound
+                const input = this.ctx.createGain();
+                const presence = new BiquadFilterNode(this.ctx, { type: 'highshelf', frequency: 4000, gain: 0 });
                 const analyser = this.ctx.createAnalyser();
                 analyser.fftSize = 256;
-                panner.connect(this.master);
-                panner.connect(analyser);
-                if (this.reverb) panner.connect(this.reverb);
-                this.channels.push({ ...speaker, buffer, panner, analyser, source: null });
+                input.connect(presence).connect(panner).connect(this.direct);
+                input.connect(analyser);
+                if (this.reverb) input.connect(this.reverb);
+                this.channels.push({ ...speaker, buffer, input, presence, panner, analyser, source: null });
             }
             const lengths = this.channels.map((c) => c.buffer.length);
             this.length = Math.min(...lengths);
             if (Math.max(...lengths) !== this.length) console.warn('Quad: the files differ in length (samples):', lengths);
+            this.setYaw(this.yaw);
             this.loaded = true;
         } catch (err) {
             this.error = err;
@@ -122,7 +163,7 @@ export default class Quad {
                 source.buffer = channel.buffer;
                 source.loop = this.config.loop !== false;
                 source.loopEnd = this.length / channel.buffer.sampleRate;
-                source.connect(channel.panner);
+                source.connect(channel.input);
                 source.start(at);
                 channel.source = source;
             }
@@ -151,6 +192,12 @@ export default class Quad {
             listener.forwardX.value = fx; listener.forwardY.value = 0; listener.forwardZ.value = fz;
         } else {
             listener.setOrientation(fx, 0, fz, 0, 1, 0);   // older Safari
+        }
+        // A speaker in front of you a little brighter, one behind you a little duller
+        const now = this.ctx.currentTime;
+        for (const c of this.channels ?? []) {
+            const facing = Math.cos((c.angle * Math.PI) / 180 - yaw);   // 1 ahead, −1 behind
+            c.presence.gain.setTargetAtTime(3 * facing, now, 0.05);
         }
     }
 

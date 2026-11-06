@@ -90,7 +90,7 @@ export const players = {
             { label: 'Bagest til højre', angle: 135, file: cdn('bornholm-2026', 'kanon-i-g3-3.mp3') },
             { label: 'Bagest til venstre', angle: -135, file: cdn('bornholm-2026', 'kanon-i-g3-4.mp3') },
         ],
-        reverb: 0.2,   // 0–1: a little of the bunker's echo on top (synthesised)
+        reverb: 0.12,  // 0–1: a little of the bunker's echo on top (synthesised)
     },
 };
 

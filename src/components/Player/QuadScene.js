@@ -7,8 +7,10 @@
  * stage (scene/stage.js). A low sun from beyond the room throws its shadows towards the viewer,
  * so the pit's depth shows whichever way the room is turned.
  *
- * The sound: from where each speaker stands, wavefronts travel in towards the listener — more and
- * brighter the louder it plays.
+ * The sound: from where each speaker stands, wavefronts drift slowly in towards the listener, one
+ * for every note or hit on that track and otherwise the more often the louder it plays, each as
+ * bright as the track was when it left; a soft light on the floor where it stands rises and falls
+ * with it. The levels are eased, so it breathes rather than flickers.
  *
  * The pointer turns you: to the right and you turn right — the room turns anticlockwise under you,
  * so what was on your right comes round to the front, as you hear it. A full turn from one edge of
@@ -31,8 +33,9 @@ import { buildKanonstilling } from '@/components/Player/scene/kanonstilling';
 import { colors } from '@/styles/colors';
 
 const TILT_MIN = 0.5, TILT_MAX = 1.0;   // radians the room is tipped towards the viewer: pointer high = flatter, low = steeper
-const WAVE_EVERY = 0.32;                // seconds between a speaker's wavefronts
-const WAVE_SPEED = 6.5;                 // metres a second (slowed right down from sound's 343, so it can be seen)
+const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
+const WAVE_QUIET = 1.6, WAVE_LOUD = 0.45; // seconds between a speaker's wavefronts, when it plays softly and loudly
+const ONSET = 0.12;                     // a rise in level this sudden (a note, a hit) sends a wavefront at once
 
 /* A wavefront: a shell round the speaker, bright at its rim and only on the side facing the listener */
 const waveShader = {
@@ -111,13 +114,18 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         /* ---------- THE SOUND: wavefronts from where each speaker stands ---------- */
 
         const waveGeo = new THREE.SphereGeometry(1, 48, 24);
+        const poolGeo = new THREE.CircleGeometry(1, 48);
         const speakers = angles.map((deg) => {
             const mouth = emplacement.speakerSpot(deg);
+            const pool = new THREE.Mesh(poolGeo, new THREE.MeshBasicMaterial({ map: glow, transparent: true, depthWrite: false, toneMapped: false, opacity: 0, blending: THREE.AdditiveBlending }));
+            pool.position.set(mouth.x, mouth.y, mouth.z - 1.28);   // on the floor, under where the sound comes from
+            pool.scale.setScalar(1.6);
+            room.add(pool);
             const toward = listenerAt.clone().sub(mouth);
             const reach = toward.length();
             toward.normalize();
 
-            const waves = Array.from({ length: Math.ceil(reach / WAVE_SPEED / WAVE_EVERY) + 1 }, () => {
+            const waves = Array.from({ length: Math.ceil(reach / WAVE_SPEED / 0.25) + 2 }, () => {
                 const mesh = new THREE.Mesh(waveGeo, new THREE.ShaderMaterial({
                     ...waveShader,
                     uniforms: { uColor: { value: new THREE.Color(colors.paper) }, uToward: { value: toward }, uOpacity: { value: 0 } },
@@ -128,7 +136,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 room.add(mesh);
                 return { mesh, age: 0, strength: 0, alive: false };
             });
-            return { waves, reach, level: 0, since: Math.random() * WAVE_EVERY };
+            return { waves, reach, pool, level: 0, fast: 0, since: Math.random() * WAVE_QUIET };
         });
 
         /* ---------- LAYOUT ---------- */
@@ -188,16 +196,22 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 let total = 0;
                 speakers.forEach((speaker, i) => {
                     const raw = levels[i] ?? 0;
-                    speaker.level += (raw - speaker.level) * (raw > speaker.level ? 0.5 : 0.12);
+                    // Eased: rises in about a tenth of a second, falls over most of a second
+                    const before = speaker.fast;
+                    speaker.fast += (raw - speaker.fast) * (1 - Math.exp(-elapsed * 25));
+                    speaker.level += (raw - speaker.level) * (1 - Math.exp(-elapsed * (raw > speaker.level ? 9 : 1.6)));
                     const { level } = speaker;
                     total += level;
+                    speaker.pool.material.opacity = level * level * 0.55;
 
-                    // A new wavefront every so often while it plays
+                    // A wavefront at every sudden rise (a note, a hit), otherwise the more often the louder it plays
                     speaker.since += dt;
-                    if (speaker.since >= WAVE_EVERY && level > 0.05) {
+                    const onset = speaker.fast - before > ONSET * elapsed * 30 && speaker.since > 0.25;
+                    const every = WAVE_QUIET + (WAVE_LOUD - WAVE_QUIET) * level;
+                    if ((onset || speaker.since >= every) && level > 0.06) {
                         speaker.since = 0;
                         const wave = speaker.waves.find((w) => !w.alive);
-                        if (wave) Object.assign(wave, { alive: true, age: 0, strength: level });
+                        if (wave) Object.assign(wave, { alive: true, age: 0, strength: Math.max(level, speaker.fast) });
                     }
                     for (const wave of speaker.waves) {
                         if (!wave.alive) { wave.mesh.visible = false; continue; }
@@ -206,7 +220,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                         if (p >= 1) { wave.alive = false; wave.mesh.visible = false; continue; }
                         wave.mesh.visible = true;
                         wave.mesh.scale.setScalar(Math.max(0.05, p * speaker.reach));
-                        wave.mesh.material.uniforms.uOpacity.value = wave.strength * Math.min(1, p * 8) * (1 - p) ** 1.2 * 1.3;
+                        wave.mesh.material.uniforms.uOpacity.value = wave.strength ** 1.5 * Math.min(1, p * 5) * (1 - p) ** 1.6 * 1.1;
                     }
                 });
                 const heard = total / Math.max(1, speakers.length);

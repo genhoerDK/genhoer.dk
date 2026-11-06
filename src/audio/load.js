@@ -18,11 +18,11 @@ export async function loadBuffer(ctx, url) {
     return decodeSound(ctx, url, await fetchSound(url));
 }
 
-/** A new AudioContext that plays through iOS's silent switch, like an audio element does */
-export function createContext() {
+/** A new AudioContext that plays through iOS's silent switch, like an audio element does; options e.g. { sampleRate } */
+export function createContext(options) {
     try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* not iOS */ }
     const Ctx = window.AudioContext || window.webkitAudioContext;
-    return new Ctx();
+    try { return new Ctx(options); } catch { return new Ctx(); }   // an older browser may not take a sample rate
 }
 
 /** One channel of a buffer as a mono buffer (a stereo file's left or right) */
