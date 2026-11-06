@@ -2,15 +2,14 @@
 
 /**
  * 3D scene for a work made for four speakers (three.js): the gun emplacement seen from above
- * (scene/kanonstilling.js) and the listener — a ball floating over the middle of the pit. The
- * speakers themselves aren't shown. The photo (with depth) and smoke lie behind, on the shared
+ * (scene/kanonstilling.js) with the four loudspeakers on the ring wall where the work was played;
+ * you are in the middle of the pit. The photo (with depth) and smoke lie behind, on the shared
  * stage (scene/stage.js). A low sun from beyond the room throws its shadows towards the viewer,
  * so the pit's depth shows whichever way the room is turned.
  *
  * The sound: from where each speaker stands, wavefronts drift slowly in towards the listener, one
  * for every note or hit on that track and otherwise the more often the louder it plays, each as
- * bright as the track was when it left; a soft light on the floor where it stands rises and falls
- * with it. The levels are eased, so it breathes rather than flickers.
+ * bright as the track was when it left. The levels are eased, so it breathes rather than flickers.
  *
  * The pointer turns you: to the right and you turn right — the room turns anticlockwise under you,
  * so what was on your right comes round to the front, as you hear it. A full turn from one edge of
@@ -59,20 +58,6 @@ const waveShader = {
         }`,
 };
 
-/** A soft round glow */
-function glowTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 128;
-    const ctx = canvas.getContext('2d');
-    const g = ctx.createRadialGradient(64, 64, 2, 64, 64, 64);
-    g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(0.25, 'rgba(255,255,255,0.4)');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 128, 128);
-    return new THREE.CanvasTexture(canvas);
-}
-
 export default function QuadScene({ engine, textured = false, angles, cover, coverDepth, turnRef, onTurn }) {
     const containerRef = useRef(null);
 
@@ -98,29 +83,16 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
 
         /* ---------- THE LISTENER: a ball floating over the middle ---------- */
 
+        /* ---------- THE LOUDSPEAKERS, where the work was played ---------- */
+
         const listenerAt = emplacement.listenerSpot;
-        const listener = new THREE.Mesh(
-            new THREE.SphereGeometry(0.55, 48, 32),
-            new THREE.MeshStandardMaterial({ color: colors.paper, emissive: colors.paper, emissiveIntensity: 0.35, roughness: 0.4 }),
-        );
-        listener.castShadow = true;
-        listener.position.copy(listenerAt);
-        const glow = glowTexture();
-        const aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, transparent: true, depthWrite: false, toneMapped: false, opacity: 0.35, blending: THREE.AdditiveBlending }));
-        aura.scale.setScalar(2.6);
-        listener.add(aura);
-        room.add(listener);
+        for (const deg of angles) room.add(emplacement.loudspeaker(deg));
 
         /* ---------- THE SOUND: wavefronts from where each speaker stands ---------- */
 
         const waveGeo = new THREE.SphereGeometry(1, 48, 24);
-        const poolGeo = new THREE.CircleGeometry(1, 48);
         const speakers = angles.map((deg) => {
             const mouth = emplacement.speakerSpot(deg);
-            const pool = new THREE.Mesh(poolGeo, new THREE.MeshBasicMaterial({ map: glow, transparent: true, depthWrite: false, toneMapped: false, opacity: 0, blending: THREE.AdditiveBlending }));
-            pool.position.set(mouth.x, mouth.y, mouth.z - 1.28);   // on the floor, under where the sound comes from
-            pool.scale.setScalar(1.6);
-            room.add(pool);
             const toward = listenerAt.clone().sub(mouth);
             const reach = toward.length();
             toward.normalize();
@@ -136,7 +108,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 room.add(mesh);
                 return { mesh, age: 0, strength: 0, alive: false };
             });
-            return { waves, reach, pool, level: 0, fast: 0, since: Math.random() * WAVE_QUIET };
+            return { waves, reach, level: 0, fast: 0, since: Math.random() * WAVE_QUIET };
         });
 
         /* ---------- LAYOUT ---------- */
@@ -190,10 +162,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 engine.setYaw(current.yaw);
                 onTurn?.(current.yaw);
 
-                listener.position.z = listenerAt.z + Math.sin(t * 0.9) * 0.12;
-
                 const levels = engine.levels();
-                let total = 0;
                 speakers.forEach((speaker, i) => {
                     const raw = levels[i] ?? 0;
                     // Eased: rises in about a tenth of a second, falls over most of a second
@@ -201,8 +170,6 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                     speaker.fast += (raw - speaker.fast) * (1 - Math.exp(-elapsed * 25));
                     speaker.level += (raw - speaker.level) * (1 - Math.exp(-elapsed * (raw > speaker.level ? 9 : 1.6)));
                     const { level } = speaker;
-                    total += level;
-                    speaker.pool.material.opacity = level * level * 0.55;
 
                     // A wavefront at every sudden rise (a note, a hit), otherwise the more often the louder it plays
                     speaker.since += dt;
@@ -223,9 +190,6 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                         wave.mesh.material.uniforms.uOpacity.value = wave.strength ** 1.5 * Math.min(1, p * 5) * (1 - p) ** 1.6 * 1.1;
                     }
                 });
-                const heard = total / Math.max(1, speakers.length);
-                listener.material.emissiveIntensity = 0.3 + heard * 0.6;
-                aura.material.opacity = 0.25 + heard * 0.5;
             },
         });
         stage.panel.add(tilt);
@@ -235,7 +199,6 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         return () => {
             container.removeEventListener('pointermove', onPointerMove);
             emplacement.group.traverse((obj) => obj.material?.userData?.texture?.dispose());
-            glow.dispose();
             stage.dispose();
         };
     }, [engine, textured, angles, cover, coverDepth, turnRef, onTurn]);

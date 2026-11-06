@@ -777,6 +777,46 @@ function emplacementGeometry() {
     return mergeGeometries(parts);
 }
 
+/* ---------- THE LOUDSPEAKERS ---------- */
+
+// Hung where the work was played: on the ring wall's inner face just under its top, over the
+// triangular corner foundations, lying on their side (photos 71–73). The cabinet as in the data
+// sheet (Monacor WALL-05T, 252 × 163 mm, about 17 cm deep, its back tapering), in its U bracket
+const SPEAKER = { width: 0.252, height: 0.163, depth: 0.17, back: 0.16, bracket: 0.045, tilt: 0.28, drop: 0.14 };
+
+/** One loudspeaker, its front towards local +y, centred on its front face; black, a darker grille */
+function loudspeaker() {
+    const { width: w, height: h, depth: d, back: b, bracket: k } = SPEAKER;
+    const body = new THREE.MeshStandardMaterial({ color: 0x1d1d1f, roughness: 0.5 });
+    const grille = new THREE.MeshStandardMaterial({ color: 0x111112, roughness: 0.95 });
+    const group = new THREE.Group();
+    const cabinet = outline([[-w / 2, 0], [w / 2, 0], [b / 2, -d], [-b / 2, -d]], -h / 2, h / 2, { bevel: 0.012, segments: 3 });
+    const front = box(-w / 2 + 0.014, w / 2 - 0.014, -0.004, 0.003, -h / 2 + 0.014, h / 2 - 0.014);
+    // The bracket: an arm on each side, out from the cabinet's middle and back to the wall plate
+    const bracket = new THREE.Group();
+    for (const s of [-1, 1]) {
+        bracket.add(new THREE.Mesh(box(s * (w / 2 + 0.002), s * (w / 2 + 0.014), -d * 0.55, -d * 0.35, -0.012, 0.012), body));
+        bracket.add(new THREE.Mesh(box(s * (w / 2 + 0.002), s * (w / 2 + 0.014), -d - k, -d * 0.35, -0.012, 0.012), body));
+    }
+    bracket.add(new THREE.Mesh(box(-w / 2 - 0.014, w / 2 + 0.014, -d - k - 0.012, -d - k, -0.03, 0.03), body));
+    group.add(new THREE.Mesh(cabinet, body), new THREE.Mesh(front, grille), bracket);
+    group.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    return group;
+}
+
+/** The loudspeaker at an angle round the ring, in place, tipped down towards the pit */
+function placedLoudspeaker(angle) {
+    const { depth: d, bracket: k, tilt, drop } = SPEAKER;
+    const holder = new THREE.Group();
+    const speaker = loudspeaker();
+    speaker.position.y = d + k + 0.012;          // its wall plate against the wall's face
+    speaker.rotation.x = -tilt;                   // the front tipped down
+    holder.add(speaker);
+    holder.position.copy(at(WALL.inner, angle, WALL.top - drop));
+    holder.rotation.z = rad(180 - angle);         // local +y towards the middle
+    return holder;
+}
+
 /**
  * The emplacement as a group (metres, z up).
  *   textured  true = the weathered concrete; false (default) = plain grey concrete
@@ -791,9 +831,11 @@ export function buildKanonstilling({ textured = false } = {}) {
         group,
         /** Across the walk round the ring, for fitting it to the screen */
         size: LEDGE.outer * 2,
-        /** Where the sound of a speaker at an angle comes from: in the pit, by the wall, at ear height */
-        speakerSpot: (angle) => at(8.2, angle, P + 1.3),
-        /** Above the middle, where the listener floats */
+        /** A loudspeaker on the ring wall at an angle */
+        loudspeaker: placedLoudspeaker,
+        /** Where the sound of a speaker at an angle comes from: its front */
+        speakerSpot: (angle) => at(WALL.inner - SPEAKER.depth - SPEAKER.bracket - 0.02, angle, WALL.top - SPEAKER.drop - 0.04),
+        /** Above the middle, where the listener is (the waves travel there)*/
         listenerSpot: new THREE.Vector3(0, 0, P + 3.6),
     };
 }
