@@ -782,24 +782,85 @@ function emplacementGeometry() {
 // Hung where the work was played: on the ring wall's inner face just under its top, over the
 // triangular corner foundations, lying on their side (photos 71–73). The cabinet as in the data
 // sheet (Monacor WALL-05T, 252 × 163 mm, about 17 cm deep, its back tapering), in its U bracket
-const SPEAKER = { width: 0.252, height: 0.163, depth: 0.17, back: 0.16, bracket: 0.045, tilt: 0.28, drop: 0.14 };
+const SPEAKER = { width: 0.252, height: 0.163, depth: 0.17, back: 0.2, bracket: 0.045, tilt: 0.28, drop: 0.14 };
 
-/** One loudspeaker, its front towards local +y, centred on its front face; black, a darker grille */
+/** A rounded rectangle, w × h with corner radius r, as points [x, z] (anticlockwise seen from the front) */
+function roundedRect(w, h, r, perCorner = 8) {
+    const pts = [];
+    const corners = [[w / 2 - r, h / 2 - r, 0], [-w / 2 + r, h / 2 - r, 90], [-w / 2 + r, -h / 2 + r, 180], [w / 2 - r, -h / 2 + r, 270]];
+    for (const [cx, cz, a0] of corners) {
+        for (let i = 0; i <= perCorner; i++) {
+            const t = rad(a0 + (90 * i) / perCorner);
+            pts.push([cx + r * Math.cos(t), cz + r * Math.sin(t)]);
+        }
+    }
+    return pts;
+}
+
+/**
+ * A rounded body lofted along −y from y = 0: its cross-sections rounded rectangles, sized by
+ * `section(t)` → [w, h, r] for t from 0 (front) to 1 (back) at y = −depth·t; both ends closed.
+ * Smooth-shaded, so its curves read as curves
+ */
+function loft(section, depth, rings = 28) {
+    const position = [], index = [];
+    const n = roundedRect(1, 1, 0.2).length;
+    for (let k = 0; k <= rings; k++) {
+        const t = k / rings, [w, h, r] = section(t);
+        for (const [x, z] of roundedRect(w, h, r)) position.push(x, -depth * t, z);
+    }
+    for (let k = 0; k < rings; k++) {
+        for (let i = 0; i < n; i++) {
+            const a = k * n + i, b = k * n + ((i + 1) % n), c = a + n, d = b + n;
+            index.push(a, c, b, b, c, d);
+        }
+    }
+    for (const [ring, y, flip] of [[0, 0, false], [rings, -depth, true]]) {   // the caps
+        const centre = position.length / 3;
+        position.push(0, y, 0);
+        for (let i = 0; i < n; i++) {
+            const a = ring * n + i, b = ring * n + ((i + 1) % n);
+            index.push(...(flip ? [centre, b, a] : [centre, a, b]));
+        }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
+    g.setIndex(index);
+    g.computeVertexNormals();
+    return g;
+}
+
+/**
+ * One loudspeaker, its front towards local +y, centred on its front face, lying on its side: a
+ * rounded black cabinet narrowing a little towards its back, its edges soft, a grille filling its
+ * front inside a narrow rim (as in the maker's photo), in its U bracket
+ */
 function loudspeaker() {
     const { width: w, height: h, depth: d, back: b, bracket: k } = SPEAKER;
-    const body = new THREE.MeshStandardMaterial({ color: 0x1d1d1f, roughness: 0.5 });
-    const grille = new THREE.MeshStandardMaterial({ color: 0x111112, roughness: 0.95 });
+    const body = new THREE.MeshStandardMaterial({ color: 0x2c2c2f, roughness: 0.4 });
+    const grille = new THREE.MeshStandardMaterial({ color: 0x0f0f10, roughness: 0.95 });
     const group = new THREE.Group();
-    const cabinet = outline([[-w / 2, 0], [w / 2, 0], [b / 2, -d], [-b / 2, -d]], -h / 2, h / 2, { bevel: 0.012, segments: 3 });
-    const front = box(-w / 2 + 0.014, w / 2 - 0.014, -0.004, 0.003, -h / 2 + 0.014, h / 2 - 0.014);
-    // The bracket: an arm on each side, out from the cabinet's middle and back to the wall plate
+    const edge = 0.014;                                        // how round its front and back edges are
+    const cabinet = loft((t) => {
+        const y = t * d;
+        const soft = (u) => edge - Math.sqrt(Math.max(0, edge * edge - (edge - Math.min(u, edge)) ** 2));
+        const inset = Math.max(soft(y), soft(d - y));           // the rounded lips at front and back
+        const ww = w + (b - w) * t ** 1.4 - 2 * inset, hh = h * (1 - 0.12 * t ** 1.4) - 2 * inset;
+        return [ww, hh, Math.min(0.042, hh / 2 - 0.001) * (1 - 0.15 * t)];
+    }, d);
+    // The grille: a rounded panel bulging very slightly forward, inside a 7 mm rim
+    const gw = w - 0.02, gh = h - 0.02;
+    const panel = loft((t) => [gw - 0.004 * t, gh - 0.004 * t, 0.034], 0.004, 2);
+    panel.translate(0, 0.0035, 0);
+    // The bracket: an arm on each side from the cabinet's middle back to the wall plate
     const bracket = new THREE.Group();
-    for (const s of [-1, 1]) {
-        bracket.add(new THREE.Mesh(box(s * (w / 2 + 0.002), s * (w / 2 + 0.014), -d * 0.55, -d * 0.35, -0.012, 0.012), body));
-        bracket.add(new THREE.Mesh(box(s * (w / 2 + 0.002), s * (w / 2 + 0.014), -d - k, -d * 0.35, -0.012, 0.012), body));
+    for (const sd of [-1, 1]) {
+        const x0 = sd * (w / 2 - 0.004), x1 = sd * (w / 2 + 0.01);
+        bracket.add(new THREE.Mesh(box(Math.min(x0, x1), Math.max(x0, x1), -d * 0.62, -d * 0.4, -0.012, 0.012), body));
+        bracket.add(new THREE.Mesh(box(Math.min(x0, x1), Math.max(x0, x1), -d - k, -d * 0.4, -0.012, 0.012), body));
     }
-    bracket.add(new THREE.Mesh(box(-w / 2 - 0.014, w / 2 + 0.014, -d - k - 0.012, -d - k, -0.03, 0.03), body));
-    group.add(new THREE.Mesh(cabinet, body), new THREE.Mesh(front, grille), bracket);
+    bracket.add(new THREE.Mesh(box(-w / 2 - 0.01, w / 2 + 0.01, -d - k - 0.012, -d - k, -0.03, 0.03), body));
+    group.add(new THREE.Mesh(cabinet, body), new THREE.Mesh(panel, grille), bracket);
     group.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     return group;
 }
