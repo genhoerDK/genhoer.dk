@@ -1077,7 +1077,10 @@ export function buildKanonstilling({ textured = false, look = 'realistic' } = {}
     const stylised = look === 'stylised';
     const group = new THREE.Group();
     // The concrete a little darker than it was, as in the photos
-    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured: textured && !stylised, color: stylised ? 0xb4aea3 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
+    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({
+        // stylised: like pale worn stone — no boards, no moss, small ochre lichen spots
+        ...(stylised ? { boards: 0, lichen: 0.55, lichenColor: 0xc29468, mossColor: 0x9c978b, greenColor: 0xa9a598 } : {}),
+        textured, color: stylised ? 0xb9b2a6 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.castShadow = true;
     model.receiveShadow = true;
     const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised });
