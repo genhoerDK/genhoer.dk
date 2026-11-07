@@ -221,7 +221,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             Object.assign(cam, { left: -reach, right: reach, top: reach, bottom: -reach, near: 2 * s, far: 100 * s });
             cam.updateProjectionMatrix();
             sun.shadow.bias = -0.0004;
-            sun.shadow.normalBias = (stylised ? 0.09 : 0.03) * s;   // stylised: large flat faces, more margin against shadow stripes
+            sun.shadow.normalBias = 0.03 * s;
         };
 
         /* ---------- POINTER: which way you face, how close you are ---------- */
