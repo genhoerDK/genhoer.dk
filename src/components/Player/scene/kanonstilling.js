@@ -830,7 +830,10 @@ function emplacementGeometry(coarse = false) {
     markEdges(geometry);
     // coarse: leaning much more (up to about 10 cm), so no face is quite true; lit face by face
     unsettle(geometry, coarse ? 5 : 1, coarse ? 0 : 1);
-    if (coarse) geometry.computeVertexNormals();
+    if (coarse) {
+        chip(geometry);
+        geometry.computeVertexNormals();
+    }
     return geometry;
 }
 
@@ -987,6 +990,62 @@ function unsettle(geometry, amount = 1, ripple = 1) {
     pos.needsUpdate = true;
 }
 
+/**
+ * Large flakes knocked off its outer edges and corners here and there (the stylised look): at some
+ * of the corners where an upper face meets a side, everything beyond a slanting plane a few tens of
+ * centimetres in is pressed back onto it, leaving a flat, broken facet, as on a cartoon rock
+ */
+function chip(geometry) {
+    const pos = geometry.attributes.position;
+    const key = (i) => `${pos.getX(i).toFixed(3)},${pos.getY(i).toFixed(3)},${pos.getZ(i).toFixed(3)}`;
+    // Each corner once, with the faces round it summed into one direction
+    const corners = new Map();
+    const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3();
+    for (let t = 0; t < pos.count; t += 3) {
+        a.fromBufferAttribute(pos, t); b.fromBufferAttribute(pos, t + 1); c.fromBufferAttribute(pos, t + 2);
+        n.crossVectors(b.clone().sub(a), c.clone().sub(a));
+        const area = n.length();
+        if (area < 1e-6) continue;
+        n.divideScalar(area);
+        for (let k = 0; k < 3; k++) {
+            const id = key(t + k);
+            if (!corners.has(id)) corners.set(id, { p: new THREE.Vector3().fromBufferAttribute(pos, t + k), n: new THREE.Vector3(), up: 0, side: 0 });
+            const corner = corners.get(id);
+            corner.n.add(n);
+            if (n.z > 0.8) corner.up += 1; else if (Math.abs(n.z) < 0.3) corner.side += 1;
+        }
+    }
+    // Where an upper face meets a side face: some of those corners lose a flake
+    const hash = (p) => { const h = Math.sin(p.x * 12.9898 + p.y * 78.233 + p.z * 37.719) * 43758.5453; return h - Math.floor(h); };
+    const flakes = [];
+    for (const { p, n: dir, up, side } of corners.values()) {
+        if (!up || !side || p.z < P + 0.4 || dir.lengthSq() < 1e-6) continue;
+        const r = hash(p);
+        if (r > 0.4) continue;
+        const normal = dir.clone().normalize();
+        if (normal.z < 0.25 || normal.z > 0.9) continue;
+        if (flakes.some((f) => f.at.distanceTo(p) < 2.5)) continue;   // not too close together
+        const depth = 0.22 + hash(p.clone().multiplyScalar(1.7)) * 0.33;
+        // tipped a little so each flake has its own slant
+        normal.x += (hash(p.clone().addScalar(3)) - 0.5) * 0.5;
+        normal.y += (hash(p.clone().addScalar(7)) - 0.5) * 0.5;
+        normal.normalize();
+        flakes.push({ at: p.clone(), normal, plane: p.clone().addScaledVector(normal, -depth), reach: 0.9 + depth * 2 });
+    }
+    // Press everything beyond each flake's plane back onto it
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i);
+        for (const f of flakes) {
+            if (v.distanceTo(f.at) > f.reach) continue;
+            const beyond = v.clone().sub(f.plane).dot(f.normal);
+            if (beyond > 0) v.addScaledVector(f.normal, -beyond);
+        }
+        pos.setXYZ(i, v.x, v.y, v.z);
+    }
+    pos.needsUpdate = true;
+}
+
 /* ---------- THE LOUDSPEAKERS ---------- */
 
 // Hung where the work was played: on the ring wall's inner face just under its top, over the
@@ -1090,11 +1149,11 @@ function placedLoudspeaker(angle) {
 
 /** Stone as in a cartoon: one colour, lit in three flat tones (shadow, half-light, light), face by face */
 function toonStone() {
-    const tones = new Uint8Array([80, 150, 225]);
+    const tones = new Uint8Array([95, 168, 240]);
     const gradient = new THREE.DataTexture(tones, tones.length, 1, THREE.RedFormat);
     gradient.minFilter = gradient.magFilter = THREE.NearestFilter;
     gradient.needsUpdate = true;
-    const material = new THREE.MeshToonMaterial({ color: 0x6c6c70, gradientMap: gradient, vertexColors: true });
+    const material = new THREE.MeshToonMaterial({ color: 0x7f7f83, gradientMap: gradient, vertexColors: true });
     material.userData.texture = gradient;
     return material;
 }
