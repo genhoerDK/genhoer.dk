@@ -3,8 +3,9 @@
 /**
  * Interface: quad — a work made for four speakers around the listener (src/audio/Quad.js), shown
  * as a 3D scene (QuadScene.js): the gun emplacement seen from above, the sound travelling in from
- * the speakers towards you, a ball floating over the middle. Move the pointer to turn: with headphones each speaker stays
- * where it hangs. ←/→ turn too, and on a phone the compass can turn it. Space pauses and plays.
+ * the speakers towards you. Move the pointer to turn: with headphones each speaker stays where it
+ * hangs. ←/→ turn too, and on a phone the compass can turn it. Scroll, pinch, ↑/↓ or the button
+ * take you down to stand at eye height in the middle, and back up. Space pauses and plays.
  *
  *   player.textured  true = the concrete texture on the emplacement (default: plain grey)
  *   player.image     Photo behind
@@ -39,6 +40,12 @@ export default function QuadPlayer() {
     const [heading, setHeading] = useState(0);
     const onTurn = useCallback((yaw) => setHeading(Math.round((((yaw * 180) / Math.PI) % 360 + 360) % 360)), []);
 
+    /* ---------- GOING DOWN INTO IT: 0 = above, 1 = standing in the middle ---------- */
+
+    const zoomRef = useRef(0);
+    const [inside, setInside] = useState(false);
+    const onZoom = useCallback((value) => setInside(value), []);
+
     const [compass, setCompass] = useState(false);
     const canUseCompass = typeof window !== 'undefined' && 'DeviceOrientationEvent' in window && 'ontouchstart' in window;
     const toggleCompass = async () => {
@@ -66,6 +73,8 @@ export default function QuadPlayer() {
             if (keyIsTaken(e)) return;
             if (e.key === 'ArrowLeft') turnRef.current -= Math.PI / 12;
             if (e.key === 'ArrowRight') turnRef.current += Math.PI / 12;
+            if (e.key === 'ArrowUp') { e.preventDefault(); zoomRef.current = Math.min(1, zoomRef.current + 0.25); }
+            if (e.key === 'ArrowDown') { e.preventDefault(); zoomRef.current = Math.max(0, zoomRef.current - 0.25); }
             if (e.key === ' ' && !e.repeat && engine) { e.preventDefault(); isPlaying ? pause() : play(); }
         };
         window.addEventListener('keydown', onKey);
@@ -77,13 +86,13 @@ export default function QuadPlayer() {
     return (
         <PlayerShell track={currentTrack} backdrop={false}>
             {engine && (
-                <QuadScene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} />
+                <QuadScene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} />
             )}
 
             {!isPlaying && !engine ? (
                 <StartButton onClick={() => play()} label='Tryk, og træd ind' />
             ) : (
-                <Controls title={currentTrack.title} hint={ready ? (touch ? 'Træk for at dreje dig — bedst med hovedtelefoner' : 'Bevæg musen for at dreje dig — bedst med hovedtelefoner') : undefined}>
+                <Controls title={currentTrack.title} hint={ready ? (touch ? 'Træk for at dreje dig, spred to fingre for at gå ned i stillingen — bedst med hovedtelefoner' : 'Bevæg musen for at dreje dig, rul for at gå ned i stillingen — bedst med hovedtelefoner') : undefined}>
                     {state?.error ? (
                         <Status>Lydfilerne kunne ikke hentes</Status>
                     ) : !state?.loaded ? (
@@ -92,6 +101,9 @@ export default function QuadPlayer() {
                         <div className='flex items-center gap-4'>
                             <span role='slider' aria-label='Hvilken vej du vender' aria-valuenow={heading} aria-valuemin={0} aria-valuemax={359} className='sr-only'>{heading}°</span>
                             <Label size='lg' className='text-muted'>{isPlaying ? '' : 'Pause'}</Label>
+                            <button onClick={() => { zoomRef.current = inside ? 0 : 1; }} aria-pressed={inside} className={`px-2.5 py-1.5 rounded-full border transition-colors cursor-pointer ${inside ? 'bg-paper text-ink border-paper' : 'border-paper/40 text-muted'}`}>
+                                <Label size='lg'>{inside ? 'Se oppefra' : 'Stå i midten'}</Label>
+                            </button>
                             {canUseCompass && (
                                 <button onClick={toggleCompass} aria-pressed={compass} className={`px-2.5 py-1.5 rounded-full border transition-colors cursor-pointer ${compass ? 'bg-paper text-ink border-paper' : 'border-paper/40 text-muted'}`}>
                                     <Label size='lg'>{compass ? 'Kompas til' : 'Brug kompasset'}</Label>

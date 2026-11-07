@@ -1089,5 +1089,7 @@ export function buildKanonstilling({ textured = false } = {}) {
         speakerSpot: (angle) => at(WALL.inner - SPEAKER.depth - SPEAKER.bracket - 0.02, angle, WALL.top - SPEAKER.drop - 0.04),
         /** Above the middle, where the listener is (the waves travel there)*/
         listenerSpot: new THREE.Vector3(0, 0, P + 3.6),
+        /** Your eyes, standing in the middle: on the pivot cone's sunken floor */
+        eyeSpot: new THREE.Vector3(0, 0, CONE.floor + 1.65),
     };
 }
