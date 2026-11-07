@@ -17,6 +17,12 @@
  * The context runs at the files' own sample rate (44.1 kHz), so they are not resampled on the way
  * in; the browser converts the finished mix to whatever the sound card runs at.
  *
+ * Where you are (setSpeakerPositions, setListener): given the speakers' real places, in metres, and
+ * the listener's, each panner stands where its speaker stands and is heard through the distance:
+ * close under one, it is the loudest; in the middle, all four come in binaurally from round you.
+ * `spread` blends from that towards a plain, even mix of all four (seen from afar: the whole work),
+ * through equal-power stereo panners, without the HRTF or the distances.
+ *
  * In step: all the files are decoded before any plays, then every channel is started at the same
  * moment on the audio clock (AudioBufferSourceNode.start(at)), so they run sample for sample
  * together, and pausing suspends the whole context, so they stay so. Should the files differ in
@@ -79,6 +85,16 @@ export default class Quad {
         this.direct = ctx.createGain();
         this.direct.connect(wide.input);
         wide.output.connect(lows).connect(air).connect(this.master);
+        // The even mix of all four, faded in by `spread`
+        this.plain = ctx.createGain();
+        this.plain.gain.value = 0;
+        this.plain.connect(this.master);
+        // Close under a speaker it can get loud: a limiter catches the peaks
+        this.limiter = new DynamicsCompressorNode(ctx, { threshold: -6, knee: 6, ratio: 12, attack: 0.003, release: 0.2 });
+        this.master.disconnect();
+        this.master.connect(this.limiter).connect(ctx.destination);
+        this.listenerAt = { x: 0, y: 0, z: 0 };
+        this.spots = null;
         this.channels = null;
         this.startedAt = 0;
         this.yaw = 0;
@@ -135,11 +151,17 @@ export default class Quad {
                 input.connect(presence).connect(panner).connect(this.direct);
                 input.connect(analyser);
                 if (this.reverb) input.connect(this.reverb);
-                this.channels.push({ ...speaker, buffer, input, presence, panner, analyser, source: null });
+                // … and, for the even mix, plainly panned to its side
+                const side = new StereoPannerNode(this.ctx, { pan: 0 });
+                const plainLevel = this.ctx.createGain();
+                plainLevel.gain.value = 0.55;
+                input.connect(plainLevel).connect(side).connect(this.plain);
+                this.channels.push({ ...speaker, buffer, input, presence, panner, analyser, side, source: null });
             }
             const lengths = this.channels.map((c) => c.buffer.length);
             this.length = Math.min(...lengths);
             if (Math.max(...lengths) !== this.length) console.warn('Quad: the files differ in length (samples):', lengths);
+            if (this.spots) this.setSpeakerPositions(this.spots);
             this.setYaw(this.yaw);
             this.loaded = true;
         } catch (err) {
@@ -181,6 +203,59 @@ export default class Quad {
         this.ctx.close();
     }
 
+    /* ---------- WHERE YOU ARE ---------- */
+
+    // Room metres (x east, y north, z up) → the audio's axes (x right, y up, −z ahead)
+    static toAudio({ x, y, z }) { return [x, z, -y]; }
+
+    /** The speakers' real places, in room metres [{ x, y, z }] in the order of config.speakers */
+    setSpeakerPositions(spots) {
+        this.spots = spots;
+        for (const [i, c] of (this.channels ?? []).entries()) {
+            const spot = spots[i];
+            if (!spot) continue;
+            const [x, y, z] = Quad.toAudio(spot);
+            c.panner.positionX.value = x; c.panner.positionY.value = y; c.panner.positionZ.value = z;
+            // the level falls off with distance: at the middle (about 9 m) as before, close under one much louder
+            c.panner.refDistance = 2.5;
+            c.panner.rolloffFactor = 1.2;
+            c.panner.maxDistance = 200;
+        }
+        // makeup, so the middle sounds as loud as it did with the speakers 2 m off
+        this.direct.gain.value = this.directLevel = 2.6;
+        this.setListener(this.listenerAt, this.spread ?? 0);
+    }
+
+    /**
+     * Where the listener is, in room metres, and how much of the even mix (0 = all binaural, with
+     * the distances; 1 = all four evenly)
+     */
+    setListener(at, spread = 0) {
+        this.listenerAt = at;
+        this.spread = spread;
+        const now = this.ctx.currentTime;
+        const { listener } = this.ctx;
+        if (this.spots) {
+            const [x, y, z] = Quad.toAudio(at);
+            if (listener.positionX) {
+                listener.positionX.setTargetAtTime(x, now, 0.04);
+                listener.positionY.setTargetAtTime(y, now, 0.04);
+                listener.positionZ.setTargetAtTime(z, now, 0.04);
+            } else listener.setPosition(x, y, z);   // older Safari
+        }
+        const s = Math.min(1, Math.max(0, spread));
+        this.direct.gain.setTargetAtTime((this.directLevel ?? 1) * Math.cos((s * Math.PI) / 2), now, 0.08);
+        this.plain.gain.setTargetAtTime(Math.sin((s * Math.PI) / 2), now, 0.08);
+        this.updateDirections();
+    }
+
+    /** The angle from where the listener stands to each speaker, degrees clockwise from north */
+    bearing(c, i) {
+        const spot = this.spots?.[i];
+        if (!spot) return c.angle;
+        return (Math.atan2(spot.x - this.listenerAt.x, spot.y - this.listenerAt.y) * 180) / Math.PI;
+    }
+
     /* ---------- TURNING ---------- */
 
     /** Which way the listener faces, radians clockwise from straight ahead */
@@ -193,11 +268,16 @@ export default class Quad {
         } else {
             listener.setOrientation(fx, 0, fz, 0, 1, 0);   // older Safari
         }
-        // A speaker in front of you a little brighter, one behind you a little duller
+        this.updateDirections();
+    }
+
+    /** A speaker in front of you a little brighter, one behind you a little duller; the even mix panned to match */
+    updateDirections() {
         const now = this.ctx.currentTime;
-        for (const c of this.channels ?? []) {
-            const facing = Math.cos((c.angle * Math.PI) / 180 - yaw);   // 1 ahead, −1 behind
-            c.presence.gain.setTargetAtTime(3 * facing, now, 0.05);
+        for (const [i, c] of (this.channels ?? []).entries()) {
+            const rel = (this.bearing(c, i) * Math.PI) / 180 - this.yaw;
+            c.presence.gain.setTargetAtTime(3 * Math.cos(rel), now, 0.05);   // 1 ahead, −1 behind
+            c.side?.pan.setTargetAtTime(0.6 * Math.sin(rel), now, 0.05);
         }
     }
 

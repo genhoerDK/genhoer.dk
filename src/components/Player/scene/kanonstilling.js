@@ -15,7 +15,7 @@
  *     floors 0.6 m over the pit's (a sheer drop inside, steps up from the walk), climbing irons
  *     beside them, a row of holes in its inner face
  *   - the pivot cone: steep, four flights of stairs cut into it; on top a rim round a sunken floor
- *     with 24 bolts and a square shaft; the rim open where the south stair and two cable runs go through
+ *     and a square shaft (its 24 bolts left out); the rim open where the south stair and two cable runs go through
  *   - the crane-rail foundations: two rectangular, four triangular in the corners by the wall
  *   - north: the machine block, its side to the pit in one piece with Lumbye's profile (overhang,
  *     ledge, the crest on top), small openings in it under the overhang, a raised slab and the
@@ -41,7 +41,7 @@ const P = 1.1;                                       // top of the base slab: th
 export const PIT = { radius: 9.35, floor: P };
 export const WALL = { inner: 9.35, outer: 11.3, top: P + 2.85, passages: [-59.85, 59.85, 180], passage: 0.95 };
 export const LEDGE = { outer: 13.75 };
-const CONE = { base: 3.7, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-59.85, 59.85], bolts: 1.72, shaft: 0.8 };
+const CONE = { base: 3.7, edge: 2.75, rim: 2.05, top: P + 1.55, floor: P + 1.1, stair: 1.0, stairs: [0, 90, 180, 270], cables: [-59.85, 59.85], shaft: 0.8 };
 const BLOCK = { face: 13.73, x: 8, back: 28.1, roof: P + 4.37 };   // the machine block: its roof as in the section
 const SIDE = { outer: 15, back: 13.7, front: 12.35, top: 5.45, shoulder: 4.65, step: 5.45 };
 const WALK = { soffit: P + 2.3 };                    // the underside of the overhangs over the walk
@@ -513,7 +513,7 @@ function ringWall(parts) {
 
 /**
  * The pivot cone: steep (about 58°, as the photos show it), its four flights of stairs cut into
- * it; on top the rim round the sunken floor, the bolts close inside the rim, the shaft in the middle
+ * it; on top the rim round the sunken floor, the shaft in the middle
  */
 function pivotCone(parts) {
     const { base: R0, edge: R1, rim: RI, top: H, floor: F } = CONE;
@@ -537,7 +537,7 @@ function pivotCone(parts) {
     });
     for (const g of gaps) parts.push(box(-g.half, g.half, RI - 0.05, R1 + 0.01, F - 0.3, F, { turn: g.axis }));   // their floors
 
-    // The sunken floor with the shaft through it, and the bolts — thin, close inside the rim
+    // The sunken floor with the shaft through it (the bolts round it are left out)
     const s = CONE.shaft / 2;
     const square = [[-s, -s], [s, -s], [s, s], [-s, s]];
     parts.push(outline(arc(RI + 0.02, 0, 360, 2).slice(0, -1), F - 0.05, F, { holes: [square] }));
@@ -545,12 +545,6 @@ function pivotCone(parts) {
     for (let k = 0; k < 6; k++) {   // the step irons down one side
         const z = F - 0.35 - k * 0.32;
         parts.push(box(-0.14, 0.14, s - 0.1, s - 0.08, z, z + 0.025, { shade: 0.4, tint: RUST }));
-    }
-    for (let i = 0; i < 24; i++) {
-        const p = at(CONE.bolts, i * 15 + 7.5, 0);
-        const bolt = new THREE.Shape();
-        bolt.absarc(p.x, p.y, 0.022, 0, Math.PI * 2, false);
-        parts.push(prism(bolt, F - 0.01, H + 0.25, { shade: 0.42, tint: new THREE.Color(0.95, 0.9, 0.85), curveSegments: 8 }));
     }
 
     // The stairs, cut into the cone (photos 56, 57, 67–69): from the floor at its foot up to one step

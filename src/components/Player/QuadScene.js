@@ -145,6 +145,9 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         /* ---------- THE LOUDSPEAKERS, where the work was played ---------- */
 
         const listenerAt = emplacement.listenerSpot;
+        // The engine hears each speaker from where it really stands
+        engine.setSpeakerPositions?.(angles.map((deg) => emplacement.speakerSpot(deg)));
+        const ear = new THREE.Vector3();
         for (const deg of angles) room.add(emplacement.loudspeaker(deg));
 
         /* ---------- THE SOUND: wavefronts from where each speaker stands ---------- */
@@ -277,8 +280,16 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             setScale(s);
             const aboveTilt = TILT_MIN + (TILT_MAX - TILT_MIN) * look;
             const insideTilt = Math.PI / 2 + LOOK_UP - (LOOK_UP + LOOK_DOWN) * look;   // tipped past level = looking up
-            tilt.rotation.x = -THREE.MathUtils.lerp(aboveTilt, insideTilt, u);
             const distance = (PANEL_DISTANCE / aboveScale) * Math.pow(1 - u, 1.5);   // metres from the eye
+            // Never under the model: the eye stays above the floor, and well above the walls while it is
+            // still out beyond them (looking up from partway down would otherwise put it under the ground)
+            let tipped = THREE.MathUtils.lerp(aboveTilt, insideTilt, u);
+            if (distance > 0.01) {
+                const lowest = THREE.MathUtils.lerp(eye.z - 0.6, 6.5, smooth(0, 9, distance));
+                const most = THREE.MathUtils.clamp((eye.z * u - lowest) / distance, -1, 1);   // the highest sine of the view's rise allowed
+                tipped = Math.min(tipped, Math.PI / 2 + Math.asin(most));
+            }
+            tilt.rotation.x = -tipped;
             focus.set(0, 0, eye.z * u).multiplyScalar(s).applyEuler(tilt.rotation);
             tilt.position.set(0, aboveY * (1 - u), PANEL_DISTANCE - distance * s).sub(focus);
 
@@ -320,6 +331,14 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 mist.update(dt, stage.camera.position, scale, reducedMotion);
                 engine.setYaw(current.yaw);
                 onTurn?.(current.yaw);
+                // You hear from where the eye is: close to a speaker, it; in the middle, all round you
+                // binaurally; from afar, more and more an even mix of all four
+                if (engine.setListener) {
+                    stage.camera.updateMatrixWorld(true);
+                    room.updateMatrixWorld(true);
+                    room.worldToLocal(stage.camera.getWorldPosition(ear));
+                    engine.setListener({ x: ear.x, y: ear.y, z: ear.z }, Math.pow(1 - u, 1.5));
+                }
 
                 // Trees between you and the emplacement thin out — not once you are down among them
                 stage.camera.updateMatrixWorld(true);
