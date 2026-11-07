@@ -92,7 +92,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         room.add(emplacement.group);
 
         // Smoke drifting through the trees, mist lying over the ground
-        const mist = createMist({ groundAt, radius: 34, amount: 1.7 });
+        const mist = createMist({ groundAt, radius: 34, amount: stylised ? 0 : 1.7 });   // stylised: clear air
         room.add(mist.group);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -257,7 +257,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
 
         const cutCentre = new THREE.Vector3();
         const stage = createStage(container, {
-            smoke: 1,
+            smoke: stylised ? 0 : 1,
             light: 0.35,
             shadows: true,
             onResize: layout,
@@ -309,7 +309,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             },
         });
         stage.panel.add(tilt);
-        stage.scene.fog = fog;
+        stage.scene.fog = stylised ? null : fog;
         if (stylised) stage.renderer.setClearColor(haze.horizon, 1); else stage.setBackdrop(cover, coverDepth);
         stage.start();
 
