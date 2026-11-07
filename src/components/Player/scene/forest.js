@@ -484,47 +484,64 @@ function foliageTexture(rand) {
     const ctx = canvas.getContext('2d');
     const pick = (list) => list[Math.floor(rand() * list.length)];
 
-    // Broad leaves: a cluster of overlapping leaves, darker inside
-    for (let n = 0; n < 150; n++) {
-        const r = Math.sqrt(rand()) * S * 0.4, a = rand() * Math.PI * 2;
-        const x = S / 2 + Math.cos(a) * r, y = S / 2 + Math.sin(a) * r;
-        const l = 26 + rand() * 22, w = l * (0.45 + rand() * 0.15);
-        const inner = 1 - r / (S * 0.4);
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(a + (rand() - 0.5) * 1.4);
-        ctx.fillStyle = inner > 0.5 && rand() < 0.6 ? pick(['#2c3d1a', '#33461d', '#28371a']) : pick(['#4f7a2b', '#5f8a33', '#6c963a', '#45692a', '#7ca545', '#3d5e24']);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.quadraticCurveTo(l * 0.5, -w, l, 0);
-        ctx.quadraticCurveTo(l * 0.5, w, 0, 0);
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(20,30,10,0.35)';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(l * 0.9, 0); ctx.stroke();
-        ctx.restore();
+    // Broad leaves (beech, birch): a spray of small leaves on fine twigs, lit from above, gaps between
+    ctx.lineCap = 'round';
+    for (let t = 0; t < 7; t++) {
+        const a = (t / 7) * Math.PI * 2 + rand() * 0.6;
+        const len = S * (0.28 + rand() * 0.16);
+        const bend = (rand() - 0.5) * 0.8;
+        const pts = [];
+        for (let k = 0; k <= 12; k++) {
+            const q = k / 12, aa = a + bend * q;
+            pts.push([S / 2 + Math.cos(aa) * len * q, S / 2 + Math.sin(aa) * len * q, aa]);
+        }
+        ctx.strokeStyle = '#3e3529';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); pts.forEach(([x, y], k) => (k ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
+        pts.forEach(([x, y, aa], k) => {
+            if (k < 2) return;
+            for (const side of [-1, 1]) {
+                if (rand() < 0.15) continue;
+                const l = 15 + rand() * 13, w = l * (0.5 + rand() * 0.12);
+                const lit = rand();
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(aa + side * (0.6 + rand() * 0.6));
+                ctx.fillStyle = lit < 0.25 ? pick(['#2a361d', '#2f3d20', '#26311b']) : lit < 0.8 ? pick(['#4a5f2f', '#526735', '#435a2b', '#58703a']) : pick(['#6f8450', '#7a8d5a', '#667c48']);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(l * 0.3, -w * 0.7, l * 0.75, -w * 0.5, l, 0);
+                ctx.bezierCurveTo(l * 0.75, w * 0.5, l * 0.3, w * 0.7, 0, 0);
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(25,30,15,0.4)';
+                ctx.lineWidth = 0.8;
+                ctx.beginPath(); ctx.moveTo(2, 0); ctx.lineTo(l * 0.9, 0); ctx.stroke();
+                ctx.restore();
+            }
+        });
     }
 
-    // Pine and spruce: twigs radiating from the middle, needles all along them
+    // Scots pine and spruce: a twig with brush-like tufts of grey-green needles towards its ends
     ctx.save();
     ctx.translate(S, 0);
     ctx.lineCap = 'round';
-    for (let t = 0; t < 9; t++) {
-        const a = (t / 9) * Math.PI * 2 + rand() * 0.5;
-        const len = S * (0.3 + rand() * 0.15);
-        const sx = S / 2, sy = S / 2;
-        ctx.strokeStyle = '#4a3a28';
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + Math.cos(a) * len, sy + Math.sin(a) * len); ctx.stroke();
-        for (let s = 0.1; s < 1; s += 0.025) {
-            const px = sx + Math.cos(a) * len * s, py = sy + Math.sin(a) * len * s;
-            for (const side of [-1, 1]) {
-                const b = a + side * (0.7 + rand() * 0.5);
-                const l = 22 + rand() * 18 - s * 8;
-                ctx.strokeStyle = pick(['#2b4426', '#34512b', '#3e5e31', '#264022', '#466a35', '#1f3520']);
-                ctx.lineWidth = 2.2;
-                ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + Math.cos(b) * l, py + Math.sin(b) * l); ctx.stroke();
-            }
+    const needleColours = ['#3f4e3a', '#4a5b43', '#55664b', '#36443a', '#5f6f52', '#2e3a2e', '#6a7a5c'];
+    for (let t = 0; t < 6; t++) {
+        const a = (t / 6) * Math.PI * 2 + rand() * 0.7;
+        const len = S * (0.25 + rand() * 0.18);
+        const ex = S / 2 + Math.cos(a) * len, ey = S / 2 + Math.sin(a) * len;
+        ctx.strokeStyle = '#5a4430';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.moveTo(S / 2, S / 2); ctx.lineTo(ex, ey); ctx.stroke();
+        // tufts along the outer two thirds, densest at the tip
+        for (let k = 0; k < 140; k++) {
+            const q = 0.3 + Math.pow(rand(), 0.6) * 0.75;
+            const px = S / 2 + Math.cos(a) * len * q, py = S / 2 + Math.sin(a) * len * q;
+            const b = a + (rand() - 0.5) * 2.6;
+            const l = 18 + rand() * 30;
+            ctx.strokeStyle = pick(needleColours);
+            ctx.lineWidth = 1.6 + rand();
+            ctx.beginPath(); ctx.moveTo(px, py); ctx.quadraticCurveTo(px + Math.cos(b) * l * 0.5, py + Math.sin(b) * l * 0.5 - 3, px + Math.cos(b) * l, py + Math.sin(b) * l); ctx.stroke();
         }
     }
     ctx.restore();
@@ -626,13 +643,53 @@ function cardBuilder(rand) {
 /* ---------- WOOD ---------- */
 
 const Z = new THREE.Vector3(0, 0, 1);
+const BARK_TILE = 0.7;                 // metres of trunk one turn of the bark texture covers
+
+/** Bark, grey (tinted by the vertex colours): long furrows up the trunk, plates between them */
+function barkTexture(rand) {
+    const W = 256, H = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#a8a8a8';
+    ctx.fillRect(0, 0, W, H);
+    // plates: soft lighter and darker patches
+    for (let n = 0; n < 260; n++) {
+        const x = rand() * W, y = rand() * H, w = 6 + rand() * 18, h = 20 + rand() * 60, v = 130 + rand() * 90;
+        ctx.fillStyle = `rgba(${v},${v},${v},0.5)`;
+        for (const ox of [-W, 0, W]) for (const oy of [-H, 0, H]) ctx.fillRect(x + ox - w / 2, y + oy - h / 2, w, h);
+    }
+    // furrows: dark wavy lines up the trunk, branching now and then
+    ctx.lineCap = 'round';
+    for (let n = 0; n < 34; n++) {
+        let x = rand() * W;
+        const y0 = rand() * H, len = 80 + rand() * 300;
+        ctx.strokeStyle = `rgba(30,26,22,${0.45 + rand() * 0.4})`;
+        ctx.lineWidth = 1.5 + rand() * 4;
+        ctx.beginPath();
+        for (let y = 0; y <= len; y += 8) {
+            x += (rand() - 0.5) * 5;
+            const px = ((x % W) + W) % W, py = (y0 + y) % H;
+            if (y === 0 || py < 8) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.anisotropy = 4;
+    return texture;
+}
 
 /** A tapered piece of trunk or branch from a to b, coloured from one end to the other */
-function limb(a, b, r0, r1, c0, c1, sides = 7) {
+function limb(a, b, r0, r1, c0, c1, sides = 9) {
     const dir = new THREE.Vector3().subVectors(b, a);
     const length = dir.length();
     const g = new THREE.CylinderGeometry(r1, r0, length, sides, 3, true);
-    g.deleteAttribute('uv');
+    // the bark's texture at its true size: round the trunk, and along it
+    const uv = g.attributes.uv;
+    const around = Math.max(1, Math.round((Math.PI * 2 * Math.max(r0, r1)) / (BARK_TILE * 0.35)));
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * around, uv.getY(i) * (length / BARK_TILE));
     g.rotateX(Math.PI / 2);           // along z
     g.translate(0, 0, length / 2);
     const colours = [];
@@ -640,8 +697,7 @@ function limb(a, b, r0, r1, c0, c1, sides = 7) {
     const tmp = new THREE.Color();
     for (let i = 0; i < pos.count; i++) {
         const t = pos.getZ(i) / length;
-        const ridge = 0.85 + 0.15 * Math.sin(pos.getZ(i) * 9 + Math.atan2(pos.getY(i), pos.getX(i)) * 3);   // bark in uneven bands
-        tmp.copy(c0).lerp(c1, t).multiplyScalar(ridge);
+        tmp.copy(c0).lerp(c1, t);
         colours.push(tmp.r, tmp.g, tmp.b);
     }
     g.setAttribute('color', new THREE.Float32BufferAttribute(colours, 3));
@@ -652,116 +708,163 @@ function limb(a, b, r0, r1, c0, c1, sides = 7) {
 
 /* ---------- TREES ---------- */
 
+// Colours of the bark (multiplied with the grey bark texture) and tints of the foliage, kept muted
 const bark = {
-    pineLow: linear('#4f443b'), pineHigh: linear('#b06a3c'),
-    spruce: linear('#4a3f36'),
-    beech: linear('#77736b'), beechHigh: linear('#8a867d'),
-    birch: linear('#d9d6cc'), birchLow: linear('#3b3631'),
+    pineLow: linear('#5e554c'), pineHigh: linear('#c27a4a'),
+    spruce: linear('#5a5048'),
+    beech: linear('#8e8b84'), beechHigh: linear('#9a978f'),
+    birch: linear('#f2efe6'), birchLow: linear('#4a4540'),
+    dead: linear('#6e665c'),
 };
 const tints = {
-    pine: ['#9fb08f', '#b4c09e', '#8a9c7c'],
-    spruce: ['#7f9179', '#6f8370', '#8b9a80'],
-    beech: ['#ffffff', '#e6f0c8', '#cfe0a8', '#f2f5d0'],
-    birch: ['#f0f5c8', '#e2ecb0'],
-    shrub: ['#ffffff', '#e8f2c0', '#d8e8a8'],
+    pine: ['#c9d0bf', '#b9c2b0', '#d4d8c4', '#aab49f'],
+    spruce: ['#8d9a8a', '#7e8c7e', '#97a291'],
+    beech: ['#e6e9d6', '#d5dcc0', '#c6cfb0', '#eef0dc'],
+    birch: ['#e4e8c8', '#d6ddb8'],
+    shrub: ['#dfe4cc', '#cdd5b6', '#c2caa8'],
 };
 
-const vary = (rand, hex, amount = 0.12) => linear(hex).multiplyScalar(1 - amount + rand() * amount * 2);
+const vary = (rand, hex, amount = 0.1) => linear(hex).multiplyScalar(1 - amount + rand() * amount * 2);
 
 /**
  * One tree standing at base, h metres tall: its wood into `wood`, its foliage into `cards`
  * @param {'pine'|'spruce'|'beech'|'birch'|'shrub'} kind
  */
 function tree(kind, base, h, rand, wood, cards) {
-    const lean = new THREE.Vector3(rand.range(-1, 1), rand.range(-1, 1), 0).multiplyScalar(kind === 'pine' ? 0.06 : 0.03);
-    const along = (t, wobble = 0) => new THREE.Vector3(
-        base.x + (lean.x * t + Math.sin(t * 5 + base.x) * wobble) * h,
-        base.y + (lean.y * t + Math.cos(t * 4 + base.y) * wobble) * h,
+    const lean = new THREE.Vector3(rand.range(-1, 1), rand.range(-1, 1), 0).multiplyScalar(kind === 'pine' ? 0.07 : 0.03);
+    const phase = rand() * 10;
+    const along = (t, wobble = 0.008) => new THREE.Vector3(
+        base.x + (lean.x * t * t + Math.sin(t * 6 + phase) * wobble * t) * h,
+        base.y + (lean.y * t * t + Math.cos(t * 5 + phase) * wobble * t) * h,
         base.z + t * h,
     );
-    const centre = new THREE.Vector3(), shade = new THREE.Vector3(), facing = new THREE.Vector3(), p = new THREE.Vector3();
-    const up = new THREE.Vector3(0, 0, 0.45);
+    const shade = new THREE.Vector3(), facing = new THREE.Vector3(), p = new THREE.Vector3();
+    const up = new THREE.Vector3(0, 0, 1);
 
-    /** A rounded clump of foliage cards */
-    const clump = (c, radius, flat, count, cell, tintList, size) => {
+    /** A trunk in pieces that meet end to end, so it can curve */
+    const trunk = (t1, r0, r1, c0, c1, pieces = 5) => {
+        for (let s = 0; s < pieces; s++) {
+            const a0 = (s / pieces) * t1, a1 = ((s + 1) / pieces) * t1;
+            const k0 = a0 / t1, k1 = a1 / t1;
+            // a little flare at the foot
+            const flare = (k) => (k < 0.08 ? 1 + (0.08 - k) * 6 : 1);
+            wood.push(limb(along(a0), along(a1), (r0 + (r1 - r0) * k0) * flare(k0), r0 + (r1 - r0) * k1, c0.clone().lerp(c1, k0 ** 1.5), c0.clone().lerp(c1, k1 ** 1.5)));
+        }
+    };
+
+    /** A pad of foliage: cards in a flattened clump round c, lit as one rounded mass */
+    const pad = (c, radius, flat, count, cell, tintList, size, light = 1) => {
         for (let i = 0; i < count; i++) {
             const r = Math.cbrt(rand()) * radius;
             const a = rand() * Math.PI * 2, b = Math.acos(rand() * 2 - 1);
             p.set(Math.sin(b) * Math.cos(a), Math.sin(b) * Math.sin(a), Math.cos(b) * flat);
             const pos = c.clone().addScaledVector(p, r);
-            shade.copy(p).normalize().multiplyScalar(0.8).add(up).normalize();
-            facing.set(rand() - 0.5, rand() - 0.5, rand() - 0.5).add(shade);
-            const tint = vary(rand, rand.pick(tintList), 0.15).multiplyScalar(0.7 + 0.3 * (p.z * 0.5 + 0.5));
-            cards.add(pos, facing, shade, size * rand.range(0.8, 1.25), size * rand.range(0.8, 1.25), cell, tint);
+            shade.copy(p).normalize().multiplyScalar(0.6).addScaledVector(up, 0.6).normalize();
+            facing.set((rand() - 0.5) * 0.9, (rand() - 0.5) * 0.9, 1).addScaledVector(shade, 0.4);   // mostly lying flat, as twigs do
+            // darker inside and underneath
+            const depth = 0.55 + 0.45 * Math.min(1, r / radius) * (0.6 + 0.4 * (p.z / Math.max(flat, 1e-3) * 0.5 + 0.5));
+            const tint = vary(rand, rand.pick(tintList)).multiplyScalar(depth * light);
+            cards.add(pos, facing, shade, size * rand.range(0.75, 1.3), size * rand.range(0.75, 1.3), cell, tint);
         }
     };
 
     if (kind === 'pine') {
-        // Tall and straight, bare up to the crown, orange bark high up; the crown in flat clumps
-        const segments = 4;
-        for (let s = 0; s < segments; s++) {
-            const t0 = (s / segments) * 0.97, t1 = ((s + 1) / segments) * 0.97;   // the pieces meet end to end
-            const c0 = bark.pineLow.clone().lerp(bark.pineHigh, Math.pow(t0, 1.5)), c1 = bark.pineLow.clone().lerp(bark.pineHigh, Math.pow(t1, 1.5));
-            wood.push(limb(along(t0, 0.01), along(t1, 0.01), h * 0.02 * (1 - t0 * 0.75), h * 0.02 * (1 - t1 * 0.75), c0, c1));
+        // Scots pine: tall, a slight curve, bare and grey low down, orange and flaking high up; the
+        // crown a loose, uneven head of branches, each carrying flat pads of needles at its end
+        const crownFrom = rand.range(0.58, 0.7);
+        trunk(0.97, h * 0.022, h * 0.005, bark.pineLow, bark.pineHigh);
+        const branches = 11 + Math.floor(rand() * 6);
+        for (let i = 0; i < branches; i++) {
+            const t = crownFrom + Math.pow(rand(), 0.8) * (0.96 - crownFrom);
+            const a = rand() * Math.PI * 2;
+            const reach = h * rand.range(0.07, 0.17) * (1.15 - (t - crownFrom) / (1 - crownFrom) * 0.6);
+            const from = along(t);
+            const rise = rand.range(0.05, 0.45);
+            const mid = from.clone().add(new THREE.Vector3(Math.cos(a) * reach * 0.55, Math.sin(a) * reach * 0.55, reach * rise * 0.3));
+            const end = from.clone().add(new THREE.Vector3(Math.cos(a) * reach, Math.sin(a) * reach, reach * rise));
+            wood.push(limb(from, mid, h * 0.005, h * 0.0035, bark.pineHigh, bark.pineHigh, 5));
+            wood.push(limb(mid, end, h * 0.0035, h * 0.0015, bark.pineHigh, bark.pineHigh, 5));
+            const pads = 2 + Math.floor(rand() * 3);
+            for (let k = 0; k < pads; k++) {
+                const q = 0.55 + rand() * 0.5;
+                const centre = from.clone().lerp(end, q).add(new THREE.Vector3((rand() - 0.5) * reach * 0.3, (rand() - 0.5) * reach * 0.3, rand() * h * 0.01));
+                pad(centre, h * rand.range(0.035, 0.06), 0.35, 16, NEEDLES, tints.pine, h * 0.055);
+            }
         }
-        const clumps = 8 + Math.floor(rand() * 5);
-        for (let i = 0; i < clumps; i++) {
-            const t = rand.range(0.62, 0.97);
-            const a = rand() * Math.PI * 2, out = rand.range(0.03, 0.16) * h * (1.1 - (t - 0.66) * 1.5);
-            const from = along(t - 0.04);
-            centre.set(from.x + Math.cos(a) * out, from.y + Math.sin(a) * out, from.z + rand.range(0, 0.05) * h);
-            wood.push(limb(from, centre, h * 0.006, h * 0.003, bark.pineHigh, bark.pineHigh, 5));
-            clump(centre, h * rand.range(0.08, 0.13), 0.55, 46, NEEDLES, tints.pine, h * 0.09);
-        }
-        for (let i = 0; i < 4; i++) {   // dead branch stubs low down
-            const from = along(rand.range(0.3, 0.6)), a = rand() * Math.PI * 2;
-            wood.push(limb(from, from.clone().add(new THREE.Vector3(Math.cos(a), Math.sin(a), -0.2).multiplyScalar(h * 0.05)), h * 0.003, h * 0.001, bark.spruce, bark.spruce, 4));
+        // the top, and dead branches low down
+        pad(along(0.98), h * 0.04, 0.6, 14, NEEDLES, tints.pine, h * 0.05);
+        for (let i = 0; i < 9; i++) {
+            const from = along(rand.range(0.25, crownFrom - 0.02)), a = rand() * Math.PI * 2, l = h * rand.range(0.02, 0.07);
+            wood.push(limb(from, from.clone().add(new THREE.Vector3(Math.cos(a) * l, Math.sin(a) * l, -l * 0.25)), h * 0.002, h * 0.0006, bark.dead, bark.dead, 4));
         }
     } else if (kind === 'spruce') {
-        // A dark cone, branched all the way down
-        wood.push(limb(along(0), along(1), h * 0.018, h * 0.003, bark.spruce, bark.spruce));
-        const count = 150 + Math.floor(rand() * 60);
-        for (let i = 0; i < count; i++) {
-            const t = Math.pow(rand(), 0.8) * 0.9 + 0.08;
-            const full = (1 - t) * h * 0.24;
-            const radius = full * Math.sqrt(rand.range(0.3, 1));
-            const a = rand() * Math.PI * 2;
-            const stem = along(t);
-            const pos = new THREE.Vector3(stem.x + Math.cos(a) * radius, stem.y + Math.sin(a) * radius, stem.z - radius * 0.25);
-            shade.set(Math.cos(a), Math.sin(a), 0.7).normalize();
-            facing.set(Math.cos(a) * 0.3, Math.sin(a) * 0.3, 1).add(new THREE.Vector3(rand() - 0.5, rand() - 0.5, rand() - 0.5).multiplyScalar(0.6));
-            const tint = vary(rand, rand.pick(tints.spruce), 0.15).multiplyScalar(0.55 + 0.45 * (radius / (full + 1e-3)));
-            cards.add(pos, facing, shade, h * 0.11 * (1 - t * 0.5), h * 0.08 * (1 - t * 0.5), NEEDLES, tint);
+        // Spruce: a dark cone of drooping tiers, branched all the way down
+        trunk(1, h * 0.018, h * 0.003, bark.spruce, bark.spruce, 4);
+        const tiers = 16 + Math.floor(rand() * 6);
+        for (let k = 0; k < tiers; k++) {
+            const t = 0.06 + (k / tiers) * 0.9;
+            const per = 5 + Math.floor(rand() * 3);
+            for (let j = 0; j < per; j++) {
+                const a = (j / per) * Math.PI * 2 + k * 0.7 + rand() * 0.5;
+                const reach = (1 - t) * h * 0.25 * rand.range(0.75, 1.1) + h * 0.015;
+                const from = along(t);
+                const end = from.clone().add(new THREE.Vector3(Math.cos(a) * reach, Math.sin(a) * reach, -reach * rand.range(0.1, 0.35)));
+                if (t < 0.5 || rand() < 0.4) wood.push(limb(from, end, h * 0.003, h * 0.001, bark.spruce, bark.spruce, 4));
+                const light = 0.6 + 0.4 * t;
+                for (let q = 0.35; q < 1.05; q += 0.3) {
+                    const centre = from.clone().lerp(end, q);
+                    shade.set(Math.cos(a), Math.sin(a), 0.8).normalize();
+                    facing.set(Math.cos(a) * 0.35, Math.sin(a) * 0.35, 1).add(new THREE.Vector3(rand() - 0.5, rand() - 0.5, 0).multiplyScalar(0.5));
+                    const tint = vary(rand, rand.pick(tints.spruce)).multiplyScalar(light * (0.55 + 0.45 * q));
+                    const size = reach * 0.7 + h * 0.02;
+                    cards.add(centre, facing, shade, size, size * 0.75, NEEDLES, tint);
+                }
+            }
         }
     } else if (kind === 'beech' || kind === 'birch') {
-        // A trunk that forks into a few limbs, each ending in clumps of leaves
+        // A trunk that forks into limbs; leaves in many small sprays over an uneven, open dome
         const birch = kind === 'birch';
         const low = birch ? bark.birchLow : bark.beech, high = birch ? bark.birch : bark.beechHigh;
         const fork = rand.range(0.3, 0.45);
-        wood.push(limb(along(0, 0.01), along(fork, 0.01), h * (birch ? 0.016 : 0.024), h * (birch ? 0.013 : 0.019), low, high));
-        const crown = along(birch ? 0.7 : 0.66);
-        const width = h * (birch ? 0.17 : 0.27), depth = h * (birch ? 0.27 : 0.22);
-        const limbs = birch ? 2 : 3 + Math.floor(rand() * 2);
-        const top = along(fork, 0.01);
+        trunk(fork, h * (birch ? 0.016 : 0.025), h * (birch ? 0.013 : 0.019), low, high, 3);
+        const crown = along(birch ? 0.7 : 0.64);
+        const width = h * (birch ? 0.16 : 0.28), depth = h * (birch ? 0.28 : 0.22);
+        const top = along(fork);
+        const limbs = birch ? 3 : 4 + Math.floor(rand() * 2);
         for (let l = 0; l < limbs; l++) {
             const a = (l / limbs) * Math.PI * 2 + rand() * 0.8;
-            const end = crown.clone().add(new THREE.Vector3(Math.cos(a) * width * 0.55, Math.sin(a) * width * 0.55, rand.range(-0.2, 0.5) * depth));
-            wood.push(limb(top, end, h * (birch ? 0.01 : 0.015), h * 0.005, high, high));
+            const mid = top.clone().lerp(crown, 0.5).add(new THREE.Vector3(Math.cos(a) * width * 0.3, Math.sin(a) * width * 0.3, 0));
+            const end = crown.clone().add(new THREE.Vector3(Math.cos(a) * width * 0.7, Math.sin(a) * width * 0.7, rand.range(-0.1, 0.6) * depth));
+            wood.push(limb(top, mid, h * (birch ? 0.011 : 0.016), h * (birch ? 0.008 : 0.011), high, high));
+            wood.push(limb(mid, end, h * (birch ? 0.008 : 0.011), h * 0.004, high, high));
+            // twigs off the limb
+            for (let k = 0; k < 3; k++) {
+                const from = mid.clone().lerp(end, rand());
+                const b = a + (rand() - 0.5) * 2;
+                const tip = from.clone().add(new THREE.Vector3(Math.cos(b) * width * 0.35, Math.sin(b) * width * 0.35, depth * rand.range(0, 0.4)));
+                wood.push(limb(from, tip, h * 0.004, h * 0.0015, high, high, 5));
+            }
         }
-        const clumps = birch ? 7 : 9 + Math.floor(rand() * 4);
-        for (let i = 0; i < clumps; i++) {
-            const a = rand() * Math.PI * 2, r = Math.sqrt(rand());
-            centre.set(crown.x + Math.cos(a) * width * r, crown.y + Math.sin(a) * width * r, crown.z + rand.range(-0.6, 0.85) * depth * (1 - r * 0.4));
-            clump(centre, h * rand.range(0.09, 0.13), 0.8, birch ? 20 : 26, LEAVES, birch ? tints.birch : tints.beech, h * (birch ? 0.08 : 0.1));
+        const sprays = birch ? 16 : 24 + Math.floor(rand() * 8);
+        for (let i = 0; i < sprays; i++) {
+            // on the dome's surface, a little inside it; the lower edge ragged
+            const a = rand() * Math.PI * 2, b = Math.acos(rand() * 1.3 - 0.3);
+            const centre = new THREE.Vector3(
+                crown.x + Math.sin(b) * Math.cos(a) * width * rand.range(0.6, 1.05),
+                crown.y + Math.sin(b) * Math.sin(a) * width * rand.range(0.6, 1.05),
+                crown.z + Math.cos(b) * depth * rand.range(0.6, 1.0),
+            );
+            const light = 0.75 + 0.25 * Math.cos(b);
+            pad(centre, h * rand.range(0.05, 0.08), 0.6, birch ? 13 : 16, LEAVES, birch ? tints.birch : tints.beech, h * (birch ? 0.06 : 0.07), light);
         }
     } else {
-        // Shrub: a few stems, leaves close to the ground
-        const clumps = 3 + Math.floor(rand() * 3);
-        for (let i = 0; i < clumps; i++) {
+        // Shrub: stems from the ground, leaves in a few low, loose masses
+        const masses = 3 + Math.floor(rand() * 3);
+        for (let i = 0; i < masses; i++) {
             const a = rand() * Math.PI * 2, r = rand() * h * 0.35;
-            centre.set(base.x + Math.cos(a) * r, base.y + Math.sin(a) * r, base.z + rand.range(0.35, 0.75) * h);
+            const centre = new THREE.Vector3(base.x + Math.cos(a) * r, base.y + Math.sin(a) * r, base.z + rand.range(0.35, 0.75) * h);
             wood.push(limb(base, centre, h * 0.02, h * 0.01, bark.beech, bark.beech, 5));
-            clump(centre, h * rand.range(0.3, 0.45), 0.75, 22, LEAVES, tints.shrub, h * 0.3);
+            pad(centre, h * rand.range(0.25, 0.4), 0.75, 26, LEAVES, tints.shrub, h * 0.22);
         }
     }
 }
@@ -841,11 +944,11 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
     };
     const kinds = ['pine', 'pine', 'pine', 'pine', 'spruce', 'spruce', 'spruce', 'beech', 'beech', 'birch'];
     const heights = { pine: [17, 23], spruce: [11, 17], beech: [12, 17], birch: [10, 14] };
-    for (let i = 0; i < 52; i++) {
+    for (let i = 0; i < 70; i++) {
         const kind = kinds[i % kinds.length];
         plant(kind, rand.range(...heights[kind]), 2.5, Infinity);
     }
-    for (let i = 0; i < 28; i++) plant(rand.pick(['spruce', 'beech', 'beech', 'birch', 'pine']), rand.range(3, 7.5), 1.2, Infinity);
+    for (let i = 0; i < 40; i++) plant(rand.pick(['spruce', 'spruce', 'beech', 'beech', 'birch', 'pine']), rand.range(2.5, 7.5), 1.2, Infinity);
     for (let i = 0; i < 50; i++) plant('shrub', rand.range(1.2, 2.6), i < 30 ? 0.1 : 2, i < 30 ? 2 : Infinity);
 
     /* Fallen trunks and branches */
@@ -910,7 +1013,8 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
 
     /* One geometry for all the wood, one for all the foliage */
     const cut = { uCutCentre: { value: new THREE.Vector3() }, uCutRadius: { value: 0 } };
-    const woodMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0 });
+    const barkMap = barkTexture(rand);
+    const woodMaterial = new THREE.MeshStandardMaterial({ map: barkMap, vertexColors: true, roughness: 1, metalness: 0 });
     woodMaterial.onBeforeCompile = (shader) => patchCutaway(shader, cut);
     const woodMesh = new THREE.Mesh(mergeGeometries(wood), woodMaterial);
     wood.forEach((g) => g.dispose());
@@ -918,7 +1022,7 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
 
     const foliageMap = foliageTexture(rand);
     const foliageMaterial = new THREE.MeshStandardMaterial({
-        map: foliageMap, vertexColors: true, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.85, metalness: 0,
+        map: foliageMap, vertexColors: true, alphaTest: 0.45, alphaToCoverage: true, side: THREE.DoubleSide, roughness: 0.9, metalness: 0,
     });
     foliageMaterial.onBeforeCompile = (shader) => { patchFoliage(shader); patchCutaway(shader, cut); };
     const foliage = new THREE.Mesh(cards.build(), foliageMaterial);
@@ -934,6 +1038,7 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
         },
         dispose() {
             foliageMap.dispose();
+            barkMap.dispose();
         },
     };
 }

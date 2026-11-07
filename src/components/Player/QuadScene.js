@@ -35,7 +35,8 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { createStage, PANEL_DISTANCE } from '@/components/Player/scene/stage';
-import { buildKanonstilling } from '@/components/Player/scene/kanonstilling';
+import { buildKanonstilling, groundAt } from '@/components/Player/scene/kanonstilling';
+import { createMist } from '@/components/Player/scene/mist';
 import { colors } from '@/styles/colors';
 
 const TILT_MIN = 0.5, TILT_MAX = 1.0;   // radians the room is tipped towards the viewer: pointer high = flatter, low = steeper
@@ -45,7 +46,8 @@ const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
 const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
 const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
 const WAVE_QUIET = 1.6, WAVE_LOUD = 0.45; // seconds between a speaker's wavefronts, when it plays softly and loudly
-const ONSET = 0.12;                     // a rise in level this sudden (a note, a hit) sends a wavefront at once
+const ONSET = 0.12;
+const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;                     // a rise in level this sudden (a note, a hit) sends a wavefront at once
 
 /* A wavefront: a shell round the speaker, bright at its rim and only on the side facing the listener */
 const waveShader = {
@@ -85,12 +87,19 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const emplacement = buildKanonstilling({ textured });
         room.add(emplacement.group);
 
+        // Smoke drifting through the trees, mist lying over the ground
+        const mist = createMist({ groundAt, radius: 34, amount: 1 });
+        room.add(mist.group);
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
         // The sun, from beyond the room on the left; it stays put while the room turns under it
-        const sun = new THREE.DirectionalLight(0xfff6ea, 3.2);
+        const sun = new THREE.DirectionalLight(0xfff1de, 2.5);
         const SUN = new THREE.Vector3(-20, 22, 30);
         sun.castShadow = true;
         sun.shadow.mapSize.set(2048, 2048);
         tilt.add(sun, sun.target);
+        // Light from the sky and back up from the forest floor: softer shadows, as under real trees
+        tilt.add(new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
 
         /* ---------- THE LISTENER: a ball floating over the middle ---------- */
 
@@ -243,7 +252,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
 
         const cutCentre = new THREE.Vector3();
         const stage = createStage(container, {
-            smoke: 0.45,
+            smoke: 1,
             light: 0.35,
             shadows: true,
             onResize: layout,
@@ -256,6 +265,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 room.rotation.z = current.yaw;                            // you turn right: the room turns anticlockwise under you
                 const u = place(current.zoom, current.look);
                 const waveDim = 1 - 0.75 * u;   // standing among them, the wavefronts are fainter
+                mist.update(dt, stage.camera.position, scale, reducedMotion);
                 engine.setYaw(current.yaw);
                 onTurn?.(current.yaw);
 
@@ -309,9 +319,16 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 obj.material?.userData?.textures?.forEach((t) => t.dispose());
             });
             emplacement.forest.dispose();
+            mist.dispose();
             stage.dispose();
         };
     }, [engine, textured, angles, cover, coverDepth, turnRef, onTurn, zoomRef, onZoom]);
 
-    return <div ref={containerRef} className='absolute inset-0 touch-none' />;
+    // Over the picture, as through a lens: the corners a little darker, a fine grain
+    return (
+        <div ref={containerRef} className='absolute inset-0 touch-none'>
+            <div className='absolute inset-0 pointer-events-none' style={{ background: 'radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(10,10,12,0.5) 100%)' }} />
+            <div className='absolute inset-0 pointer-events-none opacity-[0.09] mix-blend-overlay' style={{ backgroundImage: GRAIN }} />
+        </div>
+    );
 }
