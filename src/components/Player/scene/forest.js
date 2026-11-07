@@ -784,15 +784,15 @@ function tree(kind, base, h, rand, wood, cards) {
             const end = from.clone().add(new THREE.Vector3(Math.cos(a) * reach, Math.sin(a) * reach, reach * rise));
             wood.push(limb(from, mid, h * 0.005, h * 0.0035, bark.pineHigh, bark.pineHigh, 5));
             wood.push(limb(mid, end, h * 0.0035, h * 0.0015, bark.pineHigh, bark.pineHigh, 5));
-            const pads = 2 + Math.floor(rand() * 3);
+            const pads = 3 + Math.floor(rand() * 3);
             for (let k = 0; k < pads; k++) {
                 const q = 0.55 + rand() * 0.5;
                 const centre = from.clone().lerp(end, q).add(new THREE.Vector3((rand() - 0.5) * reach * 0.3, (rand() - 0.5) * reach * 0.3, rand() * h * 0.01));
-                pad(centre, h * rand.range(0.035, 0.06), 0.35, 16, NEEDLES, tints.pine, h * 0.055);
+                pad(centre, h * rand.range(0.05, 0.085), 0.4, 30, NEEDLES, tints.pine, h * 0.075);
             }
         }
         // the top, and dead branches low down
-        pad(along(0.98), h * 0.04, 0.6, 14, NEEDLES, tints.pine, h * 0.05);
+        pad(along(0.98), h * 0.06, 0.6, 26, NEEDLES, tints.pine, h * 0.07);
         for (let i = 0; i < 9; i++) {
             const from = along(rand.range(0.25, crownFrom - 0.02)), a = rand() * Math.PI * 2, l = h * rand.range(0.02, 0.07);
             wood.push(limb(from, from.clone().add(new THREE.Vector3(Math.cos(a) * l, Math.sin(a) * l, -l * 0.25)), h * 0.002, h * 0.0006, bark.dead, bark.dead, 4));
@@ -845,7 +845,7 @@ function tree(kind, base, h, rand, wood, cards) {
                 wood.push(limb(from, tip, h * 0.004, h * 0.0015, high, high, 5));
             }
         }
-        const sprays = birch ? 16 : 24 + Math.floor(rand() * 8);
+        const sprays = birch ? 22 : 32 + Math.floor(rand() * 8);
         for (let i = 0; i < sprays; i++) {
             // on the dome's surface, a little inside it; the lower edge ragged
             const a = rand() * Math.PI * 2, b = Math.acos(rand() * 1.3 - 0.3);
@@ -855,7 +855,7 @@ function tree(kind, base, h, rand, wood, cards) {
                 crown.z + Math.cos(b) * depth * rand.range(0.6, 1.0),
             );
             const light = 0.75 + 0.25 * Math.cos(b);
-            pad(centre, h * rand.range(0.05, 0.08), 0.6, birch ? 13 : 16, LEAVES, birch ? tints.birch : tints.beech, h * (birch ? 0.06 : 0.07), light);
+            pad(centre, h * rand.range(0.07, 0.11), 0.65, birch ? 22 : 28, LEAVES, birch ? tints.birch : tints.beech, h * (birch ? 0.08 : 0.095), light);
         }
     } else {
         // Shrub: stems from the ground, leaves in a few low, loose masses

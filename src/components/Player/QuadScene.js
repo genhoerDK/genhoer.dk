@@ -88,7 +88,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         room.add(emplacement.group);
 
         // Smoke drifting through the trees, mist lying over the ground
-        const mist = createMist({ groundAt, radius: 34, amount: 1 });
+        const mist = createMist({ groundAt, radius: 34, amount: 1.7 });
         room.add(mist.group);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

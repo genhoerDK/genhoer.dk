@@ -108,7 +108,7 @@ export function createMist({ groundAt, radius: R, amount = 1 }) {
         textures.push(texture);
         texture.repeat.set(3 + i * 0.4, 3 + i * 0.4);
         const material = new THREE.MeshBasicMaterial({
-            map: texture, color: COLOUR, transparent: true, depthWrite: false, opacity: (0.32 - i * 0.025) * amount, side: THREE.DoubleSide,
+            map: texture, color: COLOUR, transparent: true, depthWrite: false, opacity: Math.min(0.75, (0.3 - i * 0.025) * amount), side: THREE.DoubleSide,
         });
         // the sheet's edge fades out, with the forest floor
         material.onBeforeCompile = (shader) => {
