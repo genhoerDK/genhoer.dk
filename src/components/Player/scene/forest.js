@@ -869,6 +869,86 @@ function tree(kind, base, h, rand, wood, cards) {
     }
 }
 
+/* ---------- TREES, SIMPLIFIED ---------- */
+
+// The stylised look: soft low-poly forms in muted colours, faceted, no texture
+const toy = {
+    leaves: ['#8a9270', '#7d8766', '#949a7a', '#86906c'],
+    pine: ['#7b8466', '#737d60', '#838b6c'],
+    spruce: ['#5f6b57', '#56614f', '#66715c'],
+    birch: ['#a3a77f', '#9aa078'],
+    trunk: linear('#b3aa9d'), pine: linear('#a8998a'), birchBark: linear('#ddd7cb'),
+};
+
+/** A lumpy, faceted ball of foliage */
+function toyBlob(centre, r, colour, rand, flat = 1) {
+    const g = new THREE.IcosahedronGeometry(1, 1);
+    const pos = g.attributes.position;
+    const seen = new Map();
+    for (let i = 0; i < pos.count; i++) {
+        // the same jitter for a corner wherever it repeats, so the ball stays closed
+        const key = `${pos.getX(i).toFixed(3)},${pos.getY(i).toFixed(3)},${pos.getZ(i).toFixed(3)}`;
+        if (!seen.has(key)) seen.set(key, 0.85 + rand() * 0.3);
+        const k = seen.get(key);
+        pos.setXYZ(i, centre.x + pos.getX(i) * r * k, centre.y + pos.getY(i) * r * k, centre.z + pos.getZ(i) * r * k * flat);
+    }
+    g.computeVertexNormals();
+    return paint(g, colour);
+}
+
+function paint(g, colour) {
+    const c = [];
+    for (let i = 0; i < g.attributes.position.count; i++) c.push(colour.r, colour.g, colour.b);
+    g.setAttribute('color', new THREE.Float32BufferAttribute(c, 3));
+    return g;
+}
+
+/** One simplified tree into `wood` (one faceted mesh for everything) */
+function toyTree(kind, base, h, rand, wood) {
+    const top = (t) => base.clone().add(new THREE.Vector3(0, 0, t * h));
+    const shade = (list) => vary(rand, rand.pick(list), 0.06);
+    if (kind === 'pine') {
+        wood.push(limb(base, top(0.8), h * 0.022, h * 0.01, toy.pine, toy.pine, 6).toNonIndexed());
+        const crown = 2 + Math.floor(rand() * 3);
+        for (let i = 0; i < crown; i++) {
+            const a = rand() * Math.PI * 2, out = rand() * h * 0.08;
+            const c = top(rand.range(0.74, 0.92)).add(new THREE.Vector3(Math.cos(a) * out, Math.sin(a) * out, 0));
+            wood.push(toyBlob(c, h * rand.range(0.1, 0.15), shade(toy.pine), rand, 0.55));
+        }
+    } else if (kind === 'spruce') {
+        wood.push(limb(base, top(0.3), h * 0.02, h * 0.015, toy.trunk, toy.trunk, 6).toNonIndexed());
+        const colour = shade(toy.spruce);
+        const tiers = 3 + Math.floor(rand() * 2);
+        for (let k = 0; k < tiers; k++) {
+            const t0 = 0.15 + (k / tiers) * 0.6, r = h * 0.22 * (1 - k / (tiers + 0.6));
+            const cone = new THREE.ConeGeometry(r, h * 0.42, 7, 1).toNonIndexed();
+            cone.rotateX(Math.PI / 2);
+            cone.rotateZ(rand() * Math.PI);
+            const c = top(t0 + 0.21);
+            cone.translate(c.x, c.y, c.z);
+            cone.computeVertexNormals();
+            wood.push(paint(cone, colour.clone().multiplyScalar(0.9 + k * 0.06)));
+        }
+    } else if (kind === 'beech' || kind === 'birch') {
+        const birch = kind === 'birch';
+        const bark = birch ? toy.birchBark : toy.trunk;
+        wood.push(limb(base, top(0.55), h * (birch ? 0.016 : 0.024), h * 0.012, bark, bark, 6).toNonIndexed());
+        const blobs = birch ? 2 : 3 + Math.floor(rand() * 2);
+        for (let i = 0; i < blobs; i++) {
+            const a = rand() * Math.PI * 2, out = rand() * h * (birch ? 0.06 : 0.12);
+            const c = top(rand.range(0.6, 0.78)).add(new THREE.Vector3(Math.cos(a) * out, Math.sin(a) * out, 0));
+            wood.push(toyBlob(c, h * rand.range(birch ? 0.13 : 0.17, birch ? 0.17 : 0.24), shade(birch ? toy.birch : toy.leaves), rand, birch ? 1.2 : 0.85));
+        }
+    } else {
+        const blobs = 1 + Math.floor(rand() * 2);
+        for (let i = 0; i < blobs; i++) {
+            const a = rand() * Math.PI * 2, out = rand() * h * 0.3;
+            const c = base.clone().add(new THREE.Vector3(Math.cos(a) * out, Math.sin(a) * out, h * 0.4));
+            wood.push(toyBlob(c, h * rand.range(0.4, 0.55), shade(toy.leaves), rand, 0.75));
+        }
+    }
+}
+
 /* ---------- SHADER TWEAKS ---------- */
 
 /** Foliage lit by its rounded normals on both sides (no flipping for back faces) */
@@ -917,7 +997,7 @@ function patchCutaway(shader, uniforms) {
  * @param {{ radius: number, inner: number, floor: number }} options.pit  The open pit (plants on its floor)
  * @returns {{ group, update(centre: THREE.Vector3, radius: number), dispose() }}
  */
-export function createForest({ groundAt, distance, radius: R, pit }) {
+export function createForest({ groundAt, distance, radius: R, pit, stylised = false }) {
     const rand = random(SEED);
     const cover = coverAt(distance);
     const group = new THREE.Group();
@@ -937,7 +1017,8 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
             const room = h * (kind === 'shrub' ? 0.12 : kind === 'spruce' ? 0.13 : 0.1);
             if (!free(x, y, room)) continue;
             placed.push({ x, y, room });
-            tree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood, cards);
+            if (stylised) toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood);
+            else tree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood, cards);
             return true;
         }
         return false;
@@ -963,7 +1044,8 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
             const thick = i < 4 ? rand.range(0.15, 0.3) : rand.range(0.04, 0.08);
             const from = new THREE.Vector3(x, y, groundAt(x, y) + thick * 0.6), to = new THREE.Vector3(ex, ey, groundAt(ex, ey) + thick * 0.5);
             const colour = i < 4 ? linear('#5a4d40') : linear('#4a3d32');
-            wood.push(limb(from, to, thick, thick * 0.7, colour, colour.clone().multiplyScalar(0.8), 8));
+            const log = limb(from, to, thick, thick * 0.7, stylised ? toy.trunk : colour, stylised ? toy.trunk : colour.clone().multiplyScalar(0.8), 8);
+            wood.push(stylised ? log.toNonIndexed() : log);
             break;
         }
     }
@@ -980,7 +1062,7 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
             cards.add(new THREE.Vector3(x, y, z - 0.02), facing, up.clone().addScaledVector(facing, 0.3).normalize(), height * 1.2, height, GRASS, tint, true, upward);
         }
     };
-    for (let i = 0; i < 4000; i++) {
+    for (let i = 0; i < (stylised ? 0 : 4000); i++) {
         const a = rand() * Math.PI * 2, r = Math.sqrt(rand()) * R;
         const x = Math.sin(a) * r, y = Math.cos(a) * r;
         if (distance(x, y) < 0.15) continue;
@@ -988,7 +1070,7 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
         if (rand() > c.grass * 0.9 + 0.01 - c.path * 0.5) continue;
         grassTuft(x, y, groundAt(x, y), 1);
     }
-    for (let i = 0; i < 2000; i++) {
+    for (let i = 0; i < (stylised ? 0 : 2000); i++) {
         const a = rand() * Math.PI * 2, r = Math.sqrt(rand()) * R;
         const x = Math.sin(a) * r, y = Math.cos(a) * r;
         const c = cover(x, y);
@@ -1002,7 +1084,7 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
             cards.add(new THREE.Vector3(x, y, z - 0.02), facing, up, height, height, FERN, tint, true, upward);
         }
     }
-    if (pit) {
+    if (pit && !stylised) {
         // Grass come up through the cracks in the pit's floor, mostly at the foot of the walls
         for (let i = 0; i < 160; i++) {
             const a = rand() * Math.PI * 2;
@@ -1014,7 +1096,9 @@ export function createForest({ groundAt, distance, radius: R, pit }) {
     /* One geometry for all the wood, one for all the foliage */
     const cut = { uCutCentre: { value: new THREE.Vector3() }, uCutRadius: { value: 0 } };
     const barkMap = barkTexture(rand);
-    const woodMaterial = new THREE.MeshStandardMaterial({ map: barkMap, vertexColors: true, roughness: 1, metalness: 0 });
+    const woodMaterial = stylised
+        ? new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0, flatShading: true })
+        : new THREE.MeshStandardMaterial({ map: barkMap, vertexColors: true, roughness: 1, metalness: 0 });
     woodMaterial.onBeforeCompile = (shader) => patchCutaway(shader, cut);
     const woodMesh = new THREE.Mesh(mergeGeometries(wood), woodMaterial);
     wood.forEach((g) => g.dispose());

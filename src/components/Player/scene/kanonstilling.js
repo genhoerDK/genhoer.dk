@@ -386,7 +386,7 @@ export function groundAt(x, y) {
  * forestFloorMaterial (scene/forest.js), from just under the walk's edge out to 40 m, fading out at its far edge so the
  * photo behind shows
  */
-function forestFloor() {
+function forestFloor(stylised = false) {
     const R0 = LEDGE.outer - 0.05, R1 = 40, steps = 480;
     const radii = [];
     for (let r = R0; r < R1; r += r < 22 ? 0.2 : 0.6) radii.push(r);
@@ -412,7 +412,9 @@ function forestFloor() {
     g.setAttribute('color', new THREE.Float32BufferAttribute(colour, 4));
     g.setIndex(index);
     g.computeVertexNormals();
-    const mesh = new THREE.Mesh(g, forestFloorMaterial(bunkerDistance));
+    const mesh = new THREE.Mesh(g, stylised
+        ? new THREE.MeshStandardMaterial({ color: 0x8e9370, roughness: 1, metalness: 0, vertexColors: true, transparent: true })
+        : forestFloorMaterial(bunkerDistance));
     mesh.receiveShadow = true;
     return mesh;
 }
@@ -1068,15 +1070,18 @@ function placedLoudspeaker(angle) {
 /**
  * The emplacement as a group (metres, z up).
  *   textured  true = the weathered concrete; false (default) = plain grey concrete
+ *   look      'realistic' (default) or 'stylised': pale, even concrete, a plain green floor and
+ *             simple faceted trees, as in a modern indie game
  */
-export function buildKanonstilling({ textured = false } = {}) {
+export function buildKanonstilling({ textured = false, look = 'realistic' } = {}) {
+    const stylised = look === 'stylised';
     const group = new THREE.Group();
     // The concrete a little darker than it was, as in the photos
-    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, color: 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
+    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured: textured && !stylised, color: stylised ? 0xb4aea3 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.castShadow = true;
     model.receiveShadow = true;
-    const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P } });
-    group.add(model, forestFloor(), forest.group);
+    const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised });
+    group.add(model, forestFloor(stylised), forest.group);
     return {
         group,
         /** The trees round it: forest.update(centre, radius) each frame, so those in front thin out */

@@ -8,6 +8,7 @@
  * take you down to stand at eye height in the middle, and back up. Space pauses and plays.
  *
  *   player.textured  true = the concrete texture on the emplacement (default: plain grey)
+ *   player.look      'realistic' (default) or 'stylised': a pale, simple, modern indie-game look
  *   player.image     Photo behind
  *   player.speakers  [{ label, angle, file, channel? }]  angle: degrees clockwise from straight ahead
  *   player.reverb    0–1, the room's echo on top
@@ -29,7 +30,7 @@ const QuadScene = dynamic(() => import('@/components/Player/QuadScene'), { ssr: 
 export default function QuadPlayer() {
     const { currentTrack, engine, isPlaying, play, pause } = useAudio();
     const state = useEngineState(engine, 4);
-    const { speakers, textured, image } = currentTrack.player;
+    const { speakers, textured, image, look } = currentTrack.player;
     const angles = useMemo(() => speakers.map((s) => s.angle), [speakers]);
     const photo = image ?? currentTrack.coverImageLandscape;
     const ready = isPlaying && state?.loaded;
@@ -86,7 +87,7 @@ export default function QuadPlayer() {
     return (
         <PlayerShell track={currentTrack} backdrop={false}>
             {engine && (
-                <QuadScene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} />
+                <QuadScene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} look={look} />
             )}
 
             {!isPlaying && !engine ? (
