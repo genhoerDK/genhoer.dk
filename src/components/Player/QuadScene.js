@@ -97,13 +97,13 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // The sun, from beyond the room on the left; it stays put while the room turns under it
-        const sun = new THREE.DirectionalLight(0xfff1de, stylised ? 1.1 : 2.5);
+        const sun = new THREE.DirectionalLight(0xfff1de, stylised ? 1.7 : 2.5);
         const SUN = new THREE.Vector3(-20, 22, 30);
         sun.castShadow = true;
         sun.shadow.mapSize.set(2048, 2048);
         tilt.add(sun, sun.target);
         // Light from the sky and back up from the forest floor: softer shadows, as under real trees
-        tilt.add(stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.75) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
+        tilt.add(stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.6) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
 
         /* ---------- THE LISTENER: a ball floating over the middle ---------- */
 

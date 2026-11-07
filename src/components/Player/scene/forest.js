@@ -877,7 +877,7 @@ const toy = {
     pine: ['#7b8466', '#737d60', '#838b6c'],
     spruce: ['#5f6b57', '#56614f', '#66715c'],
     birch: ['#a3a77f', '#9aa078'],
-    trunk: linear('#b3aa9d'), pine: linear('#a8998a'), birchBark: linear('#ddd7cb'),
+    trunk: linear('#b3aa9d'), pineBark: linear('#a8998a'), birchBark: linear('#ddd7cb'),
 };
 
 /** A lumpy, faceted ball of foliage */
@@ -908,7 +908,7 @@ function toyTree(kind, base, h, rand, wood) {
     const top = (t) => base.clone().add(new THREE.Vector3(0, 0, t * h));
     const shade = (list) => vary(rand, rand.pick(list), 0.06);
     if (kind === 'pine') {
-        wood.push(limb(base, top(0.8), h * 0.022, h * 0.01, toy.pine, toy.pine, 6).toNonIndexed());
+        wood.push(limb(base, top(0.8), h * 0.022, h * 0.01, toy.pineBark, toy.pineBark, 6).toNonIndexed());
         const crown = 2 + Math.floor(rand() * 3);
         for (let i = 0; i < crown; i++) {
             const a = rand() * Math.PI * 2, out = rand() * h * 0.08;
