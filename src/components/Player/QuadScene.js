@@ -42,7 +42,7 @@ const TILT_MIN = 0.5, TILT_MAX = 1.0;   // radians the room is tipped towards th
 const LOOK_UP = 0.55, LOOK_DOWN = 0.75;  // standing in the middle: how far up and down you can look, radians from level
 const EYE_SCALE = 0.5;                  // the room's scale standing inside (keeps the camera's near plane at 10 cm)
 const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
-const HAZE = { horizon: 0x9a9d96, sky: 0xd2d5d1, ground: 0x4f5149 };   // the sky round you, and the haze the distance fades into
+const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
 const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
 const WAVE_QUIET = 1.6, WAVE_LOUD = 0.45; // seconds between a speaker's wavefronts, when it plays softly and loudly
 const ONSET = 0.12;                     // a rise in level this sudden (a note, a hit) sends a wavefront at once
@@ -129,7 +129,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const horizon = new THREE.Color(HAZE.horizon), sky = new THREE.Color(HAZE.sky), groundHaze = new THREE.Color(HAZE.ground), c = new THREE.Color();
         for (let i = 0; i < skyGeo.attributes.position.count; i++) {
             const h = skyGeo.attributes.position.getY(i) / 45;   // the sphere's poles are on y: turned below
-            if (h >= 0) c.copy(horizon).lerp(sky, Math.pow(h, 0.6)); else c.copy(horizon).lerp(groundHaze, Math.min(1, -h * 4));
+            if (h >= 0) c.copy(horizon).lerp(sky, Math.pow(h, 0.6)); else c.copy(horizon).lerp(groundHaze, Math.min(1, -h * 1.5));
             skyColours.push(c.r, c.g, c.b);
         }
         skyGeo.setAttribute('color', new THREE.Float32BufferAttribute(skyColours, 3));
@@ -197,7 +197,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const onPointerUp = (e) => { touches.delete(e.pointerId); if (touches.size < 2) pinch = null; };
         const onWheel = (e) => {
             e.preventDefault();
-            zoomBy(-e.deltaY * (e.deltaMode === 1 ? 0.04 : 0.0015));
+            zoomBy(-e.deltaY * (e.deltaMode === 1 ? 0.03 : 0.0012));
         };
         container.addEventListener('pointermove', onPointerMove);
         container.addEventListener('pointerdown', onPointerDown);
@@ -219,7 +219,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             const s = Math.exp(THREE.MathUtils.lerp(Math.log(aboveScale), Math.log(EYE_SCALE), u));
             setScale(s);
             const aboveTilt = TILT_MIN + (TILT_MAX - TILT_MIN) * look;
-            const insideTilt = Math.PI / 2 - LOOK_UP + (LOOK_UP + LOOK_DOWN) * look;
+            const insideTilt = Math.PI / 2 + LOOK_UP - (LOOK_UP + LOOK_DOWN) * look;   // tipped past level = looking up
             tilt.rotation.x = -THREE.MathUtils.lerp(aboveTilt, insideTilt, u);
             const distance = (PANEL_DISTANCE / aboveScale) * Math.pow(1 - u, 1.5);   // metres from the eye
             focus.set(0, 0, eye.z * u).multiplyScalar(s).applyEuler(tilt.rotation);
@@ -231,8 +231,8 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             // The distance hazes over into the sky as you come down
             skyDome.visible = u > 0.001;
             skyDome.material.opacity = smooth(0.35, 0.9, u);
-            fog.near = THREE.MathUtils.lerp(400, 7, u) * s;
-            fog.far = THREE.MathUtils.lerp(800, 36, u) * s;
+            fog.near = THREE.MathUtils.lerp(400, 14, u) * s;
+            fog.far = THREE.MathUtils.lerp(800, 70, u) * s;
 
             if ((u > 0.5) !== inside) { inside = u > 0.5; onZoom?.(inside); }
             return u;
@@ -255,6 +255,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 if (zoomRef) current.zoom += (zoomRef.current - current.zoom) * (1 - Math.exp(-elapsed * 2.5));
                 room.rotation.z = current.yaw;                            // you turn right: the room turns anticlockwise under you
                 const u = place(current.zoom, current.look);
+                const waveDim = 1 - 0.75 * u;   // standing among them, the wavefronts are fainter
                 engine.setYaw(current.yaw);
                 onTurn?.(current.yaw);
 
@@ -287,7 +288,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                         if (p >= 1) { wave.alive = false; wave.mesh.visible = false; continue; }
                         wave.mesh.visible = true;
                         wave.mesh.scale.setScalar(Math.max(0.05, p * speaker.reach));
-                        wave.mesh.material.uniforms.uOpacity.value = wave.strength ** 1.5 * Math.min(1, p * 5) * (1 - p) ** 1.6 * 1.1;
+                        wave.mesh.material.uniforms.uOpacity.value = wave.strength ** 1.5 * Math.min(1, p * 5) * (1 - p) ** 1.6 * 1.1 * waveDim;
                     }
                 });
             },

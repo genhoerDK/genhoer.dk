@@ -700,7 +700,7 @@ function tree(kind, base, h, rand, wood, cards) {
         // Tall and straight, bare up to the crown, orange bark high up; the crown in flat clumps
         const segments = 4;
         for (let s = 0; s < segments; s++) {
-            const t0 = s / segments, t1 = ((s + 1) / segments) * 0.97;
+            const t0 = (s / segments) * 0.97, t1 = ((s + 1) / segments) * 0.97;   // the pieces meet end to end
             const c0 = bark.pineLow.clone().lerp(bark.pineHigh, Math.pow(t0, 1.5)), c1 = bark.pineLow.clone().lerp(bark.pineHigh, Math.pow(t1, 1.5));
             wood.push(limb(along(t0, 0.01), along(t1, 0.01), h * 0.02 * (1 - t0 * 0.75), h * 0.02 * (1 - t1 * 0.75), c0, c1));
         }
