@@ -440,7 +440,8 @@ const RUST = new THREE.Color(0.6, 0.42, 0.32);
 
 /** The base slab: the pit's floor and the walk outside the ring wall, one height */
 function baseSlab(parts) {
-    parts.push(outline(arc(WALL.inner + 0.02, 0, 360, 0.5).slice(0, -1), P - 0.3, P));
+    // (coarse: the floor a polygon reaching in under the wall's flat inner faces, so no gap shows)
+    parts.push(outline(arc(COARSE ? WALL.inner / Math.cos(rad(COARSE_STEP / 2)) + 0.05 : WALL.inner + 0.02, 0, 360, 0.5).slice(0, -1), P - 0.3, P));
     parts.push(revolve([[WALL.outer, P], [LEDGE.outer, P], [LEDGE.outer, BELOW]]));
 }
 
@@ -470,7 +471,8 @@ function ringWall(parts) {
         const a0 = cutAngle(from, Ri, 'from'), a1 = cutAngle(to, Ri, 'to');
         const mine = holes.map((h) => [h, h + 360, h - 360].find((x) => x - hole.half > a0 && x + hole.half < a1)).filter((h) => h !== undefined);
         const angles = new Set();
-        for (let x = a0; x < a1; x += 0.75) angles.add(x);
+        if (COARSE) for (const x of stops(a0, a1)) angles.add(x);   // the same flat faces as the rest of the ring
+        else for (let x = a0; x < a1; x += 0.75) angles.add(x);
         angles.add(a1);
         for (const h of mine) { angles.add(h - hole.half); angles.add(h + hole.half); }
         const sorted = [...angles].sort((p, q) => p - q);
