@@ -61,6 +61,11 @@ const deg = THREE.MathUtils.radToDeg;
 const at = (r, a, z) => new THREE.Vector3(r * Math.sin(rad(a)), r * Math.cos(rad(a)), z);
 const grey = (v) => new THREE.Color(v, v, v);
 
+// Coarse (the stylised look): curves in a few large, flat faces rather than many small ones — a
+// caricature of the emplacement, as the simple trees are of real ones. Set while it is built.
+let COARSE = false;
+const COARSE_STEP = 20;   // degrees one flat face spans round a circle
+
 /** Non-indexed geometry from triangles, each wound so its face points along the given normal */
 function fromTriangles(tris) {
     const position = [], normal = [], color = [];
@@ -109,6 +114,9 @@ function revolve(profile, { from = 0, to = 360, segments = 256, tint, closeEnds 
     const rMax = Math.max(...profile.map((p) => p[0]));
     const span = cutAngle(to, rMax, 'to') - cutAngle(from, rMax, 'from');
     const steps = Math.max(6, Math.round((segments * span) / 360));
+    // coarse: the faces' edges on the same grid of angles as the flat faces that meet them
+    const A0 = cutAngle(from, rMax, 'from');
+    const ts = COARSE ? stops(A0, A0 + span).map((a) => (a - A0) / span) : Array.from({ length: steps + 1 }, (_, j) => j / steps);
     const tris = [];
     const colourOf = (shade) => (tint ? grey(shade).multiply(tint) : grey(shade));
     const angle = (r, t) => { const a0 = cutAngle(from, r, 'from'); return a0 + (cutAngle(to, r, 'to') - a0) * t; };
@@ -118,9 +126,9 @@ function revolve(profile, { from = 0, to = 360, segments = 256, tint, closeEnds 
         const nr = -(z1 - z0) / len, nz = (r1 - r0) / len;
         const c0 = colourOf(s0), c1 = colourOf(s1);
         const n = (a) => new THREE.Vector3(nr * Math.sin(rad(a)), nr * Math.cos(rad(a)), nz);
-        for (let j = 0; j < steps; j++) {
-            const a00 = angle(r0, j / steps), a01 = angle(r0, (j + 1) / steps);
-            const a10 = angle(r1, j / steps), a11 = angle(r1, (j + 1) / steps);
+        for (let j = 0; j < ts.length - 1; j++) {
+            const a00 = angle(r0, ts[j]), a01 = angle(r0, ts[j + 1]);
+            const a10 = angle(r1, ts[j]), a11 = angle(r1, ts[j + 1]);
             const A = at(r0, a00, z0), B = at(r1, a10, z1), C = at(r1, a11, z1), D = at(r0, a01, z0);
             tris.push({ p: [A, B, C], n: [n(a00), n(a10), n(a11)], c: [c0, c1, c1] });
             tris.push({ p: [A, C, D], n: [n(a00), n(a11), n(a01)], c: [c0, c1, c0] });
@@ -165,7 +173,8 @@ const outline = (points, z0, z1, options = {}) => prism(shapeOf(points, options.
 
 /** Points along an arc of radius r from angle a0 to a1 (our angles: clockwise from +y), both ends included */
 function arc(r, a0, a1, step = 1) {
-    const n = Math.max(2, Math.ceil(Math.abs(a1 - a0) / step));
+    if (COARSE) step = Math.max(step, COARSE_STEP);
+    const n = Math.max(COARSE ? 1 : 2, Math.ceil(Math.abs(a1 - a0) / step));
     return Array.from({ length: n + 1 }, (_, i) => { const a = rad(a0 + ((a1 - a0) * i) / n); return [r * Math.sin(a), r * Math.cos(a)]; });
 }
 
@@ -278,6 +287,7 @@ function face(points, normal, { holes = [], shade = 1 } = {}) {
 
 /** Angles from a0 to a1, in that order, at most `step` apart on a grid shared by every face on the same circle, with `extra` angles between */
 function stops(a0, a1, step = 0.5, extra = []) {
+    if (COARSE) step = Math.max(step, COARSE_STEP);
     const lo = Math.min(a0, a1), hi = Math.max(a0, a1);
     const list = [lo, hi, ...extra.filter((a) => a > lo + 1e-6 && a < hi - 1e-6)];
     for (let k = Math.floor(lo / step) + 1; k * step < hi - 1e-6; k++) if (k * step > lo + 1e-6) list.push(k * step);
@@ -391,7 +401,8 @@ export function groundAt(x, y) {
  * photo behind shows
  */
 function forestFloor(stylised = false) {
-    const R0 = LEDGE.outer - 0.05, R1 = stylised ? 90 : 40, steps = 480;   // stylised: out to where the forest fades into the haze
+    // (stylised: the walk's edge is a polygon, so the floor starts a little inside its flattest point)
+    const R0 = stylised ? LEDGE.outer * Math.cos(rad(COARSE_STEP / 2)) - 0.15 : LEDGE.outer - 0.05, R1 = stylised ? 90 : 40, steps = 480;   // stylised: out to where the forest fades into the haze
     const radii = [];
     for (let r = R0; r < R1; r += r < 22 ? 0.2 : r < 40 ? 0.6 : 1.5) radii.push(r);
     radii.push(R1);
@@ -802,7 +813,8 @@ function sideBlock(parts, side) {
     add([[-X, -step, shoulder], [sB[0], -step, shoulder], [sB[0], -step, top], [-X, -step, top]], [0, -1, 0]);
 }
 
-function emplacementGeometry() {
+function emplacementGeometry(coarse = false) {
+    COARSE = coarse;
     const parts = [];
     baseSlab(parts);
     ringWall(parts);
@@ -812,8 +824,11 @@ function emplacementGeometry() {
     sideBlock(parts, -1);
     sideBlock(parts, 1);
     const geometry = mergeGeometries(parts);
+    COARSE = false;
     markEdges(geometry);
-    unsettle(geometry);
+    // coarse: leaning much more (up to about 10 cm), so no face is quite true; lit face by face
+    unsettle(geometry, coarse ? 5 : 1, coarse ? 0 : 1);
+    if (coarse) geometry.computeVertexNormals();
     return geometry;
 }
 
@@ -956,16 +971,16 @@ function markEdges(geometry, creaseDeg = 35) {
  * a smooth field, the same wherever two pieces meet, so they stay joined while their walls lean,
  * sag and bulge a little and their corners stop being true
  */
-function unsettle(geometry) {
+function unsettle(geometry, amount = 1, ripple = 1) {
     const pos = geometry.attributes.position;
     const field = (x, y, z, s) => Math.sin(0.83 * x + 0.37 * y + 1.13 * z + s) * Math.cos(0.41 * x - 0.92 * y + 0.27 * z + 2 * s);
     for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-        const fine = (s) => 0.006 * Math.sin(3.1 * x + 2.3 * z + s) * Math.cos(2.7 * y - 1.9 * z + s);
+        const fine = (s) => 0.006 * ripple * Math.sin(3.1 * x + 2.3 * z + s) * Math.cos(2.7 * y - 1.9 * z + s);
         pos.setXYZ(i,
-            x + 0.018 * field(x, y, z, 0.3) + fine(1.1),
-            y + 0.018 * field(y, z, x, 1.7) + fine(2.3),
-            z + 0.012 * field(z, x, y, 2.9) + fine(3.7));
+            x + 0.018 * amount * field(x, y, z, 0.3) + fine(1.1),
+            y + 0.018 * amount * field(y, z, x, 1.7) + fine(2.3),
+            z + 0.012 * amount * field(z, x, y, 2.9) + fine(3.7));
     }
     pos.needsUpdate = true;
 }
@@ -1071,6 +1086,17 @@ function placedLoudspeaker(angle) {
     return holder;
 }
 
+/** Stone as in a cartoon: one colour, lit in three flat tones (shadow, half-light, light), face by face */
+function toonStone() {
+    const tones = new Uint8Array([80, 150, 225]);
+    const gradient = new THREE.DataTexture(tones, tones.length, 1, THREE.RedFormat);
+    gradient.minFilter = gradient.magFilter = THREE.NearestFilter;
+    gradient.needsUpdate = true;
+    const material = new THREE.MeshToonMaterial({ color: 0x6c6c70, gradientMap: gradient, vertexColors: true });
+    material.userData.texture = gradient;
+    return material;
+}
+
 /**
  * The emplacement as a group (metres, z up).
  *   textured  true = the weathered concrete; false (default) = plain grey concrete
@@ -1081,10 +1107,9 @@ export function buildKanonstilling({ textured = false, look = 'realistic' } = {}
     const stylised = look === 'stylised';
     const group = new THREE.Group();
     // The concrete a little darker than it was, as in the photos
-    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({
+    const model = new THREE.Mesh(emplacementGeometry(stylised), stylised ? toonStone() : concreteMaterial({
         // stylised: dark granite, one even colour, as in a cartoon
         textured: textured && !stylised, color: stylised ? 0x7c7c80 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
-    model.material.flatShading = stylised;   // faceted, as cut stone in a cartoon
     model.castShadow = true;
     model.receiveShadow = true;
     const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised });
