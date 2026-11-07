@@ -33,6 +33,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { concreteMaterial } from './concrete';
+import { createForest, forestFloorMaterial } from './forest';
 
 /* ---------- MEASUREMENTS (metres) ---------- */
 
@@ -380,20 +381,9 @@ export function groundAt(x, y) {
     return Math.min(z, z + (P - 0.04 - z) * nearRing * (z > P - 0.04 ? 1 : 0));
 }
 
-/** The forest floor's colour at (x, y): dark humus, lighter needles and leaves, moss near the walls and in hollows */
-function groundColour(x, y, z) {
-    const n1 = noise2(x * 0.35 + 2.2, y * 0.35), n2 = noise2(x * 1.1 - 3.3, y * 1.1 + 1.7), n3 = noise2(x * 0.18, y * 0.18 - 6.1);
-    const humus = [0.11, 0.095, 0.075], litter = [0.24, 0.19, 0.13], moss = [0.12, 0.15, 0.07];
-    const nearWall = Math.exp(-Math.max(0, bunkerDistance(x, y)) / 2.5);
-    const t = smoothstep(-0.3, 0.6, n1 + n2 * 0.4);
-    const m = smoothstep(0.1, 0.7, n3 * 0.7 + nearWall * 0.6 + n2 * 0.2);
-    const c = humus.map((h, i) => h + (litter[i] - h) * t);
-    return c.map((v, i) => (v + (moss[i] - v) * m * 0.75) * (0.85 + 0.25 * (n2 * 0.5 + 0.5)));
-}
-
 /**
- * The forest floor round the emplacement: one surface shaped by groundAt and coloured by
- * groundColour, from just under the walk's edge out to 40 m, fading out at its far edge so the
+ * The forest floor round the emplacement: one surface shaped by groundAt and painted by
+ * forestFloorMaterial (scene/forest.js), from just under the walk's edge out to 40 m, fading out at its far edge so the
  * photo behind shows
  */
 function forestFloor() {
@@ -408,7 +398,7 @@ function forestFloor() {
             const [x, y] = onCircle(r, (j / steps) * 360);
             const z = groundAt(x, y);
             position.push(x, y, z);
-            colour.push(...groundColour(x, y, z), alpha);
+            colour.push(1, 1, 1, alpha);
         }
     }
     for (let i = 0; i < radii.length - 1; i++) {
@@ -422,7 +412,7 @@ function forestFloor() {
     g.setAttribute('color', new THREE.Float32BufferAttribute(colour, 4));
     g.setIndex(index);
     g.computeVertexNormals();
-    const mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, vertexColors: true, transparent: true }));
+    const mesh = new THREE.Mesh(g, forestFloorMaterial(bunkerDistance));
     mesh.receiveShadow = true;
     return mesh;
 }
@@ -1081,12 +1071,16 @@ function placedLoudspeaker(angle) {
  */
 export function buildKanonstilling({ textured = false } = {}) {
     const group = new THREE.Group();
-    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
+    // The concrete a little darker than it was, as in the photos
+    const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({ textured, color: 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.castShadow = true;
     model.receiveShadow = true;
-    group.add(model, forestFloor());
+    const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P } });
+    group.add(model, forestFloor(), forest.group);
     return {
         group,
+        /** The trees round it: forest.update(centre, radius) each frame, so those in front thin out */
+        forest,
         /** Across the walk round the ring, for fitting it to the screen */
         size: LEDGE.outer * 2,
         /** A loudspeaker on the ring wall at an angle */

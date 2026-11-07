@@ -2,7 +2,7 @@
 
 /**
  * 3D scene for a work made for four speakers (three.js): the gun emplacement seen from above
- * (scene/kanonstilling.js) with the four loudspeakers on the ring wall where the work was played;
+ * (scene/kanonstilling.js), in its forest (scene/forest.js), with the four loudspeakers on the ring wall where the work was played;
  * you are in the middle of the pit. The photo (with depth) and smoke lie behind, on the shared
  * stage (scene/stage.js). A low sun from beyond the room throws its shadows towards the viewer,
  * so the pit's depth shows whichever way the room is turned.
@@ -125,7 +125,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             tilt.position.y = view.aspect < 1 ? -view.height * 0.02 : -view.height * 0.04;
             // The sun's shadow covers the whole emplacement, in the scaled room's units
             const cam = sun.shadow.camera;
-            const reach = 34 * scale;
+            const reach = 36 * scale;   // the trees' shadows too
             Object.assign(cam, { left: -reach, right: reach, top: reach, bottom: -reach, near: 2 * scale, far: 100 * scale });
             cam.updateProjectionMatrix();
             sun.shadow.bias = -0.0004;
@@ -147,6 +147,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
 
         /* ---------- STAGE ---------- */
 
+        const cutCentre = new THREE.Vector3();
         const stage = createStage(container, {
             smoke: 0.45,
             light: 0.35,
@@ -161,6 +162,10 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 tilt.rotation.x = -current.tilt;
                 engine.setYaw(current.yaw);
                 onTurn?.(current.yaw);
+
+                // Trees between you and the emplacement thin out
+                stage.camera.updateMatrixWorld(true);
+                emplacement.forest.update(room.localToWorld(cutCentre.set(0, 0, 1.5)), emplacement.size * 0.5 * scale);
 
                 const levels = engine.levels();
                 speakers.forEach((speaker, i) => {
@@ -198,7 +203,11 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
 
         return () => {
             container.removeEventListener('pointermove', onPointerMove);
-            emplacement.group.traverse((obj) => obj.material?.userData?.texture?.dispose());
+            emplacement.group.traverse((obj) => {
+                obj.material?.userData?.texture?.dispose();
+                obj.material?.userData?.textures?.forEach((t) => t.dispose());
+            });
+            emplacement.forest.dispose();
             stage.dispose();
         };
     }, [engine, textured, angles, cover, coverDepth, turnRef, onTurn]);
