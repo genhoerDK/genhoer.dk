@@ -51,6 +51,7 @@ const BELOW = -2.5;                                  // how deep the slab and th
 // and marked on the drone photo: [degrees clockwise from north, metres]. Between them the drop is
 // eased round the ring; away from the ring the ground goes on with the same lean (it falls to the
 // west) and gently uneven
+const HILL = { x: 21.5, y: 0, wide: 6.5, long: 8.5, height: 4.6 };   // metres; the east side block's top is 5.45
 const FLOOR_DROPS = [[-139.2, 0.5], [-48.7, 1.5], [42.7, 0.1], [132.0, 0]];
 
 /* ---------- GEOMETRY HELPERS ---------- */
@@ -376,7 +377,10 @@ export function groundAt(x, y) {
     const d = Math.max(0, bunkerDistance(x, y));
     const drift = smoothstep(0.05, 0.7, 0.5 + 0.5 * noise2(x * 0.22 + 7.7, y * 0.22 + 2.9) + 0.25 * noise2(x * 0.6, y * 0.6 + 9.1));
     const heap = 0.8 * drift * Math.exp(-d / 1.3) * smoothstep(0, 0.4, d + 0.3);
-    let z = rim + lean + hummocks + bumps + heap;
+    // A hill to the east of the east side block, nearly as high as the block, its foot against it
+    const hx = (x - HILL.x) / HILL.wide, hy = (y - HILL.y) / HILL.long;
+    const hill = HILL.height * Math.exp(-(hx * hx + hy * hy)) * (1 + 0.08 * noise2(x * 0.3 + 2, y * 0.3));
+    let z = rim + lean + hummocks + bumps + heap + hill;
     const nearRing = 1 - smoothstep(0.3, 1.8, r - LEDGE.outer);
     return Math.min(z, z + (P - 0.04 - z) * nearRing * (z > P - 0.04 ? 1 : 0));
 }
@@ -1078,9 +1082,9 @@ export function buildKanonstilling({ textured = false, look = 'realistic' } = {}
     const group = new THREE.Group();
     // The concrete a little darker than it was, as in the photos
     const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({
-        // stylised: like pale worn stone — no boards, no moss, small ochre lichen spots
-        ...(stylised ? { boards: 0, lichen: 0.55, lichenColor: 0xc29468, mossColor: 0x9c978b, greenColor: 0xa9a598 } : {}),
-        textured, color: stylised ? 0xb9b2a6 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
+        // stylised: dark granite — no boards, no moss, hardly any lichen
+        ...(stylised ? { boards: 0, lichen: 0.12, lichenColor: 0x8a8578, mossColor: 0x5a5b58, greenColor: 0x626460 } : {}),
+        textured, color: stylised ? 0x6f6f72 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.castShadow = true;
     model.receiveShadow = true;
     const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised });

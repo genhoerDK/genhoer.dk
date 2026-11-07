@@ -1014,6 +1014,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             const d = distance(x, y);
             if (d < minD || d > maxD) continue;
             if (cover(x, y).path > 0.35 && kind !== 'shrub') continue;
+            if (groundAt(x, y) > 2.4 && kind !== 'shrub') continue;   // the hill's top stays open
             const room = h * (kind === 'shrub' ? 0.12 : kind === 'spruce' ? 0.13 : 0.1);
             if (!free(x, y, room)) continue;
             placed.push({ x, y, room });
