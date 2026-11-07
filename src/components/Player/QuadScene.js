@@ -4,8 +4,8 @@
  * 3D scene for a work made for four speakers (three.js): the gun emplacement seen from above
  * (scene/kanonstilling.js), in its forest (scene/forest.js), with the four loudspeakers on the ring wall where the work was played;
  * you are in the middle of the pit. The photo (with depth) and smoke lie behind, on the shared
- * stage (scene/stage.js). A low sun from beyond the room throws its shadows towards the viewer,
- * so the pit's depth shows whichever way the room is turned.
+ * stage (scene/stage.js). A low sun stands to one side of the room and turns with it, so the
+ * shadows stay where they fall as you turn.
  *
  * The sound: from where each speaker stands, wavefronts drift slowly in towards the listener, one
  * for every note or hit on that track and otherwise the more often the louder it plays, each as
@@ -40,8 +40,8 @@ import { buildKanonstilling, groundAt } from '@/components/Player/scene/kanonsti
 import { createMist } from '@/components/Player/scene/mist';
 import { colors } from '@/styles/colors';
 
-const TILT_MIN = 0.5, TILT_MAX = 1.0;   // radians the room is tipped towards the viewer: pointer high = flatter, low = steeper
-const LOOK_UP = 0.55, LOOK_DOWN = 0.75;  // standing in the middle: how far up and down you can look, radians from level
+const TILT_MIN = 0.15, TILT_MAX = 1.3;  // radians the room is tipped towards the viewer: pointer high = flatter, low = steeper
+const LOOK_UP = 0.95, LOOK_DOWN = 1.1;   // standing in the middle: how far up and down you can look, radians from level
 const EYE_SCALE = 0.5;                  // the room's scale standing inside (keeps the camera's near plane at 10 cm)
 const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
 const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
@@ -131,12 +131,12 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         room.add(mist.group);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // The sun, from beyond the room on the left; it stays put while the room turns under it
+        // The sun, from beyond the room on the left; it turns with the room, so the shadows stay where they fall
         const sun = new THREE.DirectionalLight(0xfff1de, stylised ? 1.7 : 2.5);
         const SUN = new THREE.Vector3(-20, 22, 30);
         sun.castShadow = true;
         sun.shadow.mapSize.set(2048, 2048);
-        tilt.add(sun, sun.target);
+        room.add(sun, sun.target);
         // Light from the sky and back up from the forest floor: softer shadows, as under real trees
         tilt.add(stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.6) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
 
@@ -214,7 +214,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const setScale = (s) => {
             scale = s;
             room.scale.setScalar(s);
-            sun.position.copy(SUN).multiplyScalar(s);
+            sun.position.copy(SUN);   // in the room's own metres: the room's scale applies
             // The sun's shadow covers the emplacement and the trees round it, in the scaled room's units
             const cam = sun.shadow.camera;
             const reach = 36 * s;
