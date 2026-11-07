@@ -45,7 +45,7 @@ const LOOK_UP = 0.55, LOOK_DOWN = 0.75;  // standing in the middle: how far up a
 const EYE_SCALE = 0.5;                  // the room's scale standing inside (keeps the camera's near plane at 10 cm)
 const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
 const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
-const PALE = { horizon: 0xdcd8ce, sky: 0xebe8e0, ground: 0xc8c6b4 };   // the same, in the stylised look: a pale, warm haze over everything
+const PALE = { horizon: 0xdcdcd4, sky: 0xebe8e0, ground: 0xc8c6b4 };   // the same, in the stylised look: a pale, warm haze over everything
 const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
 const WAVE_QUIET = 1.6, WAVE_LOUD = 0.45; // seconds between a speaker's wavefronts, when it plays softly and loudly
 const ONSET = 0.12;
@@ -72,6 +72,41 @@ const waveShader = {
             gl_FragColor = vec4(uColor * (rim * 0.9 + 0.12) * facing * uOpacity, 1.0);
         }`,
 };
+
+/** The stylised sky, wrapped round a sphere: soft blue overhead, pale haze at the horizon, light clouds */
+function skyTexture() {
+    const W = 1024, H = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    // the top of the canvas is the top of the sky; the horizon is halfway down
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#9fbbd0');
+    g.addColorStop(0.3, '#bccfdb');
+    g.addColorStop(0.45, '#dcdcd4');
+    g.addColorStop(1, '#dcdcd4');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    let seed = 5;
+    const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    for (let c = 0; c < 26; c++) {
+        const x = rand() * W, y = H * (0.12 + rand() * 0.28), w = 50 + rand() * 120;
+        for (let k = 0; k < 7; k++) {
+            const px = x + (rand() - 0.5) * w * 1.6, py = y + (rand() - 0.5) * w * 0.25, r = w * (0.25 + rand() * 0.3);
+            for (const ox of [-W, 0, W]) {
+                const blob = ctx.createRadialGradient(px + ox, py, 0, px + ox, py, r);
+                blob.addColorStop(0, 'rgba(250,250,247,0.85)');
+                blob.addColorStop(1, 'rgba(250,250,247,0)');
+                ctx.fillStyle = blob;
+                ctx.beginPath(); ctx.ellipse(px + ox, py, r, r * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.wrapS = THREE.RepeatWrapping;
+    return texture;
+}
 
 export default function QuadScene({ engine, textured = false, angles, cover, coverDepth, turnRef, onTurn, zoomRef, onZoom, look = 'realistic' }) {
     const containerRef = useRef(null);
@@ -151,6 +186,15 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         skyDome.renderOrder = -0.5;                          // over the photo, under the rest
         skyDome.visible = false;
         room.add(skyDome);
+
+        // Stylised: a sky always round everything, far out — soft blue over the haze, light clouds
+        const skyMap = stylised ? skyTexture() : null;
+        if (stylised) {
+            skyDome.geometry.dispose();
+            skyDome.geometry = new THREE.SphereGeometry(110, 64, 32).rotateX(Math.PI / 2);
+            skyDome.material = new THREE.MeshBasicMaterial({ map: skyMap, side: THREE.BackSide, depthWrite: false, fog: false });
+            skyDome.visible = true;
+        }
 
         /* ---------- LAYOUT ---------- */
 
@@ -242,11 +286,14 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             if (Math.abs(stage.camera.fov - lens) > 0.01) { stage.camera.fov = lens; stage.camera.updateProjectionMatrix(); }
 
             // The distance hazes over into the sky as you come down
-            skyDome.visible = u > 0.001;
-            skyDome.material.opacity = smooth(0.35, 0.9, u);
+            if (!stylised) {
+                skyDome.visible = u > 0.001;
+                skyDome.material.opacity = smooth(0.35, 0.9, u);
+            }
             // (stylised: a haze from above too, so what lies further off fades into it)
-            fog.near = THREE.MathUtils.lerp(stylised ? 50 : 400, stylised ? 8 : 14, u) * s;
-            fog.far = THREE.MathUtils.lerp(stylised ? 115 : 800, stylised ? 55 : 70, u) * s;
+            // (stylised: only far off, so the forest fades into it and the near things stay clear)
+            fog.near = THREE.MathUtils.lerp(stylised ? 95 : 400, stylised ? 22 : 14, u) * s;
+            fog.far = THREE.MathUtils.lerp(stylised ? 150 : 800, stylised ? 80 : 70, u) * s;
 
             if ((u > 0.5) !== inside) { inside = u > 0.5; onZoom?.(inside); }
             return u;
@@ -309,7 +356,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             },
         });
         stage.panel.add(tilt);
-        stage.scene.fog = stylised ? null : fog;
+        stage.scene.fog = fog;
         if (stylised) stage.renderer.setClearColor(haze.horizon, 1); else stage.setBackdrop(cover, coverDepth);
         stage.start();
 
@@ -325,6 +372,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             });
             emplacement.forest.dispose();
             mist.dispose();
+            skyMap?.dispose();
             stage.dispose();
         };
     }, [engine, textured, angles, cover, coverDepth, turnRef, onTurn, zoomRef, onZoom, look]);

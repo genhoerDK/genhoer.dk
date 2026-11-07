@@ -391,13 +391,13 @@ export function groundAt(x, y) {
  * photo behind shows
  */
 function forestFloor(stylised = false) {
-    const R0 = LEDGE.outer - 0.05, R1 = 40, steps = 480;
+    const R0 = LEDGE.outer - 0.05, R1 = stylised ? 90 : 40, steps = 480;   // stylised: out to where the forest fades into the haze
     const radii = [];
-    for (let r = R0; r < R1; r += r < 22 ? 0.2 : 0.6) radii.push(r);
+    for (let r = R0; r < R1; r += r < 22 ? 0.2 : r < 40 ? 0.6 : 1.5) radii.push(r);
     radii.push(R1);
     const position = [], colour = [], index = [];
     for (const r of radii) {
-        const alpha = 1 - smoothstep(26, R1, r);
+        const alpha = 1 - smoothstep(stylised ? 70 : 26, R1, r);
         for (let j = 0; j < steps; j++) {
             const [x, y] = onCircle(r, (j / steps) * 360);
             const z = groundAt(x, y);

@@ -1032,6 +1032,16 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
     }
     for (let i = 0; i < 40; i++) plant(rand.pick(['spruce', 'spruce', 'beech', 'beech', 'birch', 'pine']), rand.range(2.5, 7.5), 1.2, Infinity);
     for (let i = 0; i < 50; i++) plant('shrub', rand.range(1.2, 2.6), i < 30 ? 0.1 : 2, i < 30 ? 2 : Infinity);
+    if (stylised) {
+        // The forest goes on beyond, out into the haze
+        const kindsFar = ['pine', 'pine', 'spruce', 'spruce', 'beech', 'birch'];
+        for (let i = 0; i < 420; i++) {
+            const a = rand() * Math.PI * 2, r = R + Math.sqrt(rand()) * (78 - R);
+            const x = Math.sin(a) * r, y = Math.cos(a) * r;
+            const kind = rand.pick(kindsFar);
+            toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), rand.range(...heights[kind]), rand, wood);
+        }
+    }
 
     /* Fallen trunks and branches */
     for (let i = 0; i < 10; i++) {
