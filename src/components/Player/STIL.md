@@ -3,8 +3,11 @@
 Fælles regler for værkernes 3D-miljøer: Kanon i G3 (`QuadScene.js`), Tværveje (`WalkScene.js`) og
 53 sekunder til fælles (`ElevatorScene.js`), og de værker, der kommer. Stilen bygger på det mørke
 design, de tre værker allerede har valgt (`look: 'dark'`), og på valgene i stil-labbet, hvor
-trækkene kan prøves på én testscene (forslag F er den valgte stil):
+trækkene kan prøves på én testscene (forslag G, "Modelbord, let", er den valgte stil):
 https://claude.ai/artifact/X7Z4P38MDqWgmMQejeN467
+
+Kort fortalt: en grå arkitektmodel med dæmpede gader, meget svage kanter, hvid lyd og et let raster
+i sitets egne gråtoner.
 
 Når den sidste tvivl under **Åbent** er afgjort, flyttes tallene ind i ét modul (`scene/style.js`),
 som alle scener henter fra, så de ikke hver har deres egne kopier af de samme gråtoner.
@@ -22,46 +25,55 @@ tåge.
 Reglen er sitets egen: på genhoer.dk er rund og hvid allerede lig med lyd (afspilknappen, kortets
 markører). I 3D er kun lyd rund og hvid.
 
-## Farver: sitets gråtoner, ingen farve
+## Farver: zinc, ingen farve
 
-Gråtonerne er sitets egne (`src/styles/colors.js`) med nogle mellemtrin i de mørke. Hver ting i
-scenen har sit trin:
+Alle gråtoner kommer fra Tailwinds zinc-skala, som sitets egne farver er en del af
+(`src/styles/colors.js`: paper er zinc-50, ink er zinc-800). Hvor 3D har brug for flere mørke trin,
+blandes der et halvt trin mellem to naboer, fx zinc-750 midt mellem zinc-700 og zinc-800. Så har
+alle toner zincs svagt kølige skær, og intet er hentet andre steder fra.
 
-| rolle                      | værdi                                  | i dag                                   |
-|----------------------------|----------------------------------------|-----------------------------------------|
-| baggrund (bag det hele)    | `#27272a` (ink)                        | Kanon `#18181b`: rettes til ink, som afspilleren, heroen og headeren |
-| jord                       | `#1f1f22`                              | alle tre                                |
-| huse, vægge                | `#33333a` `#3a3a41` `#42424a`          | Tværveje, 53 sekunder                   |
-| tage                       | `#2b2b31` `#4a4a51`                    | Tværveje                                |
-| gader og stier             | `#42424a` og `#33333a`: dæmpede, kun et par trin over jorden | Tværveje og 53 sekunder har lyse gader og veje: dæmpes |
-| træer, kroner              | `#3f3f46` `#4a4a51` `#55555c`          | alle tre                                |
-| stammer                    | `#2e2e33`                              | alle tre                                |
-| pejlemærket (ét pr. værk)  | `#6a6a72`, tag `#7a7a82`               | Kanon `#6a6a72`, Tværveje `#55555c`     |
-| dis                        | `#5c5c61`                              | alle tre                                |
-| lyden                      | `#fafafa` (paper), hvid                | Tværvejes kugle                         |
+| rolle                      | zinc                         | værdi                         |
+|----------------------------|------------------------------|-------------------------------|
+| baggrund (bag det hele)    | zinc-800 (ink)               | `#27272a`                     |
+| jord                       | zinc-850                     | `#202023`                     |
+| huse, vægge                | zinc-750 · 725 · 700         | `#333338` `#39393f` `#3f3f46` |
+| tage                       | zinc-775 · 650               | `#2d2d31` `#494951`           |
+| gader                      | zinc-700, dæmpede            | `#3f3f46`                     |
+| stier                      | zinc-750, dæmpede            | `#333338`                     |
+| træer, kroner              | zinc-700 · 650 · 600         | `#3f3f46` `#494951` `#52525b` |
+| stammer                    | zinc-775                     | `#2d2d31`                     |
+| pejlemærket (ét pr. værk)  | zinc-550, tag zinc-500       | `#62626b` `#71717a`           |
+| dis                        | zinc-575                     | `#5a5a63`                     |
+| kanter                     | zinc-50 (paper), meget svagt | `#fafafa`                     |
+| lyden                      | zinc-50 (paper), hvid        | `#fafafa`                     |
+
+I dag har Kanon i G3 baggrunden `#18181b` (zinc-900), og Tværveje og 53 sekunder har lyse gader og
+veje. Begge dele rettes.
 
 Ingen tonemapping (`THREE.NoToneMapping`), så gråtonerne står, som de er skrevet. Ingen farve
 nogen steder; også lyden er hvid.
 
-## Streg: let
+## Streg: meget svag
 
-Alle kanter tegnes med en tynd linje i paper, svag nok til at ligne kommunegrænserne på sitets
-kort: omkring 0,16 på huse, 0,1 på træer og 0,45 på pejlemærket. Linjerne går i disen med resten.
+Alle kanter tegnes med en tynd linje i paper. Den skal kun lige kunne ses, som en blyantslinje på en
+model: 0,06 på huse, 0,04 på træer og 0,18 på pejlemærket (40 % af "let" i labbet). Linjerne går i
+disen med resten.
 
 I skitsen er stregen `EdgesGeometry` (kanter over 30°). I værkerne bygges den som et efterbehandlet
 lag ud fra dybde og normaler (Sobel), så linjen har samme tykkelse på alle skærme. `EdgesGeometry`
 giver 1-pixel linjer, der bliver for tynde på telefoner.
 
-## Lys: ler
+## Lys: modelbord
 
-Blødt lys fra hele himlen, ingen sol med skygger, og alt mørkere hvor ting mødes og ned mod jorden
-(ambient occlusion). Formen bæres af stregen og af den mørkere fod. Der regnes ingen skygger, så
-det er også lettere for telefoner.
+Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skygger.
 
-- `HemisphereLight(0xe8e8ec, 0x202024)` som det eneste lys af betydning, plus evt. et svagt
-  retningslys uden skygger (styrke omkring 0,35), så fladerne ikke er helt ens.
-- AO enten bagt i vertex-farverne (mørkere mod foden: 55 % ved jorden, fuld farve ved 60 % af
-  højden, som i skitsen) eller som et skærmlag (SSAO). Det bagte er billigst og ser roligst ud.
+- `HemisphereLight(0xe8e8ec, 0x202024, 1.0)` og en hvid sol `DirectionalLight(0xffffff, 0.75)`, lav
+  fra sydvest. Alle tre værker bruger det samme lyssæt; i dag har 53 sekunder halvt så meget lys som
+  de andre.
+- Skygger kun fra solen, bløde (`PCFSoftShadowMap`). 2048 på computer og 1024 på telefon. Skyggerne
+  regnes kun igen, når noget i scenen flytter sig.
+- Ler (intet sollys, alt mørkere ned mod jorden) er det lette alternativ, hvis en scene er for tung
+  på telefon. Det ligger i labbet.
 - Lyden lyser selv (`MeshBasicMaterial`, additiv blending på stråler, pøl og ringe) og påvirker
   ikke resten af scenens lys.
 
@@ -85,17 +97,31 @@ det er også lettere for telefoner.
   det, man skal se (Tværvejes tåge er for tung tæt på).
 - En svag dither i al dis og vignet, også uden raster, så mørke gradienter ikke får striber.
 
-## Effektlag: raster i sitets toner, med filmkorn
+## Effektlag: et let raster i sitets toner
 
-Det færdige billede rastres (ordnet dithering, Bayer 4×4) mellem sitets otte gråtoner og ingen
-andre: `#27272a` `#3f3f46` `#52525b` `#71717a` `#a1a1aa` `#d4d4d8` `#e4e4e7` `#fafafa`. Før
-rastret lægges et filmkorn på ±2,5 %, der skifter 12 gange i sekundet, så prikkerne sitrer en
-anelse. Modellen bliver af samme stof som arkivfotoene og resten af sitet.
+Det færdige billede rastres (ordnet dithering, Bayer 4×4) mellem sitets otte gråtoner, zinc-800 til
+zinc-50: `#27272a` `#3f3f46` `#52525b` `#71717a` `#a1a1aa` `#d4d4d8` `#e4e4e7` `#fafafa`. Rasteret
+blandes kun 30 % ind over det glatte billede, med fine prikker på 1 CSS-pixel. Det ses som en
+tekstur i de bløde overgange og ikke som et mønster, og det fjerner samtidig striber i disen.
 
-- Prikkerne er altid 2 CSS-pixel (scenen tegnes i halv opløsning og skaleres op med
-  `image-rendering: pixelated`), så telefon og computer ser ens ud.
-- Kameraet bevæger sig langsomt, så rasteret ikke "svømmer".
+- Styrken kan skrues fra 5 til 100 %; 30 % er udgangspunktet. Filmkorn (korn, der skifter 12
+  gange i sekundet) kan lægges på i samme lave styrke, hvis billedet skal føles mere levende.
+- Prikkerne har samme størrelse på alle skærme: scenen tegnes i 1× opløsning.
 - Ved "reducér bevægelse" fryser kornet.
+
+## Opløsning og mobil
+
+Stilen er billig af natur: ingen teksturer, ingen 3D-filer at hente, få farver. Alt bygges i kode,
+og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels og skygger.
+
+- Opløsning 1× (`setPixelRatio(1)`) på telefoner. En telefon med 3× skærm tegner ellers 9 gange så
+  mange pixels, og forskellen skjules af rasteret. Op til 2× på computer.
+- Højst 30 tegnekald og 150.000 trekanter pr. scene. Alle huse er én geometri, alle træer én
+  (testbyen i labbet: 22 tegnekald, omkring 100.000 trekanter).
+- Effektlaget er ét ekstra gennemløb af billedet; billigt ved 1×.
+- Tegn kun, når noget sker: billedraten falder, når ingen rører, og lyden er stille, og stopper,
+  når fanen er skjult.
+- Kanterne tegnes først og kan stå alene, mens resten bygges.
 
 ## Bevægelse og kamera
 
@@ -118,8 +144,8 @@ det aktive sted, ellers faint. Knapper og felter er firkantede som på resten af
 
 ## Åbent
 
-- Om ler skal have et svagt retningslys uden skygger eller ingen retning overhovedet.
 - Om overgangen ind gennem stedets omrids skal bygges, eller om en prik-opløsning er nok.
+- Om filmkorn skal med, eller om rasteret alene er nok.
 
 ## Når en ny scene laves
 
