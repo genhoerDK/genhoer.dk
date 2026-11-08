@@ -129,5 +129,5 @@ export default function MapSmall({ activeProject, setActiveProject }) {
         resetHighlight(svg.select("g"));
     }, [activeProject]);
 
-    return <svg ref={svgRef} className="relative w-full h-svh" />;
+    return <svg ref={svgRef} className="relative w-full h-page" />;
 }

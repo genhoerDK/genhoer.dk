@@ -33,7 +33,7 @@ export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, b
     const photo = image ?? track?.player?.image ?? track?.coverImageLandscape;
 
     return (
-        <div className='relative w-full h-svh bg-ink text-paper overflow-hidden select-none'>
+        <div className='relative w-full h-page bg-ink text-paper overflow-hidden select-none'>
             {/* The photo, black and white like the covers so a gallery photo fits in too */}
             {backdrop && (
                 <div className='absolute inset-0' style={{ filter: ['grayscale(1)', filter].filter(Boolean).join(' '), transition: filterTransition }}>

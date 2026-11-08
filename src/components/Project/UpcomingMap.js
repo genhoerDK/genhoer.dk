@@ -28,7 +28,7 @@ const mapCoordinates = ({ coordinates: [lon, lat], komkode }) =>
 // Where the kommune sits on screen and how much of the screen it may fill
 function layout(width, height, isPortrait) {
     return isPortrait
-        ? { anchor: [width * 0.5, height * 0.36], fill: [0.5, 0.26] }
+        ? { anchor: [width * 0.5, height * 0.46], fill: [0.5, 0.26] }
         : { anchor: [width * 0.5, height * 0.46], fill: [0.3, 0.46] };
 }
 
@@ -216,7 +216,7 @@ export default function UpcomingMap({ projects }) {
         <section
             aria-roledescription="karrusel"
             aria-label="Kommende projekter"
-            className="relative h-svh md:pt-24 md:pb-4 md:mx-4 overflow-hidden animate-fade-in"
+            className="relative h-page md:pt-24 md:pb-4 md:mx-4 overflow-hidden animate-fade-in"
             onKeyDown={onKeyDown}
         >
             <div
@@ -260,9 +260,9 @@ export default function UpcomingMap({ projects }) {
                         </div>
 
                         {/* ── Arrows ── */}
-                        <div className="absolute right-4 bottom-[52px] md:bottom-[10px] flex gap-1">
-                            <ArrowButton onClick={() => go(active - 1)} label="Forrige projekt"><ChevronLeftIcon className="size-3" /></ArrowButton>
-                            <ArrowButton onClick={() => go(active + 1)} label="Næste projekt"><ChevronRightIcon className="size-3" /></ArrowButton>
+                        <div className="absolute right-4 bottom-[56px] md:bottom-[14px] flex gap-1.5">
+                            <ArrowButton onClick={() => go(active - 1)} label="Forrige projekt"><ChevronLeftIcon className="size-4" /></ArrowButton>
+                            <ArrowButton onClick={() => go(active + 1)} label="Næste projekt"><ChevronRightIcon className="size-4" /></ArrowButton>
                         </div>
                     </>
                 )}
@@ -276,7 +276,7 @@ function ArrowButton({ onClick, label, children }) {
         <button
             onClick={onClick}
             aria-label={label}
-            className="grid place-items-center size-6 border border-paper/50 text-paper cursor-pointer transition-colors duration-200 hover:bg-paper hover:text-ink focus-visible:outline-1 focus-visible:outline-paper"
+            className="grid place-items-center size-8 border border-paper/50 text-paper cursor-pointer transition-colors duration-200 hover:bg-paper hover:text-ink focus-visible:outline-1 focus-visible:outline-paper"
         >
             {children}
         </button>

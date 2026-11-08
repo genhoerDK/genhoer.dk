@@ -21,13 +21,32 @@ export const metadata = {
     icons: { icon: "/favicon.ico", },
 };
 
+// Sets --page-height (see globals.css) before the page is drawn. On phones it is only measured again when
+// the width changes (rotation), so the page doesn't jump when the browser bar collapses while scrolling.
+const PAGE_HEIGHT_SCRIPT = `(() => {
+    const root = document.documentElement;
+    const touch = matchMedia("(pointer: coarse)").matches;
+    let width = 0;
+    const set = () => {
+        if (touch && innerWidth === width) return;
+        width = innerWidth;
+        root.style.setProperty("--page-height", innerHeight + "px");
+    };
+    set();
+    addEventListener("resize", set);
+})();`;
+
 export default function RootLayout({ children }) {
     return (
-        <html lang="da">
+        // suppressHydrationWarning: the script above adds a style attribute to <html> before React hydrates
+        <html lang="da" suppressHydrationWarning>
+            <head>
+                <script dangerouslySetInnerHTML={{ __html: PAGE_HEIGHT_SCRIPT }} />
+            </head>
             <body className={`${rem.className} ${rem.variable} antialiased bg-paper text-ink`}>
                 <AudioProvider>
                     <Header />
-                    <main className="w-screen min-h-svh">
+                    <main className="w-screen min-h-page">
                         {children}
                     </main>
                     <Suspense fallback={null}>

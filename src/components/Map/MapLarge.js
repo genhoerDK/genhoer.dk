@@ -92,5 +92,5 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- draw once on mount; d3 owns the svg after that
     }, []);
 
-    return <svg ref={svgRef} className="relative w-full h-svh" />;
+    return <svg ref={svgRef} className="relative w-full h-page" />;
 }

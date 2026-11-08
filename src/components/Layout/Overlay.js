@@ -48,7 +48,7 @@ export default function Overlay({ active, exit = 'slide', tone = 'paper', childr
 
     return (
         <article ref={ref} data-header={active ? header : undefined} onTransitionEnd={handleTransitionEnd} style={instant ? { transitionDuration: '0ms' } : undefined} className={`fixed inset-0 transition-all duration-300 z-10 ${active ? 'translate-y-0 opacity-100' : closedClasses}`}>
-            <section className={`relative flex justify-center items-center w-screen min-h-svh ${tone === 'ink' ? 'bg-ink text-paper' : 'bg-paper text-ink'}`}>
+            <section className={`relative flex justify-center items-center w-screen min-h-page ${tone === 'ink' ? 'bg-ink text-paper' : 'bg-paper text-ink'}`}>
                 {children}
             </section>
         </article>

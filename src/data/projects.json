@@ -1,7 +1,7 @@
 [
   {
     "slug": "naestved",
-    "title": "Så træder vi an!",
+    "title": "Næstved",
     "location": "Næstved",
     "coordinates": [
       11.7489,
@@ -19,7 +19,7 @@
     "komkode": "0370",
     "startDate": "2026-11-19",
     "endDate": "2027-04-04",
-    "partners": "Næstved Museum, Næstved Ungdomsskole, Næstved Musikskole, Næstved Kommune, Kompagni47 og Grønnegades Kaserne Kulturcenter",
+    "partners": "Næstved Musikskole, Næstved Ungdomsskole, NæstvedArkiverne og Grønnegades Kaserne Kulturcenter",
     "sponsorLogos": [
       "trelleborg-fonden",
       "naestved-kommune",
@@ -170,7 +170,8 @@
       "viborg-kommune"
     ],
     "description": [
-      "Flere detaljer kommer snart..."
+      "I 15 år forbandt en vandret elevator Regionshospitalet i Viborg med patienthotellet på den anden side af Gammel Århusvej. Overfarten varede 53 sekunder og gav elevatoren tilnavnet \"Danmarks kedeligste rutsjebane, men landets sjoveste elevator\". Den var i drift fra 2007 til 2022, blev taget ned i 2025 og opmagasineret på Viborg Museum.",
+      "‘53 sekunder til fælles’ er et digitalt lydværk, der genopliver turen gennem borgeres minder om elevatoren. Værket er skabt af unge fra Kulturambassadører Viborg, som ved tre workshops tog afsæt i elevatorens kulturhistorie og omsatte den til lyd. Elevatoren blev omdannet til et udstillingsrum på Trappetorvet, hvor lydværket kunne opleves."
     ],
     "coverImagePortrait": "https://cdn.genhoer.dk/media/viborg-2026/cover-image-portrait.webp",
     "coverImageLandscape": "https://cdn.genhoer.dk/media/viborg-2026/cover-image-landscape.webp",
