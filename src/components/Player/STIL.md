@@ -139,7 +139,7 @@ det aktive sted, ellers faint. Knapper og felter er firkantede som på resten af
 
 ## Åbent
 
-- Om overgangen ind gennem stedets omrids skal bygges, eller om en prik-opløsning er nok.
+- Om overgangen ind gennem stedets omrids skal bygges, eller om en enkel overtoning er nok.
 
 ## Når en ny scene laves
 
