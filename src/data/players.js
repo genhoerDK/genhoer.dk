@@ -84,7 +84,7 @@ export const players = {
         interface: 'quad',
         image: cdn('bornholm-2026', 'image-03.webp'),
         textured: true,
-        look: 'blueprint',   // 'blueprint' (white lines on dark, as Tværveje's map), 'stylised' (pale, simple, indie-game) or 'realistic' (photo, textures, detailed trees)
+        look: 'dark',   // 'dark' (Tværveje's dark design: greys on dark ground), 'blueprint' (white lines on dark), 'stylised' (pale, simple, indie-game) or 'realistic' (photo, textures, detailed trees)
         speakers: [
             { label: 'Forrest til venstre', angle: -45, file: cdn('bornholm-2026', 'kanon-i-g3-1.mp3') },
             { label: 'Forrest til højre', angle: 45, file: cdn('bornholm-2026', 'kanon-i-g3-2.mp3') },

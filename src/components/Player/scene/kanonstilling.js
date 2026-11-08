@@ -390,7 +390,7 @@ export function groundAt(x, y) {
  * forestFloorMaterial (scene/forest.js), from just under the walk's edge out to 40 m, fading out at its far edge so the
  * photo behind shows
  */
-function forestFloor(stylised = false, blueprint = false) {
+function forestFloor(stylised = false, blueprint = false, dark = false) {
     const R0 = LEDGE.outer - 0.05, R1 = stylised ? 90 : 40, steps = 480;   // stylised: out to where the forest fades into the haze
     const radii = [];
     for (let r = R0; r < R1; r += r < 22 ? 0.2 : r < 40 ? 0.6 : 1.5) radii.push(r);
@@ -418,6 +418,8 @@ function forestFloor(stylised = false, blueprint = false) {
     g.computeVertexNormals();
     const mesh = new THREE.Mesh(g, blueprint
         ? blueprintGround(R1)
+        : dark
+        ? new THREE.MeshLambertMaterial({ color: 0x1f1f22, vertexColors: true, transparent: true })
         : stylised
         ? new THREE.MeshStandardMaterial({ color: 0x8e9370, roughness: 1, metalness: 0, vertexColors: true, transparent: true })
         : forestFloorMaterial(bunkerDistance));
@@ -1109,21 +1111,22 @@ function placedLoudspeaker(angle) {
  *   textured  true = the weathered concrete; false (default) = plain grey concrete
  *   look      'realistic' (default); 'stylised': pale, even concrete, a plain green floor and
  *             simple faceted trees, as in a modern indie game; 'blueprint': the stylised scene
- *             drawn in white lines on dark, its floor in height contours
+ *             drawn in white lines on dark, its floor in height contours; 'dark': as Tværveje's map —
+ *             dark ground, the trees in dark greys, the emplacement a shade lighter, no colour
  */
 export function buildKanonstilling({ textured = false, look = 'realistic' } = {}) {
-    const blueprint = look === 'blueprint';
-    const stylised = look === 'stylised' || blueprint;
+    const blueprint = look === 'blueprint', dark = look === 'dark';
+    const stylised = look === 'stylised' || blueprint || dark;
     const group = new THREE.Group();
     // The concrete a little darker than it was, as in the photos
     const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({
         // stylised: dark granite, one even colour, as in a cartoon
-        textured: textured && !stylised, color: blueprint ? 0x3a3a3f : stylised ? 0x7c7c80 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
+        textured: textured && !stylised, color: dark ? 0x6a6a72 : blueprint ? 0x3a3a3f : stylised ? 0x7c7c80 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.material.flatShading = stylised;   // faceted, as cut stone in a cartoon
     model.castShadow = true;
     model.receiveShadow = true;
-    const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised, blueprint });
-    group.add(model, forestFloor(stylised, blueprint), forest.group);
+    const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised, blueprint, dark });
+    group.add(model, forestFloor(stylised, blueprint, dark), forest.group);
     if (blueprint) {
         // drawn: its edges in white lines over the dark faces
         model.material.polygonOffset = true;

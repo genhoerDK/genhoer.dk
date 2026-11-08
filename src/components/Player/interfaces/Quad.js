@@ -9,7 +9,8 @@
  *
  *   player.textured  true = the concrete texture on the emplacement (default: plain grey)
  *   player.look      'realistic' (default), 'stylised' (a pale, simple, modern indie-game look) or
- *                    'blueprint' (the same scene drawn in white lines on dark, as Tværveje's map)
+ *                    'blueprint' (the same scene drawn in white lines on dark) or 'dark' (Tværveje's dark
+ *                    design: dark ground, greys, the emplacement a shade lighter, no colour)
  *   player.image     Photo behind
  *   player.speakers  [{ label, angle, file, channel? }]  angle: degrees clockwise from straight ahead
  *   player.reverb    0–1, the room's echo on top

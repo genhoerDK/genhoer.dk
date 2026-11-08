@@ -875,12 +875,21 @@ function tree(kind, base, h, rand, wood, cards) {
 /* ---------- TREES, SIMPLIFIED ---------- */
 
 // The stylised look: soft low-poly forms in muted colours, faceted, no texture
-const toy = {
+const TOY = {
     leaves: ['#8a9270', '#7d8766', '#949a7a', '#86906c'],
     pine: ['#7b8466', '#737d60', '#838b6c'],
     spruce: ['#5f6b57', '#56614f', '#66715c'],
     birch: ['#a3a77f', '#9aa078'],
     trunk: linear('#b3aa9d'), pineBark: linear('#a8998a'), birchBark: linear('#ddd7cb'),
+};
+
+// The dark look (as Tværveje's map): the trees in greys, their trunks darker
+const TOY_DARK = {
+    leaves: ['#3f3f46', '#4a4a51', '#55555c', '#46464d'],
+    pine: ['#3f3f46', '#4a4a51', '#44444b'],
+    spruce: ['#38383e', '#3f3f46', '#36363c'],
+    birch: ['#55555c', '#5c5c63'],
+    trunk: linear('#2e2e33'), pineBark: linear('#36363b'), birchBark: linear('#6b6b73'),
 };
 
 /** A lumpy, faceted ball of foliage */
@@ -907,7 +916,7 @@ function paint(g, colour) {
 }
 
 /** One simplified tree into `wood` (one faceted mesh for everything) */
-function toyTree(kind, base, h, rand, wood) {
+function toyTree(kind, base, h, rand, wood, toy = TOY) {
     const top = (t) => base.clone().add(new THREE.Vector3(0, 0, t * h));
     const shade = (list) => vary(rand, rand.pick(list), 0.06);
     if (kind === 'pine') {
@@ -1000,7 +1009,8 @@ function patchCutaway(shader, uniforms) {
  * @param {{ radius: number, inner: number, floor: number }} options.pit  The open pit (plants on its floor)
  * @returns {{ group, update(centre: THREE.Vector3, radius: number), dispose() }}
  */
-export function createForest({ groundAt, distance, radius: R, pit, stylised = false, blueprint = false }) {
+export function createForest({ groundAt, distance, radius: R, pit, stylised = false, blueprint = false, dark = false }) {
+    const palette = dark ? TOY_DARK : TOY;
     const rand = random(SEED);
     const cover = coverAt(distance);
     const group = new THREE.Group();
@@ -1021,7 +1031,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             const room = h * (kind === 'shrub' ? 0.12 : kind === 'spruce' ? 0.13 : 0.1);
             if (!free(x, y, room)) continue;
             placed.push({ x, y, room });
-            if (stylised) toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood);
+            if (stylised) toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood, palette);
             else tree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood, cards);
             return true;
         }
@@ -1042,7 +1052,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             const a = rand() * Math.PI * 2, r = R + Math.sqrt(rand()) * (78 - R);
             const x = Math.sin(a) * r, y = Math.cos(a) * r;
             const kind = rand.pick(kindsFar);
-            toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), rand.range(...heights[kind]), rand, wood);
+            toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), rand.range(...heights[kind]), rand, wood, palette);
         }
     }
 
@@ -1058,7 +1068,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             const thick = i < 4 ? rand.range(0.15, 0.3) : rand.range(0.04, 0.08);
             const from = new THREE.Vector3(x, y, groundAt(x, y) + thick * 0.6), to = new THREE.Vector3(ex, ey, groundAt(ex, ey) + thick * 0.5);
             const colour = i < 4 ? linear('#5a4d40') : linear('#4a3d32');
-            const log = limb(from, to, thick, thick * 0.7, stylised ? toy.trunk : colour, stylised ? toy.trunk : colour.clone().multiplyScalar(0.8), 8);
+            const log = limb(from, to, thick, thick * 0.7, stylised ? palette.trunk : colour, stylised ? palette.trunk : colour.clone().multiplyScalar(0.8), 8);
             wood.push(stylised ? log.toNonIndexed() : log);
             break;
         }
@@ -1113,6 +1123,8 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
     const woodMaterial = blueprint
         // blueprint: dark, unlit, drawn in white lines (below)
         ? new THREE.MeshBasicMaterial({ color: BLUEPRINT.fill, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
+        : dark
+        ? new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true })
         : stylised
         ? new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0, flatShading: true })
         : new THREE.MeshStandardMaterial({ map: barkMap, vertexColors: true, roughness: 1, metalness: 0 });

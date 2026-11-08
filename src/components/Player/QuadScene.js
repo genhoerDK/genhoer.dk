@@ -45,6 +45,7 @@ const LOOK_UP = 0.95, LOOK_DOWN = 1.1;   // standing in the middle: how far up a
 const EYE_SCALE = 0.5;                  // the room's scale standing inside (keeps the camera's near plane at 10 cm)
 const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
 const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
+const GREY = { horizon: 0x5c5c61, sky: 0x5c5c61, ground: 0x5c5c61 };    // the dark look: far off it greys over, as Tværveje's town
 const INK = { horizon: 0x18181b, sky: 0x18181b, ground: 0x18181b };     // the blueprint look: everything fades into the dark
 const PALE = { horizon: 0xdcdcd4, sky: 0xebe8e0, ground: 0xc8c6b4 };   // the same, in the stylised look: a pale, warm haze over everything
 const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
@@ -122,25 +123,25 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const room = new THREE.Group();            // turns with the listener; metres inside
         tilt.add(room);
 
-        const blueprint = look === 'blueprint';
-        const stylised = look === 'stylised' || blueprint;   // blueprint shares the stylised scene, drawn in lines on dark
-        const haze = blueprint ? INK : stylised ? PALE : HAZE;
+        const blueprint = look === 'blueprint', dark = look === 'dark';
+        const stylised = look === 'stylised' || blueprint || dark;   // blueprint and dark share the stylised scene
+        const haze = dark ? GREY : blueprint ? INK : stylised ? PALE : HAZE;
         const emplacement = buildKanonstilling({ textured, look });
         room.add(emplacement.group);
 
         // Smoke drifting through the trees, mist lying over the ground
-        const mist = createMist({ groundAt, radius: 34, amount: stylised ? 0 : 1.7 });   // stylised: clear air
+        const mist = createMist({ groundAt, radius: 34, amount: dark ? 0.35 : stylised ? 0 : 1.7, colour: dark ? 0x7a7b80 : undefined });   // stylised: clear air; dark: a little mist drifting
         room.add(mist.group);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // The sun, from beyond the room on the left; it turns with the room, so the shadows stay where they fall
-        const sun = new THREE.DirectionalLight(0xfff1de, stylised ? 1.7 : 2.5);
+        const sun = new THREE.DirectionalLight(dark ? 0xffffff : 0xfff1de, dark ? 1.5 : stylised ? 1.7 : 2.5);
         const SUN = new THREE.Vector3(-20, 22, 30);
         sun.castShadow = true;
         sun.shadow.mapSize.set(2048, 2048);
         room.add(sun, sun.target);
         // Light from the sky and back up from the forest floor: softer shadows, as under real trees
-        tilt.add(stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.6) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
+        tilt.add(dark ? new THREE.HemisphereLight(0xe8e8ec, 0x202024, 1.6) : stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.6) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
 
         /* ---------- THE LISTENER: a ball floating over the middle ---------- */
 
@@ -165,7 +166,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 const mesh = new THREE.Mesh(waveGeo, new THREE.ShaderMaterial({
                     ...waveShader,
                     uniforms: { uColor: { value: new THREE.Color(colors.paper) }, uToward: { value: toward }, uOpacity: { value: 0 } },
-                    transparent: true, depthWrite: false, blending: stylised && !blueprint ? THREE.SubtractiveBlending : THREE.AdditiveBlending, premultipliedAlpha: stylised && !blueprint, side: THREE.DoubleSide, toneMapped: false,
+                    transparent: true, depthWrite: false, blending: look === 'stylised' ? THREE.SubtractiveBlending : THREE.AdditiveBlending, premultipliedAlpha: look === 'stylised', side: THREE.DoubleSide, toneMapped: false,
                 }));
                 mesh.position.copy(mouth);
                 mesh.visible = false;
@@ -378,7 +379,12 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         });
         stage.panel.add(tilt);
         stage.scene.fog = fog;
-        if (stylised) stage.renderer.setClearColor(haze.horizon, 1); else stage.setBackdrop(cover, coverDepth);
+        if (dark) {
+            // As Tværveje's map: no colour grading, dark behind, fading into the dark at the top and bottom (overlay below)
+            stage.renderer.toneMapping = THREE.NoToneMapping;
+            stage.renderer.setClearColor(0x18181b, 1);
+        } else if (stylised) stage.renderer.setClearColor(haze.horizon, 1);
+        else stage.setBackdrop(cover, coverDepth);
         stage.start();
 
         return () => {
@@ -401,7 +407,9 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
     // Over the picture, as through a lens: the corners a little darker, a fine grain
     return (
         <div ref={containerRef} className='absolute inset-0 touch-none'>
-            {look === 'stylised' ? (
+            {look === 'dark' ? (
+                <div className='absolute inset-0 pointer-events-none' style={{ background: 'linear-gradient(to bottom, #18181b 0%, transparent 14%, transparent 60%, #18181b 92%)' }} />
+            ) : look === 'stylised' ? (
                 // pale: only a shade at the top and bottom, so the title and controls can be read
                 <div className='absolute inset-0 pointer-events-none' style={{ background: 'linear-gradient(to bottom, rgba(40,40,34,0.4), transparent 16%, transparent 62%, rgba(40,40,34,0.55))' }} />
             ) : (

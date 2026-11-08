@@ -90,8 +90,9 @@ function puffTexture(seed) {
  * @param {(x, y) => number} options.groundAt  The forest floor's height
  * @param {number} options.radius               How far out the mist goes
  * @param {number} [options.amount=1]           0–1+
+ * @param {number} [options.colour]             Its colour (default a pale grey)
  */
-export function createMist({ groundAt, radius: R, amount = 1 }) {
+export function createMist({ groundAt, radius: R, amount = 1, colour = COLOUR }) {
     const group = new THREE.Group();
     const textures = [];
     let seed = 7;
@@ -108,7 +109,7 @@ export function createMist({ groundAt, radius: R, amount = 1 }) {
         textures.push(texture);
         texture.repeat.set(3 + i * 0.4, 3 + i * 0.4);
         const material = new THREE.MeshBasicMaterial({
-            map: texture, color: COLOUR, transparent: true, depthWrite: false, opacity: Math.min(0.75, (0.3 - i * 0.025) * amount), side: THREE.DoubleSide,
+            map: texture, color: colour, transparent: true, depthWrite: false, opacity: Math.min(0.75, (0.3 - i * 0.025) * amount), side: THREE.DoubleSide,
         });
         // the sheet's edge fades out, with the forest floor
         material.onBeforeCompile = (shader) => {
@@ -132,7 +133,7 @@ export function createMist({ groundAt, radius: R, amount = 1 }) {
     textures.push(...puffTextures);
     const wind = new THREE.Vector2(0.35, 0.12);          // metres a second
     const puffs = Array.from({ length: Math.round(110 * Math.min(1.5, amount)) }, (_, i) => {
-        const material = new THREE.SpriteMaterial({ map: puffTextures[i % 4], color: COLOUR, transparent: true, depthWrite: false, opacity: 0 });
+        const material = new THREE.SpriteMaterial({ map: puffTextures[i % 4], color: colour, transparent: true, depthWrite: false, opacity: 0 });
         material.rotation = rand() * Math.PI * 2;
         const sprite = new THREE.Sprite(material);
         const a = rand() * Math.PI * 2, r = 6 + Math.sqrt(rand()) * (R - 6);
