@@ -17,9 +17,9 @@
  *    white towers at its ends, the dark brown blocks beside it, the parking deck in front, and the
  *    old yellow house with its mansard roof.
  *  - The other end, at the patient hotel: a slim tower in grey zinc, its gable to the track with all
- *    the glass in a strip down the middle of it and the white station box mounted on that, the
- *    track running right up to it; the long pale hotel with balconies against it.
- *  - Three columns: by the arrival house, on the hospital's side of the road, and before the hotel.
+ *    the glass in a strip down the middle of it, the track running right up to it; the long pale
+ *    hotel with balconies against it.
+ *  - Three columns: by the arrival house, and one on each side of the road.
  *  - The cabin: a white box with a band of windows on a dark carriage.
  *  - Round it all a town of houses, low blocks of flats and trees, thinning out and fading into the
  *    haze (`hazed`): the further from the middle, the more it takes the haze's colour, so at the edge
@@ -59,12 +59,13 @@ const TRUSS = { half: 0.85, bottomHalf: 0.6, depth: 1.6, panel: 1.7, walk: 0.55,
 // (a quarter circle), and straight over the road (y = BEND.y) to the other side
 const HEIGHT = 15;
 // The sand-coloured block at the hospital end, by the road: the arrival house hangs on its gable (x1)
-const SAND = { x0: -27, x1: -1, y0: 21.6, y1: 41.6 };
+const HOSPITAL_SHIFT = -8;   // metres the whole hospital stands moved along x (to the left, away from the road)
+const SAND = { x0: -27 + HOSPITAL_SHIFT, x1: -1 + HOSPITAL_SHIFT, y0: 21.6, y1: 41.6 };
 const BEND = { x: SAND.x1 + 3.2, y: -6, radius: 12, from: SAND.y0 + 2.1, to: 50.6 };   // from: the hospital's station (y); to: the other side's (x), where the cabin stops
 const DOCK = 1.55;   // metres on from where the cabin stops at the other side to the building's face: the track runs right up to it
 
 // Where the columns stand (x, y): the nearest point of the track is above each
-const COLUMNS = [[SAND.x1 + 3.2, 13], [13.6, -6], [48.4, -6]];   // three: by the arrival house, on the hospital's side of the road, before the hotel
+const COLUMNS = [[SAND.x1 + 3.2, 13], [13.6, -6], [35.8, -6]];   // three: by the arrival house, on each side of the road
 
 /* ---------- COLOURS ---------- */
 
@@ -581,15 +582,13 @@ function pointBlock(parts, x, y, w, d, h, hex) {
 /**
  * The other end, at the patient hotel, from photos and simplified: a slim tower in grey zinc, its
  * gable to the track. Down the middle of the gable runs all the glass — a strip from the door at the
- * bottom to the top — and on it, where the track comes in, the white station box is mounted, a
- * little out from the gable; the track runs right up to it. The hotel, long and pale with balconies,
- * stands against the tower's far side.
+ * bottom to the top — and the track runs right up to it, the cabin docking at an opening in the
+ * glass. The hotel, long and pale with balconies, stands against the tower's far side.
  *
- * `face` is where the track ends, on the station box; `at` where the cabin stops.
+ * `face` is where the track ends, on the gable; `at` where the cabin stops.
  */
 function farStation(parts, face, at) {
-    const out = 1.4;                                // how far the box stands out from the gable
-    const x0 = face.x + out, depth = 9, width = 11, high = 28;
+    const x0 = face.x, depth = 9, width = 11, high = 28;
     const y0 = at.y - width / 2, cy = at.y;         // the gable is centred on the track
     parts.push(box(depth, width, high, x0 + depth / 2, cy, 0, C.slate));
     for (let z = 0.9; z < high; z += 0.9) parts.push(box(depth + 0.04, width + 0.04, 0.05, x0 + depth / 2, cy, z, C.slateLight));   // the zinc's seams
@@ -603,13 +602,7 @@ function farStation(parts, face, at) {
     parts.push(box(0.16, 0.12, high - 3.4, x0 - 0.05, cy, 3, C.station));                   // the mullion
     parts.push(box(0.12, gw - 0.6, 2.6, x0 - 0.02, cy, 0, C.dock));                          // the door
     parts.push(box(1.4, gw + 0.4, 0.15, x0 - 0.7, cy, 2.9, C.station));                     // under a canopy
-    // the station box, mounted on the glass where the track comes in: closed below, windows above
-    const top = at.z + 3.9, bottom = at.z - 1.7, sill = at.z + 0.9, bw = 4.4;
-    parts.push(box(out, bw, sill - bottom, face.x + out / 2, cy, bottom, C.station));
-    parts.push(box(out - 0.15, bw - 0.2, top - sill, face.x + out / 2 + 0.07, cy, sill, C.glass));
-    parts.push(box(out, bw, 0.4, face.x + out / 2, cy, top - 0.4, C.station));
-    for (const s of [-1, 1]) parts.push(box(0.3, 0.3, top - sill, face.x + 0.15, cy + s * (bw / 2 - 0.15), sill, C.station));
-    parts.push(box(0.12, 3.4, sill - bottom - 0.3, face.x - 0.02, cy, at.z - 1.4, C.dock));   // the opening the cabin docks in
+    parts.push(box(0.12, gw, 4.8, x0 - 0.04, cy, at.z - 1.4, C.dock));   // the opening in the glass where the cabin docks
     // the patient hotel against it: long and pale, balconies on its front
     const hx0 = x0 + depth, hx1 = hx0 + 32, hy0 = y0 - 1.2, hy1 = hy0 + 15, hh = 26;
     block(parts, { x0: hx0, x1: hx1, y0: hy0, y1: hy1, z1: hh, hex: C.sand, windows: { first: 1.2, every: 3, height: 1.4, hex: C.window } });
@@ -701,7 +694,9 @@ export function buildHoejbane({ look = 'pale' } = {}) {
     parts.push(box(rx - rw / 2 - walk + 12, 8, 0.04, (rx - rw / 2 - walk - 12) / 2, -40, 0, C.road));
 
     /* Regionshospitalet, and the station in the block by the road */
-    hospital(parts, rand);
+    const hospitalParts = [];
+    hospital(hospitalParts, rand);
+    for (const g of hospitalParts) { g.translate(HOSPITAL_SHIFT, 0, 0); parts.push(g); }
     hospitalStation(parts, start.p, Math.atan2(start.along.y, start.along.x));
 
     // the wall along the drive, and steps up it; a bit of lawn on the slope in front of the hospital
