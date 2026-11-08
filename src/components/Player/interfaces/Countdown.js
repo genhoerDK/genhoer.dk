@@ -4,7 +4,7 @@
  * Interface: countdown — the elevator's button and display (53 sekunder til fælles).
  *
  * Nothing plays until the button is pressed. Each press is a ride: the next of the variations
- * plays (a file each, through the audio element), the display lights up with the number and
+ * plays (a file each, through the audio element), the display in the button shows the number and
  * after a few seconds counts down, one count per `tempo` seconds — some rides count slower or
  * faster, and one breaks down on the way. When the ride ends the display goes dark; the next
  * press takes the next variation. A press during a ride does nothing, like the button in the
@@ -19,7 +19,8 @@
  * and fades in on the cabin back at the station it left from. A variation can have weather: in a
  * storm, rain and fog come over the place while it rides, and lift again after. The next ride
  * goes from the end the cabin stands at to the other.
- * The pointer looks round; the wheel, a pinch, ↑/↓ or the button go in close to follow the cabin.
+ * The view is fixed and cannot be zoomed by hand: while a ride plays, it glides 3/4 of the way in
+ * to follow the cabin (RIDE_ZOOM), and when the ride's sound has ended it glides out again.
  *
  *   player.from     the number the display starts at (53)
  *   player.delay    seconds before it starts counting
@@ -47,6 +48,7 @@ const glide = (f) => f - 0.3 * (Math.sin(2 * Math.PI * f) / (2 * Math.PI));
 const RADIUS = 47;                       // the ring round the button (as Under overfladen's)
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
+const RIDE_ZOOM = 0.75;   // how far the view goes in towards the cabin during a ride (0 = the whole place, 1 = closest)
 const FADE = 900;   // ms: the picture fades out, and in again, when the cabin is put back after a breakdown
 
 export default function CountdownPlayer() {
@@ -115,8 +117,9 @@ export default function CountdownPlayer() {
         return () => clearTimeout(back);
     }, [ended, model]);
 
+    // While the ride plays — from the press until its sound ends — the view goes in towards the cabin
     const zoomRef = useRef(0);
-    const [close, setClose] = useState(false);
+    useEffect(() => { zoomRef.current = on ? RIDE_ZOOM : 0; }, [on]);
 
     const press = () => {
         if (riding || resetting) return;
@@ -142,51 +145,40 @@ export default function CountdownPlayer() {
 
     return (
         <PlayerShell track={currentTrack} smoke={0.25} backdrop={!model}>
-            {model && <ElevatorScene cabin={cabin} zoomRef={zoomRef} onZoom={setClose} look={look} />}
+            {model && <ElevatorScene cabin={cabin} zoomRef={zoomRef} look={look} />}
             {model && <div className='absolute inset-0 bg-ink pointer-events-none transition-opacity ease-in-out' style={{ opacity: resetting ? 1 : 0, transitionDuration: `${FADE}ms` }} />}
 
-            <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-5 md:gap-6'>
-                <div className={`flex items-center ${model ? 'flex-row gap-7 md:gap-9' : 'flex-col gap-5 md:gap-6'}`}>
-                    {/* ---------- THE DISPLAY ---------- */}
-                    <div className='flex flex-col items-center'>
-                        <div
-                            aria-live='polite'
-                            className={`font-extralight tabular-nums leading-none transition-opacity duration-500 ${model ? 'text-[4.5rem] md:text-[5.5rem]' : 'text-[6rem] md:text-[8rem]'} ${on ? 'opacity-100' : model ? 'opacity-50' : 'opacity-15'}`}
-                        >
-                            {pad(count)}
-                        </div>
-                        <Label size='lg' className={`mt-3 ${model ? 'text-muted' : 'text-faint'}`}>
-                            {on ? `${track.title} af ${tracks.length}` : 'Tryk, og kør med'}
-                        </Label>
-                    </div>
-
-                    {/* ---------- THE BUTTON ---------- */}
-                    <button
-                        onClick={press}
-                        aria-label={riding ? 'Turen er i gang' : 'Kør'}
-                        aria-disabled={riding}
-                        className={`relative flex items-center justify-center size-20 shrink-0 rounded-full transition-colors group ${riding ? 'cursor-default' : 'cursor-pointer'}`}
+            <Controls title={currentTrack.title} align='center' className='flex flex-col items-center'>
+                {/* ---------- THE BUTTON, with the display in it ---------- */}
+                <button
+                    onClick={press}
+                    aria-label={riding ? `Turen er i gang, ${count}` : `Kør, ${count}`}
+                    aria-disabled={riding}
+                    className={`relative flex items-center justify-center size-28 md:size-32 shrink-0 rounded-full group ${riding ? 'cursor-default' : 'cursor-pointer'}`}
+                >
+                    {/* The ring: the ride's sound running down, from the press until the file ends */}
+                    <svg viewBox='0 0 100 100' className='absolute inset-0 size-full -rotate-90' aria-hidden='true'>
+                        <circle cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.2' className={`transition-opacity ${riding ? 'opacity-20' : 'opacity-30 md:group-hover:opacity-100'}`} />
+                        <circle
+                            cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.2' strokeLinecap='round'
+                            strokeDasharray={CIRCUMFERENCE}
+                            strokeDashoffset={CIRCUMFERENCE * (1 - left)}
+                            style={{ transition: 'stroke-dashoffset 0.3s linear' }}
+                        />
+                    </svg>
+                    {/* The display: white and waiting to be pressed, dark and counting during the ride */}
+                    <span
+                        aria-live='polite'
+                        className={`flex items-center justify-center size-[84%] rounded-full font-extralight tabular-nums leading-none text-[2.6rem] md:text-[3rem] transition-colors duration-500 ${
+                            on ? 'bg-paper/15 text-paper' : 'bg-paper text-ink/70 md:group-hover:bg-muted'
+                        }`}
                     >
-                        {/* The ring: the ride's sound running down, from the press until the file ends */}
-                        <svg viewBox='0 0 100 100' className='absolute inset-0 size-full -rotate-90' aria-hidden='true'>
-                            <circle cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.5' className={`transition-opacity ${riding ? 'opacity-20' : 'opacity-30 md:group-hover:opacity-100'}`} />
-                            <circle
-                                cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'
-                                strokeDasharray={CIRCUMFERENCE}
-                                strokeDashoffset={CIRCUMFERENCE * (1 - left)}
-                                style={{ transition: 'stroke-dashoffset 0.3s linear' }}
-                            />
-                        </svg>
-                        <span className={`block size-14 rounded-full transition-colors ${riding ? 'bg-paper/20' : 'bg-paper md:group-hover:bg-muted'}`} />
-                    </button>
-                </div>
-
-                {/* ---------- IN CLOSE, OR THE WHOLE PLACE (the model) ---------- */}
-                {model && (
-                    <button onClick={() => { zoomRef.current = close ? 0 : 1; }} aria-pressed={close} className={`px-2.5 py-1.5 rounded-full border transition-colors cursor-pointer ${close ? 'bg-paper text-ink border-paper' : 'border-paper/50 text-soft'}`}>
-                        <Label size='lg'>{close ? 'Se det hele' : 'Følg kabinen'}</Label>
-                    </button>
-                )}
+                        {pad(count)}
+                    </span>
+                </button>
+                <Label size='lg' className={`mt-4 ${model ? 'text-muted' : 'text-faint'}`}>
+                    {on ? `${track.title} af ${tracks.length}` : 'Tryk, og kør med'}
+                </Label>
             </Controls>
         </PlayerShell>
     );

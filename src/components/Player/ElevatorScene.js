@@ -9,9 +9,9 @@
  * frame where the cabin is, so the cabin glides along with the countdown.
  *
  * The view is fixed (VIEW): turned and tipped as it was chosen, it does not follow the pointer or
- * drift. Only the distance can change: the wheel, a pinch, ↑/↓ or zoomRef from outside take you
- * from the whole place (0) in close to the cabin (1), which the view then follows — close in, from
- * the angles that look past the bend and the buildings rather than through them.
+ * drift, and it cannot be zoomed by hand. Only zoomRef from outside moves it, gliding slowly from
+ * the whole place (0) in towards the cabin (1), which the view then follows — close in, from the
+ * angles that look past the bend and the buildings rather than through them.
  *
  * Weather: when `cabin()` says 'storm', it comes over the place in a few seconds — a grey fog
  * close in, the sky darkens, the sun goes, rain falls on a slant and now and then lightning
@@ -29,7 +29,6 @@ import { createStage, PANEL_DISTANCE } from '@/components/Player/scene/stage';
 import { buildHoejbane } from '@/components/Player/scene/hoejbane';
 import { skyTexture } from '@/components/Player/scene/sky';
 import { createRain } from '@/components/Player/scene/weather';
-import { keyIsTaken } from '@/components/Player/interfaces/keys';
 import { colors } from '@/styles/colors';
 
 // The two looks. back: behind it all (the sky's horizon, or the dark); haze: the colour the town
@@ -129,38 +128,9 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
             closeY = height * 0.2;
         };
 
-        /* ---------- POINTER ---------- */
+        /* ---------- HOW CLOSE: set from outside (zoomRef), eased; nothing here changes it ---------- */
 
         const current = { zoom: zoomRef?.current ?? 0 };
-        const touches = new Map();
-        let pinch = null;
-        const zoomBy = (amount) => {
-            const z = THREE.MathUtils.clamp((zoomRef?.current ?? current.zoom) + amount, 0, 1);
-            if (zoomRef) zoomRef.current = z; else current.zoom = z;
-        };
-        // Two fingers: spread them to go in, pinch to come out (the only thing the pointer does)
-        const onPointerMove = (e) => {
-            if (touches.has(e.pointerId)) touches.set(e.pointerId, [e.clientX, e.clientY]);
-            if (touches.size < 2) return;
-            const [[ax, ay], [bx, by]] = [...touches.values()];
-            const spread = Math.hypot(ax - bx, ay - by);
-            if (pinch) zoomBy((spread - pinch) * 0.004);
-            pinch = spread;
-        };
-        const onPointerDown = (e) => { if (e.pointerType === 'touch') touches.set(e.pointerId, [e.clientX, e.clientY]); };
-        const onPointerUp = (e) => { touches.delete(e.pointerId); if (touches.size < 2) pinch = null; };
-        const onWheel = (e) => { e.preventDefault(); zoomBy(-e.deltaY * (e.deltaMode === 1 ? 0.03 : 0.0012)); };
-        const onKey = (e) => {
-            if (keyIsTaken(e)) return;
-            if (e.key === 'ArrowUp') { e.preventDefault(); zoomBy(0.25); }
-            if (e.key === 'ArrowDown') { e.preventDefault(); zoomBy(-0.25); }
-        };
-        container.addEventListener('pointermove', onPointerMove);
-        container.addEventListener('pointerdown', onPointerDown);
-        container.addEventListener('pointerup', onPointerUp);
-        container.addEventListener('pointercancel', onPointerUp);
-        container.addEventListener('wheel', onWheel, { passive: false });
-        window.addEventListener('keydown', onKey);
 
         /* ---------- THE VIEW ---------- */
 
@@ -247,7 +217,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
             shadows: true,
             onResize: layout,
             onFrame: (dt, t, elapsed) => {
-                if (zoomRef) current.zoom += (zoomRef.current - current.zoom) * (1 - Math.exp(-elapsed * 2.5));
+                if (zoomRef) current.zoom += (zoomRef.current - current.zoom) * (1 - Math.exp(-elapsed * 0.9));   // a slow, calm glide in and out
 
                 const { at, lamp, weather: forecast } = cabin?.() ?? { at: 0, lamp: 0 };
                 stormy(forecast === 'storm' ? 1 : 0, dt, elapsed);
@@ -264,12 +234,6 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
         stage.start();
 
         return () => {
-            container.removeEventListener('pointermove', onPointerMove);
-            container.removeEventListener('pointerdown', onPointerDown);
-            container.removeEventListener('pointerup', onPointerUp);
-            container.removeEventListener('pointercancel', onPointerUp);
-            container.removeEventListener('wheel', onWheel);
-            window.removeEventListener('keydown', onKey);
             place.dispose();
             skyMap.dispose();
             rain.mesh.geometry.dispose();
