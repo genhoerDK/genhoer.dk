@@ -207,7 +207,7 @@ function greyTree(g, rand) {
 /* ---------- THE TOWN ROUND IT, AND THE HAZE IT FADES INTO ---------- */
 
 // Where the town thins into the haze: everything is haze-coloured by HAZE.far metres from HAZE.centre
-const HAZE = { centre: [18, 20], near: 115, far: 300 };
+const HAZE = { centre: [18, 20], near: 80, far: 200 };
 // The part already built by hand (the hospital, the road's two sides), which the town leaves alone
 const BUILT = { x0: -100, x1: 112, y0: -60, y1: 112 };
 const STREETS = { across: [-120, 152, 240], along: [-150, 172, -262] };   // side streets: y = …, x = …
