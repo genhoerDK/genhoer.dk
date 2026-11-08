@@ -25,8 +25,8 @@ import { buildTownMap, alongLine } from '@/player/kit/townmap';
 import { pathLines } from '@/player/kit/roads';
 import { createSpeaker } from '@/player/interfaces/street/speaker';
 
-const REACH = { wide: 320, tall: 420 };   // metres from the camera to where you are, on a wide and a tall screen
-const SCALE_AT = 170;                     // the speakers are drawn their true size seen from this far, and grow with the distance
+const REACH = { wide: 200, tall: 270 };   // metres from the camera to where you are, on a wide and a tall screen
+const SCALE_AT = 150;                     // the speakers are drawn their true size seen from this far, and grow with the distance
 const TILT = 0.95;                        // radians above the horizon the view looks down from (locked)
 const STEP = 0.06;                        // metres walked per pixel scrolled
 const TOUCH = 0.35;                       // metres walked per pixel dragged

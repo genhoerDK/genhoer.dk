@@ -5,14 +5,14 @@
  *
  * The town round the street lies behind in 3D, seen from above as Tværveje's Nakskov
  * (StreetScene.js, three.js, loaded when the work is opened), in the 3D style (STIL.md). Scrolling
- * walks you down the street and back, past the speakers on the facades, half on either side. The
+ * walks you down the street and back, past the speakers on the facades, in pairs facing each other across it. The
  * work plays as one file, with its chapters, on the timeline at the bottom; over the timeline, where
  * you are in the street and where the speakers hang. The further you are from the nearest speaker,
  * the quieter the work (where the phone lets the page set it).
  *
  *   player.street   A street named in src/player/vaerker/streets.js
  *   player.ends     The names at its two ends, as they are walked: [from, to]
- *   player.speakers How many speakers, spread evenly along the walk, every other on each side (default 8)
+ *   player.speakers How many speakers, in pairs facing each other, the pairs spread evenly along the walk (default 8)
  *   player.reach    Metres from the nearest speaker over which the sound falls to its quietest (default 40)
  *   player.quietest 0–1: how quiet it gets furthest away (default 0.3)
  */
@@ -34,9 +34,13 @@ export default function StreetPlayer() {
     const data = streets[name];
     const [at, setAt] = useState({ s: data.walk[0], f: 0 });
 
-    // The speakers, spread evenly along the walk, every other on the left and on the right
+    // The speakers in pairs, one on either side facing the other, the pairs spread evenly along the walk
     const [w0, w1] = data.walk;
-    const speakers = useMemo(() => Array.from({ length: count }, (_, i) => ({ s: w0 + ((i + 0.5) / count) * (w1 - w0), side: i % 2 ? 1 : -1 })), [count, w0, w1]);
+    const speakers = useMemo(() => {
+        const pairs = Math.ceil(count / 2);
+        return Array.from({ length: count }, (_, i) => ({ s: w0 + ((Math.floor(i / 2) + 0.5) / pairs) * (w1 - w0), side: i % 2 ? 1 : -1 }));
+    }, [count, w0, w1]);
+    const pairs = speakers.filter((sp) => sp.side < 0);
 
     /** Quieter the further from the nearest speaker */
     const onMove = useCallback((where) => {
@@ -63,7 +67,7 @@ export default function StreetPlayer() {
                         </div>
                         <div className='relative mt-2 h-px bg-paper/25'>
                             {/* where the speakers hang */}
-                            {speakers.map((sp) => (
+                            {pairs.map((sp) => (
                                 <span key={sp.s} className='absolute top-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-paper/50' style={{ left: `${((sp.s - w0) / (w1 - w0)) * 100}%` }} />
                             ))}
                             <span className='absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-paper' style={{ left: `${Math.min(1, Math.max(0, at.f)) * 100}%` }} />
