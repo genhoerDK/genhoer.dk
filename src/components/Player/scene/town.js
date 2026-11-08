@@ -1,9 +1,14 @@
 /**
  * Houses for the walk interface's map (WalkScene.js), made up from the streets alone — no
- * building data: rows of houses along both sides of every street, gables to the side and the ridge
- * along the street as in an old market town, with the yards inside the blocks left open. Nothing is
- * built on a street, on the water, on a square, too near one of the work's places, or on another
- * house. Widths, depths, heights and gaps vary, from a seed, so it comes out the same every time.
+ * building data: rows of houses along both sides of every street and round the squares, gables to
+ * the side and the ridge along the street as in an old market town, with the yards inside the blocks
+ * left open. Nothing is built on a street, on the water, on a square, on a landmark, too near one of
+ * the work's places, or on another house. Widths, depths, heights and gaps vary, from a seed, so it
+ * comes out the same every time.
+ *
+ * After drone photos of the town: along the harbour the houses stand wall to wall in an unbroken row
+ * of tall town houses, with nothing on the quay side but the promenade; facades and roofs vary
+ * between pale and dark (white, yellow and red houses; red tile and grey slate roofs).
  *
  * Metres, x to the east and z to the south, as the map is drawn in WalkScene.js.
  */
@@ -57,14 +62,17 @@ function overlap(a, b) {
 
 /**
  * @param {object} town
- * @param {{ lines: number[][], half: number }[]} town.streets  Each kind of street: its lines ([x, z, x, z, ...]) and half its width
+ * @param {{ lines: number[][], half: number, build?: boolean }[]} town.streets  Each kind of street: its lines ([x, z, x, z, ...]),
+ *                                    half its width, and build: false for paths that houses keep off but don't line
  * @param {number[][]} [town.water]    Closed lines the houses keep off
- * @param {number[][]} [town.squares]  Closed lines the houses keep off
+ * @param {number[][]} [town.squares]  Closed lines the houses keep off, and line
+ * @param {number[][]} [town.blocks]   Closed lines the houses keep off (the landmarks)
  * @param {THREE.Vector2[]} [town.clear]  Points to keep a little space round (the work's places)
  * @param {number} [town.seed]
- * @returns {{ corners: number[][], height: number, pitched: boolean }[]}  corners: front left, front right, back right, back left
+ * @returns {{ corners: number[][], height: number, pitched: boolean, wall: number, roof: number }[]}
+ *          corners: front left, front right, back right, back left; wall, roof: 0–1, dark to pale
  */
-export function makeHouses({ streets, water = [], squares = [], clear = [], seed = 7 }) {
+export function makeHouses({ streets, water = [], squares = [], blocks = [], clear = [], seed = 7 }) {
     const rand = random(seed);
     const CELL = 40;
 
@@ -72,10 +80,10 @@ export function makeHouses({ streets, water = [], squares = [], clear = [], seed
     const grid = new Map();
     const key = (i, j) => `${i},${j}`;
     const segments = [];
-    for (const { lines, half } of streets) {
+    for (const { lines, half, build = true } of [...streets, { lines: squares, half: 0.5 }]) {
         for (const l of lines) {
             for (let i = 2; i < l.length; i += 2) {
-                const s = { ax: l[i - 2], az: l[i - 1], bx: l[i], bz: l[i + 1], half };
+                const s = { ax: l[i - 2], az: l[i - 1], bx: l[i], bz: l[i + 1], half, build };
                 segments.push(s);
                 const [i0, i1] = [Math.floor(Math.min(s.ax, s.bx) / CELL) - 1, Math.floor(Math.max(s.ax, s.bx) / CELL) + 1];
                 const [j0, j1] = [Math.floor(Math.min(s.az, s.bz) / CELL) - 1, Math.floor(Math.max(s.az, s.bz) / CELL) + 1];
@@ -89,6 +97,14 @@ export function makeHouses({ streets, water = [], squares = [], clear = [], seed
     }
     const onStreet = (x, z, margin) => (grid.get(key(Math.floor(x / CELL), Math.floor(z / CELL))) ?? [])
         .some((s) => toSegment(x, z, s.ax, s.az, s.bx, s.bz) < (s.half + margin) ** 2);
+
+    /** How near the water's edge a point is (only checked close by) */
+    const edges = [];
+    for (const r of water) for (let i = 2; i < r.length; i += 2) edges.push([r[i - 2], r[i - 1], r[i], r[i + 1]]);
+    const nearWater = (x, z, within) => edges.some(([ax, az, bx, bz]) => toSegment(x, z, ax, az, bx, bz) < within * within);
+    const inBlock = (x, z) => blocks.some((r) => inside(x, z, r));
+    const blockCorners = blocks.flatMap((r) => { const out = []; for (let i = 0; i < r.length; i += 2) out.push([r[i], r[i + 1]]); return out; });
+    const coversBlock = (quad) => blockCorners.some(([x, z]) => inside(x, z, quad.flat()));
 
     const houses = [];
     const placed = new Map();   // grid cell → houses
@@ -111,6 +127,7 @@ export function makeHouses({ streets, water = [], squares = [], clear = [], seed
     // The bigger streets first, so their rows are the unbroken ones
     const order = [...segments].sort((a, b) => b.half - a.half);
     for (const s of order) {
+        if (!s.build) continue;
         const dx = s.bx - s.ax, dz = s.bz - s.az;
         const length = Math.hypot(dx, dz);
         if (length < 10) continue;
@@ -118,11 +135,16 @@ export function makeHouses({ streets, water = [], squares = [], clear = [], seed
         for (const side of [1, -1]) {
             const nx = -uz * side, nz = ux * side;
             const setback = s.half + 1.2 + rand() * 1.5;
+            // Is this the harbour front: the water near, but on the other side of the street?
+            const mx = (s.ax + s.bx) / 2, mz = (s.az + s.bz) / 2;
+            const quaySide = nearWater(mx + nx * 22, mz + nz * 22, 16);
+            if (quaySide) continue;   // the promenade side: nothing built
+            const harbour = nearWater(mx - nx * 30, mz - nz * 30, 26);
             let t = 3 + rand() * 4;
-            const big = s.half > 4;
+            const big = s.half > 4 || harbour;
             while (t < length - 6) {
                 const width = (big ? 8 : 6) + rand() * (big ? 10 : 8);
-                const depth = 8 + rand() * 5;
+                const depth = harbour ? 12 + rand() * 4 : 8 + rand() * 5;
                 const along = Math.min(width, length - 3 - t);
                 if (along < 5) break;
                 const fx = s.ax + ux * t + nx * setback, fz = s.az + uz * t + nz * setback;
@@ -136,14 +158,22 @@ export function makeHouses({ streets, water = [], squares = [], clear = [], seed
                 const free = !samples.some(([x, z]) => onStreet(x, z, 0.6)
                     || water.some((r) => inside(x, z, r))
                     || squares.some((r) => inside(x, z, r))
+                    || inBlock(x, z)
                     || clear.some((c) => (c.x - x) ** 2 + (c.y - z) ** 2 < 14 * 14))
+                    && !coversBlock(corners)
                     && !clashes(corners);
                 if (free) {
-                    const storeys = rand() < (big ? 0.45 : 0.2) ? 3 : rand() < 0.25 ? 1 : 2;
-                    place({ corners, height: storeys * 3 + 0.8 + rand() * 1.2, pitched: rand() < 0.85 });
+                    const storeys = harbour ? (rand() < 0.6 ? 3 : 2) : rand() < (big ? 0.45 : 0.2) ? 3 : rand() < 0.25 ? 1 : 2;
+                    place({
+                        corners,
+                        height: storeys * 3 + 0.8 + rand() * 1.2,
+                        pitched: rand() < 0.88,
+                        wall: rand(),
+                        roof: rand() < 0.62 ? 0.65 + rand() * 0.35 : rand() * 0.3,   // mostly red tile (pale here), some slate (dark)
+                    });
                 }
-                // Mostly wall to wall; now and then a gap, a gateway into the yard
-                t += along + (rand() < 0.18 ? 2 + rand() * 6 : 0.05);
+                // Mostly wall to wall; now and then a gap, a gateway into the yard (never on the harbour front)
+                t += along + (!harbour && rand() < 0.18 ? 2 + rand() * 6 : 0.05);
             }
         }
     }
@@ -154,9 +184,11 @@ export function makeHouses({ streets, water = [], squares = [], clear = [], seed
  * The houses as one geometry: walls darker at the foot and lighter at the eaves, pitched roofs with
  * the ridge along the street (flat on a few), roofs lighter still.
  */
-export function houseGeometry(houses, { low = '#26262a', high = '#3b3b41', roof = '#4a4a51', gable = '#34343a' } = {}) {
+export function houseGeometry(houses, { low = '#232327', walls = ['#33333a', '#4a4a51'], roofs = ['#2b2b31', '#55555c'] } = {}) {
     const pos = [], nor = [], col = [];
-    const cLow = new THREE.Color(low), cHigh = new THREE.Color(high), cRoof = new THREE.Color(roof), cGable = new THREE.Color(gable);
+    const cLow = new THREE.Color(low);
+    const [w0, w1, r0, r1] = [...walls, ...roofs].map((c) => new THREE.Color(c));
+    let cHigh = new THREE.Color(), cRoof = new THREE.Color(), cGable = new THREE.Color();
     const p = new THREE.Vector3(), q = new THREE.Vector3(), r = new THREE.Vector3(), n = new THREE.Vector3(), out = new THREE.Vector3();
     /** A flat face, its normal turned away from the house's middle */
     const face = (verts, colours, middle) => {
@@ -168,7 +200,10 @@ export function houseGeometry(houses, { low = '#26262a', high = '#3b3b41', roof 
             for (const k of [0, i, i + 1]) { pos.push(...verts[k]); nor.push(n.x, n.y, n.z); col.push(colours[k].r, colours[k].g, colours[k].b); }
         }
     };
-    for (const { corners, height: h, pitched } of houses) {
+    for (const { corners, height: h, pitched, wall = 0.5, roof = 0.5 } of houses) {
+        cHigh = w0.clone().lerp(w1, wall);
+        cRoof = r0.clone().lerp(r1, roof);
+        cGable = cHigh.clone().lerp(cRoof, 0.3);
         const [a, b, c, d] = corners;   // front left, front right, back right, back left
         const at = ([x, z], y) => [x, y, z];
         const depth = Math.hypot(d[0] - a[0], d[1] - a[1]);

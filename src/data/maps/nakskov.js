@@ -1,19 +1,26 @@
-// The streets of central Nakskov round the harbour, for Tværveje's map (the walk interface,
-// src/components/Player/WalkScene.js). A simplified drawing made once from a small extract of
-// OpenStreetMap: 78 objects (the streets, the coastline, Indrefjord and Axeltorv), under the
-// 100 the OSM Foundation counts as insubstantial — so keep it to this one drawing, and don't add
-// more extracts to it. Lines are thinned to within a few metres and rounded to whole metres.
+// The streets of central Nakskov round the harbour, with its landmarks, for Tværveje's map (the
+// walk interface, src/components/Player/WalkScene.js). A simplified drawing made once from a single
+// small extract of OpenStreetMap: 99 objects (the streets, a few footpaths, the coastline,
+// Indrefjord, Axeltorv, the old ferry berth's piers and six landmark buildings), under the 100 the
+// OSM Foundation counts as insubstantial — so keep it to this one drawing, and don't add more
+// extracts to it. Lines are thinned to within a few metres and rounded to whole metres. The other
+// houses on the map are made up (src/components/Player/scene/town.js).
 //
 // Units are metres on a 960 × 630 sheet (x to the east, y to the south); the places' `at`
 // in src/data/players.js use the same.
 //
-//   metres   How many metres one unit is (1)
-//   water    The harbour and Indrefjord, as closed SVG paths
-//   quay     The water's edge
-//   main     The through streets
-//   side     The other streets
-//   zone     The walking streets, drawn as a soft band under the streets
-//   squares  Axeltorv, as a closed path
+//   metres     How many metres one unit is (1)
+//   water      The harbour and Indrefjord, as closed SVG paths
+//   quay       The water's edge
+//   main       The through streets
+//   side       The other streets
+//   zone       The walking streets, drawn as a soft band under the streets
+//   path       Footpaths
+//   squares    Axeltorv, as a closed path
+//   landmarks  Buildings that stand out, by name: { kind, height, ring }. height: metres to the eaves
+//              (to the top for a tower). kind: church (nave, and a tower with a spire at its west
+//              end), tower (round, with a cone), warehouse, hall or chapel (pitched roofs). One named
+//              like a place lights up when you are there
 
 export const nakskov = {
     width: 960,
@@ -101,5 +108,28 @@ export const nakskov = {
         "M916,404 L895,403 L874,408",
         "M922,375 L906,434",
     ],
+    path: [
+        "M844,590 L822,583 L668,589 L662,602 L629,597",
+        "M960,587 L946,606 L944,614 L935,630",
+        "M247,3 L238,7 L225,1 L204,4 L195,2 L186,6 L188,13 L202,27 L207,47 L217,60 L239,41 L235,6",
+        "M386,43 L426,29 L444,49 L453,46 L459,39 L497,27 L514,74",
+        "M852,570 L868,597 L891,605 L939,593 L960,585",
+        "M627,33 L636,55 L631,57 L635,70 L634,76 L614,82 L604,53 L631,43",
+        "M636,55 L644,52 L659,88 L692,73 L677,30",
+        "M573,169 L666,124 L657,108",
+        "M174,376 L184,367 L230,414 L257,439 L261,439",
+        "M423,384 L419,388 L469,417 L507,434 L506,438 L517,441",
+        "M810,115 L768,60 L746,49 L743,43 L746,29",
+        "M653,110 L743,63 L750,53",
+        "M559,284 L570,314 L580,322 L629,336 L632,340",
+    ],
     squares: ["M647,340 L638,352 L580,337 L577,339 L555,327 L553,329 L546,323 L547,316 L564,305 L607,291 L610,287 L618,286 L631,317 L647,340 Z"],
+    landmarks: {
+        "Sankt Nikolaj Kirke": {"kind": "church", "height": 16, "ring": "M546,272 L590,267 L596,258 L595,248 L589,241 L543,247 L543,253 L541,253 L542,255 L543,255 L544,264 L543,264 L543,266 L545,265 Z"},
+        "Vandt\u00e5rnet": {"kind": "tower", "height": 38, "ring": "M641,286 L644,285 L644,281 L643,280 L640,279 L638,281 L638,284 L639,285 Z"},
+        "Dronningens Pakhus": {"kind": "warehouse", "height": 10, "ring": "M753,467 L762,469 L752,512 L743,510 Z"},
+        "Havnebygningen": {"kind": "hall", "height": 10, "ring": "M301,220 L302,216 L306,212 L310,213 L341,252 L340,252 L362,282 L361,286 L357,289 L353,289 Z"},
+        "Skibs- og S\u00f8fartsmuseet": {"kind": "hall", "height": 9, "ring": "M586,116 L590,127 L580,131 L581,133 L570,136 L565,125 L562,126 L559,117 L561,116 L556,104 L564,101 L569,113 L581,107 L585,116 Z"},
+        "Sankt Franciscus Kirke": {"kind": "chapel", "height": 9, "ring": "M746,117 L745,118 L742,113 L751,109 L754,107 L757,112 L755,113 L764,130 L755,134 Z"},
+    },
 };

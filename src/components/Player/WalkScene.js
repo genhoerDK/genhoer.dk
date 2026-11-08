@@ -2,8 +2,9 @@
 
 /**
  * The 3D map for the walk interface (three.js): the town's street net (src/data/maps/), drawn as
- * pale bands on dark ground with the harbour beside it and houses along them (made up from the
- * streets, scene/town.js), seen at a slant from above. Round where you
+ * pale bands on dark ground with the harbour beside it, the town's landmarks in 3D (the church,
+ * the water tower, Dronningens Pakhus and more, scene/landmarks.js) and houses along the streets
+ * (made up from the streets, scene/town.js), seen at a slant from above. Round where you
  * are the streets are clear; further out they grey over and dissolve into a haze, with mist
  * drifting over them, and the map fades out at its own edges too — so it has no edge, only distance.
  *
@@ -29,6 +30,7 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 import { colors } from '@/styles/colors';
 import { maps } from '@/data/maps';
 import { makeHouses, houseGeometry } from '@/components/Player/scene/town';
+import { landmarkGeometry } from '@/components/Player/scene/landmarks';
 
 /* ---------- THE LOOK ---------- */
 
@@ -36,6 +38,7 @@ const GROUND = '#1f1f22';
 const WATER = '#3d4047';
 const ZONE = '#3f3f46';               // the walking streets and the squares, soft under the streets
 const QUAY = '#6b6b73';               // the quay's edge
+const PATH = { width: 1.6, color: '#6b6b73' };
 const SIDE = { width: 5, color: '#9a9aa1' };
 const MAIN = { width: 9.5, color: '#d4d4d8' };
 const POOL = 70;                      // metres across the light on the ground under a marker
@@ -297,6 +300,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         add(fillGeometry(lines(map.squares), 0.05), flatMaterial(ZONE));
         add(bandGeometry(lines(map.zone), map.zoneWidth ?? 14, 0.06), flatMaterial(ZONE));
         add(bandGeometry(lines(map.quay), 1.2, 0.08), flatMaterial(QUAY));
+        add(bandGeometry(lines(map.path), PATH.width, 0.09), flatMaterial(PATH.color));
         add(bandGeometry(lines(map.side), SIDE.width, 0.1), flatMaterial(SIDE.color));
         add(bandGeometry(lines(map.main), MAIN.width, 0.12), flatMaterial(MAIN.color));
 
@@ -316,6 +320,16 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             return material;
         });
 
+        /* ---------- the landmarks (scene/landmarks.js); one named like a place lights up when you are there ---------- */
+
+        const marks = Object.entries(map.landmarks ?? {}).map(([name, mark]) => {
+            const ring = lines(mark.ring)[0];
+            if (ring.length > 6 && ring[0] === ring.at(-2) && ring[1] === ring.at(-1)) ring.splice(-2);
+            const material = hazed(new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffffff, emissiveIntensity: 0 }), haze);
+            add(landmarkGeometry(mark, ring), material);
+            return { place: places.findIndex((place) => place.name === name), ring, material };
+        });
+
         /* ---------- houses along the streets, made up from the streets (scene/town.js) ---------- */
 
         const houses = makeHouses({
@@ -323,10 +337,12 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                 { lines: lines(map.main), half: MAIN.width / 2 },
                 { lines: lines(map.side), half: SIDE.width / 2 },
                 { lines: lines(map.zone), half: (map.zoneWidth ?? 14) / 2 },
+                { lines: lines(map.path), half: PATH.width / 2 + 0.4, build: false },
             ],
             water: lines(map.water),
             squares: lines(map.squares),
-            clear: spots,
+            blocks: marks.map((m) => m.ring),
+            clear: spots.filter((_, p) => !marks.some((m) => m.place === p)),
         });
         add(houseGeometry(houses), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
 
@@ -494,6 +510,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                     ring.material.opacity = on ? (1 - phase) * 0.55 : Math.max(0, ring.material.opacity - dt);
                 });
                 pools[p].uniforms.uStrength.value = 0.18 + m.lit * 0.42;
+                for (const mark of marks) if (mark.place === p) mark.material.emissiveIntensity = m.lit * 0.35;
             });
 
             mists.forEach(({ material, layer }) => {
