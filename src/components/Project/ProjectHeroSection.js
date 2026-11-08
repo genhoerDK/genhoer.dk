@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAudio } from '@/context/AudioContext';
-import { settingsFor } from '@/components/Player/interfaces/registry';
+import { useAudio } from '@/player/AudioContext';
+import { settingsFor } from '@/player/interfaces/registry';
 import { getProjectInfo } from "@/utilities/projectInfo";
 import BackgroundImage from '@/components/Layout/BackgroundImage';
 import ProjectDescription from '@/components/Project/ProjectDescription';

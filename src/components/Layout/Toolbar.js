@@ -1,8 +1,8 @@
 'use client';
 
 import ToggleMapButton from "@/components/Map/ToggleMapButton";
-import PlayerControls from "@/components/Player/PlayerControls";
-import TracksOverviewButton from "@/components/Player/TracksOverviewButton";
+import PlayerControls from "@/player/frame/PlayerControls";
+import TracksOverviewButton from "@/player/frame/TracksOverviewButton";
 import { useChrome } from "@/hooks/useChrome";
 import { useIsPortrait } from "@/hooks/useIsPortrait";
 

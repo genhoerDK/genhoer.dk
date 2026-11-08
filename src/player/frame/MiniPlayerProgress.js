@@ -1,0 +1,11 @@
+import { useAudio } from '@/player/AudioContext';
+
+export default function MiniPlayerProgress() {
+  const { progress } = useAudio();
+
+  return (
+    <div className="absolute inset-0 w-full h-full">
+      <div className="h-full bg-chrome/10" style={{ width: `${progress * 100}%` }} />
+    </div>
+  );
+}

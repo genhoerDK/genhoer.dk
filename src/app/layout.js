@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { REM } from "next/font/google";
 import "./globals.css";
-import { AudioProvider } from '@/context/AudioContext';
+import { AudioProvider } from '@/player/AudioContext';
 import Header from "@/components/Layout/Header";
 import Toolbar from "@/components/Layout/Toolbar";
-import Player from "@/components/Player/Player";
+import Player from "@/player/Player";
 import Map from "@/components/Map/Map";
 
 const rem = REM({

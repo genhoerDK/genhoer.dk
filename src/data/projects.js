@@ -21,6 +21,6 @@
 //                      ({ interface, files, ... } or null; a chapter may get an imageLandscape)
 // composer             Not shown on the site at the moment
 import data from './projects.json';
-import { withPlayer } from './players';
+import { withPlayer } from '@/player/players';
 
 export const projects = data.map(withPlayer);
