@@ -13,7 +13,11 @@
  * take you from the whole place (0) in close to the cabin (1), which the view then follows. ←/→
  * turn too.
  *
- * @param {() => { at: number, lamp: number }} cabin  Where the cabin is (0 = the hospital, 1 = the other side) and its lamp (0 off, 1 on, 2 blinking)
+ * Weather: when `cabin()` says 'storm', it comes over the place in a few seconds — a grey fog
+ * close in, the sky darkens, the sun goes, rain falls on a slant and now and then lightning
+ * flashes — and lifts again as slowly when the ride is over.
+ *
+ * @param {() => { at: number, lamp: number, weather?: 'storm' | null }} cabin  Where the cabin is (0 = the hospital, 1 = the other side) and its lamp (0 off, 1 on, 2 blinking)
  * @param {{ current: number }} [zoomRef]  0 = the whole place, 1 = close to the cabin
  * @param {(close: boolean) => void} [onZoom]  Told when you go in close or back out
  */
@@ -23,9 +27,11 @@ import * as THREE from 'three';
 import { createStage, PANEL_DISTANCE } from '@/components/Player/scene/stage';
 import { buildHoejbane } from '@/components/Player/scene/hoejbane';
 import { skyTexture } from '@/components/Player/scene/sky';
+import { createRain } from '@/components/Player/scene/weather';
 import { keyIsTaken } from '@/components/Player/interfaces/keys';
 
 const PALE = { horizon: 0xdcdcd4 };              // the haze the distance fades into (as Kanon i G3, stylised)
+const STORM = { haze: 0x9ca2a5, sky: 0x8a9196, light: 0xc9cfd3 };   // in a storm: a grey haze close in, a dark sky, grey light
 const ABOVE_FOV = 32, CLOSE_FOV = 42;
 const TILT = { far: [0.95, 1.32], close: [1.1, 1.45] };   // radians from straight down: pointer at the top, at the bottom
 const TURN = 0.75;                               // how far the pointer turns the place either way, radians
@@ -64,7 +70,9 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
         sun.position.copy(place.centre).add(SUN);
         sun.target.position.copy(place.centre);
         room.add(sun, sun.target);
-        tilt.add(new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.65));
+        const skyLight = new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.65);
+        tilt.add(skyLight);
+        const fair = { sky: skyLight.color.clone(), sun: 1.8, light: 0.65 };
 
         // The sky, always round everything, far out
         const skyMap = skyTexture();
@@ -74,6 +82,13 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
         );
         sky.position.copy(place.centre).setZ(0);
         room.add(sky);
+
+        // The weather: 0 = fair, 1 = storm; eased, so it comes and goes over a few seconds
+        const rain = createRain();
+        room.add(rain.mesh);
+        const weather = { storm: 0, flash: 0, nextFlash: 4 };
+        const fairHaze = new THREE.Color(PALE.horizon), stormHaze = new THREE.Color(STORM.haze), haze = new THREE.Color();
+        const stormSky = new THREE.Color(STORM.sky), stormLight = new THREE.Color(STORM.light), white = new THREE.Color(1, 1, 1);
 
         /* ---------- LAYOUT ---------- */
 
@@ -141,7 +156,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
         const focus = new THREE.Vector3(), cabinFocus = new THREE.Vector3();
         const fog = new THREE.Fog(PALE.horizon, 1e6, 2e6);
         let close = current.zoom > 0.5;
-        const frame = (zoom, look, yaw, at) => {
+        const frame = (zoom, look, yaw, at, dt) => {
             const u = zoom * zoom * (3 - 2 * zoom);
             const s = Math.exp(THREE.MathUtils.lerp(Math.log(farScale), Math.log(closeScale), u));
             cabinFocus.copy(place.cabinAt(at)).add({ x: 0, y: 0, z: 2 });
@@ -170,10 +185,43 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
 
             // The distance fades into the haze: only far off, so the near things stay clear
             const distance = PANEL_DISTANCE / s;
-            fog.near = (distance + THREE.MathUtils.lerp(140, 60, u)) * s;
-            fog.far = (distance + THREE.MathUtils.lerp(520, 260, u)) * s;
+            // (in a storm, a grey fog close in: the far side of the road is only just there)
+            const storm = weather.storm;
+            fog.near = (distance + THREE.MathUtils.lerp(THREE.MathUtils.lerp(140, 60, u), THREE.MathUtils.lerp(-20, 0, u), storm)) * s;
+            fog.far = (distance + THREE.MathUtils.lerp(THREE.MathUtils.lerp(520, 260, u), THREE.MathUtils.lerp(120, 48, u), storm)) * s;
+
+            // The rain falls round the point in focus: longer, faster streaks seen from afar, so they read
+            rain.update(reducedMotion ? 0 : dt, focus, {
+                amount: storm,
+                size: THREE.MathUtils.lerp(170, 30, u),
+                height: THREE.MathUtils.lerp(70, 26, u),
+                length: THREE.MathUtils.lerp(5, 1.1, u),
+                fall: THREE.MathUtils.lerp(40, 13, u),
+                wind: THREE.MathUtils.lerp(14, 4, u),
+            });
 
             if ((u > 0.5) !== close) { close = u > 0.5; onZoom?.(close); }
+        };
+
+        /* ---------- THE WEATHER ---------- */
+
+        /** Ease towards fair (0) or storm (1), and light the place for it; lightning now and then in a storm */
+        const stormy = (goal, dt, elapsed) => {
+            weather.storm += (goal - weather.storm) * (1 - Math.exp(-elapsed * (goal > weather.storm ? 0.7 : 0.45)));
+            const storm = weather.storm;
+            // lightning: a double flash every few seconds once the storm is up
+            weather.nextFlash -= dt;
+            if (storm > 0.8 && weather.nextFlash <= 0 && !reducedMotion) { weather.flash = 1; weather.nextFlash = 5 + Math.random() * 9; }
+            weather.flash = Math.max(0, weather.flash - dt * 3.2);
+            const flash = weather.flash > 0 ? (weather.flash > 0.75 || (weather.flash > 0.3 && weather.flash < 0.5) ? 1 : 0) : 0;
+
+            haze.copy(fairHaze).lerp(stormHaze, storm).lerp(white, flash * 0.35);
+            fog.color.copy(haze);
+            stage.renderer.setClearColor(haze, 1);
+            sky.material.color.copy(white).lerp(stormSky, storm).lerp(white, flash * 0.6);
+            sun.intensity = THREE.MathUtils.lerp(fair.sun, 0.25, storm);
+            skyLight.color.copy(fair.sky).lerp(stormLight, storm);
+            skyLight.intensity = THREE.MathUtils.lerp(fair.light, 0.8, storm) + flash * 2.2;
         };
 
         /* ---------- STAGE ---------- */
@@ -189,10 +237,11 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
                 current.look += (target.look - current.look) * ease;
                 if (zoomRef) current.zoom += (zoomRef.current - current.zoom) * (1 - Math.exp(-elapsed * 2.5));
 
-                const { at, lamp } = cabin?.() ?? { at: 0, lamp: 0 };
+                const { at, lamp, weather: forecast } = cabin?.() ?? { at: 0, lamp: 0 };
+                stormy(forecast === 'storm' ? 1 : 0, dt, elapsed);
                 place.setCabin(at, lamp, t);
                 place.update(dt, reducedMotion);
-                frame(current.zoom, current.look, current.yaw, at);
+                frame(current.zoom, current.look, current.yaw, at, dt);
             },
         });
         stage.panel.add(tilt);
@@ -209,6 +258,8 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
             window.removeEventListener('keydown', onKey);
             place.dispose();
             skyMap.dispose();
+            rain.mesh.geometry.dispose();
+            rain.mesh.material.dispose();
             stage.dispose();
         };
     }, [cabin, zoomRef, onZoom]);

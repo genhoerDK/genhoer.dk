@@ -13,12 +13,16 @@
  * With `player.model`, the lift itself is behind it in 3D (ElevatorScene.js, scene/hoejbane.js)
  * instead of the photo: the cabin waits at one end, and on each ride glides to the other while the
  * display counts down — at the count's pace, so a slow variation is a slow ride, and the one that
- * breaks down stops on the way, its lamp blinking. The next ride goes back from wherever it stands.
+ * breaks down stops on the way, its lamp blinking. When that ride is over the picture fades out,
+ * and fades in on the cabin back at the station it left from. A variation can have weather: in a
+ * storm, rain and fog come over the place while it rides, and lift again after. The next ride
+ * goes from the end the cabin stands at to the other.
  * The pointer looks round; the wheel, a pinch, ↑/↓ or the button go in close to follow the cabin.
  *
  *   player.from     the number the display starts at (53)
  *   player.delay    seconds before it starts counting
- *   player.tracks   [{ title, file, tempo, stopAt }]  tempo: seconds per count; stopAt: where the count stops
+ *   player.tracks   [{ title, file, tempo, stopAt, weather }]  tempo: seconds per count; stopAt: where
+ *                   the count stops (the ride breaks down there); weather: 'storm' (the model only)
  *   player.model    true: the lift in 3D behind (default: the photo)
  */
 
@@ -37,8 +41,10 @@ const pad = (n) => String(n).padStart(2, '0');
 /** Mostly an even pace, softly away and softly in */
 const glide = (f) => f - 0.3 * (Math.sin(2 * Math.PI * f) / (2 * Math.PI));
 
+const FADE = 900;   // ms: the picture fades out, and in again, when the cabin is put back after a breakdown
+
 export default function CountdownPlayer() {
-    const { currentTrack, currentFile, isPlaying, currentTime, play, playFile } = useAudio();
+    const { currentTrack, currentFile, isPlaying, currentTime, ended, play, playFile } = useAudio();
     const { tracks, from = 53, delay = 6, model = false } = currentTrack.player;
 
     const loaded = tracks.findIndex((t) => t.file === currentFile);   // the variation in the element, -1 before the first ride
@@ -62,10 +68,10 @@ export default function CountdownPlayer() {
         clock.current = { file: currentFile, time: currentTime, stamp: performance.now(), playing: isPlaying };
     }, [currentFile, currentTime, isPlaying]);
 
-    /** Where the cabin is now, and its lamp: 0 off, 1 riding, 2 stopped on the way (blinking) */
+    /** Where the cabin is now, its lamp (0 off, 1 riding, 2 stopped on the way: blinking), and the weather */
     const cabin = useCallback(() => {
         const r = ride.current;
-        if (!r) return { at: where.current, lamp: 0 };
+        if (!r) return { at: where.current, lamp: 0, weather: null };
         const c = clock.current;
         const live = c.file === r.file;
         const moving = live && c.playing;
@@ -74,20 +80,42 @@ export default function CountdownPlayer() {
         // never back: when the ride ends the element's time goes to 0, and the cabin stays where it got to
         r.reached = Math.max(r.reached, Math.min(counted, r.count - r.stopAt) / r.count);
         where.current = r.from + (r.to - r.from) * (r.stopAt ? r.reached : glide(r.reached));
-        return { at: where.current, lamp: !moving ? 0 : r.stopAt && counted >= r.count - r.stopAt ? 2 : 1 };
+        return {
+            at: where.current,
+            lamp: !moving ? 0 : r.stopAt && counted >= r.count - r.stopAt ? 2 : 1,
+            weather: live && (c.playing || c.time > 0) ? r.weather : null,   // while the ride lasts
+        };
     }, []);
+
+    /* After a breakdown: when the ride is over, fade out, put the cabin back at the station it left
+       from, and fade in */
+    const [resetting, setResetting] = useState(false);
+    const endedRef = useRef(ended);
+    useEffect(() => {
+        if (ended === endedRef.current) return;
+        endedRef.current = ended;
+        const r = ride.current;
+        if (!model || !r?.stopAt) return;
+        setResetting(true);
+        const back = setTimeout(() => {
+            where.current = r.from < 0.5 ? 0 : 1;
+            if (ride.current === r) ride.current = null;
+            setResetting(false);
+        }, FADE + 300);
+        return () => clearTimeout(back);
+    }, [ended, model]);
 
     const zoomRef = useRef(0);
     const [close, setClose] = useState(false);
 
     const press = () => {
-        if (riding) return;
+        if (riding || resetting) return;
         if (paused) return play();
         const next = tracks[nextIndex];
         // From where the cabin stands to the far end
         ride.current = {
             file: next.file, from: where.current, to: where.current < 0.5 ? 1 : 0,
-            count: from, delay, tempo: next.tempo, stopAt: next.stopAt ?? 0, reached: 0,
+            count: from, delay, tempo: next.tempo, stopAt: next.stopAt ?? 0, weather: next.weather ?? null, reached: 0,
         };
         playFile(next.file);
     };
@@ -105,6 +133,7 @@ export default function CountdownPlayer() {
     return (
         <PlayerShell track={currentTrack} smoke={0.25} backdrop={!model}>
             {model && <ElevatorScene cabin={cabin} zoomRef={zoomRef} onZoom={setClose} />}
+            {model && <div className='absolute inset-0 bg-ink pointer-events-none transition-opacity ease-in-out' style={{ opacity: resetting ? 1 : 0, transitionDuration: `${FADE}ms` }} />}
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-5 md:gap-6'>
                 <div className={`flex items-center ${model ? 'flex-row gap-7 md:gap-9' : 'flex-col gap-5 md:gap-6'}`}>
