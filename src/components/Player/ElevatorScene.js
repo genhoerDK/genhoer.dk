@@ -32,7 +32,7 @@ const TURN = 0.75;                               // how far the pointer turns th
 const BEND_TURN = 0.7;                           // close in, at the hospital end: turned this far, to look into the bend
 const PORTRAIT_SHIFT = new THREE.Vector3(-9, 4, 0);  // and look a little further towards the hospital, so the spiral is in
 const PORTRAIT_TURN = -0.45;                      // upright screens start turned this far, the track on a slant
-const CLOSE_SIZE = 15;                           // metres across the view, close to the cabin
+const CLOSE_SIZE = 10;                           // metres across the view, close to the cabin
 const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 const smooth = (a, b, x) => { const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };

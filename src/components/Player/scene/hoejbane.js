@@ -45,7 +45,7 @@ const Y = new THREE.Vector3(0, 1, 0);
 const ROAD = { x: 24, width: 12, walk: 3.6, length: 900 };   // Heibergs Allé, running along y
 
 // The lattice track, metres from the rails' line: chords on top and under, the walkway, rails, handrails
-const TRUSS = { half: 0.85, bottomHalf: 0.6, depth: 1.6, panel: 1.7, walk: 0.6, rail: 0.5, hand: 0.95, handUp: 0.45 };
+const TRUSS = { half: 0.85, bottomHalf: 0.6, depth: 1.6, panel: 1.7, walk: 0.55, rail: 0.5, hand: 0.95, handUp: 0.45 };
 
 // The track's line, level at HEIGHT: from the hospital along the road (x = BEND.x), round the bend
 // (a quarter circle), and straight over the road (y = BEND.y) to the other side
@@ -60,7 +60,7 @@ const COLUMNS = [[-12, 12], [-8.5, -2.5], [2, -6], [13.6, -6], [34.4, -6], [45, 
 const C = {
     grass: '#a4aa84', verge: '#9aa07a', road: '#a3a39e', line: '#f2f0e8', walk: '#d3cec3', curb: '#e3dfd6',
     steel: '#7d8387', grating: '#949a9d', rack: '#5c6266', handrail: '#b9bec1', column: '#c9cdcf', foot: '#bdb9b0',
-    cabin: '#f3f1eb', roof: '#e3e0d8', glass: '#56646f', carriage: '#41474b', wheel: '#2f3336', lamp: '#ffcf7a',
+    panel: '#e6e8e8', panelDark: '#c3c6c7', roof: '#d6d9da', seal: '#3c4145', bracket: '#a8a58f', glass: '#56646f', carriage: '#41474b', wheel: '#2f3336', lamp: '#ffcf7a',
     peach: '#d9a581', sand: '#e4d4ba', band: '#a9adaf', window: '#5d6a75', ribbon: '#4f5b66', concrete: '#bcb8ae', parapet: '#ece8df',
     clad: '#b3b8bb', cladLight: '#d5d9db', yellowBrick: '#cdb87c', dock: '#454d54', greyBlock: '#9da1a2',
     slate: '#6c7176', slateLight: '#8a9095', station: '#f1efea',
@@ -247,52 +247,130 @@ function column(parts, curve, x, y) {
 
 /* ---------- THE CABIN ---------- */
 
-/** The cabin: origin on the rails' line, travelling along local +x. The carriage (`bogie`) tips with the track */
+// The cabin's box, from the photos: a little longer than it is wide, about as tall as it is wide
+const CAB = { length: 2.7, width: 2.3, height: 2.35, base: 0.95, wall: 0.05 };
+
+/**
+ * One wall of the box: a flat panel with real openings for the windows, its outer face at z = 0
+ * facing +z, `u` across it from -w/2 to w/2 and `v` up it from 0. The glass sits further in, so the
+ * windows are set into the wall and nothing stands out of it.
+ */
+function wallPanel(w, h, openings, hex) {
+    const shape = new THREE.Shape([new THREE.Vector2(-w / 2, 0), new THREE.Vector2(w / 2, 0), new THREE.Vector2(w / 2, h), new THREE.Vector2(-w / 2, h)]);
+    for (const [u0, u1, v0, v1] of openings) {
+        shape.holes.push(new THREE.Path([new THREE.Vector2(u0, v0), new THREE.Vector2(u0, v1), new THREE.Vector2(u1, v1), new THREE.Vector2(u1, v0)]));
+    }
+    const g = new THREE.ExtrudeGeometry(shape, { depth: CAB.wall, bevelEnabled: false });
+    g.translate(0, 0, -CAB.wall);
+    return paint(g, hex);
+}
+
+/** Turn a wall built facing +z to face `side` (-y, +x, +y, -x) and push it out to the box's edge */
+function faceTo(g, side, z) {
+    g.rotateX(Math.PI / 2);                                   // up the wall is up; it now faces -y
+    const turn = { '-y': 0, '+x': Math.PI / 2, '+y': Math.PI, '-x': -Math.PI / 2 }[side];
+    g.rotateZ(turn);
+    const out = side[1] === 'x' ? CAB.length / 2 : CAB.width / 2;
+    const dir = { '-y': [0, -1], '+x': [1, 0], '+y': [0, 1], '-x': [-1, 0] }[side];
+    g.translate(dir[0] * out, dir[1] * out, z);
+    return g;
+}
+
+/** Glass, darker low down and lighter where it catches the sky */
+function glassBox(w, d, h, z) {
+    const g = new THREE.BoxGeometry(w, d, h).toNonIndexed();
+    g.translate(0, 0, z + h / 2);
+    const low = colour('#34404a'), high = colour('#8796a2'), c = new THREE.Color(), list = [];
+    const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+        c.copy(low).lerp(high, THREE.MathUtils.smoothstep(pos.getZ(i), z + h * 0.35, z + h));
+        list.push(c.r, c.g, c.b);
+    }
+    g.setAttribute('color', new THREE.Float32BufferAttribute(list, 3));
+    return g;
+}
+
+/**
+ * The cabin: origin on the rails' line, travelling along local +x. The box (`body`) stays level;
+ * the carriage under it (`bogie`) tips with the track.
+ *
+ *  - the box: light aluminium panels with real openings. The ends, facing along the rails, are the
+ *    doors: three tall, narrow windows. The sides are closed below, with a window in two panes over
+ *    the upper half and a small vent window over one. Rounded
+ *    posts at the corners, a dark seal along the roof's edge, a flat roof with a low hatch.
+ *  - under it: a dark tray, narrower at the bottom, then the carriage with a bracket at each corner
+ *    reaching round the rail, a wheel on top of the rail and a guide wheel under it.
+ */
 function buildCabin(material) {
     const cabin = new THREE.Group();
     const bogie = new THREE.Group();
-    cabin.add(bogie);
+    const body = new THREE.Group();
+    cabin.add(bogie, body);
+    const { length: L, width: W, height: H, base: B } = CAB;
 
-    const under = [];
-    under.push(box(2.4, 1.4, 0.34, 0, 0, 0.16, C.carriage, 0.08));
-    for (const x of [-0.85, 0.85]) {
-        for (const y of [-TRUSS.rail, TRUSS.rail]) {
-            const wheel = new THREE.CylinderGeometry(0.2, 0.2, 0.14, 10);
-            wheel.translate(x, y, 0.24);
+    /* The carriage on the rails */
+    const under = [box(2.3, 1.25, 0.3, 0, 0, 0.2, C.carriage, 0.06)];
+    for (const x of [-0.8, 0.8]) {
+        for (const s of [-1, 1]) {
+            const y = s * TRUSS.rail;
+            under.push(box(0.34, 0.09, 0.62, x, s * (TRUSS.rail + 0.13), -0.24, C.bracket, 0.03));   // the bracket, outside the rail
+            under.push(box(0.34, 0.2, 0.08, x, y + s * 0.05, -0.24, C.bracket, 0.02));                  // its foot, under the rail
+            const wheel = new THREE.CylinderGeometry(0.15, 0.15, 0.1, 12);
+            wheel.translate(x, y, 0.26);
             under.push(paint(wheel, C.wheel));
+            const guide = new THREE.CylinderGeometry(0.07, 0.07, 0.08, 10);
+            guide.translate(x, y, -0.08);
+            under.push(paint(guide, C.wheel));
         }
     }
+    under.push(box(0.4, 0.3, 0.08, 0, 0.19, 0.12, C.wheel, 0.03));   // the drive, over the rack
     const bogieMesh = new THREE.Mesh(mergeGeometries(under), material);
     under.forEach((g) => g.dispose());
     bogie.add(bogieMesh);
 
-    const body = [];
-    // the dark frame under the box, narrower at the bottom
-    const frame = new THREE.CylinderGeometry(1.45, 0.95, 0.5, 4, 1);
-    frame.rotateY(Math.PI / 4);
-    frame.rotateX(Math.PI / 2);
-    frame.scale(1.05, 0.9, 1);
-    frame.translate(0, 0, 0.85);
-    body.push(paint(frame, C.carriage));
-    body.push(box(2.9, 2.5, 2.5, 0, 0, 1.1, C.cabin, 0.22));                      // the box
-    body.push(box(2.94, 2.54, 0.95, 0, 0, 2.2, C.glass, 0.2));                   // the band of windows, all round
-    for (const x of [-0.5, 0.5]) for (const y of [-1, 1]) body.push(box(0.12, 0.1, 0.95, x, y * 1.27, 2.2, C.cabin));   // mullions on the sides
-    body.push(box(0.1, 0.1, 0.95, 1.47, 0, 2.2, C.cabin));                        // and one in each end
-    body.push(box(0.1, 0.1, 0.95, -1.47, 0, 2.2, C.cabin));
-    body.push(box(3.04, 2.64, 0.2, 0, 0, 3.55, C.roof, 0.09));                    // the roof, a little over
-    body.push(box(0.9, 0.7, 0.28, -0.4, 0, 3.71, C.roof, 0.08));                  // a vent on it
-    const bodyMesh = new THREE.Mesh(mergeGeometries(body), material);
-    body.forEach((g) => g.dispose());
-    cabin.add(bodyMesh);
+    /* The box */
+    const parts = [];
+    // the dark tray under it, narrower at the bottom
+    const tray = new THREE.CylinderGeometry(1, 0.78, 0.45, 4, 1);
+    tray.rotateY(Math.PI / 4);
+    tray.rotateX(Math.PI / 2);
+    tray.scale((L - 0.1) / Math.SQRT2, (W - 0.1) / Math.SQRT2, 1);
+    tray.translate(0, 0, B - 0.225);
+    parts.push(paint(tray, C.carriage));
+    parts.push(box(L - 0.02, W - 0.02, 0.06, 0, 0, B, C.panelDark));   // the floor's edge
+
+    // the ends, facing along the rails: the doors, three tall, narrow windows
+    const door = 0.56, post = 0.14, doorStart = -(3 * door + 2 * post) / 2;
+    const ends = [0, 1, 2].map((k) => [doorStart + k * (door + post), doorStart + k * (door + post) + door, 0.5, 2.02]);
+    // the sides: closed below, a window in two panes over the upper half, a small top-hung vent over one
+    const pane = (L - 0.12 - 0.36 - 0.07) / 2, left = -(L - 0.12) / 2 + 0.18, right = (L - 0.12) / 2 - 0.18;
+    const sides = [[left, left + pane, 1.05, 1.72], [left, left + pane, 1.78, 2.0], [right - pane, right, 1.05, 2.0]];
+    parts.push(faceTo(wallPanel(W - 0.12, H, ends, C.panel), '+x', B));
+    parts.push(faceTo(wallPanel(W - 0.12, H, ends, C.panel), '-x', B));
+    parts.push(faceTo(wallPanel(L - 0.12, H, sides, C.panel), '-y', B));
+    parts.push(faceTo(wallPanel(L - 0.12, H, sides, C.panel), '+y', B));
+    // the posts at the corners, over the walls' joins
+    for (const x of [-1, 1]) for (const y of [-1, 1]) parts.push(box(0.16, 0.16, H, x * (L / 2 - 0.06), y * (W / 2 - 0.06), B, C.panel, 0.06));
+    // the roof: a dark seal round its edge, the cap a little over, a low hatch
+    parts.push(box(L + 0.03, W + 0.03, 0.06, 0, 0, B + H - 0.02, C.seal, 0.02));
+    parts.push(box(L + 0.06, W + 0.06, 0.1, 0, 0, B + H + 0.04, C.roof, 0.04));
+    parts.push(box(0.8, 0.65, 0.1, -0.45, 0, B + H + 0.14, C.panel, 0.04));
+    const bodyMesh = new THREE.Mesh(mergeGeometries(parts), material);
+    parts.forEach((g) => g.dispose());
+
+    // the glass: a dark box just inside the walls, seen through the openings
+    const glassMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.18, metalness: 0.25 });
+    const glass = new THREE.Mesh(glassBox(L - 0.2, W - 0.2, H - 0.05, B + 0.02), glassMaterial);
+    body.add(bodyMesh, glass);
 
     // A small lamp on the roof: on while it rides, blinking when it has stopped on the way
     const lampMaterial = new THREE.MeshStandardMaterial({ color: C.lamp, emissive: C.lamp, emissiveIntensity: 0, roughness: 0.4 });
-    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 8), lampMaterial);
-    lamp.position.set(0.55, 0, 3.83);
-    cabin.add(lamp);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 8), lampMaterial);
+    lamp.position.set(0.6, 0, B + H + 0.2);
+    body.add(lamp);
 
     for (const mesh of [bogieMesh, bodyMesh, lamp]) mesh.castShadow = mesh.receiveShadow = true;
-    return { cabin, bogie, body: bodyMesh, lampMaterial };
+    return { cabin, bogie, body, lampMaterial };
 }
 
 /* ---------- THE STATIONS ---------- */
