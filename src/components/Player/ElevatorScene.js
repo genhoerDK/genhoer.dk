@@ -29,7 +29,7 @@ const PALE = { horizon: 0xdcdcd4 };              // the haze the distance fades 
 const ABOVE_FOV = 32, CLOSE_FOV = 42;
 const TILT = { far: [0.95, 1.32], close: [1.1, 1.45] };   // radians from straight down: pointer at the top, at the bottom
 const TURN = 0.75;                               // how far the pointer turns the place either way, radians
-const SPIRAL_TURN = 0.7;                         // close in, at the hospital end: turned this far, to look into the spiral
+const BEND_TURN = 0.7;                           // close in, at the hospital end: turned this far, to look into the bend
 const PORTRAIT_SHIFT = new THREE.Vector3(-9, 4, 0);  // and look a little further towards the hospital, so the spiral is in
 const PORTRAIT_TURN = -0.45;                      // upright screens start turned this far, the track on a slant
 const CLOSE_SIZE = 15;                           // metres across the view, close to the cabin
@@ -148,9 +148,9 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
             focus.copy(place.centre).addScaledVector(PORTRAIT_SHIFT, portrait ? 1 : 0).lerp(cabinFocus, smooth(0, 0.6, u));
             room.scale.setScalar(s);
             room.position.copy(focus).multiplyScalar(-s);
-            // close to the cabin while it is in the spiral, the view comes round to look at it from the
-            // front left, past the spiral rather than through it; over the road, straight on again
-            turn.rotation.z = yaw + SPIRAL_TURN * u * (1 - smooth(0.04, 0.32, at));
+            // close to the cabin at the hospital and round the bend, the view comes round to look at it
+            // from the front left, past the bend rather than through it; over the road, straight on again
+            turn.rotation.z = yaw + BEND_TURN * u * (1 - smooth(0.12, 0.42, at));
             const far = THREE.MathUtils.lerp(TILT.far[0], TILT.far[1], look);
             const near = THREE.MathUtils.lerp(TILT.close[0], TILT.close[1], look);
             tilt.rotation.x = -THREE.MathUtils.lerp(far, near, u);

@@ -5,17 +5,18 @@
  *
  * Built from photos, not from drawings, so the sizes are guesses at the right proportions:
  *
- *  - The hospital end: a grey-clad tower beside a yellow-brick shaft, in front of the hospital's
- *    blocks (peach and beige panels, grey bands, a tall grey block behind). The cabin docks in a
- *    grey portal that juts out of the tower, at about 8 m.
- *  - The track: a deep steel lattice, zigzag on the sides and on top, a grating walkway down the
- *    middle with the rails and the toothed rack beside it, and a handrail tube along each side. It
- *    leaves the portal low, winds round in a wide spiral up to about 17.5 m, and runs straight and
- *    level over the road. Pale round columns hold it, with struts up to it from a cross-head.
+ *  - The track is level all the way, about 15 m up: out of the hospital parallel to the road, round
+ *    a wide bend — a rounded L — and straight over the road. A deep steel lattice, zigzag on the
+ *    sides and on top, a grating walkway down the middle with the rails and the toothed rack beside
+ *    it, a handrail tube along each side. Pale round columns hold it, with struts from a cross-head.
+ *  - The hospital end: the cabin docks in a grey portal jutting out of a grey-clad bay with a strip
+ *    of yellow brick, in the sand-coloured block by the road (sand panels, grey window bands).
+ *    Behind it Regionshospitalet: the long white slab with its brown ribbon windows and the taller
+ *    white towers at its ends, the dark brown blocks beside it, the parking deck in front, and the
+ *    old yellow house with its mansard roof.
  *  - The other end: a tall, slim, dark grey tower with the white station box on its corner, where
- *    the cabin docks, and a long pale block with glass balconies beside it.
- *  - The cabin: a white box with a band of windows on a dark carriage. It stays level while the
- *    carriage under it tips with the track.
+ *    the cabin docks, and pale point blocks with balconies round it.
+ *  - The cabin: a white box with a band of windows on a dark carriage.
  *
  * Metres, z up. The track crosses the road along x; the road runs along y, away from the viewer
  * (who stands on the -y side, as in the photos taken from the road).
@@ -46,12 +47,13 @@ const ROAD = { x: 24, width: 12, walk: 3.6, length: 900 };   // Heibergs Allé, 
 // The lattice track, metres from the rails' line: chords on top and under, the walkway, rails, handrails
 const TRUSS = { half: 0.85, bottomHalf: 0.6, depth: 1.6, panel: 1.7, walk: 0.6, rail: 0.5, hand: 0.95, handUp: 0.45 };
 
-// The spiral: round a centre, from the portal (low) to where it runs straight over the road
-const SPIRAL = { centre: [-14, 8], radius: 11, from: 140, to: 270, low: 8, high: 17.5 };   // degrees round the centre
-const STRAIGHT = [[-6, -3], [10, -3], [24, -2.9], [40, -2.5], [54.2, -2]];                // level, at SPIRAL.high
+// The track's line, level at HEIGHT: from the hospital along the road (x = BEND.x), round the bend
+// (a quarter circle), and straight over the road (y = BEND.y) to the other side
+const HEIGHT = 15;
+const BEND = { x: -12, y: -6, radius: 12, from: 20, to: 50.6 };   // from: the hospital's station (y); to: the other side's (x)
 
 // Where the columns stand (x, y): the nearest point of the track is above each
-const COLUMNS = [[-25, 4.5], [-19, -2.3], [0, -3], [14, -3], [35, -2.6], [48, -2.2]];
+const COLUMNS = [[-12, 12], [-8.5, -2.5], [2, -6], [13.6, -6], [34.4, -6], [45, -6]];
 
 /* ---------- COLOURS: muted, a little warm, as in Kanon i G3 ---------- */
 
@@ -62,7 +64,8 @@ const C = {
     peach: '#d9a581', sand: '#e4d4ba', band: '#a9adaf', window: '#5d6a75', ribbon: '#4f5b66', concrete: '#bcb8ae', parapet: '#ece8df',
     clad: '#b3b8bb', cladLight: '#d5d9db', yellowBrick: '#cdb87c', dock: '#454d54', greyBlock: '#9da1a2',
     slate: '#6c7176', slateLight: '#8a9095', station: '#f1efea',
-    pale: '#e4e0d8', balcony: '#b7c7cd', brick: '#b7735d', tiles: '#6f5a52', trim: '#efe9df',
+    white: '#ece7da', brown: '#7c6250', bronze: '#6f5b4b', bronzeLight: '#a39280', deck: '#8f9192', yellow: '#dcc68a',
+    paleCool: '#d6d8d8', pale: '#e4e0d8', balcony: '#b7c7cd', brick: '#b7735d', tiles: '#6f5a52', trim: '#efe9df',
     pole: '#a5aaad', signBlue: '#3f6fa6',
 };
 const colour = (hex) => new THREE.Color(hex);
@@ -159,16 +162,19 @@ function house(parts, x, y, w, d, h, roof, turn = 0) {
 
 /* ---------- THE TRACK ---------- */
 
-/** The track's line: round the spiral, rising softly, then straight and level over the road */
+/** The track's line: along the road from the hospital, round the bend, straight over the road — level all the way */
 function trackCurve() {
-    const { centre: [cx, cy], radius, from, to, low, high } = SPIRAL;
+    const { x, y, radius: r, from, to } = BEND;
+    const cx = x + r, cy = y + r;                 // the bend's centre
     const points = [];
-    for (let deg = from; deg <= to; deg += 10) {
-        const f = (deg - from) / (to - from);
+    for (let v = from; v > cy + 0.5; v -= 3.5) points.push(new THREE.Vector3(x, v, HEIGHT));
+    for (let deg = 180; deg <= 270; deg += 15) {
         const a = THREE.MathUtils.degToRad(deg);
-        points.push(new THREE.Vector3(cx + Math.cos(a) * radius, cy + Math.sin(a) * radius, low + (high - low) * f * f * (3 - 2 * f)));
+        points.push(new THREE.Vector3(cx + Math.cos(a) * r, cy + Math.sin(a) * r, HEIGHT));
     }
-    for (const [x, y] of STRAIGHT) points.push(new THREE.Vector3(x, y, high));
+    for (let u = cx + 4; u < to; u += 8) points.push(new THREE.Vector3(u, y, HEIGHT));
+    points.push(new THREE.Vector3(to, y, HEIGHT));
+    // centripetal keeps the straight legs straight and the bend round
     return new THREE.CatmullRomCurve3(points, false, 'centripetal');
 }
 
@@ -293,31 +299,82 @@ function buildCabin(material) {
 
 /**
  * The hospital end, built facing -y round the point where the cabin docks and turned to face the
- * way the track leaves: the grey-clad tower, the yellow-brick shaft beside it, and the grey portal
- * jutting out of the tower with the dark opening the cabin waits in.
+ * way the track leaves: the sand-coloured block by the road with its grey window bands, the
+ * grey-clad bay in its face with a strip of yellow brick beside it, and the grey portal jutting out
+ * of the bay with the dark opening the cabin waits in.
  */
 function hospitalStation(parts, at, heading) {
     const local = [];
-    const back = 1.6;                         // the tower's face, behind the cabin's middle
+    const back = 1.6;                         // the block's face, behind the cabin's middle
     const floor = at.z - 1.5;                 // the portal's floor, under the carriage
-    local.push(box(10, 9, 27, 0, back + 4.5, 0, C.clad));
-    for (let z = 3.4; z < 27; z += 3.4) local.push(box(10.1, 9.1, 0.12, 0, back + 4.5, z, C.cladLight));   // seams in the cladding
-    local.push(box(10.3, 9.3, 0.45, 0, back + 4.5, 27, C.parapet));
-    local.push(box(2.2, 0.12, 1.3, -3, back - 0.02, 20, C.ribbon), box(2.2, 0.12, 1.3, 3, back - 0.02, 20, C.ribbon));
-    local.push(box(4.5, 7, 31, -7.2, back + 5.2, 0, C.yellowBrick));
-    local.push(box(4.7, 7.2, 0.4, -7.2, back + 5.2, 31, C.parapet));
-    // the portal: two walls, a roof and a floor round the opening, out from the tower's face
-    const out = 2.6, inner = 3.4, high = 5.6;
-    local.push(box(0.35, out, high, -(inner / 2 + 0.17), back - out / 2, floor, C.clad));
-    local.push(box(0.35, out, high, inner / 2 + 0.17, back - out / 2, floor, C.clad));
-    local.push(box(inner + 0.7, out, 0.35, 0, back - out / 2, floor + high, C.clad));
-    local.push(box(inner + 0.7, out, 0.3, 0, back - out / 2, floor - 0.3, C.clad));
-    local.push(box(inner, 0.1, high, 0, back - 0.05, floor, C.dock));
+    // the block: a grey base, then sand panels with grey bands of windows
+    local.push(box(26, 20, 4.2, -2, back + 10, 0, C.band));
+    local.push(box(26, 20, 18.6, -2, back + 10, 4.2, C.sand));
+    for (let z = 5.4; z < 22; z += 3.5) local.push(box(26.12, 20.12, 1.5, -2, back + 10, z, C.band));
+    for (let z = 5.6; z < 22; z += 3.5) local.push(box(26.2, 20.2, 1.0, -2, back + 10, z + 0.12, C.window));
+    local.push(box(26.3, 20.3, 0.45, -2, back + 10, 22.8, C.parapet));
+    // the bay the track comes out of, and the yellow brick beside it
+    local.push(box(7, 1.2, 24.5, 0, back - 0.1, 0, C.clad));
+    for (let z = 3.4; z < 24; z += 3.4) local.push(box(7.1, 1.3, 0.12, 0, back - 0.1, z, C.cladLight));
+    local.push(box(2.6, 1, 23.8, -4.8, back, 0, C.yellowBrick));
+    // the portal: two walls, a roof and a floor round the opening, out from the bay
+    const out = 2.6, inner = 3.4, high = 5.6, face = back - 0.7;
+    local.push(box(0.35, out, high, -(inner / 2 + 0.17), face - out / 2, floor, C.clad));
+    local.push(box(0.35, out, high, inner / 2 + 0.17, face - out / 2, floor, C.clad));
+    local.push(box(inner + 0.7, out, 0.35, 0, face - out / 2, floor + high, C.clad));
+    local.push(box(inner + 0.7, out, 0.3, 0, face - out / 2, floor - 0.3, C.clad));
+    local.push(box(inner, 0.1, high, 0, face - 0.05, floor, C.dock));
     const angle = Math.atan2(Math.cos(heading), -Math.sin(heading));   // local -y along the heading
     placed(parts, local, at.x, at.y, angle);
 }
 
-/** The other end: the slim dark tower, the white station box on its corner, the long block with balconies */
+/** Regionshospitalet behind the station: the white slab, its end towers, the brown blocks, the parking deck, the old house */
+function hospital(parts, rand) {
+    // the long white slab, its long face to the road, brown ribbon windows; taller white towers at its ends
+    block(parts, { x0: -64, x1: -46, y0: 4, y1: 96, z1: 40, hex: C.white, windows: { first: 4.4, every: 3.1, height: 1.0, hex: C.brown } });
+    parts.push(box(18.6, 92.6, 3.6, -55, 50, 0, C.band));
+    parts.push(box(10, 12, 44, -50, 92, 0, C.white), box(10, 12, 44, -58, 8, 0, C.white));
+    parts.push(box(1.2, 12.2, 40, -45.4, 92, 2, C.brown), box(1.2, 12.2, 40, -53.4, 8, 2, C.brown));   // the dark slit up each tower
+    parts.push(box(10.4, 12.4, 0.5, -50, 92, 44, C.parapet), box(10.4, 12.4, 0.5, -58, 8, 44, C.parapet));
+    parts.push(box(8, 14, 2.4, -56, 60, 40, C.band), box(6, 6, 3, -54, 30, 40, C.band));               // plant on the roof
+    // the dark brown blocks beside the station's block
+    block(parts, { x0: -44, x1: -26, y0: -26, y1: -4, z1: 18, hex: C.bronze, windows: { first: 1.4, every: 3.4, height: 1.3, hex: C.bronzeLight } });
+    block(parts, { x0: -45, x1: -27, y0: -4, y1: 20, z1: 21, hex: C.bronze, windows: { first: 1.4, every: 3.4, height: 1.3, hex: C.bronzeLight } });
+    // a low glass link from the station's block to the slab
+    parts.push(box(18, 8, 7, -36, 28, 0, C.balcony));
+    // the parking deck in front of the slab, with a few cars on it
+    parts.push(box(32, 34, 4.2, -18, 62, 0, C.deck));
+    parts.push(box(32.4, 34.4, 0.6, -18, 62, 4.2, C.concrete));
+    for (let k = 0; k < 9; k++) parts.push(box(0.15, 5, 0.04, -30 + k * 3, 52, 4.8, C.line), box(0.15, 5, 0.04, -30 + k * 3, 72, 4.8, C.line));
+    for (const [x, y, k] of [[-28.5, 52, 0], [-22.5, 52, 2], [-13.5, 52, 4], [-25.5, 72, 1], [-10.5, 72, 3], [-4.5, 72, 0]]) {
+        const car = carGeometry(CAR_COLOURS[k]);
+        car.translate(x, y, 4.8);
+        parts.push(car);
+    }
+    parts.push(box(6, 14, 0.5, 2.5, 62, 0, C.road));   // the ramp
+    // the old yellow house: walls, a mansard roof, dormers
+    const local = [box(26, 15, 9, 0, 0, 0, C.yellow), box(26.6, 15.6, 0.5, 0, 0, 9, C.trim)];
+    const mansard = new THREE.CylinderGeometry(0.62, 1, 1, 4, 1);
+    mansard.rotateY(Math.PI / 4);
+    mansard.rotateX(Math.PI / 2);
+    mansard.scale(26.6 / Math.SQRT2, 15.6 / Math.SQRT2, 6);
+    mansard.translate(0, 0, 12.5);
+    local.push(paint(mansard, C.slate));
+    for (const side of [-1, 1]) for (let x = -10; x <= 10; x += 4) local.push(box(1.4, 1, 1.8, x, side * 6.2, 10.2, C.trim, 0.1));
+    for (const side of [-1, 1]) for (let x = -11; x <= 11; x += 2.75) for (const z of [1.2, 5]) local.push(box(1.1, 0.12, 2, x, side * 7.5, z, C.window));
+    placed(parts, local, -32, 96, Math.PI / 2 + (rand() - 0.5) * 0.05);
+}
+
+/** A point block: a pale tower with balconies on two faces */
+function pointBlock(parts, x, y, w, d, h, hex) {
+    block(parts, { x0: x - w / 2, x1: x + w / 2, y0: y - d / 2, y1: y + d / 2, z1: h, hex, windows: { first: 1.2, every: 3, height: 1.4, hex: C.window } });
+    for (let z = 3; z < h - 1; z += 3) {
+        parts.push(box(w * 0.5, 1.6, 0.2, x - w * 0.2, y - d / 2 - 0.8, z, C.parapet), box(w * 0.5, 0.08, 1, x - w * 0.2, y - d / 2 - 1.55, z + 0.2, C.balcony));
+        parts.push(box(1.6, d * 0.5, 0.2, x - w / 2 - 0.8, y + d * 0.2, z, C.parapet), box(0.08, d * 0.5, 1, x - w / 2 - 1.55, y + d * 0.2, z + 0.2, C.balcony));
+    }
+}
+
+/** The other end: the slim dark tower, the white station box on its corner, point blocks round it */
 function farStation(parts, at) {
     const x0 = at.x + 1.6;                    // the station box's face, in front of the cabin
     parts.push(box(9, 12, 28, x0 + 6.4, at.y - 1, 0, C.slate));
@@ -327,12 +384,10 @@ function farStation(parts, at) {
     parts.push(box(6, 7.4, 7.2, x0 + 2.6, at.y - 0.4, at.z - 1.6, C.station, 0.15));
     parts.push(box(6.04, 7.44, 1.2, x0 + 2.6, at.y - 0.4, at.z + 2.6, C.glass, 0.12));
     parts.push(box(0.1, 3.4, 4.8, x0 - 0.42, at.y, at.z - 1.4, C.dock));
-    // the long pale block beside it, glass balconies facing the road
-    block(parts, { x0: x0 + 11, x1: x0 + 38, y0: -14, y1: 12, z1: 22, hex: C.pale, windows: { first: 1.3, every: 3.3, height: 1.3, hex: C.window } });
-    for (let z = 3.6; z < 22; z += 3.3) for (let x = x0 + 14.5; x < x0 + 37; x += 6.5) {
-        parts.push(box(4, 1.5, 0.18, x, -14.75, z, C.parapet));
-        parts.push(box(4, 0.08, 1.0, x, -15.45, z + 0.18, C.balcony));
-    }
+    // pale point blocks with balconies round it
+    pointBlock(parts, x0 + 14, at.y - 20, 15, 15, 24, C.pale);
+    pointBlock(parts, x0 + 20, at.y + 14, 16, 14, 27, C.paleCool);
+    pointBlock(parts, x0 + 4, at.y + 38, 14, 14, 21, C.pale);
 }
 
 /* ---------- THE TRAFFIC ---------- */
@@ -404,15 +459,8 @@ export function buildHoejbane() {
     // the hospital's drive, in from the left
     parts.push(box(rx - rw / 2 - walk + 12, 8, 0.04, (rx - rw / 2 - walk - 12) / 2, -40, 0, C.road));
 
-    /* The hospital: peach and beige panels with grey bands, a tall grey block behind, a low wing to the side */
-    block(parts, { x0: -70, x1: -27, y0: 22, y1: 46, z1: 12, hex: C.peach, windows: { first: 1.1, every: 3.6, height: 1.7 }, parapet: false });
-    parts.push(box(43.2, 24.2, 1.1, -48.5, 34, 12, C.band));
-    block(parts, { x0: -70, x1: -27, y0: 22, y1: 46, z0: 13.1, z1: 30, hex: C.sand, windows: { first: 1.3, every: 3.4, height: 1.4, hex: C.window } });
-    block(parts, { x0: -64, x1: -40, y0: 46, y1: 62, z1: 46, hex: C.greyBlock, windows: { first: 1.4, every: 3.3, height: 1.3 } });
-    block(parts, { x0: -72, x1: -46, y0: -6, y1: 22, z1: 4.5, hex: C.concrete, parapet: false });
-    block(parts, { x0: -72, x1: -46, y0: -6, y1: 22, z0: 4.5, z1: 12, hex: C.peach, windows: { first: 0.9, every: 3.4, height: 1.6 }, parapet: false });
-    parts.push(box(26.2, 28.2, 0.9, -59, 8, 12, C.band));
-    block(parts, { x0: -72, x1: -46, y0: -6, y1: 22, z0: 12.9, z1: 19, hex: C.sand, windows: { first: 1.2, every: 3.4, height: 1.3, hex: C.window } });
+    /* Regionshospitalet, and the station in the block by the road */
+    hospital(parts, rand);
     hospitalStation(parts, start.p, Math.atan2(start.along.y, start.along.x));
 
     // the wall along the drive, and steps up it; a bit of lawn on the slope in front of the hospital
@@ -422,11 +470,13 @@ export function buildHoejbane() {
 
     /* The other side, and red-brick houses behind */
     farStation(parts, end.p);
-    house(parts, 46, 34, 14, 9, 6.5, 4.6);
-    house(parts, 64, 38, 12, 9, 6.5, 4.8);
-    house(parts, 50, 60, 16, 10, 7, 5);
-    house(parts, 96, 30, 13, 9, 6.5, 4.6, Math.PI / 2);
-    house(parts, -8, 58, 14, 9, 6.5, 4.6);
+    house(parts, 42, 58, 14, 9, 6.5, 4.6);
+    house(parts, 60, 66, 12, 9, 6.5, 4.8);
+    house(parts, 88, 40, 16, 10, 7, 5, Math.PI / 2);
+    house(parts, 96, 8, 13, 9, 6.5, 4.6, Math.PI / 2);
+    house(parts, -86, 30, 14, 9, 6.5, 4.6, Math.PI / 2);
+    house(parts, -88, 60, 14, 9, 6.5, 4.6, Math.PI / 2);
+    house(parts, -84, -10, 12, 9, 6.5, 4.6, Math.PI / 2);
 
     /* The track and its columns */
     buildTrack(parts, curve);
@@ -451,12 +501,12 @@ export function buildHoejbane() {
     const tree = (x, y, h, kind = rand() < 0.75 ? 'beech' : 'birch') => toyTree(kind, new THREE.Vector3(x, y, 0), h, rand, wood);
     for (const s of [-1, 1]) {
         for (let y = -130; y <= 140; y += rand.range(9, 13)) {
-            if (Math.abs(y + 3) < 9) continue;                                    // none right under the track
+            if (Math.abs(y - BEND.y) < 9) continue;                                    // none right under the track
             tree(rx + s * (rw / 2 + walk + 2.6 + rand() * 2), y, rand.range(11, 15), 'beech');
         }
     }
-    for (const [x, y, h] of [[-2, -11, 12], [6, -13, 12], [-8, -26, 12], [2, -30, 13], [9, -22, 12], [-16, -32, 11], [-14, 8, 11], [-4, 15, 12], [6, 12, 13], [12, 22, 14]]) tree(x, y, h, 'beech');
-    for (const [x, y, h] of [[40, 16, 12], [36, 26, 13], [38, -20, 12], [44, -30, 14], [52, -26, 11], [100, -18, 13], [30, 48, 14], [76, 22, 10]]) tree(x, y, h);
+    for (const [x, y, h] of [[-2, -14, 12], [6, -15, 12], [-8, -26, 12], [2, -30, 13], [9, -22, 12], [-16, -32, 11], [-20, 4, 11], [-2, 10, 11], [6, 16, 12], [8, 34, 13], [10, 84, 12]]) tree(x, y, h, 'beech');
+    for (const [x, y, h] of [[40, 16, 12], [38, 30, 13], [38, -20, 12], [44, -36, 14], [80, -18, 13], [100, -30, 13], [30, 48, 14], [84, 22, 10]]) tree(x, y, h);
     for (let k = 0; k < 26; k++) {
         const x = rand.range(-60, 90), y = rand.range(-110, -50);
         if (Math.abs(x - rx) < rw / 2 + walk + 2) continue;
@@ -517,10 +567,10 @@ export function buildHoejbane() {
         }
     };
 
-    const centre = new THREE.Vector3(12, 3, 9);
+    const centre = new THREE.Vector3(8, 16, 10);
     return {
         group,
-        size: 72,
+        size: 88,
         centre,
         cabinAt: (p) => frameAt(curve, THREE.MathUtils.clamp(p, 0, 1)).p,
         setCabin,
