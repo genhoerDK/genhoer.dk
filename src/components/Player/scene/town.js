@@ -36,6 +36,27 @@ function toSegment(px, pz, ax, az, bx, bz) {
     return x * x + z * z;
 }
 
+/** Do segments p–q and a–b cross? */
+function cross(px, pz, qx, qz, ax, az, bx, bz) {
+    const d = (x1, z1, x2, z2, x3, z3) => (x2 - x1) * (z3 - z1) - (z2 - z1) * (x3 - x1);
+    const d1 = d(ax, az, bx, bz, px, pz), d2 = d(ax, az, bx, bz, qx, qz), d3 = d(px, pz, qx, qz, ax, az), d4 = d(px, pz, qx, qz, bx, bz);
+    return d1 * d2 < 0 && d3 * d4 < 0;
+}
+
+/** Is a street segment (with its half width and a margin) clear of a quad? */
+function clearOf(quad, s, margin) {
+    const reach = (s.half + margin) ** 2;
+    const ring = quad.flat();
+    if (inside(s.ax, s.az, ring) || inside(s.bx, s.bz, ring)) return false;
+    for (let i = 0; i < 4; i++) {
+        const [x1, z1] = quad[i], [x2, z2] = quad[(i + 1) % 4];
+        if (cross(x1, z1, x2, z2, s.ax, s.az, s.bx, s.bz)) return false;
+        if (toSegment(x1, z1, s.ax, s.az, s.bx, s.bz) < reach) return false;   // a corner too near the street
+        if (toSegment(s.ax, s.az, x1, z1, x2, z2) < reach || toSegment(s.bx, s.bz, x1, z1, x2, z2) < reach) return false;   // the street's end too near a wall
+    }
+    return true;
+}
+
 function inside(px, pz, ring) {
     let c = false;
     for (let i = 0, j = ring.length - 2; i < ring.length; j = i, i += 2) {
@@ -97,6 +118,18 @@ export function makeHouses({ streets, water = [], squares = [], blocks = [], cle
     }
     const onStreet = (x, z, margin) => (grid.get(key(Math.floor(x / CELL), Math.floor(z / CELL))) ?? [])
         .some((s) => toSegment(x, z, s.ax, s.az, s.bx, s.bz) < (s.half + margin) ** 2);
+    /** Does a house stand on any street: its walls crossing one, or near enough to touch it? */
+    const onAnyStreet = (quad, margin) => {
+        const seen = new Set();
+        for (const [x, z] of quad) {
+            for (const s of grid.get(key(Math.floor(x / CELL), Math.floor(z / CELL))) ?? []) {
+                if (seen.has(s)) continue;
+                seen.add(s);
+                if (!clearOf(quad, s, margin)) return true;
+            }
+        }
+        return false;
+    };
 
     /** How near the water's edge a point is (only checked close by) */
     const edges = [];
@@ -161,6 +194,7 @@ export function makeHouses({ streets, water = [], squares = [], blocks = [], cle
                     || inBlock(x, z)
                     || clear.some((c) => (c.x - x) ** 2 + (c.y - z) ** 2 < 14 * 14))
                     && !coversBlock(corners)
+                    && !onAnyStreet(corners, 0.5)
                     && !clashes(corners);
                 if (free) {
                     const storeys = harbour ? (rand() < 0.6 ? 3 : 2) : rand() < (big ? 0.45 : 0.2) ? 3 : rand() < 0.25 ? 1 : 2;

@@ -8,7 +8,7 @@
  * are the streets are clear; further out they grey over and dissolve into a haze, with mist
  * drifting over them, and the map fades out at its own edges too — so it has no edge, only distance.
  *
- * Each place in the work is a 3D marker: a slowly turning stone floating over the place on a thin
+ * Each place in the work is a 3D marker, a listening station: a sphere floating over the place on a thin
  * beam of light, with a soft pool of light on the ground under it. The place you are at is white
  * and lit; the one that is playing sends rings out over the ground. Walking to another place glides
  * you there.
@@ -38,9 +38,9 @@ const GROUND = '#1f1f22';
 const WATER = '#3d4047';
 const ZONE = '#3f3f46';               // the walking streets and the squares, soft under the streets
 const QUAY = '#6b6b73';               // the quay's edge
-const PATH = { width: 1.6, color: '#6b6b73' };
-const SIDE = { width: 5, color: '#9a9aa1' };
-const MAIN = { width: 9.5, color: '#d4d4d8' };
+const PATH = { width: 2.4, color: '#6b6b73' };   // widths with the soft edges; the solid middle is about 0.55 of it
+const SIDE = { width: 7.5, color: '#9a9aa1' };
+const MAIN = { width: 13, color: '#d4d4d8' };
 const POOL = 70;                      // metres across the light on the ground under a marker
 const EDGE = 150;                     // metres over which the map fades out at its own edges
 const HAZE = [0.36, 0.36, 0.38];      // sRGB: the grey the distance fades into
@@ -50,7 +50,7 @@ const MIST = 0xc9cacd;
 const REACH = { wide: 560, tall: 720 }; // metres from the camera to where you are, on a wide and a tall screen
 const SCALE_AT = 700;                 // the markers are drawn their true size seen from this far, and grow with the distance
 
-const BEAM = 30, STONE_AT = 37;       // metres: the marker's beam, and where its stone floats
+const BEAM = 30, BALL_AT = 37;        // metres: the marker's beam, and where its sphere floats
 const TILT = 0.92, TILT_RANGE = 0.22; // radians above the horizon the view looks down from, and how far the pointer tips it
 const TURN_RANGE = 0.32;              // radians the pointer turns it either way
 const LABEL_TOP = 72;                 // px kept free at the top (the header)
@@ -108,47 +108,139 @@ function fillGeometry(lines, y) {
     return parts.length > 1 ? mergeGeometries(parts) : parts[0] ?? null;
 }
 
-/** Lines as flat bands of a width, with round ends so they meet cleanly at the crossings */
-function bandGeometry(lines, width, y) {
-    const pos = [];
-    const idx = [];
-    const half = width / 2;
-    const cap = (x, z) => {
-        const base = pos.length / 3;
-        pos.push(x, y, z);
-        for (let k = 0; k <= 10; k++) {
-            const a = (k / 10) * Math.PI * 2;
-            pos.push(x + Math.cos(a) * half, y, z + Math.sin(a) * half);
-            if (k) idx.push(base, base + k, base + k + 1);
+/** Lines that meet end to end, and only two of them at that point, joined into one */
+function joinChains(lines) {
+    const k = (x, z) => `${Math.round(x * 10)},${Math.round(z * 10)}`;
+    let chains = lines.map((l) => l.slice());
+    for (let changed = true; changed;) {
+        changed = false;
+        const ends = new Map();
+        chains.forEach((l, i) => {
+            for (const key of [k(l[0], l[1]), k(l.at(-2), l.at(-1))]) ends.set(key, [...(ends.get(key) ?? []), i]);
+        });
+        for (const [key, at] of ends) {
+            if (at.length !== 2 || at[0] === at[1]) continue;
+            let [a, b] = at.map((i) => chains[i]);
+            if (k(a[0], a[1]) === key) a = reverse(a);          // a ends here
+            if (k(b.at(-2), b.at(-1)) === key) b = reverse(b);  // b starts here
+            chains[at[0]] = a.concat(b.slice(2));
+            chains[at[1]] = null;
+            chains = chains.filter(Boolean);
+            changed = true;
+            break;
         }
+    }
+    return chains;
+}
+function reverse(l) {
+    const out = [];
+    for (let i = l.length - 2; i >= 0; i -= 2) out.push(l[i], l[i + 1]);
+    return out;
+}
+
+/**
+ * Lines as flat bands with soft edges, so streets fade into one another rather than ending in round
+ * caps: across, the band fades out at its sides; along, an end that meets another street runs on
+ * a little past it, fading as it goes, and a dead end fades away into the ground.
+ *
+ * @param {number[][]} lines
+ * @param {number} width
+ * @param {number} y
+ * @param {string} color
+ * @param {{ lines: number[][], half: number }[]} all  Every street, to tell a crossing from a dead end
+ */
+function bandGeometry(lines, width, y, color, all = []) {
+    const half = width / 2;
+    const c = new THREE.Color(color);
+    const pos = [], col = [], idx = [];
+    const ACROSS = [[-1, 0], [-0.55, 1], [0.55, 1], [1, 0]];   // offset (× half) and opacity across the band
+    const DEAD_END = 14;                                        // metres a dead end fades over
+
+    /** How wide the street is that a point meets (0: none); the line's own pieces don't count */
+    const key = (x, z) => `${Math.round(x * 10)},${Math.round(z * 10)}`;
+    const meets = (x, z, self) => {
+        const own = new Set();
+        for (let i = 0; i < self.length; i += 2) own.add(key(self[i], self[i + 1]));
+        let widest = 0;
+        for (const { lines: ls, half: h } of all) {
+            for (const l of ls) {
+                for (let i = 2; i < l.length; i += 2) {
+                    if (own.has(key(l[i - 2], l[i - 1])) && own.has(key(l[i], l[i + 1]))) continue;
+                    const ax = l[i - 2], az = l[i - 1], dx = l[i] - ax, dz = l[i + 1] - az;
+                    const len = dx * dx + dz * dz;
+                    const t = len ? Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / len)) : 0;
+                    const ex = ax + dx * t - x, ez = az + dz * t - z;
+                    if (ex * ex + ez * ez < (h + 1.5) ** 2) widest = Math.max(widest, h);
+                }
+            }
+        }
+        return widest;
     };
-    for (const flat of lines) {
-        const n = flat.length / 2;
-        if (n < 2) continue;
+
+    for (const flat of joinChains(lines)) {
+        if (flat.length < 4) continue;
+        // The points along it, with how opaque the band is at each
+        let pts = [];
+        for (let i = 0; i < flat.length; i += 2) pts.push({ x: flat[i], z: flat[i + 1], a: 1 });
+        const first = meets(pts[0].x, pts[0].z, flat), last = meets(pts.at(-1).x, pts.at(-1).z, flat);
+        const along = (list) => { let d = 0; return list.map((q, i) => (d += i ? Math.hypot(q.x - list[i - 1].x, q.z - list[i - 1].z) : 0)); };
+        /** A point added at distance d along, so a fade can start exactly there */
+        const insertAt = (list, d) => {
+            const s = along(list);
+            const i = s.findIndex((v) => v >= d);
+            if (i <= 0 || s[i] === d) return list;
+            const t = (d - s[i - 1]) / (s[i] - s[i - 1]);
+            return [...list.slice(0, i), { x: list[i - 1].x + (list[i].x - list[i - 1].x) * t, z: list[i - 1].z + (list[i].z - list[i - 1].z) * t, a: 1 }, ...list.slice(i)];
+        };
+        const length = along(pts).at(-1);
+        const fade = Math.min(DEAD_END, length / 3);
+        // A dead end fades away over its last stretch
+        if (!first) pts = insertAt(pts, fade);
+        if (!last) pts = insertAt(pts, length - fade);
+        const s = along(pts);
+        pts.forEach((q, i) => {
+            if (!first) q.a = Math.min(q.a, s[i] / fade);
+            if (!last) q.a = Math.min(q.a, (length - s[i]) / fade);
+        });
+        // An end that meets another street runs on into it a little, fading
+        const tip = (p0, p1, other) => {
+            const dx = p0.x - p1.x, dz = p0.z - p1.z, l = Math.hypot(dx, dz) || 1;
+            const run = Math.max(3, other + half * 0.5);
+            return { x: p0.x + (dx / l) * run, z: p0.z + (dz / l) * run, a: 0 };
+        };
+        if (first) pts.unshift(tip(pts[0], pts[1], first));
+        if (last) pts.push(tip(pts.at(-1), pts.at(-2), last));
+        // The band, four vertices across
         const base = pos.length / 3;
+        const n = pts.length;
         for (let i = 0; i < n; i++) {
-            const x = flat[2 * i], z = flat[2 * i + 1];
-            const dir = (a, b) => {
-                const dx = flat[2 * b] - flat[2 * a], dz = flat[2 * b + 1] - flat[2 * a + 1];
-                const l = Math.hypot(dx, dz) || 1;
-                return [dx / l, dz / l];
+            const { x, z, a } = pts[i];
+            const dir = (i0, i1) => {
+                const ddx = pts[i1].x - pts[i0].x, ddz = pts[i1].z - pts[i0].z;
+                const dl = Math.hypot(ddx, ddz) || 1;
+                return [ddx / dl, ddz / dl];
             };
             const d1 = i > 0 ? dir(i - 1, i) : dir(i, i + 1);
             const d2 = i < n - 1 ? dir(i, i + 1) : d1;
             let tx = d1[0] + d2[0], tz = d1[1] + d2[1];
             const tl = Math.hypot(tx, tz);
             if (tl < 1e-3) { tx = d1[0]; tz = d1[1]; } else { tx /= tl; tz /= tl; }
-            const mx = -tz, mz = tx;                                    // the miter's direction
-            const miter = half / Math.max(0.35, mx * -d1[1] + mz * d1[0]);  // longer at sharp bends, within reason
-            pos.push(x + mx * miter, y, z + mz * miter, x - mx * miter, y, z - mz * miter);
-            if (i) idx.push(base + 2 * i - 2, base + 2 * i - 1, base + 2 * i, base + 2 * i - 1, base + 2 * i + 1, base + 2 * i);
+            const mx = -tz, mz = tx;                                         // the miter's direction
+            const miter = half / Math.max(0.35, mx * -d1[1] + mz * d1[0]);   // longer at sharp bends, within reason
+            for (const [o, alpha] of ACROSS) {
+                pos.push(x + mx * miter * o, y, z + mz * miter * o);
+                col.push(c.r, c.g, c.b, alpha * a);
+            }
+            if (i) {
+                const r0 = base + (i - 1) * 4, r1 = base + i * 4;
+                for (let k = 0; k < 3; k++) idx.push(r0 + k, r0 + k + 1, r1 + k, r0 + k + 1, r1 + k + 1, r1 + k);
+            }
         }
-        cap(flat[0], flat[1]);
-        cap(flat[2 * n - 2], flat[2 * n - 1]);
     }
     if (!idx.length) return null;
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 4));
     g.setIndex(idx);
     return g;
 }
@@ -275,7 +367,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
 
         scene.add(new THREE.HemisphereLight(0xe8e8ec, 0x202024, 1.6));
         const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-        sun.position.set(-300, 420, 520);   // low from the south-south-west, so the stones' facets catch it
+        sun.position.set(-300, 420, 520);   // low from the south-south-west, so the spheres are lit from one side
         scene.add(sun);
 
         /* ---------- the town ---------- */
@@ -298,11 +390,19 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         add(ground, flatMaterial(GROUND, 0.94));
         add(fillGeometry(lines(map.water), 0.04), flatMaterial(WATER));
         add(fillGeometry(lines(map.squares), 0.05), flatMaterial(ZONE));
-        add(bandGeometry(lines(map.zone), map.zoneWidth ?? 14, 0.06), flatMaterial(ZONE));
-        add(bandGeometry(lines(map.quay), 1.2, 0.08), flatMaterial(QUAY));
-        add(bandGeometry(lines(map.path), PATH.width, 0.09), flatMaterial(PATH.color));
-        add(bandGeometry(lines(map.side), SIDE.width, 0.1), flatMaterial(SIDE.color));
-        add(bandGeometry(lines(map.main), MAIN.width, 0.12), flatMaterial(MAIN.color));
+        const zoneWidth = map.zoneWidth ?? 18;
+        const streets = [
+            { lines: lines(map.main), half: MAIN.width / 2 },
+            { lines: lines(map.side), half: SIDE.width / 2 },
+            { lines: lines(map.zone), half: zoneWidth / 2 },
+            { lines: lines(map.path), half: PATH.width / 2 },
+        ];
+        const softMaterial = () => { const m = flatMaterial(0xffffff); m.vertexColors = true; return m; };
+        add(bandGeometry(streets[2].lines, zoneWidth, 0.06, ZONE, streets), softMaterial());
+        add(bandGeometry(lines(map.quay), 1.6, 0.08, QUAY), softMaterial());
+        add(bandGeometry(streets[3].lines, PATH.width, 0.09, PATH.color, streets), softMaterial());
+        add(bandGeometry(streets[1].lines, SIDE.width, 0.1, SIDE.color, streets), softMaterial());
+        add(bandGeometry(streets[0].lines, MAIN.width, 0.12, MAIN.color, streets), softMaterial());
 
         /* ---------- a pool of light on the ground under each place, brighter where you are ---------- */
 
@@ -333,12 +433,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         /* ---------- houses along the streets, made up from the streets (scene/town.js) ---------- */
 
         const houses = makeHouses({
-            streets: [
-                { lines: lines(map.main), half: MAIN.width / 2 },
-                { lines: lines(map.side), half: SIDE.width / 2 },
-                { lines: lines(map.zone), half: (map.zoneWidth ?? 14) / 2 },
-                { lines: lines(map.path), half: PATH.width / 2 + 0.4, build: false },
-            ],
+            // The houses keep to the solid middle of each street's band
+            streets: streets.map((st, i) => ({ lines: st.lines, half: st.half * 0.62, build: i !== 3 })),
             water: lines(map.water),
             squares: lines(map.squares),
             blocks: marks.map((m) => m.ring),
@@ -346,7 +442,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         });
         add(houseGeometry(houses), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
 
-        /* ---------- the markers: a stone floating over each place on a beam of light ---------- */
+        /* ---------- the markers, the listening stations: a sphere floating over each place on a beam of light ---------- */
 
         const beamMaterial = new THREE.ShaderMaterial({
             uniforms: { uColor: { value: new THREE.Color(colors.paper) }, uStrength: { value: 0.5 } },
@@ -357,14 +453,14 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             blending: THREE.AdditiveBlending,
         });
         const beamGeometry = new THREE.CylinderGeometry(0.7, 0.7, BEAM, 10, 1, true).translate(0, BEAM / 2, 0);
-        const stoneGeometry = new THREE.OctahedronGeometry(6.5, 0).scale(1, 1.55, 1);
+        const ballGeometry = new THREE.SphereGeometry(5.5, 40, 24);
         const ringGeometry = new THREE.RingGeometry(0.86, 1, 64).rotateX(-Math.PI / 2);
         const markers = spots.map((spot) => {
             const group = new THREE.Group();
             group.position.set(spot.x, 0, spot.y);
-            const stoneMaterial = new THREE.MeshStandardMaterial({ color: colors.faint, roughness: 0.35, metalness: 0.15, flatShading: true, emissive: 0xffffff, emissiveIntensity: 0 });
-            const stone = new THREE.Mesh(stoneGeometry, stoneMaterial);
-            stone.position.y = STONE_AT;
+            const ballMaterial = new THREE.MeshStandardMaterial({ color: colors.faint, roughness: 0.3, metalness: 0.1, emissive: 0xffffff, emissiveIntensity: 0 });
+            const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+            ball.position.y = BALL_AT;
             const beam = new THREE.Mesh(beamGeometry, beamMaterial.clone());
             const rings = [0, 1, 2].map(() => {
                 const m = new THREE.Mesh(ringGeometry, new THREE.MeshBasicMaterial({ color: colors.paper, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
@@ -372,11 +468,11 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                 group.add(m);
                 return m;
             });
-            group.add(stone, beam);
+            group.add(ball, beam);
             group.renderOrder = 1000;
-            [stone, beam, ...rings].forEach((m) => { m.renderOrder = 1000; });
+            [ball, beam, ...rings].forEach((m) => { m.renderOrder = 1000; });
             scene.add(group);
-            return { group, stone, beam, rings, lit: 0 };
+            return { group, ball, beam, rings, lit: 0 };
         });
 
         /* ---------- mist drifting over the streets, thicker out in the distance ---------- */
@@ -496,12 +592,11 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             // The markers: the one you are at is lit; the playing one rings out
             markers.forEach((m, p) => {
                 m.lit += ((p === at ? 1 : 0) - m.lit) * (1 - Math.exp(-dt * 4));
-                m.stone.rotation.y = still ? 0.4 : t * 0.45 + p * 2;
-                m.stone.position.y = STONE_AT + (still ? 0 : Math.sin(t * 1.1 + p * 1.7) * 1.4);
+                m.ball.position.y = BALL_AT + (still ? 0 : Math.sin(t * 1.1 + p * 1.7) * 1.4);
                 m.group.scale.setScalar(reach / SCALE_AT);
-                m.stone.scale.setScalar(1 + m.lit * 0.35);
-                m.stone.material.color.set(m.lit > 0.5 ? colors.paper : colors.faint);
-                m.stone.material.emissiveIntensity = m.lit * 0.55;
+                m.ball.scale.setScalar(1 + m.lit * 0.3);
+                m.ball.material.color.set(m.lit > 0.5 ? colors.paper : colors.faint);
+                m.ball.material.emissiveIntensity = m.lit * 0.55;
                 m.beam.material.uniforms.uStrength.value = 0.28 + m.lit * 0.5;
                 m.rings.forEach((ring, i) => {
                     const phase = (t * 0.35 + i / 3) % 1;
@@ -525,7 +620,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             spots.forEach((spot, p) => {
                 const el = labelRefs.current[p];
                 if (!el) return;
-                v.set(spot.x, markers[p].stone.position.y * markers[p].group.scale.y, spot.y).project(camera);
+                v.set(spot.x, markers[p].ball.position.y * markers[p].group.scale.y, spot.y).project(camera);
                 const behind = v.z > 1;
                 let x = ((v.x + 1) / 2) * size.w, y = ((1 - v.y) / 2) * size.h;
                 if (behind) { x = size.w - x; y = bottom; }
@@ -594,7 +689,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                             className={`${failed ? 'relative' : 'absolute left-0 top-0'} group pointer-events-auto cursor-pointer`}
                             style={failed ? undefined : { transform: 'translate(-999px, -999px)' }}
                         >
-                            {/* The marker's stone is under the middle of this: a target the size of a finger */}
+                            {/* The marker's sphere is under the middle of this: a target the size of a finger */}
                             <span className='absolute -left-6 -top-6 size-12 rounded-full' />
                             <span className={`absolute whitespace-nowrap uppercase leading-none text-xs px-1.5 py-1 transition-colors ${SIDES} ${isHere ? 'text-paper' : 'text-muted md:group-hover:text-paper'} group-data-[away=true]:bg-ink/60 group-data-[away=true]:backdrop-blur-sm`} style={failed ? { position: 'static', transform: 'none' } : undefined}>
                                 <span data-arrow className='hidden group-data-[away=true]:inline-block mr-1.5'>→</span>
