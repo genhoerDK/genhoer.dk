@@ -134,7 +134,7 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
 - Faste, komponerede vinkler pr. værk og et langsomt drev, når ingen rører. Samme rolige easing
   som sitets fade. Aldrig under jorden, aldrig hurtigt.
 - Én form for lyd: kugle for stedet eller lytteren, ringe for lyd, der breder sig, og en tynd stråle
-  for hvor. Ringenes styrke følger lydens faktiske niveau.
+  for hvor: lyttestationen i `kit/station.js`. Ringenes styrke følger lydens faktiske niveau.
 
 ## Ind og ud af rummet
 
@@ -143,10 +143,26 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
   stregen før fladerne.
 - Mens scenen hentes, vises den lette streg alene.
 
+## Knappen
+
+Alle værker spilles med én knap, `frame/SoundButton.js`, efter knappen i 53 sekunder til fælles:
+rund, fordi rund og hvid er lyd på genhoer.dk.
+
+- **Venter:** en hvid skive. **Lyder:** en mørk, gennemsigtig skive med hvidt indhold.
+- **Ringen** om den løber med lyden, eller tæller ned: elevatorturen i 53 sekunder, tiden ved
+  overfladen i Under overfladen, fortællingen i Tværveje, tonen i Troldetoner, hele værket i
+  tidslinjen.
+- **I midten** står det, værket har brug for: et tal (53 sekunders display), et ikon (afspil,
+  pause) eller en tone (Troldetoner).
+- **Tre størrelser:** stor (én knap: 53 sekunder, Under overfladen, starten), mellem (en række:
+  Tværvejes tre fortællinger, Troldetoners fem toner), lille (i tidslinjen).
+- Under den: en linje i sitets `Label` (navnet, hvad den gør) og evt. en svagere (årstallet).
+
 ## Tekst i rummet
 
 Stednavne og andre etiketter skrives som sitets `Label`: Rem i versaler med spærring. Hvid kun ved
-det aktive sted, ellers faint. Knapper og felter er firkantede som på resten af sitet.
+det aktive sted, ellers faint. Felter og pille-knapper er firkantede som på resten af sitet; kun
+lydens knap er rund.
 
 ## Endnu ikke bygget
 
@@ -157,7 +173,7 @@ Reglerne ovenfor gælder, men disse dele af dem er ikke bygget endnu:
 - Tegn kun, når noget sker. I dag tegner scenerne hele tiden, mens afspilleren er åben.
 - Skyggerne regnes kun igen, når noget flytter sig.
 - Én fælles easing for kameraerne.
-- Ringe for lyden i alle tre (Tværveje har ringe, Kanon i G3 bølger, 53 sekunder en lampe).
+- Lyttestationen i alle tre (i dag kun Tværveje; Kanon i G3 har bølger, 53 sekunder en lampe).
 
 ## Når en ny scene laves
 

@@ -34,6 +34,7 @@ import { trees as treeShapesOf } from '@/player/kit/trees';
 import { landmarkGeometry } from '@/player/kit/landmarks';
 import { pathLines, fillGeometry, bandGeometry } from '@/player/kit/roads';
 import { hazeMap, hazedOverMap as hazed, HAZE_GLSL } from '@/player/kit/haze';
+import { createStation } from '@/player/kit/station';
 
 /* ---------- THE LOOK: the 3D style (kit/style.js) — greys, the streets muted, only the stations white ---------- */
 
@@ -45,8 +46,6 @@ const PATH = { width: 1.8, color: GREYS.paths };   // widths with the soft edges
 const SIDE = { width: 5.5, color: GREYS.sideStreets };
 const MAIN = { width: 9, color: GREYS.streets };
 const LANDMARK = { wall: GREYS.landmark, roof: GREYS.landmarkRoof, band: GREYS.landmarkRoof, spire: GREYS.landmarkRoof };   // a step lighter than the houses
-const STATION = { here: GREYS.sound, other: GREYS.soundAway };   // the listening stations: white where you are
-const POOL = 46;                      // metres across the light on the ground under a marker
 const EDGE = 150;                     // metres over which the map fades out at its own edges
 const HAZE = new THREE.Color(GREYS.haze).convertLinearToSRGB().toArray();   // sRGB: the grey the haze fades into
 const TOWN = [30, 140];               // metres from the nearest street: the town is clear within the first, lost in haze by the second
@@ -54,7 +53,6 @@ const MIST = GREYS.mist;
 const REACH = { wide: 560, tall: 720 }; // metres from the camera to where you are, on a wide and a tall screen
 const SCALE_AT = 700;                 // the markers are drawn their true size seen from this far, and grow with the distance
 
-const BEAM = 30, BALL_AT = 37;        // metres: the marker's beam, and where its sphere floats
 const TILT = 0.92, TILT_RANGE = 0.22; // radians above the horizon the view looks down from, and how far the pointer tips it
 const TURN_RANGE = 0.32;              // radians the pointer turns it either way
 const LABEL_TOP = 72;                 // px kept free at the top (the header)
@@ -180,20 +178,16 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         add(bandGeometry(streets[0].lines, MAIN.width, 0.12, MAIN.color, streets), softMaterial());
         haze.uHazeMap.value = hazeMap(streets, extent, { town: TOWN, edge: EDGE });
 
-        /* ---------- a pool of light on the ground under each place, brighter where you are ---------- */
+        /* ---------- the listening stations (kit/station.js): a sphere over each place, a pool of light under it ---------- */
 
-        const poolGeometry = new THREE.CircleGeometry(POOL / 2, 48).rotateX(-Math.PI / 2);
-        const pools = spots.map((spot) => {
-            const material = new THREE.ShaderMaterial({
-                uniforms: { uColor: { value: new THREE.Color(STATION.here) }, uStrength: { value: 0.2 } },
-                vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-                fragmentShader: 'uniform vec3 uColor; uniform float uStrength; varying vec2 vUv; void main() { float r = length(vUv - 0.5) * 2.0; gl_FragColor = vec4(uColor, pow(max(0.0, 1.0 - r), 2.0) * uStrength); }',
-                transparent: true,
-                depthWrite: false,
-            });
-            const mesh = add(poolGeometry, material);
-            mesh.position.set(spot.x, 0.3, spot.y);
-            return material;
+        const stations = spots.map((spot, p) => {
+            const station = createStation({ seed: p });
+            station.pool.position.set(spot.x, 0.3, spot.y);
+            station.pool.renderOrder = order++;
+            station.pool.frustumCulled = false;
+            station.group.position.set(spot.x, 0, spot.y);
+            scene.add(station.pool, station.group);
+            return station;
         });
 
         /* ---------- the landmarks (kit/landmarks.js); one named like a place lights up when you are there ---------- */
@@ -236,39 +230,6 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         // kit/trees.js: the style's broad leafy tree, as tall as the old round ones; ground (x, z) is (x, −y) z up
         const treeShapes = treeShapesOf(trees.map((t) => ({ x: t.x, y: -t.z, height: t.size * 2.6, kind: 'beech' })), { seed: 11, up: 'y' });
         add(treeShapes, hazed(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), haze));
-
-        /* ---------- the markers, the listening stations: a sphere floating over each place on a beam of light ---------- */
-
-        const beamMaterial = new THREE.ShaderMaterial({
-            uniforms: { uColor: { value: new THREE.Color(STATION.here) }, uStrength: { value: 0.5 } },
-            vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-            fragmentShader: 'uniform vec3 uColor; uniform float uStrength; varying vec2 vUv; void main() { gl_FragColor = vec4(uColor, pow(1.0 - vUv.y, 1.6) * uStrength); }',
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-        });
-        const beamGeometry = new THREE.CylinderGeometry(0.7, 0.7, BEAM, 10, 1, true).translate(0, BEAM / 2, 0);
-        const ballGeometry = new THREE.SphereGeometry(5.5, 40, 24);
-        const ringGeometry = new THREE.RingGeometry(0.86, 1, 64).rotateX(-Math.PI / 2);
-        const markers = spots.map((spot) => {
-            const group = new THREE.Group();
-            group.position.set(spot.x, 0, spot.y);
-            const ballMaterial = new THREE.MeshStandardMaterial({ color: STATION.other, roughness: 0.3, metalness: 0.1, emissive: 0xffffff, emissiveIntensity: 0 });
-            const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-            ball.position.y = BALL_AT;
-            const beam = new THREE.Mesh(beamGeometry, beamMaterial.clone());
-            const rings = [0, 1, 2].map(() => {
-                const m = new THREE.Mesh(ringGeometry, new THREE.MeshBasicMaterial({ color: STATION.here, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
-                m.position.y = 0.7;
-                group.add(m);
-                return m;
-            });
-            group.add(ball, beam);
-            group.renderOrder = 1000;
-            [ball, beam, ...rings].forEach((m) => { m.renderOrder = 1000; });
-            scene.add(group);
-            return { group, ball, beam, rings, lit: 0 };
-        });
 
         /* ---------- mist drifting over the streets, thicker out in the distance ---------- */
 
@@ -382,23 +343,11 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             camera.position.set(focus.x + Math.sin(yaw) * Math.cos(pitch) * reach, Math.sin(pitch) * reach, focus.y + Math.cos(yaw) * Math.cos(pitch) * reach);
             camera.lookAt(focus.x, 0, focus.y);
 
-            // The markers: the one you are at is lit; the playing one rings out
-            markers.forEach((m, p) => {
-                m.lit += ((p === at ? 1 : 0) - m.lit) * (1 - Math.exp(-dt * 4));
-                m.ball.position.y = BALL_AT + (still ? 0 : Math.sin(t * 1.1 + p * 1.7) * 1.4);
-                m.group.scale.setScalar(reach / SCALE_AT);
-                m.ball.scale.setScalar(1 + m.lit * 0.3);
-                m.ball.material.color.set(m.lit > 0.5 ? STATION.here : STATION.other);
-                m.ball.material.emissiveIntensity = m.lit * 0.55;
-                m.beam.material.uniforms.uStrength.value = 0.28 + m.lit * 0.5;
-                m.rings.forEach((ring, i) => {
-                    const phase = (t * 0.35 + i / 3) % 1;
-                    const on = p === playing && !still;
-                    ring.scale.setScalar(6 + phase * 46);
-                    ring.material.opacity = on ? (1 - phase) * 0.55 : Math.max(0, ring.material.opacity - dt);
-                });
-                pools[p].uniforms.uStrength.value = 0.14 + m.lit * 0.36;
-                for (const mark of marks) if (mark.place === p) mark.material.emissiveIntensity = m.lit * 0.35;
+            // The stations: the one you are at is lit; the playing one rings out
+            stations.forEach((station, p) => {
+                station.group.scale.setScalar(reach / SCALE_AT);
+                station.update(dt, t, { here: p === at, sounding: p === playing, still });
+                for (const mark of marks) if (mark.place === p) mark.material.emissiveIntensity = station.lit * 0.35;
             });
 
             mists.forEach(({ material, layer }) => {
@@ -413,7 +362,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             spots.forEach((spot, p) => {
                 const el = labelRefs.current[p];
                 if (!el) return;
-                v.set(spot.x, markers[p].ball.position.y * markers[p].group.scale.y, spot.y).project(camera);
+                v.set(spot.x, stations[p].ball.position.y * stations[p].group.scale.y, spot.y).project(camera);
                 const behind = v.z > 1;
                 let x = ((v.x + 1) / 2) * size.w, y = ((1 - v.y) / 2) * size.h;
                 if (behind) { x = size.w - x; y = bottom; }

@@ -25,6 +25,7 @@ import { useAudio } from '@/player/AudioContext';
 import { keyIsTaken } from '@/player/frame/keys';
 import PlayerShell, { Controls } from '@/player/frame/PlayerShell';
 import Label from '@/components/UI/Label';
+import SoundButton from '@/player/frame/SoundButton';
 
 /** three.js and the map only load when the work is opened */
 const WalkScene = dynamic(() => import('@/player/interfaces/walk/WalkScene'), { ssr: false });
@@ -82,36 +83,29 @@ export default function WalkPlayer() {
             <WalkScene map={currentTrack.player.map} places={places} here={here} sounding={playing && isPlaying ? playing.p : null} onWalk={walkTo} />
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
-                {/* ---------- THE STORIES HERE ---------- */}
-                <div className='w-full max-w-sm md:max-w-md'>
-                    <Label size='lg' className='mb-2 text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
-                    <div className='grid grid-cols-3 gap-1.5 md:gap-2'>
-                        {place.stories.map((story, s) => {
-                            const character = characters.find((c) => c.id === story.character) ?? { name: story.character };
-                            const isThis = playing?.p === here && playing?.s === s;
-                            const active = isThis && isPlaying;
-                            return (
-                                <button
-                                    key={story.file}
-                                    onClick={() => (isThis ? (isPlaying ? pause() : play()) : start(here, s))}
-                                    aria-label={`${character.name} ${character.year ?? ''}: ${active ? 'pause' : 'afspil'}`}
-                                    aria-pressed={isThis}
-                                    className={`relative flex items-center justify-center gap-1.5 h-12 sm:h-10 px-2 overflow-hidden cursor-pointer border transition-colors ${isThis ? 'bg-paper text-ink border-paper' : 'border-paper/30 text-paper md:hover:border-paper md:hover:bg-paper/10'}`}
-                                >
-                                    {active ? <PauseIcon className='size-3.5 shrink-0' /> : <PlayIcon className='size-3.5 shrink-0' />}
-                                    <span className='flex flex-col items-start sm:flex-row sm:items-center gap-1 sm:gap-0'>
-                                        <Label size='lg'>{character.name}</Label>
-                                        {character.year && <Label size='lg' className={isThis ? 'text-hard' : 'text-faint'}><span className='hidden sm:inline'> · </span>{character.year}</Label>}
-                                    </span>
-                                    {isThis && (
-                                        <span className='absolute inset-x-0 bottom-0 h-0.5 bg-ink/15'>
-                                            <span className='block h-full bg-ink' style={{ width: `${progress * 100}%` }} />
-                                        </span>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
+                {/* ---------- THE STORIES HERE: the works' button (frame/SoundButton.js), one per character ---------- */}
+                <Label size='lg' className='text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
+                <div className='flex justify-center gap-6 md:gap-10'>
+                    {place.stories.map((story, s) => {
+                        const character = characters.find((c) => c.id === story.character) ?? { name: story.character };
+                        const isThis = playing?.p === here && playing?.s === s;
+                        const active = isThis && isPlaying;
+                        return (
+                            <SoundButton
+                                key={story.file}
+                                size='md'
+                                on={active}
+                                ring={isThis ? progress : null}
+                                onClick={() => (isThis ? (isPlaying ? pause() : play()) : start(here, s))}
+                                ariaLabel={`${character.name} ${character.year ?? ''}: ${active ? 'pause' : 'afspil'}`}
+                                aria-pressed={isThis}
+                                label={character.name}
+                                detail={character.year}
+                            >
+                                {active ? <PauseIcon className='size-6' /> : <PlayIcon className='size-6 ml-0.5' />}
+                            </SoundButton>
+                        );
+                    })}
                 </div>
             </Controls>
         </PlayerShell>

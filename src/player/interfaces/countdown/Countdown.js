@@ -33,7 +33,7 @@ import { scenes } from '@/player/vaerker/scenes';
 import { useAudio } from '@/player/AudioContext';
 import { keyIsTaken } from '@/player/frame/keys';
 import PlayerShell, { Controls } from '@/player/frame/PlayerShell';
-import Label from '@/components/UI/Label';
+import SoundButton from '@/player/frame/SoundButton';
 
 /** three.js is only loaded when the work is opened */
 
@@ -42,8 +42,6 @@ const pad = (n) => String(n).padStart(2, '0');
 /** Mostly an even pace, softly away and softly in */
 const glide = (f) => f - 0.3 * (Math.sin(2 * Math.PI * f) / (2 * Math.PI));
 
-const RADIUS = 47;                       // the ring round the button (as Under overfladen's)
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const RIDE_ZOOM = 0.75;   // how far the view goes in towards the cabin during a ride (0 = the whole place, 1 = closest)
 const FADE = 900;   // ms: the picture fades out, and in again, when the cabin is put back after a breakdown
@@ -148,36 +146,18 @@ export default function CountdownPlayer() {
             {model && <div className='absolute inset-0 bg-ink pointer-events-none transition-opacity ease-in-out' style={{ opacity: resetting ? 1 : 0, transitionDuration: `${FADE}ms` }} />}
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center'>
-                {/* ---------- THE BUTTON, with the display in it ---------- */}
-                <button
+                {/* ---------- THE BUTTON (frame/SoundButton.js), with the display in it ---------- */}
+                <SoundButton
+                    size='lg'
+                    on={on}
+                    ring={left}
                     onClick={press}
-                    aria-label={riding ? `Turen er i gang, ${count}` : `Kør, ${count}`}
+                    ariaLabel={riding ? `Turen er i gang, ${count}` : `Kør, ${count}`}
                     aria-disabled={riding}
-                    className={`relative flex items-center justify-center size-28 md:size-32 shrink-0 rounded-full group ${riding ? 'cursor-default' : 'cursor-pointer'}`}
+                    label={on ? `${track.title} af ${tracks.length}` : 'Tryk, og kør med'}
                 >
-                    {/* The ring: the ride's sound running down, from the press until the file ends */}
-                    <svg viewBox='0 0 100 100' className='absolute inset-0 size-full -rotate-90' aria-hidden='true'>
-                        <circle cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.2' className={`transition-opacity ${riding ? 'opacity-20' : 'opacity-30 md:group-hover:opacity-100'}`} />
-                        <circle
-                            cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.2' strokeLinecap='round'
-                            strokeDasharray={CIRCUMFERENCE}
-                            strokeDashoffset={CIRCUMFERENCE * (1 - left)}
-                            style={{ transition: 'stroke-dashoffset 0.3s linear' }}
-                        />
-                    </svg>
-                    {/* The display: white and waiting to be pressed, dark and counting during the ride */}
-                    <span
-                        aria-live='polite'
-                        className={`flex items-center justify-center size-[84%] rounded-full font-extralight tabular-nums leading-none text-[2.6rem] md:text-[3rem] transition-colors duration-500 ${
-                            on ? 'bg-paper/15 text-paper' : 'bg-paper text-ink/70 md:group-hover:bg-muted'
-                        }`}
-                    >
-                        {pad(count)}
-                    </span>
-                </button>
-                <Label size='lg' className={`mt-4 ${model ? 'text-muted' : 'text-faint'}`}>
-                    {on ? `${track.title} af ${tracks.length}` : 'Tryk, og kør med'}
-                </Label>
+                    <span aria-live='polite'>{pad(count)}</span>
+                </SoundButton>
             </Controls>
         </PlayerShell>
     );

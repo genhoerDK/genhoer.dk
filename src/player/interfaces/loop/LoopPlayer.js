@@ -19,9 +19,8 @@ import { useEngineState } from '@/player/frame/useEngineState';
 import { keyIsTaken } from '@/player/frame/keys';
 import PlayerShell, { Controls, Status } from '@/player/frame/PlayerShell';
 import StartButton from '@/player/frame/StartButton';
+import SoundButton from '@/player/frame/SoundButton';
 
-const RADIUS = 47;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function LoopPlayer() {
     const { currentTrack, engine, isPlaying, play } = useAudio();
@@ -63,25 +62,15 @@ export default function LoopPlayer() {
                     ) : !running ? (
                         <Status pulse>Henter lyd …</Status>
                     ) : (
-                        <button
+                        <SoundButton
+                            size='lg'
+                            on={phase !== 'below'}
+                            ring={phase === 'below' ? 0 : state.left}
                             onPointerDown={onPointerDown}
                             onPointerUp={onPointerUp}
                             onPointerCancel={onPointerUp}
-                            onContextMenu={(e) => e.preventDefault()}
-                            aria-label='Op til overfladen'
-                            className='relative flex items-center justify-center size-28 rounded-full cursor-pointer touch-none select-none group'
-                        >
-                            {/* The ring: the time left at the surface, then the sinking */}
-                            <svg viewBox='0 0 100 100' className={`absolute inset-0 size-full -rotate-90 transition-opacity ${phase === 'sinking' ? 'opacity-40' : 'opacity-100'}`} aria-hidden='true'>
-                                <circle cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeOpacity='0.2' strokeWidth='1.5' />
-                                <circle
-                                    cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'
-                                    strokeDasharray={CIRCUMFERENCE}
-                                    strokeDashoffset={CIRCUMFERENCE * (1 - (phase === 'below' ? 0 : state.left))}
-                                />
-                            </svg>
-                            <span className={`size-20 rounded-full transition-colors duration-300 ${phase === 'below' ? 'bg-paper md:group-hover:bg-muted' : 'bg-paper/15'}`} />
-                        </button>
+                            ariaLabel='Op til overfladen'
+                        />
                     )}
                 </Controls>
             )}

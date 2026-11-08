@@ -10,7 +10,8 @@
  *  - a `panel` that rides along with the camera: whatever is put on it sits on the screen, as if
  *    mounted on the glass, while the photo and smoke move behind it. Lit by its own fixed light.
  *
- * Used by InstrumentScene (Troldetoner's buttons) and ChapterScene (a track with chapters).
+ * Used by the works' 3D scenes (Kanon i G3, 53 sekunder til fælles) and by DepthBackdrop (the
+ * photo behind the other interfaces).
  */
 
 import * as THREE from 'three';

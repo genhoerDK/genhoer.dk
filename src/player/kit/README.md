@@ -16,6 +16,7 @@ det, der er unikt for det, i sin egen mappe under `src/player/vaerker/<værk>/`.
 | `town.js`      | En by ud fra gaderne alene: hvor husene og træerne står (`makeHouses`, `makeTrees`)  | Tværveje |
 | `landmarks.js` | Pejlemærkernes dele: tårn, spir, hal, vandtårn, efter mærker på kortet                | Tværveje |
 | `haze.js`      | Disen: rundt om et punkt (`createHazeAround`, `hazedAround`) eller over et kort (`hazeMap`, `hazedOverMap`) | 53 sekunder, Tværveje |
+| `station.js`   | Lyttestationen: kugle, stråle, lysplet og ringe, hvor en lyd er (`createStation`)    | Tværveje |
 | `mist.js`      | Drivende tåge over jorden                                                              | Kanon i G3 |
 | `weather.js`   | Regn                                                                                   | 53 sekunder |
 

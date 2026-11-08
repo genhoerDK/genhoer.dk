@@ -258,6 +258,7 @@ export default class Instrument {
         gain.gain.linearRampToValueAtTime(1, t + SAMPLE_FADE * 2);
         source.connect(gain).connect(this.sampleBus);
         source.start(t + SAMPLE_FADE, offset);
+        voice.endsAt = t + SAMPLE_FADE + Math.max(0, this.buffers[i].duration - offset);   // for the ring round the button
         source.onended = () => {
             if (voice.source !== source) return;
             voice.source = null;
@@ -404,6 +405,8 @@ export default class Instrument {
             loaded: this.loaded,
             error: this.error,
             voices: this.voices.map(v => v.state),
+            // How much of each button's sound is left (0–1): the ring round the button
+            voicesLeft: this.voices.map((v, i) => (v.state === 'idle' || !this.buffers?.[i] ? 0 : Math.min(1, Math.max(0, (v.endsAt - this.ctx.currentTime) / this.buffers[i].duration)))),
             music: this.valueOf(this.musicGain.gain),
             musicLeft: this.musicLeft,
             rhythm: this.valueOf(this.rhythmGain.gain),

@@ -19,6 +19,7 @@ import { PlayIcon, PauseIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/
 import { useAudio } from '@/player/AudioContext';
 import Label from '@/components/UI/Label';
 import { Controls } from '@/player/frame/PlayerShell';
+import SoundButton from '@/player/frame/SoundButton';
 import { keyIsTaken } from '@/player/frame/keys';
 
 const formatTime = (sec) => {
@@ -140,14 +141,10 @@ export default function Timeline({ track }) {
             </div>
 
             <div className='flex items-center gap-3 md:gap-4'>
-            {/* ---------- PLAY / PAUSE ---------- */}
-            <button
-                onClick={togglePlayback}
-                aria-label={isPlaying ? 'Pause' : 'Afspil'}
-                className='shrink-0 flex items-center justify-center size-12 md:size-11 rounded-full bg-paper text-ink cursor-pointer transition-colors md:hover:bg-muted'
-            >
+            {/* ---------- PLAY / PAUSE: the works' button (frame/SoundButton.js), its ring the work's progress ---------- */}
+            <SoundButton size='sm' on={isPlaying} ring={isPlaying && duration ? currentTime / duration : null} onClick={togglePlayback} ariaLabel={isPlaying ? 'Pause' : 'Afspil'}>
                 {isPlaying ? <PauseIcon className='size-5' /> : <PlayIcon className='size-5 ml-0.5' />}
-            </button>
+            </SoundButton>
 
             {/* ---------- THE LINE ---------- */}
             <div className='relative flex-1 min-w-0'>
