@@ -649,22 +649,53 @@ export function buildHoejbane() {
     };
     setCabin(0);
 
-    /* The traffic: a few small cars up and down the road (kit/cars.js), in the haze like the rest */
-    const cars = Array.from({ length: 7 }, (_, i) => {
-        const mesh = new THREE.Mesh(car(CARS[i % CARS.length], { glass: C.glass, wheel: C.wheel }), material);
-        mesh.castShadow = mesh.receiveShadow = true;
-        const way = i % 2 ? 1 : -1;                   // drive on the right
-        mesh.position.set(rx + way * 2.9, -300 + rand() * 600, 0);
-        mesh.rotation.z = way > 0 ? 0 : Math.PI;
-        group.add(mesh);
-        return { mesh, way, speed: rand.range(8, 11) };
+    /*
+     * The traffic: a few small cars up and down the road (kit/cars.js), in the haze like the rest.
+     * Each lane is a loop (LOOP metres, out past the haze and back in at the other end). A car keeps
+     * its distance to the one ahead in its lane: it eases off as it closes in, holds the leader's
+     * speed when it is near, and never comes closer than a car's length and a gap (GAP), so cars
+     * never run into each other. They start spread out along their lane.
+     */
+    const LOOP = 640, CAR = 3.9, GAP = 4, EASY = 22;   // metres: the loop, a car's length, the least gap, where it starts easing off
+    const lanes = [-1, 1].map((way) => {
+        const n = way > 0 ? 4 : 3;
+        return Array.from({ length: n }, (_, k) => {
+            const i = (way > 0 ? 3 : 0) + k;
+            const mesh = new THREE.Mesh(car(CARS[i % CARS.length], { glass: C.glass, wheel: C.wheel }), material);
+            mesh.castShadow = mesh.receiveShadow = true;
+            mesh.rotation.z = way > 0 ? 0 : Math.PI;
+            group.add(mesh);
+            const s = ((k + rand.range(-0.2, 0.2)) / n) * LOOP;   // how far along the lane, in the direction it drives
+            const cruise = rand.range(8, 11);
+            return { mesh, way, s, cruise, speed: cruise };
+        });
     });
+    const place = (c) => c.mesh.position.set(rx + c.way * 2.9, c.way * (c.s - LOOP / 2), 0);   // drive on the right
+    lanes.flat().forEach(place);
     const update = (dt, still = false) => {
         if (still) return;
-        for (const c of cars) {
-            c.mesh.position.y += c.way * c.speed * dt;
-            if (c.mesh.position.y > 320) c.mesh.position.y -= 640;
-            if (c.mesh.position.y < -320) c.mesh.position.y += 640;
+        for (const lane of lanes) {
+            // the gap to the car ahead in the lane, round the loop
+            const ahead = (c) => {
+                let best = null, gap = Infinity;
+                for (const o of lane) {
+                    if (o === c) continue;
+                    const d = (((o.s - c.s) % LOOP) + LOOP) % LOOP - CAR;
+                    if (d < gap) { gap = d; best = o; }
+                }
+                return { leader: best, gap };
+            };
+            for (const c of lane) {
+                const { leader, gap } = ahead(c);
+                // eases off from EASY metres, down to the leader's speed (or to a stop) at the least gap
+                const f = leader ? THREE.MathUtils.clamp((gap - GAP) / (EASY - GAP), 0, 1) : 1;
+                const want = leader ? Math.min(c.cruise, leader.speed + (c.cruise - leader.speed) * f) : c.cruise;
+                c.speed += (want - c.speed) * (1 - Math.exp(-dt * 2));
+                // and never closer than the least gap, whatever happens
+                const step = c.speed * dt;
+                c.s = (c.s + (leader ? Math.min(step, Math.max(0, gap - GAP)) : step)) % LOOP;
+            }
+            lane.forEach(place);
         }
     };
 
