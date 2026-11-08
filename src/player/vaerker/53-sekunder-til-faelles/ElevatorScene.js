@@ -196,6 +196,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
                 const { at, lamp, weather: forecast } = cabin?.() ?? { at: 0, lamp: 0 };
                 stormy(forecast === 'storm' ? 1 : 0, dt, elapsed);
                 place.setCabin(at, lamp, t);
+                place.update(dt, reducedMotion);
                 frame(current.zoom, at, dt);
                 place.haze(haze, back);   // after the place has been moved for this frame
             },

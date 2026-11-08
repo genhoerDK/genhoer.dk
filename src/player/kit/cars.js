@@ -1,6 +1,6 @@
 /**
  * A car: small, rounded, in one colour with dark glass and wheels. Metres, z up, pointing along +y.
- * The style (STIL.md) lets only the sound move, so cars stand still where they are used.
+ * They drive where a place has traffic (53 sekunder til fælles), slowly, in the haze like the rest.
  */
 
 import * as THREE from 'three';

@@ -33,6 +33,7 @@
  *   centre: THREE.Vector3,      the middle of that part
  *   cabinAt(p): THREE.Vector3,  where the cabin is at p (0 = the hospital, 1 = the other side), for the camera
  *   setCabin(p, lamp, t),       put the cabin at p; lamp 0 = off, 1 = on, 2 = blinking (stuck)
+ *   update(dt, still),          the traffic on the road
  *   haze(colour, back),         the haze's colour and what lies behind; also tells it where the place is (every frame)
  *   dispose()
  * }}
@@ -45,6 +46,7 @@ import { box, rod, band, paint, placed, colour } from '@/player/kit/shapes';
 import { tree as kitTree, TREES } from '@/player/kit/trees';
 import { houses, houseAt, block as kitBlock } from '@/player/kit/houses';
 import { createHazeAround, hazedAround as hazed } from '@/player/kit/haze';
+import { car, CARS } from '@/player/kit/cars';
 import { GREYS, zinc, EDGES } from '@/player/kit/style';
 
 const Z = new THREE.Vector3(0, 0, 1);
@@ -100,7 +102,19 @@ function house(parts, x, y, w, d, h, roof, turn = 0, wall = C.brick, tiles = C.t
 const block = (parts, options) => kitBlock(parts, { parapetHex: C.parapet, ...options });
 
 /** A tree or a bush (kit/trees.js) */
-const toyTree = (kind, base, h, rand, out) => kitTree(kind, base, h, rand, out, TREES);
+const toyTree = (kind, base, h, rand, out) => {
+    if (onRoad(base.x, base.y, h * 0.25)) return;   // never on a road, a pavement or the drive: the crown keeps clear too
+    kitTree(kind, base, h, rand, out, TREES);
+};
+
+/** Is (x, y), with `pad` metres round it, on the road (with its pavements), a side street or the hospital's drive? */
+function onRoad(x, y, pad = 0) {
+    const { x: rx, width: rw, walk } = ROAD;
+    if (Math.abs(x - rx) < rw / 2 + walk + pad) return true;
+    if (STREETS.across.some((v) => Math.abs(y - v) < 3.5 + pad) || STREETS.along.some((v) => Math.abs(x - v) < 3.5 + pad)) return true;
+    const drive = { x0: -12, x1: rx - rw / 2 - walk, y0: -44, y1: -36 };   // the hospital's drive, in from the left
+    return x > drive.x0 - pad && x < drive.x1 + pad && y > drive.y0 - pad && y < drive.y1 + pad;
+}
 
 /* ---------- THE TOWN ROUND IT, AND THE HAZE IT FADES INTO ---------- */
 
@@ -578,7 +592,8 @@ export function buildHoejbane() {
     for (const s of [-1, 1]) {
         for (let y = -130; y <= 140; y += rand.range(9, 13)) {
             if (Math.abs(y - BEND.y) < 9) continue;                                    // none right under the track
-            tree(rx + s * (rw / 2 + walk + 2.6 + rand() * 2), y, rand.range(11, 15), 'beech');
+            const height = rand.range(11, 15);
+            tree(rx + s * (rw / 2 + walk + height * 0.3 + 0.5 + rand() * 1.5), y, height, 'beech');   // the crown clear of the pavement
         }
     }
     for (const [x, y, h] of [[-2, -14, 12], [6, -15, 12], [-8, -26, 12], [2, -30, 13], [9, -22, 12], [-16, -32, 11], [-20, 4, 11], [-2, 10, 11], [6, 16, 12], [8, 34, 13], [10, 84, 12]]) tree(x, y, h, 'beech');
@@ -634,6 +649,25 @@ export function buildHoejbane() {
     };
     setCabin(0);
 
+    /* The traffic: a few small cars up and down the road (kit/cars.js), in the haze like the rest */
+    const cars = Array.from({ length: 7 }, (_, i) => {
+        const mesh = new THREE.Mesh(car(CARS[i % CARS.length], { glass: C.glass, wheel: C.wheel }), material);
+        mesh.castShadow = mesh.receiveShadow = true;
+        const way = i % 2 ? 1 : -1;                   // drive on the right
+        mesh.position.set(rx + way * 2.9, -300 + rand() * 600, 0);
+        mesh.rotation.z = way > 0 ? 0 : Math.PI;
+        group.add(mesh);
+        return { mesh, way, speed: rand.range(8, 11) };
+    });
+    const update = (dt, still = false) => {
+        if (still) return;
+        for (const c of cars) {
+            c.mesh.position.y += c.way * c.speed * dt;
+            if (c.mesh.position.y > 320) c.mesh.position.y -= 640;
+            if (c.mesh.position.y < -320) c.mesh.position.y += 640;
+        }
+    };
+
     const centre = new THREE.Vector3(8, 16, 10);
     return {
         group,
@@ -641,6 +675,7 @@ export function buildHoejbane() {
         centre,
         cabinAt: (p) => frameAt(curve, THREE.MathUtils.clamp(p, 0, 1) * stop).p,
         setCabin,
+        update,
         /** The haze's colour and the background's, and where the place is now (call after it has been moved, before drawing) */
         haze(colour, back = colour) {
             haze.uniforms.uHaze.value.copy(colour);

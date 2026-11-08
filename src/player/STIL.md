@@ -23,8 +23,8 @@ eneste, der får lys eller hvidt, er det, der har med lyden at gøre: lyttestati
 kabinen og lampen (53 sekunder), højttalerne og bølgerne (Kanon i G3). Så kan man i alle værker
 se, hvor lyden er.
 
-Det samme gælder bevægelse: **kun lyden bevæger sig.** Det grå står stille, bortset fra langsom
-tåge.
+Bevægelse er rolig: det grå står stort set stille. Langsom tåge driver, og hvor stedet har trafik,
+kører bilerne (53 sekunder til fælles). Alt andet, der bevæger sig, er lyden.
 
 Reglen er sitets egen: på genhoer.dk er rund og hvid allerede lig med lyd (afspilknappen, kortets
 markører). I 3D er kun lyd rund og hvid.
@@ -90,8 +90,9 @@ Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skyg
   saddeltag eller fladt tag og uden vinduer (`kit/houses.js`).
 - Det, der er unikt for et værk (bunkeren i Kanon i G3, højbanen og sygehuset i 53 sekunder,
   kortet over Nakskov), bygges i værkets egen mappe under `vaerker/`.
-- Detaljer, der ikke fortæller noget på kameraets afstand, udelades: biler (53 sekunder har ingen
-  biler i stilen, så kun kabinen bevæger sig) og vejstriber (samme farve som vejen).
+- Detaljer, der ikke fortæller noget på kameraets afstand, udelades: vinduer og vejstriber (samme
+  farve som vejen). Biler er med, hvor stedet har trafik, i husenes gråtoner (`kit/cars.js`).
+- Træer og buske står aldrig på veje, fortove eller indkørsler; kronen holder sig også fri.
 
 ## Dybde
 
@@ -133,8 +134,9 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
 
 - Faste, komponerede vinkler pr. værk og et langsomt drev, når ingen rører. Samme rolige easing
   som sitets fade. Aldrig under jorden, aldrig hurtigt.
-- Én form for lyd: kugle for stedet eller lytteren, ringe for lyd, der breder sig, og en tynd stråle
-  for hvor: lyttestationen i `kit/station.js`. Ringenes styrke følger lydens faktiske niveau.
+- Hvert værk har sin egen markør for lyden, som passer til værket: lyttestationen i Tværveje
+  (`kit/station.js`: kugle, stråle, lysplet og ringe), bølgerne fra højttalerne i Kanon i G3 og
+  kabinen med lampen i 53 sekunder. Fælles for dem er, at de er hvide, og at de følger lyden.
 
 ## Ind og ud af rummet
 
@@ -173,13 +175,12 @@ Reglerne ovenfor gælder, men disse dele af dem er ikke bygget endnu:
 - Tegn kun, når noget sker. I dag tegner scenerne hele tiden, mens afspilleren er åben.
 - Skyggerne regnes kun igen, når noget flytter sig.
 - Én fælles easing for kameraerne.
-- Lyttestationen i alle tre (i dag kun Tværveje; Kanon i G3 har bølger, 53 sekunder en lampe).
 
 ## Når en ny scene laves
 
 1. Hent farver, lys, materiale, kanter, vignet og opløsning fra `kit/style.js`; skriv ingen
    gråtoner selv.
 2. Vælg ét pejlemærke, som står et trin lysere.
-3. Gør det, der lyder, til det eneste, der lyser og bevæger sig.
+3. Gør det, der lyder, til det eneste, der lyser, og giv det en markør, der passer til værket.
 4. Sæt disen efter kameraets afstand.
 5. Vælg en eller få faste kameravinkler.

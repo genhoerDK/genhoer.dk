@@ -11,7 +11,7 @@ det, der er unikt for det, i sin egen mappe under `src/player/vaerker/<værk>/`.
 | `shapes.js`    | Grundformerne: `box`, `rod`, `limb`, `band`, `paint`, `placed`, `standUp`             | alle dele herunder |
 | `trees.js`     | Træer og buske: `tree(kind, …)` med løvtræ, birk, fyr, gran og busk; `hedge` (en række buske); `trees(list)` (mange som én geometri) | alle tre |
 | `houses.js`    | Huse ud fra et fodaftryk (`houses`, `houseAt`), saddeltag eller fladt, uden vinduer; etageblokke (`block`) | Tværveje, 53 sekunder |
-| `cars.js`      | En bil (`car`) i husenes gråtoner. Står stille, hvis den bruges: kun lyden bevæger sig | (ingen endnu) |
+| `cars.js`      | En bil (`car`) i husenes gråtoner (`CARS`), til trafik på stedets veje                 | 53 sekunder |
 | `roads.js`     | Gader, stier og flader tegnet efter et kort (SVG-stier), med bløde kanter            | Tværveje |
 | `town.js`      | En by ud fra gaderne alene: hvor husene og træerne står (`makeHouses`, `makeTrees`)  | Tværveje |
 | `landmarks.js` | Pejlemærkernes dele: tårn, spir, hal, vandtårn, efter mærker på kortet                | Tværveje |
