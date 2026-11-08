@@ -22,7 +22,7 @@ const SEED = 1944;
 
 /* ---------- RANDOM AND NOISE ---------- */
 
-function random(seed) {
+export function random(seed) {
     let s = seed;
     const next = () => {
         s = (s + 0x6d2b79f5) | 0;
@@ -904,7 +904,7 @@ function paint(g, colour) {
 }
 
 /** One simplified tree into `wood` (one faceted mesh for everything) */
-function toyTree(kind, base, h, rand, wood) {
+export function toyTree(kind, base, h, rand, wood) {
     const top = (t) => base.clone().add(new THREE.Vector3(0, 0, t * h));
     const shade = (list) => vary(rand, rand.pick(list), 0.06);
     if (kind === 'pine') {

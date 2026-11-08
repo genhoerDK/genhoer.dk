@@ -38,9 +38,11 @@ export const players = {
 
     /* 53 sekunder til fælles: the elevator's button and display. Each press is a ride: the next of
        twelve variations plays, the display shows 53 and after 6 s counts down — one count per
-       second, apart from variation 5 (slower) and 8 (faster); variation 7 breaks down at 25 */
+       second, apart from variation 5 (slower) and 8 (faster); variation 7 breaks down at 25.
+       model: the lift itself in 3D behind (scene/hoejbane.js), the cabin riding with the count */
     '53-sekunder-til-faelles': {
         interface: 'countdown',
+        model: true,
         from: 53,
         delay: 6,
         tracks: Array.from({ length: 12 }, (_, i) => ({
