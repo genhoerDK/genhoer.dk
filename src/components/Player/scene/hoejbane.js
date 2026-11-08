@@ -207,7 +207,7 @@ function greyTree(g, rand) {
 /* ---------- THE TOWN ROUND IT, AND THE HAZE IT FADES INTO ---------- */
 
 // Where the town thins into the haze: everything is haze-coloured by HAZE.far metres from HAZE.centre
-const HAZE = { centre: [18, 20], near: 80, far: 200 };
+const HAZE = { centre: [18, 20], near: 15, far: 170 };   // begins close, fades out slowly
 // The part already built by hand (the hospital, the road's two sides), which the town leaves alone
 const BUILT = { x0: -100, x1: 112, y0: -60, y1: 112 };
 const STREETS = { across: [-120, 152, 240], along: [-150, 172, -262] };   // side streets: y = …, x = …
@@ -269,9 +269,11 @@ function hazed(material, haze) {
         shader.fragmentShader = shader.fragmentShader
             .replace('#include <common>', '#include <common>\nuniform vec3 uHaze, uBack;\nuniform vec2 uHazeCentre, uHazeRange;\nvarying vec2 vPlace;')
             .replace('#include <fog_fragment>', `{
-                float k = smoothstep(uHazeRange.x, uHazeRange.y, length(vPlace - uHazeCentre));
-                gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, k * k * (3.0 - 2.0 * k));
-                gl_FragColor.rgb = mix(gl_FragColor.rgb, uBack, smoothstep(0.6, 1.0, k));   // and at the very edge, into what is behind
+                // eased in only at the start, then an even greying out over the whole range, long drawn out
+                float k = clamp((length(vPlace - uHazeCentre) - uHazeRange.x) / (uHazeRange.y - uHazeRange.x), 0.0, 1.0);
+                k = (k < 0.15 ? k * k / 0.3 : k - 0.075) / 0.925;
+                gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, k * 0.7);                  // a grey veil, thickening evenly all the way
+                gl_FragColor.rgb = mix(gl_FragColor.rgb, uBack, smoothstep(0.3, 1.0, k));    // and slowly gone into what is behind
             }
             #include <fog_fragment>`);
     };
