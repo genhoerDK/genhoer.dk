@@ -10,8 +10,8 @@
  *    a wide bend — a rounded L — and straight over the road. A deep steel lattice, zigzag on the
  *    sides and on top, a grating walkway down the middle with the rails and the toothed rack beside
  *    it, a handrail tube along each side. Pale round columns hold it, with struts from a cross-head.
- *  - The hospital end: the arrival house, a tall pale box hung on the sand-coloured block by the
- *    road (sand panels, grey window bands), open at the bottom where the track comes in; the cabin
+ *  - The hospital end: the arrival house, a tall pale box hung on the right-hand end of the
+ *    sand-coloured block by the road (sand panels, grey window bands), open at the bottom where the track comes in; the cabin
  *    waits inside it.
  *    Behind it Regionshospitalet: the long white slab with its brown ribbon windows and the taller
  *    white towers at its ends, the dark brown blocks beside it, the parking deck in front, and the
@@ -58,11 +58,11 @@ const TRUSS = { half: 0.85, bottomHalf: 0.6, depth: 1.6, panel: 1.7, walk: 0.55,
 // The track's line, level at HEIGHT: from the hospital along the road (x = BEND.x), round the bend
 // (a quarter circle), and straight over the road (y = BEND.y) to the other side
 const HEIGHT = 15;
-const BEND = { x: -12, y: -6, radius: 12, from: 20, to: 50.6 };   // from: the hospital's station (y); to: the other side's (x), where the cabin stops
+const BEND = { x: -4.5, y: -6, radius: 12, from: 20, to: 50.6 };   // from: the hospital's station (y); to: the other side's (x), where the cabin stops
 const DOCK = 1.55;   // metres on from where the cabin stops at the other side to the building's face: the track runs right up to it
 
 // Where the columns stand (x, y): the nearest point of the track is above each
-const COLUMNS = [[-12, 12], [13.6, -6], [48.4, -6]];   // three: by the arrival house, on the hospital's side of the road, before the hotel
+const COLUMNS = [[-4.5, 12], [13.6, -6], [48.4, -6]];   // three: by the arrival house, on the hospital's side of the road, before the hotel
 
 /* ---------- COLOURS ---------- */
 
@@ -506,12 +506,14 @@ function hospitalStation(parts, at, heading) {
     const local = [];
     const back = 1.6;                         // the block's face, behind the cabin's middle
     const floor = at.z - 1.5;                 // the arrival house's floor, under the carriage
-    // the block: a grey base, then sand panels with grey bands of windows
-    local.push(box(26, 20, 4.2, -2, back + 10, 0, C.band));
-    local.push(box(26, 20, 18.6, -2, back + 10, 4.2, C.sand));
-    for (let z = 5.4; z < 22; z += 3.5) local.push(box(26.12, 20.12, 1.5, -2, back + 10, z, C.band));
-    for (let z = 5.6; z < 22; z += 3.5) local.push(box(26.2, 20.2, 1.0, -2, back + 10, z + 0.12, C.window));
-    local.push(box(26.3, 20.3, 0.45, -2, back + 10, 22.8, C.parapet));
+    // the block: a grey base, then sand panels with grey bands of windows. The arrival house is at
+    // its right-hand end, out towards the road
+    const bx = -9.5;
+    local.push(box(26, 20, 4.2, bx, back + 10, 0, C.band));
+    local.push(box(26, 20, 18.6, bx, back + 10, 4.2, C.sand));
+    for (let z = 5.4; z < 22; z += 3.5) local.push(box(26.12, 20.12, 1.5, bx, back + 10, z, C.band));
+    for (let z = 5.6; z < 22; z += 3.5) local.push(box(26.2, 20.2, 1.0, bx, back + 10, z + 0.12, C.window));
+    local.push(box(26.3, 20.3, 0.45, bx, back + 10, 22.8, C.parapet));
     // the yellow brick beside the arrival house
     local.push(box(2.6, 1, 23.8, -4.9, back, 0, C.yellowBrick));
     // the arrival house: a tall pale box hung on the block, out towards the road, open at the bottom
