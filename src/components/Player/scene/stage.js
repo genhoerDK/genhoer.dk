@@ -141,13 +141,14 @@ const backdropShader = {
  * @param {object} options
  * @param {number} [options.focus=0.5]  0–1 across the photo: what stays in view on narrow screens
  * @param {number} [options.smoke=1]  0–1: how much smoke (0 = none)
+ * @param {boolean} [options.still=false]  true: the camera neither drifts nor follows the pointer
  * @param {boolean} [options.mono=true]  The photo in black and white, like the covers
  * @param {number} [options.light=1]  How strong the panel's fixed light is (a scene with its own sun turns it down)
  * @param {boolean} [options.shadows=false]  Shadows for lights that cast them
  * @param {(stage) => void} [options.onResize]  Lay out the panel; stage.view has the panel's visible size
  * @param {(dt, t, elapsed) => void} [options.onFrame]  dt is capped (motion), elapsed is wall time (easing)
  */
-export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mono = true, light = 1, shadows = false, onResize, onFrame } = {}) {
+export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mono = true, light = 1, shadows = false, still = false, onResize, onFrame } = {}) {
     let disposed = false;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -339,7 +340,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
 
     // The camera follows the mouse, and on touch screens a finger on the photo (back to the middle when it lifts)
     const onPointerMove = (e) => {
-        if (e.pointerType !== 'mouse' && !e.isPrimary) return;
+        if (still || (e.pointerType !== 'mouse' && !e.isPrimary)) return;
         const rect = canvas.getBoundingClientRect();
         orbitTarget.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
     };
@@ -369,7 +370,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
         const ease = 1 - Math.exp(-dt * 4);
 
         // Camera drifts with the pointer (and slowly by itself); the panel rides along
-        const driftX = reducedMotion ? 0 : Math.sin(t * 0.25) * 0.03;
+        const driftX = reducedMotion || still ? 0 : Math.sin(t * 0.25) * 0.03;
         orbit.x += (orbitTarget.x * (MAX_ORBIT_X - 0.03) + driftX - orbit.x) * ease;
         orbit.y += (orbitTarget.y * MAX_ORBIT_Y - orbit.y) * ease;
         offset.copy(baseDirection).applyAxisAngle(up, -orbit.x);
