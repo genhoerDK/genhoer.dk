@@ -134,8 +134,9 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
 
 ## Ind og ud af rummet
 
-- En toning: fra projektsiden toner fotoet ud, og modellen tones frem, stregen først og så fladerne.
-  Ud igen samme vej baglæns.
+- En toning: når scenen er klar, toner 3D-billedet frem fra det mørke på 0,7 sekund (`fadeIn()` og
+  `FADE_IN` i `scene/style.js`; med "reducér bevægelse" er det der med det samme). På sigt kommer
+  stregen før fladerne.
 - Mens scenen hentes, vises den lette streg alene.
 
 ## Tekst i rummet
@@ -147,8 +148,8 @@ det aktive sted, ellers faint. Knapper og felter er firkantede som på resten af
 
 Reglerne ovenfor gælder, men disse dele af dem er ikke bygget endnu:
 
-- Overgangen ind og ud: en toning, hvor stregen kommer før fladerne. I dag dukker scenen op, når den
-  er klar.
+- Stregen før fladerne i toningen. I dag toner hele billedet frem på én gang (`fadeIn()`), og ud
+  igen går det med afspillerens overlay.
 - Tegn kun, når noget sker. I dag tegner scenerne hele tiden, mens afspilleren er åben.
 - Skyggerne regnes kun igen, når noget flytter sig.
 - Én fælles easing for kameraerne.

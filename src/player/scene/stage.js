@@ -15,7 +15,7 @@
 
 import * as THREE from 'three';
 import { colors } from '@/styles/colors';
-import { pixelRatio } from '@/player/scene/style';
+import { pixelRatio, fadeIn } from '@/player/scene/style';
 
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift sideways (pointer + by itself), radians
@@ -413,6 +413,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
             resizeObserver.observe(container);
             resize();
             tick();
+            fadeIn(canvas);   // the way into the room: a toning (STIL.md)
         },
         dispose() {
             disposed = true;

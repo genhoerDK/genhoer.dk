@@ -104,6 +104,21 @@ export const pixelRatio = () => Math.min(window.devicePixelRatio || 1, isPhone()
 /** The sun's shadow map: smaller on a phone */
 export const shadowMapSize = () => (isPhone() ? 1024 : 2048);
 
+/** How long the way into the room takes: the 3D picture tones in once it is ready (ms) */
+export const FADE_IN = 700;
+
+/**
+ * Tones a canvas in from the dark once its first picture is drawn: call it right after starting to
+ * draw. With "reduce motion" it is there at once.
+ */
+export function fadeIn(canvas) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    canvas.style.opacity = '0';
+    canvas.style.transition = `opacity ${FADE_IN}ms ease-out`;
+    // two frames: the first picture is drawn before the toning starts
+    requestAnimationFrame(() => requestAnimationFrame(() => { canvas.style.opacity = '1'; }));
+}
+
 /** The renderer in the style: the greys as written (no tone mapping), the dark behind */
 export function styleRenderer(renderer, { clear = true } = {}) {
     renderer.toneMapping = THREE.NoToneMapping;

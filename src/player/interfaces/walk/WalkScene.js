@@ -27,7 +27,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { GREYS, LIGHT, EDGES, vignetteMask, pixelRatio } from '@/player/scene/style';
+import { GREYS, LIGHT, EDGES, vignetteMask, pixelRatio, fadeIn } from '@/player/scene/style';
 import { maps } from '@/player/interfaces/walk/maps';
 import { makeHouses, houseGeometry } from '@/player/interfaces/walk/town';
 import { landmarkGeometry } from '@/player/interfaces/walk/landmarks';
@@ -703,6 +703,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             });
         };
         frame = requestAnimationFrame(tick);
+        fadeIn(canvas);   // the way into the room: a toning (STIL.md)
 
         return () => {
             cancelAnimationFrame(frame);
