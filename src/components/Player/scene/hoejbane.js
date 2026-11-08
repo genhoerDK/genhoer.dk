@@ -1,7 +1,8 @@
 /**
  * Højbanen in Viborg — the horizontal lift between the hospital's buildings, over Heibergs Allé —
- * built in code for 53 sekunder til fælles, in the same pale, simple look as Kanon i G3: soft
- * low-poly forms in muted colours, faceted, no textures, the trees from scene/forest.js.
+ * built in code for 53 sekunder til fælles: soft low-poly forms, faceted, no textures, the trees
+ * from scene/forest.js. Two looks: 'pale' (muted colours under a sky, as Kanon i G3) and 'dark'
+ * (in greys on the dark, as Tværveje's map).
  *
  * Built from photos, not from drawings, so the sizes are guesses at the right proportions:
  *
@@ -31,7 +32,7 @@
  *   cabinAt(p): THREE.Vector3,  where the cabin is at p (0 = the hospital, 1 = the other side), for the camera
  *   setCabin(p, lamp, t),       put the cabin at p; lamp 0 = off, 1 = on, 2 = blinking (stuck)
  *   update(dt, still),          the traffic on the road
- *   haze(colour),               the haze's colour; also tells it where the place is (every frame)
+ *   haze(colour, back),         the haze's colour and what lies behind; also tells it where the place is (every frame)
  *   dispose()
  * }}
  */
@@ -59,9 +60,10 @@ const BEND = { x: -12, y: -6, radius: 12, from: 20, to: 50.6 };   // from: the h
 // Where the columns stand (x, y): the nearest point of the track is above each
 const COLUMNS = [[-12, 12], [-8.5, -2.5], [2, -6], [13.6, -6], [34.4, -6], [45, -6]];
 
-/* ---------- COLOURS: muted, a little warm, as in Kanon i G3 ---------- */
+/* ---------- COLOURS ---------- */
 
-const C = {
+// The pale look: muted, a little warm, as in Kanon i G3
+const PALE = {
     grass: '#a4aa84', verge: '#9aa07a', road: '#a3a39e', line: '#f2f0e8', walk: '#d3cec3', curb: '#e3dfd6',
     steel: '#7d8387', grating: '#949a9d', rack: '#5c6266', handrail: '#b9bec1', column: '#c9cdcf', foot: '#bdb9b0',
     panel: '#e6e8e8', panelDark: '#c3c6c7', roof: '#d6d9da', seal: '#3c4145', bracket: '#a8a58f', glass: '#56646f', carriage: '#41474b', wheel: '#2f3336', lamp: '#ffcf7a',
@@ -71,7 +73,27 @@ const C = {
     white: '#ece7da', brown: '#7c6250', bronze: '#6f5b4b', bronzeLight: '#a39280', deck: '#8f9192', yellow: '#dcc68a',
     paleCool: '#d6d8d8', pale: '#e4e0d8', balcony: '#b7c7cd', brick: '#b7735d', tiles: '#6f5a52', trim: '#efe9df',
     pole: '#a5aaad', signBlue: '#3f6fa6',
+    glassLow: '#34404a', glassHigh: '#8796a2', cars: ['#5b6168', '#ece9e2', '#7c8fa0', '#a8574a', '#cbbf9d'],
+    leaves: null,   // the trees keep their own colours (scene/forest.js)
 };
+
+// The dark look, as Tværveje's map: dark ground, the buildings in dark greys, the hospital a shade
+// lighter, the streets and the track pale, the cabin white — no colour at all
+const DARK = {
+    grass: '#1f1f22', verge: '#232327', road: '#7c7c84', line: '#d4d4d8', walk: '#4a4a51', curb: '#6b6b73',
+    steel: '#a1a1aa', grating: '#8a8a92', rack: '#55555c', handrail: '#c4c4cb', column: '#9a9aa1', foot: '#55555c',
+    panel: '#f2f2f3', panelDark: '#c9c9ce', roof: '#dcdce0', seal: '#2b2b31', bracket: '#7a7a82', glass: '#2e2e33', carriage: '#323238', wheel: '#232327', lamp: '#fafafa',
+    peach: '#5c5c63', sand: '#6a6a72', band: '#4a4a51', window: '#33333a', ribbon: '#2b2b31', concrete: '#4a4a51', parapet: '#7a7a82',
+    clad: '#62626a', cladLight: '#74747c', yellowBrick: '#7a7a82', dock: '#1f1f22', greyBlock: '#4a4a51',
+    slate: '#2b2b31', slateLight: '#3f3f46', station: '#d4d4d8',
+    white: '#6a6a72', brown: '#3f3f46', bronze: '#3a3a41', bronzeLight: '#55555c', deck: '#3f3f46', yellow: '#4a4a51',
+    paleCool: '#42424a', pale: '#3a3a41', balcony: '#55555c', brick: '#33333a', tiles: '#55555c', trim: '#5c5c63',
+    pole: '#6b6b73', signBlue: '#52525b',
+    glassLow: '#1c1c20', glassHigh: '#4a4a51', cars: ['#3f3f46', '#9a9aa1', '#55555c', '#6b6b73', '#2b2b31'],
+    leaves: ['#3f3f46', '#4a4a51', '#55555c'], trunk: '#2e2e33',   // the trees, in greys
+};
+
+let C = PALE;   // the look being built (set by buildHoejbane)
 const colour = (hex) => new THREE.Color(hex);
 
 /* ---------- BUILDING BLOCKS ---------- */
@@ -164,6 +186,17 @@ function house(parts, x, y, w, d, h, roof, turn = 0, wall = C.brick, tiles = C.t
     placed(parts, local, x, y, turn);
 }
 
+/** The dark look: a tree's colours (green leaves, pale bark) turned into its greys */
+function greyTree(g, rand) {
+    const c = g.attributes.color;
+    const leaf = colour(C.leaves[Math.floor(rand() * C.leaves.length)]), trunk = colour(C.trunk);
+    for (let i = 0; i < c.count; i++) {
+        const green = c.getY(i) > c.getX(i) * 1.02;   // the leaves are greener than red; bark is not
+        const to = green ? leaf : trunk;
+        c.setXYZ(i, to.r, to.g, to.b);
+    }
+}
+
 /* ---------- THE TOWN ROUND IT, AND THE HAZE IT FADES INTO ---------- */
 
 // Where the town thins into the haze: everything is haze-coloured by HAZE.far metres from HAZE.centre
@@ -215,8 +248,9 @@ function outskirts(parts, wood, rand) {
 /**
  * The haze, put into a material: whatever it draws is mixed into the haze's colour the further it
  * stands from the town's middle — from HAZE.near to HAZE.far metres out — after the light, so at
- * the far edge it is exactly the colour of the sky's horizon and the town fades out into it. The
- * uniforms are shared: `colour` (the scene changes it with the weather) and `toPlace` (the inverse
+ * the far edge it is exactly the colour of what lies behind — the sky's horizon, or the dark — and
+ * the town fades out into it. The uniforms are shared: the haze's and the background's colours
+ * (the scene changes them with the weather) and `toPlace` (the inverse
  * of the place's world matrix, set every frame, so the distance is measured in the place's metres).
  */
 function hazed(material, haze) {
@@ -226,10 +260,11 @@ function hazed(material, haze) {
             .replace('#include <common>', '#include <common>\nuniform mat4 uToPlace;\nvarying vec2 vPlace;')
             .replace('#include <project_vertex>', '#include <project_vertex>\nvPlace = (uToPlace * modelMatrix * vec4(transformed, 1.0)).xy;');
         shader.fragmentShader = shader.fragmentShader
-            .replace('#include <common>', '#include <common>\nuniform vec3 uHaze;\nuniform vec2 uHazeCentre, uHazeRange;\nvarying vec2 vPlace;')
+            .replace('#include <common>', '#include <common>\nuniform vec3 uHaze, uBack;\nuniform vec2 uHazeCentre, uHazeRange;\nvarying vec2 vPlace;')
             .replace('#include <fog_fragment>', `{
                 float k = smoothstep(uHazeRange.x, uHazeRange.y, length(vPlace - uHazeCentre));
                 gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, k * k * (3.0 - 2.0 * k));
+                gl_FragColor.rgb = mix(gl_FragColor.rgb, uBack, smoothstep(0.6, 1.0, k));   // and at the very edge, into what is behind
             }
             #include <fog_fragment>`);
     };
@@ -356,7 +391,7 @@ function faceTo(g, side, z) {
 function glassBox(w, d, h, z) {
     const g = new THREE.BoxGeometry(w, d, h).toNonIndexed();
     g.translate(0, 0, z + h / 2);
-    const low = colour('#34404a'), high = colour('#8796a2'), c = new THREE.Color(), list = [];
+    const low = colour(C.glassLow), high = colour(C.glassHigh), c = new THREE.Color(), list = [];
     const pos = g.attributes.position;
     for (let i = 0; i < pos.count; i++) {
         c.copy(low).lerp(high, THREE.MathUtils.smoothstep(pos.getZ(i), z + h * 0.35, z + h));
@@ -507,7 +542,7 @@ function hospital(parts, rand) {
     parts.push(box(32.4, 34.4, 0.6, -18, 62, 4.2, C.concrete));
     for (let k = 0; k < 9; k++) parts.push(box(0.15, 5, 0.04, -30 + k * 3, 52, 4.8, C.line), box(0.15, 5, 0.04, -30 + k * 3, 72, 4.8, C.line));
     for (const [x, y, k] of [[-28.5, 52, 0], [-22.5, 52, 2], [-13.5, 52, 4], [-25.5, 72, 1], [-10.5, 72, 3], [-4.5, 72, 0]]) {
-        const car = carGeometry(CAR_COLOURS[k]);
+        const car = carGeometry(C.cars[k]);
         car.translate(x, y, 4.8);
         parts.push(car);
     }
@@ -552,7 +587,6 @@ function farStation(parts, at) {
 
 /* ---------- THE TRAFFIC ---------- */
 
-const CAR_COLOURS = ['#5b6168', '#ece9e2', '#7c8fa0', '#a8574a', '#cbbf9d'];
 
 /** A small, rounded car pointing along +y */
 function carGeometry(hex) {
@@ -592,12 +626,14 @@ function signTexture() {
 
 /* ---------- ALL OF IT ---------- */
 
-export function buildHoejbane() {
+export function buildHoejbane({ look = 'pale' } = {}) {
+    C = look === 'dark' ? DARK : PALE;
     const group = new THREE.Group();
     const rand = random(53);
     const haze = {
         uniforms: {
             uHaze: { value: new THREE.Color('#dcdcd4') },
+            uBack: { value: new THREE.Color('#dcdcd4') },
             uToPlace: { value: new THREE.Matrix4() },
             uHazeCentre: { value: new THREE.Vector2(...HAZE.centre) },
             uHazeRange: { value: new THREE.Vector2(HAZE.near, HAZE.far) },
@@ -686,6 +722,7 @@ export function buildHoejbane() {
     /* The town round it all, out into the haze */
     outskirts(parts, wood, rand);
 
+    if (C.leaves) wood.forEach((g) => greyTree(g, rand));
     const merged = mergeGeometries([...parts, ...wood]);
     parts.forEach((g) => g.dispose());
     wood.forEach((g) => g.dispose());
@@ -721,7 +758,7 @@ export function buildHoejbane() {
 
     /* The traffic: a few small cars up and down the road */
     const cars = Array.from({ length: 7 }, (_, i) => {
-        const mesh = new THREE.Mesh(carGeometry(CAR_COLOURS[i % CAR_COLOURS.length]), material);
+        const mesh = new THREE.Mesh(carGeometry(C.cars[i % C.cars.length]), material);
         mesh.castShadow = mesh.receiveShadow = true;
         const way = i % 2 ? 1 : -1;                   // drive on the right
         mesh.position.set(rx + way * 2.9, -300 + rand() * 600, 0);
@@ -746,9 +783,10 @@ export function buildHoejbane() {
         cabinAt: (p) => frameAt(curve, THREE.MathUtils.clamp(p, 0, 1)).p,
         setCabin,
         update,
-        /** The haze's colour, and where the place is now (call after it has been moved, before drawing) */
-        haze(colour) {
+        /** The haze's colour and the background's, and where the place is now (call after it has been moved, before drawing) */
+        haze(colour, back = colour) {
             haze.uniforms.uHaze.value.copy(colour);
+            haze.uniforms.uBack.value.copy(back);
             group.updateWorldMatrix(true, false);
             haze.uniforms.uToPlace.value.copy(group.matrixWorld).invert();
         },

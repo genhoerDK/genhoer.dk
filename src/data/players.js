@@ -45,6 +45,7 @@ export const players = {
     '53-sekunder-til-faelles': {
         interface: 'countdown',
         model: true,
+        look: 'dark',   // 'dark' (greys on the dark, as Tværveje) or 'pale' (under a sky, as Kanon i G3)
         from: 53,
         delay: 6,
         tracks: Array.from({ length: 12 }, (_, i) => ({

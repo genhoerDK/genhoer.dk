@@ -24,6 +24,7 @@
  *   player.tracks   [{ title, file, tempo, stopAt, weather }]  tempo: seconds per count; stopAt: where
  *                   the count stops (the ride breaks down there); weather: 'storm' (the model only)
  *   player.model    true: the lift in 3D behind (default: the photo)
+ *   player.look     the model's look: 'dark' (greys on the dark, as Tværveje) or 'pale' (default)
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -45,7 +46,7 @@ const FADE = 900;   // ms: the picture fades out, and in again, when the cabin i
 
 export default function CountdownPlayer() {
     const { currentTrack, currentFile, isPlaying, currentTime, ended, play, playFile } = useAudio();
-    const { tracks, from = 53, delay = 6, model = false } = currentTrack.player;
+    const { tracks, from = 53, delay = 6, model = false, look } = currentTrack.player;
 
     const loaded = tracks.findIndex((t) => t.file === currentFile);   // the variation in the element, -1 before the first ride
     const riding = isPlaying && loaded >= 0;
@@ -132,7 +133,7 @@ export default function CountdownPlayer() {
 
     return (
         <PlayerShell track={currentTrack} smoke={0.25} backdrop={!model}>
-            {model && <ElevatorScene cabin={cabin} zoomRef={zoomRef} onZoom={setClose} />}
+            {model && <ElevatorScene cabin={cabin} zoomRef={zoomRef} onZoom={setClose} look={look} />}
             {model && <div className='absolute inset-0 bg-ink pointer-events-none transition-opacity ease-in-out' style={{ opacity: resetting ? 1 : 0, transitionDuration: `${FADE}ms` }} />}
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-5 md:gap-6'>

@@ -20,6 +20,7 @@
  * @param {() => { at: number, lamp: number, weather?: 'storm' | null }} cabin  Where the cabin is (0 = the hospital, 1 = the other side) and its lamp (0 off, 1 on, 2 blinking)
  * @param {{ current: number }} [zoomRef]  0 = the whole place, 1 = close to the cabin
  * @param {(close: boolean) => void} [onZoom]  Told when you go in close or back out
+ * @param {'pale'|'dark'} [look]  pale: muted colours under a sky (as Kanon i G3); dark: greys on the dark (as Tværveje)
  */
 
 import { useEffect, useRef } from 'react';
@@ -29,9 +30,26 @@ import { buildHoejbane } from '@/components/Player/scene/hoejbane';
 import { skyTexture } from '@/components/Player/scene/sky';
 import { createRain } from '@/components/Player/scene/weather';
 import { keyIsTaken } from '@/components/Player/interfaces/keys';
+import { colors } from '@/styles/colors';
 
-const PALE = { horizon: 0xdcdcd4 };              // the haze the distance fades into (as Kanon i G3, stylised)
-const STORM = { haze: 0x9ca2a5, sky: 0x8a9196, light: 0xc9cfd3 };   // in a storm: a grey haze close in, a dark sky, grey light
+// The two looks. back: behind it all (the sky's horizon, or the dark); haze: the colour the town
+// greys into before it is gone; fog: the distance's haze; storm: the same in a storm, and the light
+const LOOKS = {
+    // pale, under a sky, as Kanon i G3 (stylised)
+    pale: {
+        back: 0xdcdcd4, haze: 0xdcdcd4, fog: 0xdcdcd4, sky: true, toneMapped: true,
+        sun: [0xfff1de, 1.8], light: [0xf4f1e8, 0x8f9473, 0.65], panel: 0.35, rain: '#e7ebee',
+        storm: { back: 0x9ca2a5, haze: 0x9ca2a5, fog: 0x9ca2a5, sky: 0x8a9196, light: 0xc9cfd3, sun: 0.25, lit: 0.8 },
+        shade: 'linear-gradient(to bottom, rgba(40,40,34,0.4), transparent 16%, transparent 50%, rgba(40,40,34,0.78))',
+    },
+    // dark, in greys, as Tværveje's map: the town greys over at its edges and is gone into the dark
+    dark: {
+        back: 0x27272a, haze: 0x5c5c61, fog: 0x27272a, sky: false, toneMapped: false,
+        sun: [0xffffff, 0.95], light: [0xe8e8ec, 0x202024, 0.9], panel: 0.12, rain: '#a1a1aa',
+        storm: { back: 0x27272a, haze: 0x47474d, fog: 0x45454b, light: 0xb4b4ba, sun: 0.15, lit: 0.75 },
+        shade: `linear-gradient(to bottom, ${colors.ink} 0%, transparent 15%, transparent 55%, ${colors.ink} 92%)`,
+    },
+};
 const ABOVE_FOV = 32, CLOSE_FOV = 42;
 const TILT = { far: [0.95, 1.32], close: [1.1, 1.45] };   // radians from straight down: pointer at the top, at the bottom
 const TURN = 0.75;                               // how far the pointer turns the place either way, radians
@@ -43,12 +61,13 @@ const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'
 
 const smooth = (a, b, x) => { const t = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
 
-export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
+export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' }) {
     const containerRef = useRef(null);
 
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
+        const L = LOOKS[look] ?? LOOKS.pale;
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         /* ---------- THE PLACE ---------- */
@@ -59,20 +78,20 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
         tilt.add(turn);
         turn.add(room);
 
-        const place = buildHoejbane();
+        const place = buildHoejbane({ look });
         room.add(place.group);
 
         // A low sun from the front left, and soft light from the sky and back up from the grass
-        const sun = new THREE.DirectionalLight(0xfff1de, 1.8);
+        const sun = new THREE.DirectionalLight(...L.sun);
         sun.castShadow = true;
         sun.shadow.mapSize.set(2048, 2048);
         const SUN = new THREE.Vector3(-55, -60, 85);
         sun.position.copy(place.centre).add(SUN);
         sun.target.position.copy(place.centre);
         room.add(sun, sun.target);
-        const skyLight = new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.65);
+        const skyLight = new THREE.HemisphereLight(...L.light);
         tilt.add(skyLight);
-        const fair = { sky: skyLight.color.clone(), sun: 1.8, light: 0.65 };
+        const fair = { sky: skyLight.color.clone(), sun: L.sun[1], light: L.light[2] };
 
         // The sky, always round everything, far out
         const skyMap = skyTexture();
@@ -81,14 +100,17 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
             new THREE.MeshBasicMaterial({ map: skyMap, side: THREE.BackSide, depthWrite: false, fog: false }),
         );
         sky.position.copy(place.centre).setZ(0);
+        sky.visible = L.sky;   // the dark look has no sky: the town is gone into the dark behind
         room.add(sky);
 
         // The weather: 0 = fair, 1 = storm; eased, so it comes and goes over a few seconds
-        const rain = createRain();
+        const rain = createRain({ colour: L.rain });
         room.add(rain.mesh);
         const weather = { storm: 0, flash: 0, nextFlash: 4 };
-        const fairHaze = new THREE.Color(PALE.horizon), stormHaze = new THREE.Color(STORM.haze), haze = new THREE.Color();
-        const stormSky = new THREE.Color(STORM.sky), stormLight = new THREE.Color(STORM.light), white = new THREE.Color(1, 1, 1);
+        const tone = (fair, storm) => ({ fair: new THREE.Color(fair), storm: new THREE.Color(storm), now: new THREE.Color() });
+        const backs = tone(L.back, L.storm.back), hazes = tone(L.haze, L.storm.haze), fogs = tone(L.fog, L.storm.fog);
+        const haze = hazes.now, back = backs.now;
+        const stormSky = new THREE.Color(L.storm.sky ?? 0xffffff), stormLight = new THREE.Color(L.storm.light), white = new THREE.Color(1, 1, 1);
 
         /* ---------- LAYOUT ---------- */
 
@@ -154,7 +176,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
         // The point in focus is PANEL_DISTANCE in front of the camera; the place is scaled round it.
         // Far out it is the middle of the track, close in the cabin, which the view then follows.
         const focus = new THREE.Vector3(), cabinFocus = new THREE.Vector3();
-        const fog = new THREE.Fog(PALE.horizon, 1e6, 2e6);
+        const fog = new THREE.Fog(L.fog, 1e6, 2e6);
         let close = current.zoom > 0.5;
         const frame = (zoom, look, yaw, at, dt) => {
             const u = zoom * zoom * (3 - 2 * zoom);
@@ -215,20 +237,20 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
             weather.flash = Math.max(0, weather.flash - dt * 3.2);
             const flash = weather.flash > 0 ? (weather.flash > 0.75 || (weather.flash > 0.3 && weather.flash < 0.5) ? 1 : 0) : 0;
 
-            haze.copy(fairHaze).lerp(stormHaze, storm).lerp(white, flash * 0.35);
-            fog.color.copy(haze);
-            stage.renderer.setClearColor(haze, 1);
+            for (const t of [backs, hazes, fogs]) t.now.copy(t.fair).lerp(t.storm, storm).lerp(white, flash * (L.sky ? 0.35 : 0.12));
+            fog.color.copy(fogs.now);
+            stage.renderer.setClearColor(back, 1);
             sky.material.color.copy(white).lerp(stormSky, storm).lerp(white, flash * 0.6);
-            sun.intensity = THREE.MathUtils.lerp(fair.sun, 0.25, storm);
+            sun.intensity = THREE.MathUtils.lerp(fair.sun, L.storm.sun, storm);
             skyLight.color.copy(fair.sky).lerp(stormLight, storm);
-            skyLight.intensity = THREE.MathUtils.lerp(fair.light, 0.8, storm) + flash * 2.2;
+            skyLight.intensity = THREE.MathUtils.lerp(fair.light, L.storm.lit, storm) + flash * 2.2;
         };
 
         /* ---------- STAGE ---------- */
 
         const stage = createStage(container, {
             smoke: 0,
-            light: 0.35,
+            light: L.panel,   // the stage's own light, fixed to the camera
             shadows: true,
             onResize: layout,
             onFrame: (dt, t, elapsed) => {
@@ -242,12 +264,13 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
                 place.setCabin(at, lamp, t);
                 place.update(dt, reducedMotion);
                 frame(current.zoom, current.look, current.yaw, at, dt);
-                place.haze(haze);   // after the place has been moved for this frame
+                place.haze(haze, back);   // after the place has been moved for this frame
             },
         });
         stage.panel.add(tilt);
         stage.scene.fog = fog;
-        stage.renderer.setClearColor(PALE.horizon, 1);
+        stage.renderer.setClearColor(L.back, 1);
+        if (!L.toneMapped) stage.renderer.toneMapping = THREE.NoToneMapping;   // the greys as they are, as Tværveje
         stage.start();
 
         return () => {
@@ -263,12 +286,13 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
             rain.mesh.material.dispose();
             stage.dispose();
         };
-    }, [cabin, zoomRef, onZoom]);
+    }, [cabin, zoomRef, onZoom, look]);
 
-    // Pale: a shade at the top and the bottom, so the title, the count and the button can be read; a fine grain
+    // A shade at the top and the bottom (dark: the picture fades out into the dark there), so the
+    // title, the count and the button can be read; a fine grain
     return (
         <div ref={containerRef} className='absolute inset-0 touch-none'>
-            <div className='absolute inset-0 pointer-events-none' style={{ background: 'linear-gradient(to bottom, rgba(40,40,34,0.4), transparent 16%, transparent 50%, rgba(40,40,34,0.78))' }} />
+            <div className='absolute inset-0 pointer-events-none' style={{ background: (LOOKS[look] ?? LOOKS.pale).shade }} />
             <div className='absolute inset-0 pointer-events-none opacity-[0.09] mix-blend-overlay' style={{ backgroundImage: GRAIN }} />
         </div>
     );
