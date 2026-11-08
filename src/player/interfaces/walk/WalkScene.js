@@ -13,11 +13,9 @@
  * and lit; the one that is playing sends rings out over the ground. Walking to another place glides
  * you there.
  *
- * The view is locked: no turning, tipping, dragging or zooming, and no drift. On a large screen
- * (WIDE px and up) it frames all the places at once; on a small one it shows the place you are at,
- * and walking to another (the arrows in Walk.js, or a place's name) glides you there. The places'
- * names are buttons over their markers; one that is out of view waits at the edge of the screen,
- * pointing the way.
+ * The view is locked: no turning, tipping, dragging or zooming, and no drift. It shows the place
+ * you are at, and walking to another (the arrows in Walk.js, or a place's name) glides you there.
+ * The places' names are buttons over their markers, shown while the place is in view.
  *
  * @param {string} map           The name of a map in src/player/vaerker/maps.js
  * @param {object[]} places      [{ name, at, label? }]  at: [x, y] in the map's units
@@ -36,7 +34,7 @@ import { trees as treeShapesOf } from '@/player/kit/trees';
 import { landmarkGeometry } from '@/player/kit/landmarks';
 import { pathLines, fillGeometry, bandGeometry } from '@/player/kit/roads';
 import { hazeMap, hazedOverMap as hazed, HAZE_GLSL } from '@/player/kit/haze';
-import { createStation, STATION } from '@/player/kit/station';
+import { createStation } from '@/player/kit/station';
 
 /* ---------- THE LOOK: the 3D style (kit/style.js) — greys, the streets muted, only the stations white ---------- */
 
@@ -56,8 +54,6 @@ const REACH = { wide: 560, tall: 720 }; // metres from the camera to where you a
 const SCALE_AT = 700;                 // the markers are drawn their true size seen from this far, and grow with the distance
 
 const TILT = 0.92;                    // radians above the horizon the view looks down from (locked)
-export const WIDE = 768;              // px: from this width the view frames all the places at once (Tailwind's md)
-const FIT = { x: 0.78, top: 0.62, bottom: -0.5 };   // how much of the screen the places may fill when all are framed (NDC; the stories sit under)
 const LABEL_TOP = 72;                 // px kept free at the top (the header)
 
 /** Tileable soft noise for the mist, as a texture */
@@ -278,34 +274,13 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             // Where you are stands a little above the middle, clear of the stories under it
             camera.setViewOffset(w, h, 0, (0.5 - (w < h ? 0.36 : 0.42)) * h, w, h);
             camera.updateProjectionMatrix();
-            fitAll();
         };
 
-        /* ---------- all the places in view (a large screen): how far back the camera stands to frame them ---------- */
-
-        const centre = spots.reduce((s, p) => s.add(p), new THREE.Vector2()).divideScalar(spots.length);
-        const fit = { reach: REACH.wide };
         const placeCamera = (at, reach) => {
             camera.position.set(at.x, Math.sin(TILT) * reach, at.y + Math.cos(TILT) * reach);
             camera.lookAt(at.x, 0, at.y);
-            camera.updateMatrixWorld(true);
         };
-        function fitAll() {
-            // A few steps of: stand back, see how much of the screen the places take, stand back by that much
-            let reach = fit.reach;
-            for (let i = 0; i < 12; i++) {
-                placeCamera(centre, reach);
-                let over = 0;
-                for (const spot of spots) {
-                    for (const height of [0, (STATION.ballAt + STATION.ball * 2) * (reach / SCALE_AT)]) {
-                        v.set(spot.x, height, spot.y).project(camera);
-                        over = Math.max(over, Math.abs(v.x) / FIT.x, v.y > 0 ? v.y / FIT.top : v.y / FIT.bottom);
-                    }
-                }
-                reach *= Math.max(0.5, Math.min(2, over));
-            }
-            fit.reach = reach;
-        }
+
         const v = new THREE.Vector3();
         const resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(container);
@@ -313,9 +288,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
 
         /* ---------- every frame ---------- */
 
-        const wide = () => size.w >= WIDE;
-        const focus = (wide() ? centre : spots[state.current.here]).clone();
-        let reach = wide() ? fit.reach : size.w < size.h ? REACH.tall : REACH.wide;
+        const focus = spots[state.current.here].clone();
+        const reach = () => (size.w < size.h ? REACH.tall : REACH.wide);
         let frame, last = performance.now(), t = 0;
 
         const tick = (time) => {
@@ -325,17 +299,13 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             t += dt;
             const { here: at, sounding: playing } = state.current;
 
-            // A large screen frames all the places; a small one glides to the place you are at
-            const goal = wide() ? centre : spots[at];
-            const goalReach = wide() ? fit.reach : size.w < size.h ? REACH.tall : REACH.wide;
-            const k = still ? 1 : 1 - Math.exp(-dt * 1.8);
-            focus.lerp(goal, k);
-            reach += (goalReach - reach) * k;
-            placeCamera(focus, reach);
+            // Glide to the place you are at
+            focus.lerp(spots[at], still ? 1 : 1 - Math.exp(-dt * 1.8));
+            placeCamera(focus, reach());
 
             // The stations: the one you are at is lit; the playing one rings out
             stations.forEach((station, p) => {
-                station.group.scale.setScalar(reach / SCALE_AT);
+                station.group.scale.setScalar(reach() / SCALE_AT);
                 station.update(dt, t, { here: p === at, sounding: p === playing, still });
                 for (const mark of marks) if (mark.place === p) mark.material.emissiveIntensity = station.lit * 0.35;
             });
@@ -346,44 +316,25 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
 
             renderer.render(scene, camera);
 
-            // The names over the markers; one out of view waits at the edge, pointing the way
+            // The names over the markers, only for the places in view
             const bottom = size.h * (size.w < size.h ? 0.6 : 0.68);
-            const labels = [];
             spots.forEach((spot, p) => {
                 const el = labelRefs.current[p];
                 if (!el) return;
                 v.set(spot.x, stations[p].ball.position.y * stations[p].group.scale.y, spot.y).project(camera);
-                const behind = v.z > 1;
-                let x = ((v.x + 1) / 2) * size.w, y = ((1 - v.y) / 2) * size.h;
-                if (behind) { x = size.w - x; y = bottom; }
-                const cx = THREE.MathUtils.clamp(x, 28, size.w - 28);
-                let cy = THREE.MathUtils.clamp(y, LABEL_TOP, bottom);
-                const away = behind || cx !== x || cy !== y;
-                // Out of view, the name stands on the side towards the middle of the screen; in view, on its
-                // own side unless it would run off the edge there
+                const x = ((v.x + 1) / 2) * size.w, y = ((1 - v.y) / 2) * size.h;
+                const inView = v.z <= 1 && x >= 0 && x <= size.w && y >= LABEL_TOP && y <= bottom;
+                el.style.visibility = inView ? 'visible' : 'hidden';
+                if (!inView) return;
+                // On its own side, unless it would run off the edge there
                 let side = places[p].label ?? 'right';
-                if (away) side = cx !== x || behind ? (cx > size.w / 2 ? 'left' : 'right') : cy < y ? 'above' : 'below';
                 if (!widths[p]) widths[p] = el.lastElementChild?.offsetWidth ?? 0;   // measured once (again after a resize)
                 const width = widths[p] + 24;
-                if (side === 'left' && cx - width < 0) side = 'right';
-                else if (side === 'right' && cx + width > size.w) side = 'left';
-                else if ((side === 'above' || side === 'below') && (cx - width / 2 < 0 || cx + width / 2 > size.w)) side = cx > size.w / 2 ? 'left' : 'right';
-                // Names out of view that would cover one another move apart, down from the top or up from the bottom
-                const box = (cy) => {
-                    const [x0, y0] = side === 'right' ? [cx + 16, cy - 12] : side === 'left' ? [cx - 16 - width, cy - 12] : [cx - width / 2, side === 'above' ? cy - 48 : cy + 24];
-                    return [x0, y0, x0 + width, y0 + 24];
-                };
-                for (let tries = 0; away && tries < labels.length + 1; tries++) {
-                    const [x0, y0, x1, y1] = box(cy);
-                    if (!labels.some((o) => x0 < o.box[2] && x1 > o.box[0] && y0 < o.box[3] && y1 > o.box[1])) break;
-                    cy += cy < size.h / 2 ? 28 : -28;
-                }
-                labels.push({ box: box(cy) });
-                el.style.transform = `translate(${cx}px, ${cy}px)`;
-                el.dataset.away = away ? 'true' : 'false';
+                if (side === 'left' && x - width < 0) side = 'right';
+                else if (side === 'right' && x + width > size.w) side = 'left';
+                else if ((side === 'above' || side === 'below') && (x - width / 2 < 0 || x + width / 2 > size.w)) side = x > size.w / 2 ? 'left' : 'right';
+                el.style.transform = `translate(${x}px, ${y}px)`;
                 el.dataset.side = side;
-                const arrow = el.querySelector('[data-arrow]');
-                if (arrow) arrow.style.transform = `rotate(${Math.atan2(y - cy, x - cx)}rad)`;
             });
         };
         frame = requestAnimationFrame(tick);
@@ -420,8 +371,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                         >
                             {/* The marker's sphere is under the middle of this: a target the size of a finger */}
                             <span className='absolute -left-6 -top-6 size-12 rounded-full' />
-                            <span className={`absolute whitespace-nowrap uppercase leading-none text-xs px-1.5 py-1 transition-colors ${SIDES} ${isHere ? 'text-paper' : 'text-muted md:group-hover:text-paper'} group-data-[away=true]:bg-ink/60 group-data-[away=true]:backdrop-blur-sm`} style={failed ? { position: 'static', transform: 'none' } : undefined}>
-                                <span data-arrow className='hidden group-data-[away=true]:inline-block mr-1.5'>→</span>
+                            <span className={`absolute whitespace-nowrap uppercase leading-none text-xs px-1.5 py-1 transition-colors ${SIDES} ${isHere ? 'text-paper' : 'text-muted md:group-hover:text-paper'}`} style={failed ? { position: 'static', transform: 'none' } : undefined}>
                                 {place.name}
                             </span>
                         </button>
