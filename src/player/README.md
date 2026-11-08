@@ -19,19 +19,20 @@ src/player/
                        ét bestemt værk
     registry.js        Hvad hvert interface behøver (motor, tone, om det åbner afspilleren)
     index.js           Komponenterne efter navn
-    timeline/ buttons/ loop/ countdown/ walk/ quad/
+    timeline/ buttons/ loop/ countdown/ walk/ quad/ street/
   kit/                 Byggesættet: det, der går igen i 3D (stilen, træer, buske, huse, biler,
                        veje, dis, tåge, himmel, regn). Se kit/README.md
   vaerker/             Én mappe pr. værk, navngivet efter værket, med det, der kun er dets:
-    kanon-i-g3/        player.js; bunkeren (kanonstilling.js, concrete.js), skoven om den
+    kanon-i-g3/        player.js; bunkeren (kanonstilling.js), skoven om den
                        (forest.js) og scenen (QuadScene.js)
     53-sekunder-til-faelles/  player.js; højbanen, kabinen, sygehuset og stationerne (hoejbane.js)
                        og scenen (ElevatorScene.js)
     tvaerveje/         player.js; kortet over Nakskov (nakskov.js)
     troldetoner/       player.js; instrumentet (instrument.js)
+    kirkestraede/      player.js; gaden fra OpenStreetMap (kirkestraede.js)
     grindsted-station/ under-overfladen/   player.js
     files.js           cdn() og placeholder()
-    scenes.js maps.js instruments.js   Finder et værks scene, kort og instrument ud fra navnet
+    scenes.js maps.js instruments.js streets.js   Finder et værks scene, kort, instrument og gade ud fra navnet
   scene/               Scenen alle 3D-interfaces står på: kamera og lys (stage.js), fotoet med
                        dybde bag 2D-interfacene (DepthBackdrop.js, depth.js)
   audio/               Lydmotorerne (det man hører)
@@ -67,9 +68,10 @@ overlever, at `projects.json` skrives forfra.
 | `timeline`  | de fleste               | `file`       | Spoler på en linje med ét stykke pr. kapitel; kapitelmarkøren til venstre åbner kapitellisten; tastatur (mellemrum, pile, 1–9) |
 | `buttons`   | Troldetoner             | `instrument` | Trykker på fem knapper (`frame/SoundButton.js`) over værkets foto, der spiller toner over et musikloop (`audio/Instrument.js`, `interfaces/buttons/`; instrumentet i `vaerker/troldetoner/`) |
 | `loop`      | Under overfladen        | `loop`       | Et loop kører under overfladen; knappen bringer det op, holder det oppe så længe den holdes nede, og hvert tryk starter de ti sekunder forfra (`audio/Loop.js`) |
-| `countdown` | 53 sekunder til fælles  | `file`       | Elevatorens knap og display: intet spiller, før knappen trykkes; hvert tryk er en tur med den næste af tolv variationer. Med `model: true` står højbanen bagved i 3D i stedet for fotoet (`vaerker/53-sekunder-til-faelles/`: `ElevatorScene.js`, `hoejbane.js`, med huse, træer og dis fra `kit/`; `look: 'dark'` i gråtoner på det mørke som Tværveje, `'pale'` under en himmel som Kanon i G3): kabinen kører fra den ene ende til den anden i nedtællingens tempo, og variationer med `stopAt` går i stå på vejen med blinkende lampe, hvorefter billedet fader ud og ind med kabinen tilbage ved stationen; `weather: 'storm'` giver regn, tåge og lyn under turen (`weather.js`). Til test: variation 1 går i stå halvvejs, variation 2 kører i storm; musen ser sig omkring, rul eller "Følg kabinen" går tæt på og følger den |
+| `countdown` | 53 sekunder til fælles  | `file`       | Elevatorens knap og display: intet spiller, før knappen trykkes; hvert tryk er en tur med den næste af tolv variationer. Med `model: true` står højbanen bagved i 3D i stedet for fotoet (`vaerker/53-sekunder-til-faelles/`: `ElevatorScene.js`, `hoejbane.js`, med huse, træer, biler og dis fra `kit/`): kabinen kører fra den ene ende til den anden i nedtællingens tempo, og variationer med `stopAt` går i stå på vejen med blinkende lampe, hvorefter billedet fader ud og ind med kabinen tilbage ved stationen; `weather: 'storm'` giver regn, tåge og lyn under turen (`weather.js`). Til test: variation 1 går i stå halvvejs, variation 2 kører i storm; musen ser sig omkring, rul eller "Følg kabinen" går tæt på og følger den |
 | `walk`      | Tværveje                | `file`       | Byen i 3D (`interfaces/walk/WalkScene.js`): gadenettet, havnen og byens markante bygninger (`vaerker/tvaerveje/nakskov.js`, ét lille udtræk på under 100 objekter; kirken, vandtårnet, Dronningens Pakhus m.fl. bygges med `kit/landmarks.js`) med huse langs gaderne, opdigtet ud fra gaderne alene (`kit/town.js`, `kit/houses.js`), og træer på havnepromenaden, torvet og i gårdene (`kit/trees.js`), i mørke gråtoner, klart i byen og opløst i en dis, der ligger fast, hvor byen slutter; hvert sted er en lyttestation (`kit/station.js`), en svævende kugle med lys på jorden under sig. På hvert sted de tre karakterers fortællinger, hver med sin knap (`frame/SoundButton.js`) |
-| `quad`      | Kanon i G3              | `quad`       | Kanonstillingen i 3D, bygget i kode efter Jørgen Lumbyes opmåling, snit og tegninger (hanstholmregistreringen.dk) og fotos (`vaerker/kanon-i-g3/`: `kanonstilling.js`, maskinblokken og sideblokkene bygget flade for flade med rigtige huller, så ingen samlinger ses; den slidte, rå beton i `concrete.js` med afrundede, afslåede kanter og snavs i hjørnerne — kanterne findes i `markEdges`, og det hele står en anelse skævt (`unsettle`); `textured: false` gør den glat grå), lytteren som en kugle over midten (HRTF, bedst med hovedtelefoner); bølger går fra højttalernes pladser ind mod kuglen, så kraftigt som de spiller; musen til højre drejer dig til højre. Fire monofiler, startet på samme sample (`audio/Quad.js`, `QuadScene.js`) |
+| `quad`      | Kanon i G3              | `quad`       | Kanonstillingen i 3D, bygget i kode efter Jørgen Lumbyes opmåling, snit og tegninger (hanstholmregistreringen.dk) og fotos (`vaerker/kanon-i-g3/`: `kanonstilling.js`, maskinblokken og sideblokkene bygget flade for flade med rigtige huller, så ingen samlinger ses), lytteren som en kugle over midten (HRTF, bedst med hovedtelefoner); bølger går fra højttalernes pladser ind mod kuglen, så kraftigt som de spiller; musen til højre drejer dig til højre. Fire monofiler, startet på samme sample (`audio/Quad.js`, `QuadScene.js`) |
+| `street`    | Kirkestræde             | `file`       | Gaden i 3D i øjenhøjde (`interfaces/street/`: `Street.js`, `StreetScene.js`, `street.js`; gaden i `vaerker/kirkestraede/kirkestraede.js`, hentet fra OpenStreetMap med `scripts/osm-street.py`): rul, stryg eller brug piletasterne for at gå fra Torvet mod Sankt Nicolai Kirke, og musen eller et træk ser sig omkring. Husene, bindingsværket, brostenene og kirken er tegnet i shadere med stilens gråtoner og lys, og disen lukker gaden i begge ender; højttalerne på facaderne bliver hvide og lyser husene op, mens værket spiller. Tidslinjen ligger under |
 
 `interfaces/registry.js` siger, hvad hvert interface behøver (motor, lys eller mørk baggrund, om det
 åbner afspilleren fra projektsiden, om filen looper). `interfaces/index.js` peger på komponenterne.

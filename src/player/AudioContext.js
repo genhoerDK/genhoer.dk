@@ -154,6 +154,7 @@ export function AudioProvider({ children }) {
         const settings = settingsFor(currentTrack);
 
         if (engineRef.current && engineRef.current.slug !== currentTrack.slug) disposeEngine();
+        audio.volume = 1;
 
         if (settings.engine !== 'file') {
             audio.pause();
@@ -228,6 +229,12 @@ export function AudioProvider({ children }) {
         setIsPlaying(false);
     }, []);
 
+    /** How loud the audio element plays, 0–1 (the street: quieter the further you are from the speakers).
+     *  Phones may not let a page set it; then it just plays as loud as the phone is set */
+    const setVolume = useCallback((volume) => {
+        if (audioRef.current) audioRef.current.volume = Math.min(1, Math.max(0, volume));
+    }, []);
+
     /** Seek to a specific playback time (file engines) */
     const seek = useCallback((time) => {
         const audio = audioRef.current;
@@ -283,8 +290,9 @@ export function AudioProvider({ children }) {
             playFile,
             pause,
             seek,
+            setVolume,
         }),
-        [projectsWithAudio, currentTrack, currentFile, initialized, isPlaying, buffering, currentTime, duration, progress, ended, engine, setTrack, play, playFile, pause, seek]
+        [projectsWithAudio, currentTrack, currentFile, initialized, isPlaying, buffering, currentTime, duration, progress, ended, engine, setTrack, play, playFile, pause, seek, setVolume]
     );
 
     return <AudioCtx.Provider value={value}>{children}</AudioCtx.Provider>;

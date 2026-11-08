@@ -12,6 +12,9 @@
  *  - tap / click / drag on the line to seek
  *  - keyboard on the line: ←/→ ±10 s, Home / End; anywhere: space = play / pause, 1–9 = chapter,
  *    Escape closes the list
+ *
+ * An interface can put a line on how it's played under the title (hint) and something of its own
+ * over the line (before) — the street puts its walk there.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -29,7 +32,7 @@ const formatTime = (sec) => {
 
 const pad = (n) => String(n).padStart(2, '0');
 
-export default function Timeline({ track }) {
+export default function Timeline({ track, hint, before }) {
     const { isPlaying, buffering, currentTime, duration, play, pause, seek } = useAudio();
     const segments = track.segments?.length ? track.segments : [{ title: track.title, start: 0 }];
     const hasChapters = segments.length > 1;
@@ -124,7 +127,8 @@ export default function Timeline({ track }) {
     const shown = hover ?? { index: current };
 
     return (
-        <Controls title={track.title}>
+        <Controls title={track.title} hint={hint}>
+            {before}
             {/* ---------- MARKER / LIST (the list opens upwards from the marker's place) ---------- */}
             <div className='relative mb-3 h-7'>
                 {listOpen ? (

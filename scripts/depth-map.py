@@ -1,6 +1,6 @@
 """
 Depth map for a cover image, used for the parallax effect behind button instruments
-(src/components/Player/InstrumentScene.js). Light = near, dark = far.
+(src/player/scene/DepthBackdrop.js). Light = near, dark = far.
 
 Runs Depth Anything V2 (small) locally with onnxruntime — no GPU needed:
 

@@ -10,6 +10,7 @@ import LoopPlayer from '@/player/interfaces/loop/LoopPlayer';
 import CountdownPlayer from '@/player/interfaces/countdown/Countdown';
 import WalkPlayer from '@/player/interfaces/walk/Walk';
 import QuadPlayer from '@/player/interfaces/quad/Quad';
+import StreetPlayer from '@/player/interfaces/street/Street';
 
 export const components = {
     timeline: TimelinePlayer,
@@ -18,4 +19,5 @@ export const components = {
     countdown: CountdownPlayer,
     walk: WalkPlayer,
     quad: QuadPlayer,
+    street: StreetPlayer,
 };

@@ -18,6 +18,7 @@ export const INTERFACES = {
     countdown: { engine: 'file', tone: 'ink', opens: true, silent: true, loop: false },
     walk:      { engine: 'file', tone: 'ink', opens: true, loop: false },
     quad:      { engine: 'quad', tone: 'ink', opens: true },
+    street:    { engine: 'file', tone: 'ink', opens: true, loop: true },
 };
 
 export const DEFAULT_INTERFACE = 'timeline';

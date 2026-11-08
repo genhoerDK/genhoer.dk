@@ -1,26 +1,27 @@
 # 3D-stilen
 
-Fælles regler for værkernes 3D-miljøer: Kanon i G3 (`QuadScene.js`), Tværveje (`WalkScene.js`) og
-53 sekunder til fælles (`ElevatorScene.js`), og de værker, der kommer. Stilen bygger på det mørke
-design, de tre værker allerede har valgt (`look: 'dark'`), og på valgene i stil-labbet, hvor
+Fælles regler for værkernes 3D-miljøer: Kanon i G3 (`QuadScene.js`), Tværveje (`WalkScene.js`),
+53 sekunder til fælles (`ElevatorScene.js`) og Kirkestræde (`StreetScene.js`), og de værker, der
+kommer. Stilen bygger på det mørke design, værkerne allerede havde valgt, og på valgene i stil-labbet, hvor
 trækkene kan prøves på én testscene (forslag G, "Modelbord, let", er den valgte stil):
 https://claude.ai/artifact/X7Z4P38MDqWgmMQejeN467
 
 Kort fortalt: en grå arkitektmodel med dæmpede gader, meget svage kanter og hvid lyd, i et rent
 billede uden raster, korn eller andre effekter.
 
-Tallene ligger i ét modul, `kit/style.js`, som alle tre scener og hele byggesættet (`kit/`) henter fra: gråtonerne (`GREYS`,
+Tallene ligger i ét modul, `kit/style.js`, som alle scener og hele byggesættet (`kit/`) henter fra: gråtonerne (`GREYS`,
 `zinc()`), lyset (`LIGHT`, `lights()`), materialet (`greyMaterial()`), kanterne (`EDGES`,
 `edgeLines()`), vignetten (`vignette`, `vignetteMask`), opløsningen (`pixelRatio()`,
 `shadowMapSize()`) og rendereren (`styleRenderer()`). En scene skriver ingen gråtoner selv.
-Stilen er værkernes `look: 'dark'`; de ældre looks (Kanon i G3's realistiske, stiliserede og
-blueprint, 53 sekunders lyse) ligger der stadig, men følger ikke stilen.
+Stilen er den eneste: der er ingen andre looks i koden. Kirkestræde tegner sine flader med egne
+shadere (bindingsværk, vinduer, brosten), men tager gråtonerne og lyset fra `style.js` ind i dem.
 
 ## Den bærende regel
 
 **Verden er grå, og kun lyden lyser.** Alt, der ikke lyder, er matte gråtoner i faste trin. Det
 eneste, der får lys eller hvidt, er det, der har med lyden at gøre: lyttestationen (Tværveje),
-kabinen og lampen (53 sekunder), højttalerne og bølgerne (Kanon i G3). Så kan man i alle værker
+kabinen og lampen (53 sekunder), højttalerne og bølgerne (Kanon i G3), højttalerne på husene
+(Kirkestræde). Derfor er der ingen gadelygter eller oplyste vinduer i Kirkestræde. Så kan man i alle værker
 se, hvor lyden er.
 
 Bevægelse er rolig: det grå står stort set stille. Langsom tåge driver, og hvor stedet har trafik,
@@ -136,7 +137,8 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
   som sitets fade. Aldrig under jorden, aldrig hurtigt.
 - Hvert værk har sin egen markør for lyden, som passer til værket: lyttestationen i Tværveje
   (`kit/station.js`: kugle, stråle, lysplet og ringe), bølgerne fra højttalerne i Kanon i G3 og
-  kabinen med lampen i 53 sekunder. Fælles for dem er, at de er hvide, og at de følger lyden.
+  kabinen med lampen i 53 sekunder, højttalerne på facaderne i Kirkestræde, der bliver hvide og
+  lyser husene op, mens værket spiller. Fælles for dem er, at de er hvide, og at de følger lyden.
 
 ## Ind og ud af rummet
 
