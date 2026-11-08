@@ -1,4 +1,4 @@
-# 3D-stilen (udkast)
+# 3D-stilen
 
 Fælles regler for værkernes 3D-miljøer: Kanon i G3 (`QuadScene.js`), Tværveje (`WalkScene.js`) og
 53 sekunder til fælles (`ElevatorScene.js`), og de værker, der kommer. Stilen bygger på det mørke
@@ -9,8 +9,12 @@ https://claude.ai/artifact/X7Z4P38MDqWgmMQejeN467
 Kort fortalt: en grå arkitektmodel med dæmpede gader, meget svage kanter og hvid lyd, i et rent
 billede uden raster, korn eller andre effekter.
 
-Når den sidste tvivl under **Åbent** er afgjort, flyttes tallene ind i ét modul (`scene/style.js`),
-som alle scener henter fra, så de ikke hver har deres egne kopier af de samme gråtoner.
+Tallene ligger i ét modul, `scene/style.js`, som alle tre scener henter fra: gråtonerne (`GREYS`,
+`zinc()`), lyset (`LIGHT`, `lights()`), materialet (`greyMaterial()`), kanterne (`EDGES`,
+`edgeLines()`), vignetten (`vignette`, `vignetteMask`), opløsningen (`pixelRatio()`,
+`shadowMapSize()`) og rendereren (`styleRenderer()`). En scene skriver ingen gråtoner selv.
+Stilen er værkernes `look: 'dark'`; de ældre looks (Kanon i G3's realistiske, stiliserede og
+blueprint, 53 sekunders lyse) ligger der stadig, men følger ikke stilen.
 
 ## Den bærende regel
 
@@ -47,8 +51,8 @@ alle toner zincs svagt kølige skær, og intet er hentet andre steder fra.
 | kanter                     | zinc-50 (paper), meget svagt | `#fafafa`                     |
 | lyden                      | zinc-50 (paper), hvid        | `#fafafa`                     |
 
-I dag har Kanon i G3 baggrunden `#18181b` (zinc-900), og Tværveje og 53 sekunder har lyse gader og
-veje. Begge dele rettes.
+Vand er zinc-900 (`#18181b`), mørkere end land. Tågen er zinc-300 i Tværveje og zinc-500 i Kanon i
+G3, hvor den ligger tættere på.
 
 Ingen tonemapping (`THREE.NoToneMapping`), så gråtonerne står, som de er skrevet. Ingen farve
 nogen steder; også lyden er hvid.
@@ -59,19 +63,18 @@ Alle kanter tegnes med en tynd linje i paper. Den skal kun lige kunne ses, som e
 model: 0,06 på huse, 0,04 på træer og 0,18 på pejlemærket (40 % af "let" i labbet). Linjerne går i
 disen med resten.
 
-I skitsen er stregen `EdgesGeometry` (kanter over 30°). I værkerne bygges den som et efterbehandlet
-lag ud fra dybde og normaler (Sobel), så linjen har samme tykkelse på alle skærme. `EdgesGeometry`
-giver 1-pixel linjer, der bliver for tynde på telefoner.
+Stregen er `EdgesGeometry` (kanter over 30°, `edgeLines()` i `scene/style.js`) på pejlemærket, husene
+og træerne. Den er 1 pixel bred; viser den sig for tynd på telefoner, kan den senere bygges som et
+efterbehandlet lag ud fra dybde og normaler (Sobel), så den har samme tykkelse på alle skærme.
 
 ## Lys: modelbord
 
 Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skygger.
 
-- `HemisphereLight(0xe8e8ec, 0x202024, 1.0)` og en hvid sol `DirectionalLight(0xffffff, 0.75)`, lav
-  fra sydvest. Alle tre værker bruger det samme lyssæt; i dag har 53 sekunder halvt så meget lys som
-  de andre.
-- Skygger kun fra solen, bløde (`PCFSoftShadowMap`). 2048 på computer og 1024 på telefon. Skyggerne
-  regnes kun igen, når noget i scenen flytter sig.
+- `HemisphereLight(0xe8e8ec, 0x202024, 1.6)` og en hvid sol `DirectionalLight(0xffffff, 1.5)`, lav
+  fra sydvest (`LIGHT` i `scene/style.js`). Alle tre værker bruger det samme lyssæt. (Labbet bruger
+  en ældre three.js med andre lysenheder, så dets tal kan ikke flyttes direkte.)
+- Skygger kun fra solen. Skyggekortet er 2048 på computer og 1024 på telefon (`shadowMapSize()`).
 - Ler (intet sollys, alt mørkere ned mod jorden) er det lette alternativ, hvis en scene er for tung
   på telefon. Det ligger i labbet.
 - Lyden lyser selv (`MeshBasicMaterial`, additiv blending på stråler, pøl og ringe) og påvirker
@@ -80,37 +83,41 @@ Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skyg
 ## Form
 
 - Low-poly og facetteret (`flatShading`), uden teksturer. Ét materiale til alt: `MeshLambertMaterial`
-  med `vertexColors` (53 sekunder bruger `MeshStandardMaterial` og skal rettes til det samme).
-- Én trætype: en klump af ikosaedre (`scene/forest.js`, `toyTree`) i tre størrelser. Tværvejes
-  træer (`scene/trees.js`) er også ikosaedre, men uden facetter, så de ser ud som kugler. De skal
-  have `flatShading` eller skiftes til `toyTree`.
-- Detaljer, der ikke fortæller noget på kameraets afstand, udelades: biler, vinduer, vejstriber.
+  med `vertexColors` (`greyMaterial()`).
+- Træerne er klumper af ikosaedre med facetter: `toyTree` i `scene/forest.js` (Kanon i G3,
+  53 sekunder) og `interfaces/walk/trees.js` (Tværveje).
+- Detaljer, der ikke fortæller noget på kameraets afstand, udelades: biler (53 sekunder har ingen
+  biler i stilen, så kun kabinen bevæger sig) og vejstriber (samme farve som vejen).
 
 ## Dybde
 
 - Det fjerne går over i den grå dis og forsvinder så i mørket foroven og forneden.
-- Disen regnes i forhold til kameraets afstand, så den virker ens i alle skalaer. Den begynder
-  lige bag det, man ser på (omkring 0,95 × kameraafstanden), og har slugt alt ved omkring 1,9 ×.
-- Én vignet, som `PlayerShell` lægger over alle 3D-interfaces: ink 0 % → gennemsigtig 15 %,
-  gennemsigtig 60 % → ink 92 %. I dag har hver scene sin egen udgave.
-- Lidt drivende tåge (`scene/mist.js`, `amount` 0,35) er tilladt. Den må ikke ligge som skyer over
-  det, man skal se (Tværvejes tåge er for tung tæt på).
+- Disen har samme farve overalt (zinc-575), men hver scene lægger den efter sin egen skala: Tværveje
+  hvor byen slutter, 53 sekunder i en ring om højbanen, Kanon i G3 som tåge efter afstand. En ny
+  scene lægger den lige bag det, man ser på (omkring 0,95 × kameraafstanden), så den har slugt alt
+  ved omkring 1,9 ×.
+- Én vignet (`vignette` i `scene/style.js`): ink 0 % → gennemsigtig 15 %, gennemsigtig 60 % → ink
+  92 %. Kanon i G3 og 53 sekunder lægger den over billedet; Tværveje bruger den som maske på sit
+  lærred (`vignetteMask`).
+- Lidt drivende tåge (`scene/mist.js`) er tilladt. Den må ikke ligge som skyer over det, man skal
+  se; Tværvejes er skruet ned til omkring halvdelen.
 - Får disen eller vignetten synlige trin (banding) på en skærm, rettes det i farverne eller med
   længere gradienter, ikke med et effektlag.
 
 ## Intet effektlag
 
-Billedet er rent: intet raster, intet korn, ingen efterbehandling. PlayerShell lægger i dag korn
-(`opacity` 0,1) over alle afspillere; det slås fra over 3D-interfacene, så modellen står skarpt.
+Billedet er rent: intet raster, intet korn, ingen efterbehandling. `PlayerShell` lægger korn over
+fotoerne i de andre afspillere; med `model` slås det og de mørke kanter fra, så 3D-modellen står
+skarpt (Tværveje, Kanon i G3 og 53 sekunder i stilen).
 
 ## Opløsning og mobil
 
 Stilen er billig af natur: ingen teksturer, ingen 3D-filer at hente, få farver. Alt bygges i kode,
 og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels og skygger.
 
-- Opløsning højst 1,5× på telefoner (`setPixelRatio(Math.min(devicePixelRatio, 1.5))`) med
-  kantudjævning (`antialias: true`). En telefon med 3× skærm tegner ellers 4 gange så mange pixels.
-  1× hvis en scene er tung. Op til 2× på computer.
+- Opløsning højst 1,5× på telefoner med kantudjævning (`antialias: true`), op til 2× på computer
+  (`pixelRatio()`; en telefon er en berøringsskærm uden mus). En telefon med 3× skærm tegner ellers
+  4 gange så mange pixels. 1× hvis en scene er tung.
 - Højst 30 tegnekald og 150.000 trekanter pr. scene. Alle huse er én geometri, alle træer én
   (testbyen i labbet: 22 tegnekald, omkring 100.000 trekanter).
 - Intet effektlag betyder intet ekstra gennemløb af billedet.
@@ -127,9 +134,8 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
 
 ## Ind og ud af rummet
 
-- Fra projektsiden toner fotoet ud, og modellen tegnes frem: stregen først, så fladerne.
-  Ud igen samme vej baglæns. Overgangen kan gå gennem stedets omrids, som Kolding er skåret ud på
-  forsiden.
+- En toning: fra projektsiden toner fotoet ud, og modellen tones frem, stregen først og så fladerne.
+  Ud igen samme vej baglæns.
 - Mens scenen hentes, vises den lette streg alene.
 
 ## Tekst i rummet
@@ -137,13 +143,21 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
 Stednavne og andre etiketter skrives som sitets `Label`: Rem i versaler med spærring. Hvid kun ved
 det aktive sted, ellers faint. Knapper og felter er firkantede som på resten af sitet.
 
-## Åbent
+## Endnu ikke bygget
 
-- Om overgangen ind gennem stedets omrids skal bygges, eller om en enkel overtoning er nok.
+Reglerne ovenfor gælder, men disse dele af dem er ikke bygget endnu:
+
+- Overgangen ind og ud: en toning, hvor stregen kommer før fladerne. I dag dukker scenen op, når den
+  er klar.
+- Tegn kun, når noget sker. I dag tegner scenerne hele tiden, mens afspilleren er åben.
+- Skyggerne regnes kun igen, når noget flytter sig.
+- Én fælles easing for kameraerne.
+- Ringe for lyden i alle tre (Tværveje har ringe, Kanon i G3 bølger, 53 sekunder en lampe).
 
 ## Når en ny scene laves
 
-1. Hent farver, lys, dis, vignet og effektlag fra stilen; skriv ingen gråtoner selv.
+1. Hent farver, lys, materiale, kanter, vignet og opløsning fra `scene/style.js`; skriv ingen
+   gråtoner selv.
 2. Vælg ét pejlemærke, som står et trin lysere.
 3. Gør det, der lyder, til det eneste, der lyser og bevæger sig.
 4. Sæt disen efter kameraets afstand.

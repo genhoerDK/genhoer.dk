@@ -19,6 +19,8 @@
  * @param {number} [smoke]    0–1: how much smoke drifts in front of the photo
  * @param {boolean} [backdrop] false: the interface draws its own scene (Troldetoner, Kanon i G3)
  * @param {string} [filter]   CSS filter on the photo, with [filterTransition] (a CSS transition value)
+ * @param {boolean} [model]   A 3D model in the 3D style (STIL.md): a clean picture, no grain, and the
+ *                            scene's own vignette (scene/style.js) instead of the dark edges here
  */
 
 import dynamic from 'next/dynamic';
@@ -29,7 +31,7 @@ const DepthBackdrop = dynamic(() => import('@/player/scene/DepthBackdrop'), { ss
 
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, backdrop = true, filter, filterTransition, children }) {
+export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, backdrop = true, filter, filterTransition, model = false, children }) {
     const photo = image ?? track?.player?.image ?? track?.coverImageLandscape;
 
     return (
@@ -42,9 +44,9 @@ export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, b
                 </div>
             )}
 
-            {/* Grain and the dark edges */}
-            <div className='absolute inset-0 pointer-events-none opacity-10' style={{ backgroundImage: GRAIN, backgroundRepeat: 'repeat', backgroundSize: '128px' }} />
-            <div className='absolute inset-x-0 top-0 h-40 bg-linear-to-b from-ink/80 to-transparent pointer-events-none' />
+            {/* Grain and the dark edges, over photos; a 3D model is clean and has its own vignette */}
+            {!model && <div className='absolute inset-0 pointer-events-none opacity-10' style={{ backgroundImage: GRAIN, backgroundRepeat: 'repeat', backgroundSize: '128px' }} />}
+            {!model && <div className='absolute inset-x-0 top-0 h-40 bg-linear-to-b from-ink/80 to-transparent pointer-events-none' />}
             {backdrop && <div className='absolute inset-x-0 bottom-0 h-80 bg-linear-to-t from-ink via-ink/70 to-transparent pointer-events-none' />}
 
             {children}

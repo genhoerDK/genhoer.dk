@@ -39,14 +39,14 @@ import { createStage, PANEL_DISTANCE } from '@/player/scene/stage';
 import { buildKanonstilling, groundAt } from '@/player/interfaces/quad/kanonstilling';
 import { createMist } from '@/player/scene/mist';
 import { skyTexture } from '@/player/scene/sky';
-import { colors } from '@/styles/colors';
+import { GREYS, LIGHT, zinc, vignette, shadowMapSize, styleRenderer } from '@/player/scene/style';
 
 const TILT_MIN = 0.15, TILT_MAX = 1.3;  // radians the room is tipped towards the viewer: pointer high = flatter, low = steeper
 const LOOK_UP = 0.95, LOOK_DOWN = 1.1;   // standing in the middle: how far up and down you can look, radians from level
 const EYE_SCALE = 0.5;                  // the room's scale standing inside (keeps the camera's near plane at 10 cm)
 const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
 const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
-const GREY = { horizon: 0x5c5c61, sky: 0x5c5c61, ground: 0x5c5c61 };    // the dark look: far off it greys over, as Tværveje's town
+const GREY = { horizon: GREYS.haze, sky: GREYS.haze, ground: GREYS.haze };   // the dark look, the 3D style: far off it greys over
 const INK = { horizon: 0x18181b, sky: 0x18181b, ground: 0x18181b };     // the blueprint look: everything fades into the dark
 const PALE = { horizon: 0xdcdcd4, sky: 0xebe8e0, ground: 0xc8c6b4 };   // the same, in the stylised look: a pale, warm haze over everything
 const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
@@ -96,18 +96,18 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         room.add(emplacement.group);
 
         // Smoke drifting through the trees, mist lying over the ground
-        const mist = createMist({ groundAt, radius: 34, amount: dark ? 0.35 : stylised ? 0 : 1.7, colour: dark ? 0x7a7b80 : undefined });   // stylised: clear air; dark: a little mist drifting
+        const mist = createMist({ groundAt, radius: 34, amount: dark ? 0.35 : stylised ? 0 : 1.7, colour: dark ? zinc(500) : undefined });   // stylised: clear air; dark: a little mist drifting
         room.add(mist.group);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // The sun, from beyond the room on the left; it turns with the room, so the shadows stay where they fall
-        const sun = new THREE.DirectionalLight(dark ? 0xffffff : 0xfff1de, dark ? 1.5 : stylised ? 1.7 : 2.5);
+        const sun = new THREE.DirectionalLight(dark ? LIGHT.sun : 0xfff1de, dark ? LIGHT.sunStrength : stylised ? 1.7 : 2.5);
         const SUN = new THREE.Vector3(-20, 22, 30);
         sun.castShadow = true;
-        sun.shadow.mapSize.set(2048, 2048);
+        sun.shadow.mapSize.setScalar(shadowMapSize());
         room.add(sun, sun.target);
         // Light from the sky and back up from the forest floor: softer shadows, as under real trees
-        tilt.add(dark ? new THREE.HemisphereLight(0xe8e8ec, 0x202024, 1.6) : stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.6) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
+        tilt.add(dark ? new THREE.HemisphereLight(LIGHT.sky, LIGHT.fromBelow, LIGHT.skyStrength) : stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.6) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
 
         /* ---------- THE LISTENER: a ball floating over the middle ---------- */
 
@@ -131,7 +131,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             const waves = Array.from({ length: Math.ceil(reach / WAVE_SPEED / 0.25) + 2 }, () => {
                 const mesh = new THREE.Mesh(waveGeo, new THREE.ShaderMaterial({
                     ...waveShader,
-                    uniforms: { uColor: { value: new THREE.Color(colors.paper) }, uToward: { value: toward }, uOpacity: { value: 0 } },
+                    uniforms: { uColor: { value: new THREE.Color(GREYS.sound) }, uToward: { value: toward }, uOpacity: { value: 0 } },
                     transparent: true, depthWrite: false, blending: look === 'stylised' ? THREE.SubtractiveBlending : THREE.AdditiveBlending, premultipliedAlpha: look === 'stylised', side: THREE.DoubleSide, toneMapped: false,
                 }));
                 mesh.position.copy(mouth);
@@ -346,9 +346,8 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         stage.panel.add(tilt);
         stage.scene.fog = fog;
         if (dark) {
-            // As Tværveje's map: no colour grading, dark behind, fading into the dark at the top and bottom (overlay below)
-            stage.renderer.toneMapping = THREE.NoToneMapping;
-            stage.renderer.setClearColor(0x18181b, 1);
+            // The 3D style: no colour grading, ink behind, fading into the dark at the top and bottom (overlay below)
+            styleRenderer(stage.renderer);
         } else if (stylised) stage.renderer.setClearColor(haze.horizon, 1);
         else stage.setBackdrop(cover, coverDepth);
         stage.start();
@@ -370,18 +369,19 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         };
     }, [engine, textured, angles, cover, coverDepth, turnRef, onTurn, zoomRef, onZoom, look]);
 
-    // Over the picture, as through a lens: the corners a little darker, a fine grain
+    // Over the picture: the dark look (the 3D style) fades into the dark at the top and bottom and is clean;
+    // the others as through a lens, the corners a little darker, a fine grain
     return (
         <div ref={containerRef} className='absolute inset-0 touch-none'>
             {look === 'dark' ? (
-                <div className='absolute inset-0 pointer-events-none' style={{ background: 'linear-gradient(to bottom, #18181b 0%, transparent 14%, transparent 60%, #18181b 92%)' }} />
+                <div className='absolute inset-0 pointer-events-none' style={{ background: vignette }} />
             ) : look === 'stylised' ? (
                 // pale: only a shade at the top and bottom, so the title and controls can be read
                 <div className='absolute inset-0 pointer-events-none' style={{ background: 'linear-gradient(to bottom, rgba(40,40,34,0.4), transparent 16%, transparent 62%, rgba(40,40,34,0.55))' }} />
             ) : (
                 <div className='absolute inset-0 pointer-events-none' style={{ background: 'radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(10,10,12,0.5) 100%)' }} />
             )}
-            <div className='absolute inset-0 pointer-events-none opacity-[0.09] mix-blend-overlay' style={{ backgroundImage: GRAIN }} />
+            {look !== 'dark' && <div className='absolute inset-0 pointer-events-none opacity-[0.09] mix-blend-overlay' style={{ backgroundImage: GRAIN }} />}
         </div>
     );
 }

@@ -87,7 +87,7 @@ export default function QuadPlayer() {
     const touch = typeof window !== 'undefined' && 'ontouchstart' in window;
 
     return (
-        <PlayerShell track={currentTrack} backdrop={false}>
+        <PlayerShell track={currentTrack} backdrop={false} model={look === 'dark'}>
             {engine && (
                 <QuadScene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} look={look} />
             )}

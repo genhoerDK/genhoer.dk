@@ -44,6 +44,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { random, toyTree } from '@/player/scene/forest';
+import { GREYS, zinc, EDGES } from '@/player/scene/style';
 
 const Z = new THREE.Vector3(0, 0, 1);
 const Y = new THREE.Vector3(0, 1, 0);
@@ -87,17 +88,19 @@ const PALE = {
 // The dark look, as Tværveje's map: dark ground, the buildings in dark greys, the hospital a shade
 // lighter, the streets and the track pale, the cabin white — no colour at all
 const DARK = {
-    grass: '#1f1f22', verge: '#232327', road: '#7c7c84', line: '#d4d4d8', walk: '#4a4a51', curb: '#6b6b73',
-    steel: '#a1a1aa', grating: '#8a8a92', rack: '#55555c', handrail: '#c4c4cb', column: '#9a9aa1', foot: '#55555c',
-    panel: '#f2f2f3', panelDark: '#c9c9ce', roof: '#dcdce0', seal: '#2b2b31', bracket: '#7a7a82', glass: '#2e2e33', carriage: '#323238', wheel: '#232327', lamp: '#fafafa',
-    peach: '#5c5c63', sand: '#6a6a72', band: '#4a4a51', window: '#33333a', ribbon: '#2b2b31', concrete: '#4a4a51', parapet: '#7a7a82',
-    clad: '#62626a', cladLight: '#74747c', yellowBrick: '#7a7a82', dock: '#1f1f22', greyBlock: '#4a4a51',
-    slate: '#4a4a51', slateLight: '#55555c', station: '#d4d4d8',
-    white: '#6a6a72', brown: '#3f3f46', bronze: '#3a3a41', bronzeLight: '#55555c', deck: '#3f3f46', yellow: '#4a4a51',
-    paleCool: '#42424a', pale: '#3a3a41', balcony: '#55555c', brick: '#33333a', tiles: '#55555c', trim: '#5c5c63',
-    pole: '#6b6b73', signBlue: '#52525b', arrival: '#9a9aa1', arrivalSeam: '#8a8a92',
-    glassLow: '#1c1c20', glassHigh: '#4a4a51', cars: ['#3f3f46', '#9a9aa1', '#55555c', '#6b6b73', '#2b2b31'],
-    leaves: ['#3f3f46', '#4a4a51', '#55555c'], trunk: '#2e2e33',   // the trees, in greys
+    // the 3D style (scene/style.js): the ground, the streets muted (no markings), the track a step lighter as
+    // the landmark, the buildings in the walls' and roofs' steps, the cabin white as the sound
+    grass: GREYS.ground, verge: zinc(825), road: GREYS.streets, line: GREYS.streets, walk: GREYS.paths, curb: GREYS.sideStreets,
+    steel: GREYS.landmarkRoof, grating: GREYS.landmark, rack: zinc(650), handrail: GREYS.landmarkRoof, column: GREYS.landmark, foot: zinc(650),
+    panel: GREYS.sound, panelDark: zinc(300), roof: zinc(200), seal: zinc(775), bracket: zinc(500), glass: zinc(775), carriage: zinc(750), wheel: zinc(825), lamp: GREYS.sound,
+    peach: zinc(650), sand: zinc(600), band: zinc(700), window: zinc(750), ribbon: zinc(775), concrete: zinc(700), parapet: zinc(600),
+    clad: zinc(650), cladLight: zinc(600), yellowBrick: zinc(600), dock: GREYS.ground, greyBlock: zinc(700),
+    slate: GREYS.roofs[0], slateLight: zinc(700), station: GREYS.landmark,
+    white: zinc(600), brown: zinc(700), bronze: zinc(725), bronzeLight: zinc(650), deck: zinc(700), yellow: zinc(700),
+    paleCool: zinc(700), pale: zinc(725), balcony: zinc(650), brick: GREYS.walls[0], tiles: GREYS.roofs[1], trim: zinc(650),
+    pole: zinc(650), signBlue: zinc(600), arrival: GREYS.landmark, arrivalSeam: zinc(575),
+    glassLow: zinc(875), glassHigh: zinc(700), cars: null,   // no cars: only the sound moves
+    leaves: GREYS.leaves, trunk: GREYS.trunk,
 };
 
 let C = PALE;   // the look being built (set by buildHoejbane)
@@ -553,7 +556,7 @@ function hospital(parts, rand) {
     parts.push(box(32, 34, 4.2, -18, 62, 0, C.deck));
     parts.push(box(32.4, 34.4, 0.6, -18, 62, 4.2, C.concrete));
     for (let k = 0; k < 9; k++) parts.push(box(0.15, 5, 0.04, -30 + k * 3, 52, 4.8, C.line), box(0.15, 5, 0.04, -30 + k * 3, 72, 4.8, C.line));
-    for (const [x, y, k] of [[-28.5, 52, 0], [-22.5, 52, 2], [-13.5, 52, 4], [-25.5, 72, 1], [-10.5, 72, 3], [-4.5, 72, 0]]) {
+    if (C.cars) for (const [x, y, k] of [[-28.5, 52, 0], [-22.5, 52, 2], [-13.5, 52, 4], [-25.5, 72, 1], [-10.5, 72, 3], [-4.5, 72, 0]]) {
         const car = carGeometry(C.cars[k]);
         car.translate(x, y, 4.8);
         parts.push(car);
@@ -670,14 +673,17 @@ export function buildHoejbane({ look = 'pale' } = {}) {
             uHazeRange: { value: new THREE.Vector2(HAZE.near, HAZE.far) },
         },
     };
-    const material = hazed(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0, flatShading: true }), haze);
+    const dark = look === 'dark';
+    const material = hazed(dark
+        ? new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true })   // the 3D style's one material
+        : new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0, flatShading: true }), haze);
 
     const curve = trackCurve();
     const stop = 1 - DOCK / curve.getLength();       // where along the curve the cabin stops at the far end (p = 1)
     const start = frameAt(curve, 0), end = frameAt(curve, stop);
 
     /* The ground, the road and the pavements */
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), hazed(new THREE.MeshStandardMaterial({ color: C.grass, roughness: 1, metalness: 0 }), haze));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), hazed(dark ? new THREE.MeshLambertMaterial({ color: C.grass }) : new THREE.MeshStandardMaterial({ color: C.grass, roughness: 1, metalness: 0 }), haze));
     ground.receiveShadow = true;
     group.add(ground);
 
@@ -757,12 +763,21 @@ export function buildHoejbane({ look = 'pale' } = {}) {
     outskirts(parts, wood, rand);
 
     if (C.leaves) wood.forEach((g) => greyTree(g, rand));
-    const merged = mergeGeometries([...parts, ...wood]);
+    const built = mergeGeometries(parts);
+    const merged = mergeGeometries([built, ...wood]);
     parts.forEach((g) => g.dispose());
     wood.forEach((g) => g.dispose());
     const scenery = new THREE.Mesh(merged, material);
     scenery.castShadow = scenery.receiveShadow = true;
     group.add(scenery);
+    if (dark) {
+        // the 3D style's faint edges on what is built (not the trees), in the haze like the rest
+        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(built, EDGES.angle),
+            hazed(new THREE.LineBasicMaterial({ color: GREYS.edge, transparent: true, opacity: EDGES.buildings, depthWrite: false }), haze));
+        edges.renderOrder = 1;
+        group.add(edges);
+    }
+    built.dispose();
 
     const sign = signTexture();
     const signFace = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.MeshStandardMaterial({ map: sign, roughness: 0.6 }));
@@ -791,7 +806,7 @@ export function buildHoejbane({ look = 'pale' } = {}) {
     setCabin(0);
 
     /* The traffic: a few small cars up and down the road */
-    const cars = Array.from({ length: 7 }, (_, i) => {
+    const cars = Array.from({ length: C.cars ? 7 : 0 }, (_, i) => {
         const mesh = new THREE.Mesh(carGeometry(C.cars[i % C.cars.length]), material);
         mesh.castShadow = mesh.receiveShadow = true;
         const way = i % 2 ? 1 : -1;                   // drive on the right

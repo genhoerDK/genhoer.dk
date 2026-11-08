@@ -144,7 +144,7 @@ export default function CountdownPlayer() {
     });
 
     return (
-        <PlayerShell track={currentTrack} smoke={0.25} backdrop={!model}>
+        <PlayerShell track={currentTrack} smoke={0.25} backdrop={!model} model={model && look === 'dark'}>
             {model && <ElevatorScene cabin={cabin} zoomRef={zoomRef} look={look} />}
             {model && <div className='absolute inset-0 bg-ink pointer-events-none transition-opacity ease-in-out' style={{ opacity: resetting ? 1 : 0, transitionDuration: `${FADE}ms` }} />}
 

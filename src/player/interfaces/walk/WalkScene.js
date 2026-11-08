@@ -27,34 +27,30 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { colors } from '@/styles/colors';
+import { GREYS, LIGHT, EDGES, vignetteMask, pixelRatio } from '@/player/scene/style';
 import { maps } from '@/player/interfaces/walk/maps';
 import { makeHouses, houseGeometry } from '@/player/interfaces/walk/town';
 import { landmarkGeometry } from '@/player/interfaces/walk/landmarks';
 import { makeTrees, treeGeometry } from '@/player/interfaces/walk/trees';
 
-/* ---------- THE LOOK: dark, in greys, the streets pale ---------- */
+/* ---------- THE LOOK: the 3D style (scene/style.js) — greys, the streets muted, only the stations white ---------- */
 
-const GROUND = '#1f1f22';
-const WATER = '#3d4047';
-const ZONE = '#3f3f46';               // the walking streets and the squares, soft under the streets
-const QUAY = '#6b6b73';               // the quay's edge
-const PATH = { width: 1.8, color: '#6b6b73' };   // widths with the soft edges; the solid middle is about 0.8 of it
-const SIDE = { width: 5.5, color: '#9a9aa1' };
-const MAIN = { width: 9, color: '#d4d4d8' };
-const HOUSES = {
-    walls: ['#33333a', '#3a3a41', '#42424a', '#4a4a51'],
-    tiles: ['#55555c', '#5c5c63'],
-    slates: ['#2b2b31', '#323238'],
-};
-const LANDMARK = { wall: '#55555c', roof: '#6a6a72', band: '#7a7a82', spire: '#6a6a72' };   // a shade lighter than the houses, so they stand out
-const TREES = { trunk: '#2e2e33', greens: ['#3f3f46', '#4a4a51', '#55555c'] };
-const STATION = { here: colors.paper, other: colors.faint };   // the listening stations: white where you are
+const GROUND = GREYS.ground;
+const WATER = GREYS.water;
+const ZONE = GREYS.squares;           // the walking streets and the squares, soft under the streets
+const QUAY = GREYS.sideStreets;       // the quay's edge
+const PATH = { width: 1.8, color: GREYS.paths };   // widths with the soft edges; the solid middle is about 0.8 of it
+const SIDE = { width: 5.5, color: GREYS.sideStreets };
+const MAIN = { width: 9, color: GREYS.streets };
+const HOUSES = { walls: GREYS.walls, tiles: [GREYS.roofs[1]], slates: [GREYS.roofs[0]] };
+const LANDMARK = { wall: GREYS.landmark, roof: GREYS.landmarkRoof, band: GREYS.landmarkRoof, spire: GREYS.landmarkRoof };   // a step lighter than the houses
+const TREES = { trunk: GREYS.trunk, greens: GREYS.leaves };
+const STATION = { here: GREYS.sound, other: GREYS.soundAway };   // the listening stations: white where you are
 const POOL = 46;                      // metres across the light on the ground under a marker
 const EDGE = 150;                     // metres over which the map fades out at its own edges
-const HAZE = [0.36, 0.36, 0.38];      // sRGB: the grey the haze fades into
+const HAZE = new THREE.Color(GREYS.haze).convertLinearToSRGB().toArray();   // sRGB: the grey the haze fades into
 const TOWN = [30, 140];               // metres from the nearest street: the town is clear within the first, lost in haze by the second
-const MIST = 0xc9cacd;
+const MIST = GREYS.mist;
 const REACH = { wide: 560, tall: 720 }; // metres from the camera to where you are, on a wide and a tall screen
 const SCALE_AT = 700;                 // the markers are drawn their true size seen from this far, and grow with the distance
 
@@ -380,13 +376,13 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             setFailed(true);
             return;
         }
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(pixelRatio());
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.setClearColor(0x000000, 0);
         const canvas = renderer.domElement;
         canvas.className = 'absolute inset-0 size-full touch-none';
         // Faded out at the top (under the header) and the bottom (under the stories)
-        canvas.style.maskImage = canvas.style.webkitMaskImage = 'linear-gradient(to bottom, transparent 0%, black 12%, black 60%, transparent 86%)';
+        canvas.style.maskImage = canvas.style.webkitMaskImage = vignetteMask;
         container.prepend(canvas);
 
         const scene = new THREE.Scene();
@@ -398,8 +394,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             uExtent: { value: new THREE.Vector4(...extent) },
         };
 
-        scene.add(new THREE.HemisphereLight(0xe8e8ec, 0x202024, 1.6));
-        const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+        scene.add(new THREE.HemisphereLight(LIGHT.sky, LIGHT.fromBelow, LIGHT.skyStrength));
+        const sun = new THREE.DirectionalLight(LIGHT.sun, LIGHT.sunStrength);
         sun.position.set(-300, 420, 520);   // low from the south-south-west, so the spheres are lit from one side
         scene.add(sun);
 
@@ -408,12 +404,14 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         let order = 0;
         const add = (geometry, material) => {
             if (!geometry) return null;
-            const mesh = new THREE.Mesh(geometry, material);
+            const mesh = material.isLineBasicMaterial ? new THREE.LineSegments(geometry, material) : new THREE.Mesh(geometry, material);
             mesh.renderOrder = order++;
             mesh.frustumCulled = false;
             scene.add(mesh);
             return mesh;
         };
+        // The faint edges (scene/style.js): lines in the haze like the rest
+        const edgeMaterial = (strength) => new THREE.LineBasicMaterial({ color: GREYS.edge, transparent: true, opacity: strength, depthWrite: false });
         const flatMaterial = (color, opacity = 1) => hazed(new THREE.MeshBasicMaterial({ color, opacity, side: THREE.DoubleSide, depthWrite: false }), haze);
         const lines = (paths) => [paths ?? []].flat().flatMap((d) => pathLines(d, to));
 
@@ -459,8 +457,10 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         const marks = Object.entries(map.landmarks ?? {}).map(([name, mark]) => {
             const ring = lines(mark.ring)[0];
             if (ring.length > 6 && ring[0] === ring.at(-2) && ring[1] === ring.at(-1)) ring.splice(-2);
-            const material = hazed(new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffffff, emissiveIntensity: 0 }), haze);
-            add(landmarkGeometry(mark, ring, LANDMARK), material);
+            const material = hazed(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, emissive: 0xffffff, emissiveIntensity: 0 }), haze);
+            const geometry = landmarkGeometry(mark, ring, LANDMARK);
+            add(geometry, material);
+            if (geometry) add(new THREE.EdgesGeometry(geometry, EDGES.angle), hazed(edgeMaterial(EDGES.landmark), haze));
             return { place: places.findIndex((place) => place.name === name), ring, material };
         });
 
@@ -474,7 +474,9 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             blocks: marks.map((m) => m.ring),
             clear: spots.filter((_, p) => !marks.some((m) => m.place === p)),
         });
-        add(houseGeometry(houses, HOUSES), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
+        const houseShapes = houseGeometry(houses, HOUSES);
+        add(houseShapes, hazed(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), haze));
+        if (houseShapes) add(new THREE.EdgesGeometry(houseShapes, EDGES.angle), hazed(edgeMaterial(EDGES.buildings), haze));
 
         /* ---------- trees on the promenade, on Axeltorv and in the yards (scene/trees.js) ---------- */
 
@@ -487,7 +489,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             clear: spots,
             extent,
         });
-        add(treeGeometry(trees, TREES), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
+        const treeShapes = treeGeometry(trees, TREES);
+        add(treeShapes, hazed(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), haze));
 
         /* ---------- the markers, the listening stations: a sphere floating over each place on a beam of light ---------- */
 
@@ -525,7 +528,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         /* ---------- mist drifting over the streets, thicker out in the distance ---------- */
 
         const mistTex = [mistTexture(3), mistTexture(11)];
-        const mists = [{ y: 14, scale: 420, speed: [6, 2.5], amount: 0.45 }, { y: 32, scale: 640, speed: [-4, 3.5], amount: 0.38 }, { y: 58, scale: 900, speed: [3, -2], amount: 0.32 }].map((layer, i) => {
+        const mists = [{ y: 14, scale: 420, speed: [6, 2.5], amount: 0.2 }, { y: 32, scale: 640, speed: [-4, 3.5], amount: 0.2 }, { y: 58, scale: 900, speed: [3, -2], amount: 0.24 }].map((layer, i) => {
             const material = new THREE.ShaderMaterial({
                 uniforms: { ...haze, uTex: { value: mistTex[i % 2] }, uShift: { value: new THREE.Vector2() }, uScale: { value: layer.scale }, uAmount: { value: layer.amount }, uColor: { value: new THREE.Color(MIST) } },
                 vertexShader: 'varying vec3 vAt; void main() { vec4 w = modelMatrix * vec4(position, 1.0); vAt = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',

@@ -29,7 +29,7 @@ import { createStage, PANEL_DISTANCE } from '@/player/scene/stage';
 import { buildHoejbane } from '@/player/interfaces/countdown/hoejbane';
 import { skyTexture } from '@/player/scene/sky';
 import { createRain } from '@/player/interfaces/countdown/weather';
-import { colors } from '@/styles/colors';
+import { GREYS, LIGHT, zinc, vignette, shadowMapSize } from '@/player/scene/style';
 
 // The two looks. back: behind it all (the sky's horizon, or the dark); haze: the colour the town
 // greys into before it is gone; fog: the distance's haze; storm: the same in a storm, and the light
@@ -41,12 +41,12 @@ const LOOKS = {
         storm: { back: 0x9ca2a5, haze: 0x9ca2a5, fog: 0x9ca2a5, sky: 0x8a9196, light: 0xc9cfd3, sun: 0.25, lit: 0.8 },
         shade: 'linear-gradient(to bottom, rgba(40,40,34,0.4), transparent 16%, transparent 50%, rgba(40,40,34,0.78))',
     },
-    // dark, in greys, as Tværveje's map: the town greys over at its edges and is gone into the dark
+    // dark, the 3D style (scene/style.js): greys, the town greys over at its edges and is gone into the dark
     dark: {
-        back: 0x27272a, haze: 0x5c5c61, fog: 0x27272a, sky: false, toneMapped: false,
-        sun: [0xffffff, 0.95], light: [0xe8e8ec, 0x202024, 0.9], panel: 0.12, rain: '#a1a1aa',
-        storm: { back: 0x27272a, haze: 0x47474d, fog: 0x45454b, light: 0xb4b4ba, sun: 0.15, lit: 0.75 },
-        shade: `linear-gradient(to bottom, ${colors.ink} 0%, transparent 15%, transparent 55%, ${colors.ink} 92%)`,
+        back: GREYS.back, haze: GREYS.haze, fog: GREYS.back, sky: false, toneMapped: false,
+        sun: [LIGHT.sun, LIGHT.sunStrength], light: [LIGHT.sky, LIGHT.fromBelow, LIGHT.skyStrength], panel: 0, rain: zinc(400),
+        storm: { back: GREYS.back, haze: zinc(650), fog: zinc(675), light: zinc(400), sun: 0.25, lit: 1.1 },
+        shade: vignette,
     },
 };
 const ABOVE_FOV = 32, CLOSE_FOV = 42;
@@ -84,7 +84,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
         // A low sun from the front left, and soft light from the sky and back up from the grass
         const sun = new THREE.DirectionalLight(...L.sun);
         sun.castShadow = true;
-        sun.shadow.mapSize.set(2048, 2048);
+        sun.shadow.mapSize.setScalar(shadowMapSize());
         const SUN = new THREE.Vector3(-55, -60, 85);
         sun.position.copy(place.centre).add(SUN);
         sun.target.position.copy(place.centre);

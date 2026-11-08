@@ -17,6 +17,7 @@
 
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { GREYS, zinc, greyMaterial, edgeLines, EDGES } from '@/player/scene/style';
 
 const SEED = 1944;
 
@@ -883,13 +884,13 @@ const TOY = {
     trunk: linear('#b3aa9d'), pineBark: linear('#a8998a'), birchBark: linear('#ddd7cb'),
 };
 
-// The dark look (as Tværveje's map): the trees in greys, their trunks darker
+// The dark look, the 3D style (scene/style.js): the trees in zinc greys, their trunks darker
 const TOY_DARK = {
-    leaves: ['#3f3f46', '#4a4a51', '#55555c', '#46464d'],
-    pine: ['#3f3f46', '#4a4a51', '#44444b'],
-    spruce: ['#38383e', '#3f3f46', '#36363c'],
-    birch: ['#55555c', '#5c5c63'],
-    trunk: linear('#2e2e33'), pineBark: linear('#36363b'), birchBark: linear('#6b6b73'),
+    leaves: GREYS.leaves,
+    pine: [GREYS.leaves[0], GREYS.leaves[1]],
+    spruce: [zinc(725), GREYS.leaves[0]],
+    birch: [GREYS.leaves[2], zinc(575)],
+    trunk: linear(GREYS.trunk), pineBark: linear(zinc(750)), birchBark: linear(zinc(550)),
 };
 
 /** A lumpy, faceted ball of foliage */
@@ -1124,7 +1125,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
         // blueprint: dark, unlit, drawn in white lines (below)
         ? new THREE.MeshBasicMaterial({ color: BLUEPRINT.fill, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
         : dark
-        ? new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true })
+        ? greyMaterial()
         : stylised
         ? new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0, flatShading: true })
         : new THREE.MeshStandardMaterial({ map: barkMap, vertexColors: true, roughness: 1, metalness: 0 });
@@ -1147,6 +1148,12 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             new THREE.LineBasicMaterial({ color: BLUEPRINT.line, transparent: true, opacity: 0.22 }));
         lines.material.onBeforeCompile = (shader) => patchCutaway(shader, cut);
         woodMesh.castShadow = woodMesh.receiveShadow = false;
+        group.add(lines);
+    }
+    if (dark) {
+        // The faint edges of the 3D style, thinning out in front of the emplacement with the trees
+        const lines = edgeLines(woodMesh.geometry, EDGES.trees);
+        lines.material.onBeforeCompile = (shader) => patchCutaway(shader, cut);
         group.add(lines);
     }
 

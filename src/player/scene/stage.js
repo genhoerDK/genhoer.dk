@@ -15,6 +15,7 @@
 
 import * as THREE from 'three';
 import { colors } from '@/styles/colors';
+import { pixelRatio } from '@/player/scene/style';
 
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift sideways (pointer + by itself), radians
@@ -153,7 +154,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(pixelRatio());   // up to 1.5 on a phone, 2 elsewhere (scene/style.js)
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;

@@ -34,6 +34,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { concreteMaterial } from './concrete';
 import { createForest, forestFloorMaterial, BLUEPRINT } from '@/player/scene/forest';
+import { GREYS, edgeLines, EDGES } from '@/player/scene/style';
 
 /* ---------- MEASUREMENTS (metres) ---------- */
 
@@ -419,7 +420,7 @@ function forestFloor(stylised = false, blueprint = false, dark = false) {
     const mesh = new THREE.Mesh(g, blueprint
         ? blueprintGround(R1)
         : dark
-        ? new THREE.MeshLambertMaterial({ color: 0x1f1f22, vertexColors: true, transparent: true })
+        ? new THREE.MeshLambertMaterial({ color: GREYS.ground, vertexColors: true, transparent: true })
         : stylised
         ? new THREE.MeshStandardMaterial({ color: 0x8e9370, roughness: 1, metalness: 0, vertexColors: true, transparent: true })
         : forestFloorMaterial(bunkerDistance));
@@ -1121,7 +1122,7 @@ export function buildKanonstilling({ textured = false, look = 'realistic' } = {}
     // The concrete a little darker than it was, as in the photos
     const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({
         // stylised: dark granite, one even colour, as in a cartoon
-        textured: textured && !stylised, color: dark ? 0x6a6a72 : blueprint ? 0x3a3a3f : stylised ? 0x7c7c80 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
+        textured: textured && !stylised, color: dark ? GREYS.landmark : blueprint ? 0x3a3a3f : stylised ? 0x7c7c80 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.material.flatShading = stylised;   // faceted, as cut stone in a cartoon
     model.castShadow = true;
     model.receiveShadow = true;
@@ -1135,6 +1136,7 @@ export function buildKanonstilling({ textured = false, look = 'realistic' } = {}
         group.add(new THREE.LineSegments(new THREE.EdgesGeometry(model.geometry, 25),
             new THREE.LineBasicMaterial({ color: BLUEPRINT.line, transparent: true, opacity: 0.85 })));
     }
+    if (dark) group.add(edgeLines(model.geometry, EDGES.landmark));   // the 3D style's faint edges
     return {
         group,
         /** The trees round it: forest.update(centre, radius) each frame, so those in front thin out */

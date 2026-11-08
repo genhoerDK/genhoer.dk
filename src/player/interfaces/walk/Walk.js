@@ -77,7 +77,7 @@ export default function WalkPlayer() {
     }, [places]);
 
     return (
-        <PlayerShell track={currentTrack} backdrop={false}>
+        <PlayerShell track={currentTrack} backdrop={false} model>
             {/* ---------- THE MAP ---------- */}
             <WalkScene map={currentTrack.player.map} places={places} here={here} sounding={playing && isPlaying ? playing.p : null} onWalk={walkTo} />
 
