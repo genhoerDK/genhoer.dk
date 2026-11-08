@@ -27,26 +27,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { colors } from '@/styles/colors';
 import { maps } from '@/data/maps';
 import { makeHouses, houseGeometry } from '@/components/Player/scene/town';
 import { landmarkGeometry } from '@/components/Player/scene/landmarks';
+import { makeTrees, treeGeometry } from '@/components/Player/scene/trees';
 
-/* ---------- THE LOOK ---------- */
+/* ---------- THE LOOK: a toy town in daylight, in the colours of the photos ---------- */
 
-const GROUND = '#1f1f22';
-const WATER = '#3d4047';
-const ZONE = '#3f3f46';               // the walking streets and the squares, soft under the streets
-const QUAY = '#6b6b73';               // the quay's edge
-const PATH = { width: 2.4, color: '#6b6b73' };   // widths with the soft edges; the solid middle is about 0.55 of it
-const SIDE = { width: 7.5, color: '#9a9aa1' };
-const MAIN = { width: 13, color: '#d4d4d8' };
-const POOL = 70;                      // metres across the light on the ground under a marker
+const GROUND = '#e6dfcc';             // warm, sandy ground
+const WATER = '#8ec3d6';
+const ZONE = '#e6c9b3';               // the walking streets and Axeltorv: brick-red and pale paving
+const QUAY = '#b9b09d';               // the quay's edge
+const PATH = { width: 1.8, color: '#f6f1e6' };   // widths with the soft edges; the solid middle is about 0.8 of it
+const SIDE = { width: 5.5, color: '#fbf8f1' };
+const MAIN = { width: 9, color: '#ffffff' };
+const HOUSES = {
+    walls: ['#f6f2e9', '#efe3c4', '#f2d37b', '#e7b04e', '#d9694f', '#c4523d', '#e3dfd6', '#8a949c', '#5d6871'],   // white, cream, yellow, ochre, red, brick, pale grey, grey, dark grey
+    tiles: ['#d8633a', '#c9542f', '#e07b48', '#cf6a3f'],
+    slates: ['#4b535c', '#5f6871', '#6f6a66'],
+};
+const LANDMARKS = { 'Skibs- og Søfartsmuseet': { wall: '#f1ede4', roof: '#59626b' } };   // where one differs from its kind's colours
+const STATION = { here: '#ff6b4a', other: '#ffd7c9' };   // the listening stations: coral where you are, pale elsewhere
+const POOL = 46;                      // metres across the light on the ground under a marker
 const EDGE = 150;                     // metres over which the map fades out at its own edges
-const HAZE = [0.36, 0.36, 0.38];      // sRGB: the grey the distance fades into
+const HAZE = [0.9, 0.93, 0.94];        // sRGB: the pale haze the distance fades into
 const NEAR = 80, FAR = 400;          // metres from where you are: clear within NEAR, gone at FAR (on the near side, towards
                                       // you, it reaches further: the haze lies out in the distance, not at your feet)
-const MIST = 0xc9cacd;
+const MIST = 0xffffff;
 const REACH = { wide: 560, tall: 720 }; // metres from the camera to where you are, on a wide and a tall screen
 const SCALE_AT = 700;                 // the markers are drawn their true size seen from this far, and grow with the distance
 
@@ -153,8 +160,8 @@ function bandGeometry(lines, width, y, color, all = []) {
     const half = width / 2;
     const c = new THREE.Color(color);
     const pos = [], col = [], idx = [];
-    const ACROSS = [[-1, 0], [-0.55, 1], [0.55, 1], [1, 0]];   // offset (× half) and opacity across the band
-    const DEAD_END = 14;                                        // metres a dead end fades over
+    const ACROSS = [[-1, 0], [-0.8, 1], [0.8, 1], [1, 0]];     // offset (× half) and opacity across the band: a crisp edge
+    const DEAD_END = 9;                                         // metres a dead end fades over
 
     /** How wide the street is that a point meets (0: none); the line's own pieces don't count */
     const key = (x, z) => `${Math.round(x * 10)},${Math.round(z * 10)}`;
@@ -365,8 +372,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             uEdge: { value: EDGE },
         };
 
-        scene.add(new THREE.HemisphereLight(0xe8e8ec, 0x202024, 1.6));
-        const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+        scene.add(new THREE.HemisphereLight(0xffffff, 0xcfc5b0, 1.9));
+        const sun = new THREE.DirectionalLight(0xfff1dc, 1.7);
         sun.position.set(-300, 420, 520);   // low from the south-south-west, so the spheres are lit from one side
         scene.add(sun);
 
@@ -387,10 +394,10 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         const [x0, z0] = to(0, 0), [x1, z1] = to(map.width, map.height);
         const R = Math.max(x1 - x0, z1 - z0) / 2;
         const ground = new THREE.PlaneGeometry(x1 - x0, z1 - z0).rotateX(-Math.PI / 2).translate((x0 + x1) / 2, 0, (z0 + z1) / 2);
-        add(ground, flatMaterial(GROUND, 0.94));
+        add(ground, flatMaterial(GROUND));
         add(fillGeometry(lines(map.water), 0.04), flatMaterial(WATER));
         add(fillGeometry(lines(map.squares), 0.05), flatMaterial(ZONE));
-        const zoneWidth = map.zoneWidth ?? 18;
+        const zoneWidth = map.zoneWidth ?? 12;
         const streets = [
             { lines: lines(map.main), half: MAIN.width / 2 },
             { lines: lines(map.side), half: SIDE.width / 2 },
@@ -409,7 +416,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         const poolGeometry = new THREE.CircleGeometry(POOL / 2, 48).rotateX(-Math.PI / 2);
         const pools = spots.map((spot) => {
             const material = new THREE.ShaderMaterial({
-                uniforms: { uColor: { value: new THREE.Color(colors.paper) }, uStrength: { value: 0.2 } },
+                uniforms: { uColor: { value: new THREE.Color(STATION.here) }, uStrength: { value: 0.2 } },
                 vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
                 fragmentShader: 'uniform vec3 uColor; uniform float uStrength; varying vec2 vUv; void main() { float r = length(vUv - 0.5) * 2.0; gl_FragColor = vec4(uColor, pow(max(0.0, 1.0 - r), 2.0) * uStrength); }',
                 transparent: true,
@@ -425,8 +432,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         const marks = Object.entries(map.landmarks ?? {}).map(([name, mark]) => {
             const ring = lines(mark.ring)[0];
             if (ring.length > 6 && ring[0] === ring.at(-2) && ring[1] === ring.at(-1)) ring.splice(-2);
-            const material = hazed(new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffffff, emissiveIntensity: 0 }), haze);
-            add(landmarkGeometry(mark, ring), material);
+            const material = hazed(new THREE.MeshLambertMaterial({ vertexColors: true, emissive: STATION.here, emissiveIntensity: 0 }), haze);
+            add(landmarkGeometry(mark, ring, LANDMARKS[name]), material);
             return { place: places.findIndex((place) => place.name === name), ring, material };
         });
 
@@ -434,23 +441,35 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
 
         const houses = makeHouses({
             // The houses keep to the solid middle of each street's band
-            streets: streets.map((st, i) => ({ lines: st.lines, half: st.half * 0.62, build: i !== 3 })),
+            streets: streets.map((st, i) => ({ lines: st.lines, half: st.half * 0.85, build: i !== 3 })),
             water: lines(map.water),
             squares: lines(map.squares),
             blocks: marks.map((m) => m.ring),
             clear: spots.filter((_, p) => !marks.some((m) => m.place === p)),
         });
-        add(houseGeometry(houses), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
+        add(houseGeometry(houses, HOUSES), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
+
+        /* ---------- trees on the promenade, on Axeltorv and in the yards (scene/trees.js) ---------- */
+
+        const trees = makeTrees({
+            streets: streets.map((st) => ({ lines: st.lines, half: st.half * 0.85 })),
+            water: lines(map.water),
+            squares: lines(map.squares),
+            blocks: marks.map((m) => m.ring),
+            houses,
+            clear: spots,
+            extent: [...to(0, 0), ...to(map.width, map.height)],
+        });
+        add(treeGeometry(trees), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
 
         /* ---------- the markers, the listening stations: a sphere floating over each place on a beam of light ---------- */
 
         const beamMaterial = new THREE.ShaderMaterial({
-            uniforms: { uColor: { value: new THREE.Color(colors.paper) }, uStrength: { value: 0.5 } },
+            uniforms: { uColor: { value: new THREE.Color(STATION.here) }, uStrength: { value: 0.5 } },
             vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
             fragmentShader: 'uniform vec3 uColor; uniform float uStrength; varying vec2 vUv; void main() { gl_FragColor = vec4(uColor, pow(1.0 - vUv.y, 1.6) * uStrength); }',
             transparent: true,
             depthWrite: false,
-            blending: THREE.AdditiveBlending,
         });
         const beamGeometry = new THREE.CylinderGeometry(0.7, 0.7, BEAM, 10, 1, true).translate(0, BEAM / 2, 0);
         const ballGeometry = new THREE.SphereGeometry(5.5, 40, 24);
@@ -458,12 +477,12 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         const markers = spots.map((spot) => {
             const group = new THREE.Group();
             group.position.set(spot.x, 0, spot.y);
-            const ballMaterial = new THREE.MeshStandardMaterial({ color: colors.faint, roughness: 0.3, metalness: 0.1, emissive: 0xffffff, emissiveIntensity: 0 });
+            const ballMaterial = new THREE.MeshStandardMaterial({ color: STATION.other, roughness: 0.35, metalness: 0, emissive: STATION.here, emissiveIntensity: 0 });
             const ball = new THREE.Mesh(ballGeometry, ballMaterial);
             ball.position.y = BALL_AT;
             const beam = new THREE.Mesh(beamGeometry, beamMaterial.clone());
             const rings = [0, 1, 2].map(() => {
-                const m = new THREE.Mesh(ringGeometry, new THREE.MeshBasicMaterial({ color: colors.paper, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+                const m = new THREE.Mesh(ringGeometry, new THREE.MeshBasicMaterial({ color: STATION.here, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
                 m.position.y = 0.7;
                 group.add(m);
                 return m;
@@ -478,7 +497,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         /* ---------- mist drifting over the streets, thicker out in the distance ---------- */
 
         const mistTex = [mistTexture(3), mistTexture(11)];
-        const mists = [{ y: 14, scale: 420, speed: [6, 2.5], amount: 0.45 }, { y: 32, scale: 640, speed: [-4, 3.5], amount: 0.38 }, { y: 58, scale: 900, speed: [3, -2], amount: 0.32 }].map((layer, i) => {
+        const mists = [{ y: 14, scale: 420, speed: [6, 2.5], amount: 0.35 }, { y: 32, scale: 640, speed: [-4, 3.5], amount: 0.3 }, { y: 58, scale: 900, speed: [3, -2], amount: 0.26 }].map((layer, i) => {
             const material = new THREE.ShaderMaterial({
                 uniforms: { ...haze, uTex: { value: mistTex[i % 2] }, uShift: { value: new THREE.Vector2() }, uScale: { value: layer.scale }, uAmount: { value: layer.amount }, uColor: { value: new THREE.Color(MIST) } },
                 vertexShader: 'varying vec3 vAt; void main() { vec4 w = modelMatrix * vec4(position, 1.0); vAt = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }',
@@ -595,17 +614,17 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                 m.ball.position.y = BALL_AT + (still ? 0 : Math.sin(t * 1.1 + p * 1.7) * 1.4);
                 m.group.scale.setScalar(reach / SCALE_AT);
                 m.ball.scale.setScalar(1 + m.lit * 0.3);
-                m.ball.material.color.set(m.lit > 0.5 ? colors.paper : colors.faint);
-                m.ball.material.emissiveIntensity = m.lit * 0.55;
-                m.beam.material.uniforms.uStrength.value = 0.28 + m.lit * 0.5;
+                m.ball.material.color.set(m.lit > 0.5 ? STATION.here : STATION.other);
+                m.ball.material.emissiveIntensity = m.lit * 0.25;
+                m.beam.material.uniforms.uStrength.value = 0.35 + m.lit * 0.45;
                 m.rings.forEach((ring, i) => {
                     const phase = (t * 0.35 + i / 3) % 1;
                     const on = p === playing && !still;
                     ring.scale.setScalar(6 + phase * 46);
                     ring.material.opacity = on ? (1 - phase) * 0.55 : Math.max(0, ring.material.opacity - dt);
                 });
-                pools[p].uniforms.uStrength.value = 0.18 + m.lit * 0.42;
-                for (const mark of marks) if (mark.place === p) mark.material.emissiveIntensity = m.lit * 0.35;
+                pools[p].uniforms.uStrength.value = 0.08 + m.lit * 0.2;
+                for (const mark of marks) if (mark.place === p) mark.material.emissiveIntensity = m.lit * 0.18;
             });
 
             mists.forEach(({ material, layer }) => {
@@ -691,7 +710,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                         >
                             {/* The marker's sphere is under the middle of this: a target the size of a finger */}
                             <span className='absolute -left-6 -top-6 size-12 rounded-full' />
-                            <span className={`absolute whitespace-nowrap uppercase leading-none text-xs px-1.5 py-1 transition-colors ${SIDES} ${isHere ? 'text-paper' : 'text-muted md:group-hover:text-paper'} group-data-[away=true]:bg-ink/60 group-data-[away=true]:backdrop-blur-sm`} style={failed ? { position: 'static', transform: 'none' } : undefined}>
+                            <span className={`absolute whitespace-nowrap uppercase leading-none text-xs px-1.5 py-1 transition-colors ${SIDES} ${isHere ? 'text-ink font-medium' : 'text-dim md:group-hover:text-ink'} group-data-[away=true]:bg-paper/75 group-data-[away=true]:backdrop-blur-sm`} style={failed ? { position: 'static', transform: 'none' } : undefined}>
                                 <span data-arrow className='hidden group-data-[away=true]:inline-block mr-1.5'>→</span>
                                 {place.name}
                             </span>

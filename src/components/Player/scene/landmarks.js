@@ -2,15 +2,22 @@
  * The town's landmark buildings for the walk interface's map (WalkScene.js), from their footprints
  * in the map (src/data/maps/): a church with a tower and a tall spire at its west end, a round
  * tower in banded brick with a cone (the water tower by Axeltorv), and long buildings with pitched
- * roofs (Dronningens Pakhus, the harbour building, the museum, the small church). Drawn a shade
- * lighter than the houses round them, so they stand out.
+ * roofs (Dronningens Pakhus, the harbour building, the museum, the small church), each in the
+ * colours it has in the photos of the town.
  *
  * Metres, x to the east and z to the south.
  */
 
 import * as THREE from 'three';
 
-const LOW = '#2e2e34', HIGH = '#55555c', ROOF = '#6a6a72', BAND = '#7a7a82';
+/** Each kind's colours (wall, roof, and the tower's bands and the church's spire); `colours` on a call overrides them */
+const LOOK = {
+    church: { wall: '#b5543b', roof: '#5a646e', spire: '#4f6b66' },
+    tower: { wall: '#b9553c', roof: '#8a3a2a', band: '#f4efe4' },
+    warehouse: { wall: '#f1d58f', roof: '#d4673f' },
+    hall: { wall: '#c45b41', roof: '#da7041' },
+    chapel: { wall: '#f3efe7', roof: '#d36a43' },
+};
 
 /** The footprint's long axis, short axis, middle and size (an oriented box round it) */
 export function boxOf(ring) {
@@ -113,10 +120,13 @@ function spire(b, cx, cz, radius, sides, y, top, c, turn = 0) {
  * One landmark as a geometry
  * @param {{ kind: string, height: number }} mark
  * @param {number[]} ring  Its footprint in metres, [x, z, x, z, ...]
+ * @param {{ wall?: string, roof?: string, band?: string, spire?: string }} [colours]
  */
-export function landmarkGeometry(mark, ring) {
+export function landmarkGeometry(mark, ring, colours = {}) {
     const b = builder();
-    const low = colour(LOW), high = colour(HIGH), roof = colour(ROOF), band = colour(BAND);
+    const look = { ...LOOK.hall, ...LOOK[mark.kind], ...colours };
+    const high = colour(look.wall), low = high.clone().multiplyScalar(0.75), roof = colour(look.roof);
+    const band = colour(look.band ?? look.wall), spireC = colour(look.spire ?? look.roof);
     const box = boxOf(ring);
     const [mx, mz] = box.middle;
     const middle = new THREE.Vector3(mx, mark.height / 2, mz);
@@ -157,7 +167,7 @@ export function landmarkGeometry(mark, ring) {
         const sq = [corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)].flat();
         walls(b, sq, 0, top, low, high, new THREE.Vector3(tx, top / 2, tz));
         flatRoof(b, sq, top, roof);
-        spire(b, tx, tz, h * 0.95, 8, top, top + mark.height * 2.1, roof, Math.atan2(box.u[1], box.u[0]) + Math.PI / 8);
+        spire(b, tx, tz, h * 0.95, 8, top, top + mark.height * 2.1, spireC, Math.atan2(box.u[1], box.u[0]) + Math.PI / 8);
         return b.geometry();
     }
 

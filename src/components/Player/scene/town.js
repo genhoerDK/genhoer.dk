@@ -203,7 +203,7 @@ export function makeHouses({ streets, water = [], squares = [], blocks = [], cle
                         height: storeys * 3 + 0.8 + rand() * 1.2,
                         pitched: rand() < 0.88,
                         wall: rand(),
-                        roof: rand() < 0.62 ? 0.65 + rand() * 0.35 : rand() * 0.3,   // mostly red tile (pale here), some slate (dark)
+                        roof: rand() < 0.66 ? 0.5 + rand() * 0.5 : rand() * 0.5,   // mostly red tile, some slate
                     });
                 }
                 // Mostly wall to wall; now and then a gap, a gateway into the yard (never on the harbour front)
@@ -215,14 +215,18 @@ export function makeHouses({ streets, water = [], squares = [], blocks = [], cle
 }
 
 /**
- * The houses as one geometry: walls darker at the foot and lighter at the eaves, pitched roofs with
- * the ridge along the street (flat on a few), roofs lighter still.
+ * The houses as one geometry: walls a little darker at the foot, pitched roofs with the ridge along
+ * the street (flat on a few). Each house's `wall` (0–1) picks its facade from `walls`; its `roof`
+ * picks from `slates` below 0.5 and from `tiles` above.
  */
-export function houseGeometry(houses, { low = '#232327', walls = ['#33333a', '#4a4a51'], roofs = ['#2b2b31', '#55555c'] } = {}) {
+export function houseGeometry(houses, {
+    walls = ['#3a3a40', '#4a4a51'],
+    tiles = ['#55555c'],
+    slates = ['#2b2b31'],
+} = {}) {
     const pos = [], nor = [], col = [];
-    const cLow = new THREE.Color(low);
-    const [w0, w1, r0, r1] = [...walls, ...roofs].map((c) => new THREE.Color(c));
-    let cHigh = new THREE.Color(), cRoof = new THREE.Color(), cGable = new THREE.Color();
+    const pick = (list, t) => new THREE.Color(list[Math.min(list.length - 1, Math.floor(t * list.length))]);
+    let cLow, cHigh, cRoof, cGable;
     const p = new THREE.Vector3(), q = new THREE.Vector3(), r = new THREE.Vector3(), n = new THREE.Vector3(), out = new THREE.Vector3();
     /** A flat face, its normal turned away from the house's middle */
     const face = (verts, colours, middle) => {
@@ -235,9 +239,10 @@ export function houseGeometry(houses, { low = '#232327', walls = ['#33333a', '#4
         }
     };
     for (const { corners, height: h, pitched, wall = 0.5, roof = 0.5 } of houses) {
-        cHigh = w0.clone().lerp(w1, wall);
-        cRoof = r0.clone().lerp(r1, roof);
-        cGable = cHigh.clone().lerp(cRoof, 0.3);
+        cHigh = pick(walls, wall);
+        cLow = cHigh.clone().multiplyScalar(0.72);
+        cRoof = roof < 0.5 ? pick(slates, roof * 2) : pick(tiles, (roof - 0.5) * 2);
+        cGable = cHigh.clone().multiplyScalar(0.9);
         const [a, b, c, d] = corners;   // front left, front right, back right, back left
         const at = ([x, z], y) => [x, y, z];
         const depth = Math.hypot(d[0] - a[0], d[1] - a[1]);

@@ -7,7 +7,7 @@
  * The town lies behind as a 3D map (WalkScene.js, three.js, loaded when the work is opened): its
  * street net and harbour (src/data/maps/), clear round where you are and dissolving into haze
  * further out. Each place is a 3D marker with its name; the one you are
- * at is lit. No photo behind: the map is the room. Under the map, the stories at the place: a button
+ * at is lit. No photo behind: the map is the room, a toy town in daylight in the colours of the photos. Under the map, the stories at the place: a button
  * per character, with the playing one filled and a line running under it. When a story ends, the
  * next one at the same place follows, so you can hear a whole place and walk on. Keys 1–3 pick a
  * story, ←/→ walk, space pauses and plays.
@@ -30,6 +30,9 @@ import Label from '@/components/UI/Label';
 const WalkScene = dynamic(() => import('@/components/Player/WalkScene'), { ssr: false });
 
 const pad = (n) => String(n).padStart(2, '0');
+
+/** The sky behind the town: a toy town in daylight, in the colours of the photos (the map's own palette is in WalkScene.js) */
+const SKY = 'linear-gradient(to bottom, #cfe4ef 0%, #e8eef0 45%, #f4efe6 100%)';
 
 export default function WalkPlayer() {
     const { currentTrack, currentFile, isPlaying, progress, play, pause, playFile, ended } = useAudio();
@@ -77,14 +80,14 @@ export default function WalkPlayer() {
     }, [places]);
 
     return (
-        <PlayerShell track={currentTrack} backdrop={false}>
+        <PlayerShell track={currentTrack} backdrop={false} light={SKY}>
             {/* ---------- THE MAP ---------- */}
             <WalkScene map={currentTrack.player.map} places={places} here={here} sounding={playing && isPlaying ? playing.p : null} onWalk={walkTo} />
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
                 {/* ---------- THE STORIES HERE ---------- */}
                 <div className='w-full max-w-sm md:max-w-md'>
-                    <Label size='lg' className='mb-2 text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
+                    <Label size='lg' className='mb-2 text-hard tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
                     <div className='grid grid-cols-3 gap-1.5 md:gap-2'>
                         {place.stories.map((story, s) => {
                             const character = characters.find((c) => c.id === story.character) ?? { name: story.character };
@@ -96,16 +99,16 @@ export default function WalkPlayer() {
                                     onClick={() => (isThis ? (isPlaying ? pause() : play()) : start(here, s))}
                                     aria-label={`${character.name} ${character.year ?? ''}: ${active ? 'pause' : 'afspil'}`}
                                     aria-pressed={isThis}
-                                    className={`relative flex items-center justify-center gap-1.5 h-12 sm:h-10 px-2 overflow-hidden cursor-pointer border transition-colors ${isThis ? 'bg-paper text-ink border-paper' : 'border-paper/30 text-paper md:hover:border-paper md:hover:bg-paper/10'}`}
+                                    className={`relative flex items-center justify-center gap-1.5 h-12 sm:h-10 px-2 overflow-hidden cursor-pointer border transition-colors ${isThis ? 'bg-ink text-paper border-ink' : 'bg-paper/60 border-ink/20 text-ink md:hover:border-ink md:hover:bg-paper'}`}
                                 >
                                     {active ? <PauseIcon className='size-3.5 shrink-0' /> : <PlayIcon className='size-3.5 shrink-0' />}
                                     <span className='flex flex-col items-start sm:flex-row sm:items-center gap-1 sm:gap-0'>
                                         <Label size='lg'>{character.name}</Label>
-                                        {character.year && <Label size='lg' className={isThis ? 'text-hard' : 'text-faint'}><span className='hidden sm:inline'> · </span>{character.year}</Label>}
+                                        {character.year && <Label size='lg' className={isThis ? 'text-faint' : 'text-hard'}><span className='hidden sm:inline'> · </span>{character.year}</Label>}
                                     </span>
                                     {isThis && (
-                                        <span className='absolute inset-x-0 bottom-0 h-0.5 bg-ink/15'>
-                                            <span className='block h-full bg-ink' style={{ width: `${progress * 100}%` }} />
+                                        <span className='absolute inset-x-0 bottom-0 h-0.5 bg-paper/20'>
+                                            <span className='block h-full bg-paper' style={{ width: `${progress * 100}%` }} />
                                         </span>
                                     )}
                                 </button>
