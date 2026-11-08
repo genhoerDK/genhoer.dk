@@ -6,8 +6,8 @@ design, de tre værker allerede har valgt (`look: 'dark'`), og på valgene i sti
 trækkene kan prøves på én testscene (forslag G, "Modelbord, let", er den valgte stil):
 https://claude.ai/artifact/X7Z4P38MDqWgmMQejeN467
 
-Kort fortalt: en grå arkitektmodel med dæmpede gader, meget svage kanter, hvid lyd og et let raster
-i sitets egne gråtoner.
+Kort fortalt: en grå arkitektmodel med dæmpede gader, meget svage kanter og hvid lyd, i et rent
+billede uden raster, korn eller andre effekter.
 
 Når den sidste tvivl under **Åbent** er afgjort, flyttes tallene ind i ét modul (`scene/style.js`),
 som alle scener henter fra, så de ikke hver har deres egne kopier af de samme gråtoner.
@@ -95,30 +95,25 @@ Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skyg
   gennemsigtig 60 % → ink 92 %. I dag har hver scene sin egen udgave.
 - Lidt drivende tåge (`scene/mist.js`, `amount` 0,35) er tilladt. Den må ikke ligge som skyer over
   det, man skal se (Tværvejes tåge er for tung tæt på).
-- En svag dither i al dis og vignet, også uden raster, så mørke gradienter ikke får striber.
+- Får disen eller vignetten synlige trin (banding) på en skærm, rettes det i farverne eller med
+  længere gradienter, ikke med et effektlag.
 
-## Effektlag: et let raster i sitets toner
+## Intet effektlag
 
-Det færdige billede rastres (ordnet dithering, Bayer 4×4) mellem sitets otte gråtoner, zinc-800 til
-zinc-50: `#27272a` `#3f3f46` `#52525b` `#71717a` `#a1a1aa` `#d4d4d8` `#e4e4e7` `#fafafa`. Rasteret
-blandes kun 30 % ind over det glatte billede, med fine prikker på 1 CSS-pixel. Det ses som en
-tekstur i de bløde overgange og ikke som et mønster, og det fjerner samtidig striber i disen.
-
-- Styrken kan skrues fra 5 til 100 %; 30 % er udgangspunktet. Filmkorn (korn, der skifter 12
-  gange i sekundet) kan lægges på i samme lave styrke, hvis billedet skal føles mere levende.
-- Prikkerne har samme størrelse på alle skærme: scenen tegnes i 1× opløsning.
-- Ved "reducér bevægelse" fryser kornet.
+Billedet er rent: intet raster, intet korn, ingen efterbehandling. PlayerShell lægger i dag korn
+(`opacity` 0,1) over alle afspillere; det slås fra over 3D-interfacene, så modellen står skarpt.
 
 ## Opløsning og mobil
 
 Stilen er billig af natur: ingen teksturer, ingen 3D-filer at hente, få farver. Alt bygges i kode,
 og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels og skygger.
 
-- Opløsning 1× (`setPixelRatio(1)`) på telefoner. En telefon med 3× skærm tegner ellers 9 gange så
-  mange pixels, og forskellen skjules af rasteret. Op til 2× på computer.
+- Opløsning højst 1,5× på telefoner (`setPixelRatio(Math.min(devicePixelRatio, 1.5))`) med
+  kantudjævning (`antialias: true`). En telefon med 3× skærm tegner ellers 4 gange så mange pixels.
+  1× hvis en scene er tung. Op til 2× på computer.
 - Højst 30 tegnekald og 150.000 trekanter pr. scene. Alle huse er én geometri, alle træer én
   (testbyen i labbet: 22 tegnekald, omkring 100.000 trekanter).
-- Effektlaget er ét ekstra gennemløb af billedet; billigt ved 1×.
+- Intet effektlag betyder intet ekstra gennemløb af billedet.
 - Tegn kun, når noget sker: billedraten falder, når ingen rører, og lyden er stille, og stopper,
   når fanen er skjult.
 - Kanterne tegnes først og kan stå alene, mens resten bygges.
@@ -132,7 +127,7 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
 
 ## Ind og ud af rummet
 
-- Fra projektsiden opløses fotoet i prikker, og modellen tegnes frem: stregen først, så fladerne.
+- Fra projektsiden toner fotoet ud, og modellen tegnes frem: stregen først, så fladerne.
   Ud igen samme vej baglæns. Overgangen kan gå gennem stedets omrids, som Kolding er skåret ud på
   forsiden.
 - Mens scenen hentes, vises den lette streg alene.
@@ -145,7 +140,6 @@ det aktive sted, ellers faint. Knapper og felter er firkantede som på resten af
 ## Åbent
 
 - Om overgangen ind gennem stedets omrids skal bygges, eller om en prik-opløsning er nok.
-- Om filmkorn skal med, eller om rasteret alene er nok.
 
 ## Når en ny scene laves
 
