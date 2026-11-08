@@ -52,8 +52,9 @@ export const players = {
     },
 
     /* Tværveje: three places in Nakskov, and at each the three characters' stories (nine mono files).
-       map = the streets (src/data/maps/), at = where the place sits on it, label = where its name
-       stands (left, right, above, below the dot). The walk goes through the places in this order */
+       map = the streets (src/data/maps/), at = where the place sits on it (in the map's units),
+       label = where its name stands (left, right, above, below the marker). The walk goes through
+       the places in this order */
     'tvaerveje': {
         interface: 'walk',
         map: 'nakskov',
@@ -63,9 +64,9 @@ export const players = {
             { id: 'aksel', name: 'Aksel', year: 1931 },
         ],
         places: [
-            { name: 'Det Gamle Færgeleje', image: cdn('nakskov-2026', 'image-03.webp'), at: [230, 300], label: 'right' },
-            { name: 'Axeltorv', image: cdn('nakskov-2026', 'image-01.webp'), at: [845, 556], label: 'below' },
-            { name: 'Dronningens Pakhus', image: cdn('nakskov-2026', 'image-02.webp'), at: [1115, 890], label: 'above' },
+            { name: 'Det Gamle Færgeleje', at: [256, 171], label: 'left' },   // on the quay by the old ferry berth, not out on the water
+            { name: 'Axeltorv', at: [590, 320], label: 'right' },
+            { name: 'Dronningens Pakhus', at: [753, 485], label: 'right' },
         ].map((place, p) => ({
             ...place,
             stories: ['kirstine', 'knud', 'aksel'].map((character, c) => ({

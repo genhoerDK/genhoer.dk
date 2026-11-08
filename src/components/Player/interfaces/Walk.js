@@ -4,43 +4,36 @@
  * Interface: walk — a work that stood at several places in a town (Tværveje), with a few stories
  * at each. The files play through the audio element, one at a time.
  *
- * A map of the streets (src/data/maps/) lies as a sheet in perspective, tipping and turning with
- * the pointer (or a finger on it) and drifting a little by itself; the places stand on it with
- * their names as signs (the streets carry no names, so the places' stand out). The one you are at is lit, and the photo behind is that
- * place's. Under the map, the stories at the place: a button per character, with the playing one
- * filled and a line running under it. When a story ends, the next one at the same place follows,
- * so you can hear a whole place and walk on. Keys 1–3 pick a story, ←/→ walk, space pauses and plays.
+ * The town lies behind as a 3D map (WalkScene.js, three.js, loaded when the work is opened): its
+ * street net and harbour (src/data/maps/), clear round where you are and dissolving into haze
+ * further out. Each place is a 3D marker with its name; the one you are
+ * at is lit. No photo behind: the map is the room. Under the map, the stories at the place: a button
+ * per character, with the playing one filled and a line running under it. When a story ends, the
+ * next one at the same place follows, so you can hear a whole place and walk on. Keys 1–3 pick a
+ * story, ←/→ walk, space pauses and plays.
  *
  *   player.map         A map in src/data/maps/
  *   player.characters  [{ id, name, year }]
- *   player.places      [{ name, image, at: [x, y], label, stories: [{ character, file }] }]  at: on the map
+ *   player.places      [{ name, at: [x, y], label, stories: [{ character, file }] }]  at: on the map,
+ *                      label: where its name stands
  */
 
 import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { PlayIcon, PauseIcon } from '@heroicons/react/20/solid';
 import { useAudio } from '@/context/AudioContext';
-import { maps } from '@/data/maps/nakskov';
-import { colors } from '@/styles/colors';
 import { keyIsTaken } from '@/components/Player/interfaces/keys';
 import PlayerShell, { Controls } from '@/components/Player/PlayerShell';
 import Label from '@/components/UI/Label';
 
+/** three.js and the map only load when the work is opened */
+const WalkScene = dynamic(() => import('@/components/Player/WalkScene'), { ssr: false });
+
 const pad = (n) => String(n).padStart(2, '0');
-
-/** Where a place's sign stands, around its dot */
-const LABEL = {
-    right: 'left-full top-1/2 -translate-y-1/2 ml-1.5',
-    left: 'right-full top-1/2 -translate-y-1/2 mr-1.5',
-    above: 'bottom-full left-1/2 -translate-x-1/2 mb-1',
-    below: 'top-full left-1/2 -translate-x-1/2 mt-1',
-};
-
-const TILT = 52, TILT_RANGE = 14, TURN_RANGE = 18;   // degrees: how the sheet lies, and how far the pointer tips and turns it
 
 export default function WalkPlayer() {
     const { currentTrack, currentFile, isPlaying, progress, play, pause, playFile, ended } = useAudio();
     const { places, characters } = currentTrack.player;
-    const map = maps[currentTrack.player.map];
 
     /** Where the playing story is: { p, s } or null */
     const playing = (() => {
@@ -83,106 +76,12 @@ export default function WalkPlayer() {
         return () => window.removeEventListener('keydown', onKey);
     }, [places]);
 
-    const x = (at) => `${(at[0] / map.width) * 100}%`;
-    const y = (at) => `${(at[1] / map.height) * 100}%`;
-
-    /* ---------- THE SHEET: tips and turns with the pointer, drifts by itself; the signs keep facing you ---------- */
-
-    const sheetRef = useRef(null);
-    useEffect(() => {
-        const sheet = sheetRef.current;
-        if (!sheet) return;
-        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const pointer = { x: 0.5, y: 0.5 };
-        const onMove = (e) => {
-            // The mouse anywhere; a finger only on the map
-            if (e.pointerType !== 'mouse' && !sheet.contains(e.target)) return;
-            pointer.x = e.clientX / window.innerWidth;
-            pointer.y = e.clientY / window.innerHeight;
-        };
-        const onEnd = (e) => { if (e.pointerType !== 'mouse') { pointer.x = 0.5; pointer.y = 0.5; } };
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('pointerup', onEnd);
-        window.addEventListener('pointercancel', onEnd);
-
-        let frame, t = 0, last = performance.now();
-        const now = { x: 0, y: 0 };
-        const tick = (time) => {
-            frame = requestAnimationFrame(tick);
-            const dt = Math.min((time - last) / 1000, 0.1);
-            last = time;
-            t += dt;
-            const ease = 1 - Math.exp(-dt * 3);
-            const drift = still ? 0 : Math.sin(t * 0.35) * 0.06;
-            now.x += (pointer.x - 0.5 + drift - now.x) * ease;
-            now.y += (pointer.y - 0.5 - now.y) * ease;
-            const tilt = TILT - now.y * TILT_RANGE;
-            const turn = now.x * TURN_RANGE;
-            sheet.style.transform = `rotateX(${tilt}deg) rotateY(${turn}deg)`;
-            for (const sign of sheet.querySelectorAll('[data-sign]')) sign.style.transform = `rotateY(${-turn}deg) rotateX(${-tilt}deg)`;
-        };
-        frame = requestAnimationFrame(tick);
-        return () => {
-            cancelAnimationFrame(frame);
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup', onEnd);
-            window.removeEventListener('pointercancel', onEnd);
-        };
-    }, []);
-
     return (
-        <PlayerShell track={currentTrack} image={place.image} smoke={0.3}>
-            <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
-                {/* ---------- THE MAP ---------- */}
-                <div className='w-full max-w-sm md:max-w-lg' style={{ perspective: '900px' }}>
-                <nav
-                    ref={sheetRef}
-                    aria-label='Steder'
-                    className='relative w-full'
-                    style={{ aspectRatio: `${map.width} / ${map.height}`, transformStyle: 'preserve-3d', transformOrigin: '50% 60%', transform: `rotateX(${TILT}deg)` }}
-                >
-                    {/* The sheet, fading out at its edges, with its shadow under it */}
-                    <div className='absolute -inset-[12%] bg-ink/60 blur-xl rounded-[40%]' style={{ transform: 'translateZ(-30px)' }} aria-hidden='true' />
-                    <div className='absolute -inset-[6%] bg-linear-to-b from-paper/12 to-paper/4' style={{ maskImage: 'radial-gradient(ellipse at 50% 50%, black 50%, transparent 100%)' }} aria-hidden='true' />
-                    <svg viewBox={`0 0 ${map.width} ${map.height}`} className='absolute inset-0 size-full overflow-visible' style={{ maskImage: 'radial-gradient(ellipse at 50% 50%, black 60%, transparent 100%)' }} aria-hidden='true'>
-                        {/* The harbour and the quay's edge */}
-                        <path d={map.water} fill='currentColor' fillOpacity='0.1' />
-                        <path d={map.quay} fill='none' stroke='currentColor' strokeOpacity='0.5' strokeWidth='3' strokeDasharray='6 9' strokeLinecap='round' />
-                        {/* The walking street and the square, a soft band */}
-                        {map.zone.map((d) => <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.07' strokeWidth='64' strokeLinecap='round' strokeLinejoin='round' />)}
-                        {/* The lanes */}
-                        {map.side.map((d) => <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.3' strokeWidth='6' strokeLinecap='round' strokeLinejoin='round' />)}
-                        {/* The wider streets: a dark casing, then the street, so they read at the crossings */}
-                        {map.main.map((d) => <path key={d} d={d} fill='none' stroke={colors.ink} strokeOpacity='0.55' strokeWidth='22' strokeLinecap='round' strokeLinejoin='round' />)}
-                        {map.main.map((d) => <path key={d} d={d} fill='none' stroke='currentColor' strokeOpacity='0.55' strokeWidth='12' strokeLinecap='round' strokeLinejoin='round' />)}
-                    </svg>
-                    {places.map((stop, p) => {
-                        const isHere = p === here;
-                        const playsHere = playing?.p === p && isPlaying;
-                        return (
-                            <button
-                                key={stop.name}
-                                onClick={() => walkTo(p)}
-                                aria-current={isHere ? 'location' : undefined}
-                                className='absolute flex items-center justify-center size-7 -translate-x-1/2 -translate-y-1/2 cursor-pointer group'
-                                style={{ left: x(stop.at), top: y(stop.at), transformStyle: 'preserve-3d' }}
-                            >
-                                {playsHere && <span className='absolute inset-0 rounded-full bg-paper/40 animate-ping motion-reduce:hidden' />}
-                                {/* The dot stands a little above the sheet, the sign stands up and faces you */}
-                                <span className={`relative block rounded-full transition-all ${isHere ? 'size-4 bg-paper' : 'size-3 bg-ink ring-1 ring-paper md:group-hover:bg-paper/70'}`} style={{ transform: 'translateZ(6px)' }} />
-                                <span
-                                    data-sign
-                                    className={`absolute block uppercase leading-none text-xs whitespace-nowrap px-1 transition-colors ${LABEL[stop.label] ?? LABEL.below} ${isHere ? 'text-paper' : 'text-muted md:group-hover:text-paper'}`}
-                                    style={{ transformOrigin: '50% 100%', transform: `rotateX(${-TILT}deg)` }}
-                                >
-                                    {stop.name}
-                                </span>
-                            </button>
-                        );
-                    })}
-                </nav>
-                </div>
+        <PlayerShell track={currentTrack} backdrop={false}>
+            {/* ---------- THE MAP ---------- */}
+            <WalkScene map={currentTrack.player.map} places={places} here={here} sounding={playing && isPlaying ? playing.p : null} onWalk={walkTo} />
 
+            <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
                 {/* ---------- THE STORIES HERE ---------- */}
                 <div className='w-full max-w-sm md:max-w-md'>
                     <Label size='lg' className='mb-2 text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
