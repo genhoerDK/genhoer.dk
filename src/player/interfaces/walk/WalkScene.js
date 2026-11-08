@@ -13,9 +13,11 @@
  * and lit; the one that is playing sends rings out over the ground. Walking to another place glides
  * you there.
  *
- * The pointer tips and turns the view a little (it drifts by itself, too); a drag turns it further
- * and the wheel goes nearer or further. The places' names are buttons over their markers; one that is
- * out of view waits at the edge of the screen, pointing the way.
+ * The view is locked: no turning, tipping, dragging or zooming, and no drift. On a large screen
+ * (WIDE px and up) it frames all the places at once; on a small one it shows the place you are at,
+ * and walking to another (the arrows in Walk.js, or a place's name) glides you there. The places'
+ * names are buttons over their markers; one that is out of view waits at the edge of the screen,
+ * pointing the way.
  *
  * @param {string} map           The name of a map in src/player/vaerker/maps.js
  * @param {object[]} places      [{ name, at, label? }]  at: [x, y] in the map's units
@@ -34,7 +36,7 @@ import { trees as treeShapesOf } from '@/player/kit/trees';
 import { landmarkGeometry } from '@/player/kit/landmarks';
 import { pathLines, fillGeometry, bandGeometry } from '@/player/kit/roads';
 import { hazeMap, hazedOverMap as hazed, HAZE_GLSL } from '@/player/kit/haze';
-import { createStation } from '@/player/kit/station';
+import { createStation, STATION } from '@/player/kit/station';
 
 /* ---------- THE LOOK: the 3D style (kit/style.js) — greys, the streets muted, only the stations white ---------- */
 
@@ -53,8 +55,9 @@ const MIST = GREYS.mist;
 const REACH = { wide: 560, tall: 720 }; // metres from the camera to where you are, on a wide and a tall screen
 const SCALE_AT = 700;                 // the markers are drawn their true size seen from this far, and grow with the distance
 
-const TILT = 0.92, TILT_RANGE = 0.22; // radians above the horizon the view looks down from, and how far the pointer tips it
-const TURN_RANGE = 0.32;              // radians the pointer turns it either way
+const TILT = 0.92;                    // radians above the horizon the view looks down from (locked)
+export const WIDE = 768;              // px: from this width the view frames all the places at once (Tailwind's md)
+const FIT = { x: 0.78, top: 0.62, bottom: -0.5 };   // how much of the screen the places may fill when all are framed (NDC; the stories sit under)
 const LABEL_TOP = 72;                 // px kept free at the top (the header)
 
 /** Tileable soft noise for the mist, as a texture */
@@ -275,47 +278,44 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             // Where you are stands a little above the middle, clear of the stories under it
             camera.setViewOffset(w, h, 0, (0.5 - (w < h ? 0.36 : 0.42)) * h, w, h);
             camera.updateProjectionMatrix();
+            fitAll();
         };
+
+        /* ---------- all the places in view (a large screen): how far back the camera stands to frame them ---------- */
+
+        const centre = spots.reduce((s, p) => s.add(p), new THREE.Vector2()).divideScalar(spots.length);
+        const fit = { reach: REACH.wide };
+        const placeCamera = (at, reach) => {
+            camera.position.set(at.x, Math.sin(TILT) * reach, at.y + Math.cos(TILT) * reach);
+            camera.lookAt(at.x, 0, at.y);
+            camera.updateMatrixWorld(true);
+        };
+        function fitAll() {
+            // A few steps of: stand back, see how much of the screen the places take, stand back by that much
+            let reach = fit.reach;
+            for (let i = 0; i < 12; i++) {
+                placeCamera(centre, reach);
+                let over = 0;
+                for (const spot of spots) {
+                    for (const height of [0, (STATION.ballAt + STATION.ball * 2) * (reach / SCALE_AT)]) {
+                        v.set(spot.x, height, spot.y).project(camera);
+                        over = Math.max(over, Math.abs(v.x) / FIT.x, v.y > 0 ? v.y / FIT.top : v.y / FIT.bottom);
+                    }
+                }
+                reach *= Math.max(0.5, Math.min(2, over));
+            }
+            fit.reach = reach;
+        }
+        const v = new THREE.Vector3();
         const resizeObserver = new ResizeObserver(resize);
         resizeObserver.observe(container);
         resize();
 
-        /* ---------- the pointer: tips and turns; a drag turns further; the wheel goes nearer ---------- */
-
-        const pointer = { x: 0, y: 0 };
-        const view = { turn: 0, tilt: 0, zoom: 1 };
-        let drag = null;
-        const onMove = (e) => {
-            if (drag && e.pointerId === drag.id) {
-                view.turn -= ((e.clientX - drag.x) / size.w) * 2.4;
-                view.tilt = THREE.MathUtils.clamp(view.tilt + ((e.clientY - drag.y) / size.h) * 1.2, -0.3, 0.45);
-                drag.x = e.clientX; drag.y = e.clientY;
-                return;
-            }
-            if (e.pointerType !== 'mouse') return;
-            pointer.x = e.clientX / window.innerWidth - 0.5;
-            pointer.y = e.clientY / window.innerHeight - 0.5;
-        };
-        const onDown = (e) => {
-            drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
-            try { canvas.setPointerCapture(e.pointerId); } catch { /* gone already */ }
-        };
-        const onUp = (e) => { if (drag?.id === e.pointerId) drag = null; };
-        const onWheel = (e) => {
-            e.preventDefault();
-            view.zoom = THREE.MathUtils.clamp(view.zoom * Math.exp(e.deltaY * 0.0012), 0.45, 1.5);
-        };
-        window.addEventListener('pointermove', onMove);
-        canvas.addEventListener('pointerdown', onDown);
-        window.addEventListener('pointerup', onUp);
-        window.addEventListener('pointercancel', onUp);
-        canvas.addEventListener('wheel', onWheel, { passive: false });
-
         /* ---------- every frame ---------- */
 
-        const focus = spots[state.current.here].clone();
-        const eased = { x: 0, y: 0, turn: 0, tilt: 0, zoom: 1 };
-        const v = new THREE.Vector3();
+        const wide = () => size.w >= WIDE;
+        const focus = (wide() ? centre : spots[state.current.here]).clone();
+        let reach = wide() ? fit.reach : size.w < size.h ? REACH.tall : REACH.wide;
         let frame, last = performance.now(), t = 0;
 
         const tick = (time) => {
@@ -325,23 +325,13 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             t += dt;
             const { here: at, sounding: playing } = state.current;
 
-            // Walk: glide to the place you are going to
-            const goal = spots[at];
-            if (still) focus.copy(goal);
-            else focus.lerp(goal, 1 - Math.exp(-dt * 1.8));
-
-            // The view: the pointer, a drag, the wheel, and a slow drift of its own
-            const k = 1 - Math.exp(-dt * 3);
-            eased.x += (pointer.x + (still ? 0 : Math.sin(t * 0.21) * 0.12) - eased.x) * k;
-            eased.y += (pointer.y - eased.y) * k;
-            eased.turn += (view.turn - eased.turn) * k;
-            eased.tilt += (view.tilt - eased.tilt) * k;
-            eased.zoom += (view.zoom - eased.zoom) * k;
-            const yaw = eased.turn + eased.x * TURN_RANGE * 2;
-            const pitch = THREE.MathUtils.clamp(TILT + eased.tilt - eased.y * TILT_RANGE, 0.45, 1.45);
-            const reach = (size.w < size.h ? REACH.tall : REACH.wide) * eased.zoom;
-            camera.position.set(focus.x + Math.sin(yaw) * Math.cos(pitch) * reach, Math.sin(pitch) * reach, focus.y + Math.cos(yaw) * Math.cos(pitch) * reach);
-            camera.lookAt(focus.x, 0, focus.y);
+            // A large screen frames all the places; a small one glides to the place you are at
+            const goal = wide() ? centre : spots[at];
+            const goalReach = wide() ? fit.reach : size.w < size.h ? REACH.tall : REACH.wide;
+            const k = still ? 1 : 1 - Math.exp(-dt * 1.8);
+            focus.lerp(goal, k);
+            reach += (goalReach - reach) * k;
+            placeCamera(focus, reach);
 
             // The stations: the one you are at is lit; the playing one rings out
             stations.forEach((station, p) => {
@@ -402,11 +392,6 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         return () => {
             cancelAnimationFrame(frame);
             resizeObserver.disconnect();
-            window.removeEventListener('pointermove', onMove);
-            canvas.removeEventListener('pointerdown', onDown);
-            window.removeEventListener('pointerup', onUp);
-            window.removeEventListener('pointercancel', onUp);
-            canvas.removeEventListener('wheel', onWheel);
             scene.traverse((obj) => {
                 obj.geometry?.dispose();
                 (Array.isArray(obj.material) ? obj.material : [obj.material]).forEach((m) => m?.dispose());

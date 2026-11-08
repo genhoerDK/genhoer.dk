@@ -5,10 +5,12 @@
  * at each. The files play through the audio element, one at a time.
  *
  * The town lies behind as a 3D map (WalkScene.js, three.js, loaded when the work is opened): its
- * street net and harbour (src/player/vaerker/maps.js), clear round where you are and dissolving into haze
- * further out. Each place is a 3D marker with its name; the one you are
- * at is lit. No photo behind: the map is the room. Under the map, the stories at the place: a button
- * per character, with the playing one filled and a line running under it. When a story ends, the
+ * street net and harbour (src/player/vaerker/maps.js), clear in the town and dissolving into haze
+ * further out. The view is locked: on a large screen all the places at once, on a small one the
+ * place you are at, with arrows to walk to the others. Each place is a listening station with its
+ * name; the one you are at is lit. No photo behind: the map is the room. Under the map, the stories
+ * at the place: the works' button (frame/SoundButton.js) per character, the ring running with the
+ * playing one. When a story ends, the
  * next one at the same place follows, so you can hear a whole place and walk on. Keys 1–3 pick a
  * story, ←/→ walk, space pauses and plays.
  *
@@ -20,7 +22,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { PlayIcon, PauseIcon } from '@heroicons/react/20/solid';
+import { PlayIcon, PauseIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid';
 import { useAudio } from '@/player/AudioContext';
 import { keyIsTaken } from '@/player/frame/keys';
 import PlayerShell, { Controls } from '@/player/frame/PlayerShell';
@@ -84,7 +86,16 @@ export default function WalkPlayer() {
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
                 {/* ---------- THE STORIES HERE: the works' button (frame/SoundButton.js), one per character ---------- */}
-                <Label size='lg' className='text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
+                {/* Where you are; on a small screen (one place in view at a time) with arrows to walk to the others */}
+                <div className='flex items-center justify-center gap-1'>
+                    <button type='button' onClick={() => walkTo(here - 1)} disabled={here === 0} aria-label='Forrige sted' className='md:hidden flex items-center justify-center size-10 text-paper cursor-pointer disabled:opacity-20 disabled:cursor-default'>
+                        <ChevronLeftIcon className='size-5' />
+                    </button>
+                    <Label size='lg' className='text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
+                    <button type='button' onClick={() => walkTo(here + 1)} disabled={here === places.length - 1} aria-label='Næste sted' className='md:hidden flex items-center justify-center size-10 text-paper cursor-pointer disabled:opacity-20 disabled:cursor-default'>
+                        <ChevronRightIcon className='size-5' />
+                    </button>
+                </div>
                 <div className='flex justify-center gap-6 md:gap-10'>
                     {place.stories.map((story, s) => {
                         const character = characters.find((c) => c.id === story.character) ?? { name: story.character };
