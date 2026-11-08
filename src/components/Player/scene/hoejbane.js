@@ -3,11 +3,19 @@
  * built in code for 53 sekunder til fælles, in the same pale, simple look as Kanon i G3: soft
  * low-poly forms in muted colours, faceted, no textures, the trees from scene/forest.js.
  *
- * Built from photos, not from drawings, so the sizes are guesses at the right proportions: a steel
- * lattice track, about 1.5 m wide, leaves the glass lift tower in front of the hospital at about
- * 9 m, sweeps out and up in a curve round a tall column, and runs straight and level at about
- * 17 m over the road to the building on the other side. The cabin is a white box with a band of
- * windows on a dark carriage; it stays level while the carriage under it tips with the track.
+ * Built from photos, not from drawings, so the sizes are guesses at the right proportions:
+ *
+ *  - The hospital end: a grey-clad tower beside a yellow-brick shaft, in front of the hospital's
+ *    blocks (peach and beige panels, grey bands, a tall grey block behind). The cabin docks in a
+ *    grey portal that juts out of the tower, at about 8 m.
+ *  - The track: a deep steel lattice, zigzag on the sides and on top, a grating walkway down the
+ *    middle with the rails and the toothed rack beside it, and a handrail tube along each side. It
+ *    leaves the portal low, winds round in a wide spiral up to about 17.5 m, and runs straight and
+ *    level over the road. Pale round columns hold it, with struts up to it from a cross-head.
+ *  - The other end: a tall, slim, dark grey tower with the white station box on its corner, where
+ *    the cabin docks, and a long pale block with glass balconies beside it.
+ *  - The cabin: a white box with a band of windows on a dark carriage. It stays level while the
+ *    carriage under it tips with the track.
  *
  * Metres, z up. The track crosses the road along x; the road runs along y, away from the viewer
  * (who stands on the -y side, as in the photos taken from the road).
@@ -34,23 +42,26 @@ const Y = new THREE.Vector3(0, 1, 0);
 /* ---------- THE PLACE ---------- */
 
 const ROAD = { x: 24, width: 12, walk: 3.6, length: 900 };   // Heibergs Allé, running along y
-const TRUSS = { half: 0.75, bottomHalf: 0.55, depth: 1.25, panel: 1.6 };   // the lattice track
-const COLUMNS = [1, 14, 35, 49];                             // where the columns stand (x), under the track
 
-// The track's line: out of the lift tower, out and up round the curve, level over the road to the other side
-const TRACK = [
-    [-18, 4.4, 9], [-17.3, 0.6, 9.6], [-14.5, -2.8, 11], [-9.5, -5, 13], [-3, -5.4, 15],
-    [4, -4.6, 16.6], [12, -3.6, 17.4], [24, -3, 17.5], [40, -2.4, 17.5], [56.4, -2, 17.5],
-];
+// The lattice track, metres from the rails' line: chords on top and under, the walkway, rails, handrails
+const TRUSS = { half: 0.85, bottomHalf: 0.6, depth: 1.6, panel: 1.7, walk: 0.6, rail: 0.5, hand: 0.95, handUp: 0.45 };
+
+// The spiral: round a centre, from the portal (low) to where it runs straight over the road
+const SPIRAL = { centre: [-14, 8], radius: 11, from: 140, to: 270, low: 8, high: 17.5 };   // degrees round the centre
+const STRAIGHT = [[-6, -3], [10, -3], [24, -2.9], [40, -2.5], [54.2, -2]];                // level, at SPIRAL.high
+
+// Where the columns stand (x, y): the nearest point of the track is above each
+const COLUMNS = [[-25, 4.5], [-19, -2.3], [0, -3], [14, -3], [35, -2.6], [48, -2.2]];
 
 /* ---------- COLOURS: muted, a little warm, as in Kanon i G3 ---------- */
 
 const C = {
     grass: '#a4aa84', verge: '#9aa07a', road: '#a3a39e', line: '#f2f0e8', walk: '#d3cec3', curb: '#e3dfd6',
-    steel: '#7d8387', column: '#a2a7a9', foot: '#bdb9b0',
+    steel: '#7d8387', grating: '#949a9d', rack: '#5c6266', handrail: '#b9bec1', column: '#c9cdcf', foot: '#bdb9b0',
     cabin: '#f3f1eb', roof: '#e3e0d8', glass: '#56646f', carriage: '#41474b', wheel: '#2f3336', lamp: '#ffcf7a',
-    bronze: '#8b6d59', sand: '#dccfb6', window: '#66737e', ribbon: '#525f6a', concrete: '#bcb8ae', parapet: '#ece8df',
-    tower: '#cfd9dc', mullion: '#f1efea', dock: '#4f5961',
+    peach: '#d9a581', sand: '#e4d4ba', band: '#a9adaf', window: '#5d6a75', ribbon: '#4f5b66', concrete: '#bcb8ae', parapet: '#ece8df',
+    clad: '#b3b8bb', cladLight: '#d5d9db', yellowBrick: '#cdb87c', dock: '#454d54', greyBlock: '#9da1a2',
+    slate: '#6c7176', slateLight: '#8a9095', station: '#f1efea',
     pale: '#e4e0d8', balcony: '#b7c7cd', brick: '#b7735d', tiles: '#6f5a52', trim: '#efe9df',
     pole: '#a5aaad', signBlue: '#3f6fa6',
 };
@@ -85,6 +96,36 @@ function rod(a, b, r, hex, sides = 6, r1 = r) {
     return paint(g, hex);
 }
 
+/** A flat band between two lines of points (left and right, as seen going along), `thick` deep */
+function band(left, right, thick, hex) {
+    const pos = [];
+    const down = (v) => [v.x, v.y, v.z - thick];
+    for (let i = 0; i < left.length - 1; i++) {
+        const a = left[i], b = right[i], c = left[i + 1], d = right[i + 1];
+        pos.push(...a.toArray(), ...b.toArray(), ...d.toArray(), ...a.toArray(), ...d.toArray(), ...c.toArray());   // the top, facing up
+        pos.push(...down(a), ...down(d), ...down(b), ...down(a), ...down(c), ...down(d));                           // the underside
+    }
+    // the two long edges
+    for (const [line, flip] of [[left, false], [right, true]]) {
+        for (let i = 0; i < line.length - 1; i++) {
+            const a = line[i], c = line[i + 1];
+            const quad = [a.toArray(), down(a), down(c), a.toArray(), down(c), c.toArray()];
+            if (flip) quad.reverse();
+            quad.forEach((p) => pos.push(...p));
+        }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array((pos.length / 3) * 2).fill(0), 2));
+    g.computeVertexNormals();
+    return paint(g, hex);
+}
+
+/** Parts built round their own origin (facing -y), turned by `angle` and moved to (x, y) */
+function placed(parts, local, x, y, angle = 0) {
+    for (const g of local) { g.rotateZ(angle); g.translate(x, y, 0); parts.push(g); }
+}
+
 /** A block of a building from x0..x1, y0..y1, z0..z1, with ribbon windows every `every` metres */
 function block(parts, { x0, x1, y0, y1, z0 = 0, z1, hex, windows, parapet = true }) {
     const w = x1 - x0, d = y1 - y0, x = (x0 + x1) / 2, y = (y0 + y1) / 2;
@@ -106,46 +147,32 @@ function house(parts, x, y, w, d, h, roof, turn = 0) {
     prism.rotateZ(Math.PI / 2);             // ridge along x
     prism.translate(-(w + 0.6) / 2, 0, h);
     local.push(paint(prism, C.tiles));
-    // two rows of small windows on the long sides, white-framed
+    // two rows of small windows on the long sides
     for (const side of [-1, 1]) {
         for (let k = 0; k < Math.floor(w / 2.6); k++) {
             const wx = -w / 2 + 1.4 + k * 2.6;
             for (const wz of [0.9, h - 2]) local.push(box(1.1, 0.12, 1.2, wx, side * (d / 2 + 0.02), wz, k % 2 ? C.ribbon : C.window));
         }
     }
-    for (const g of local) { g.rotateZ(turn); g.translate(x, y, 0); parts.push(g); }
+    placed(parts, local, x, y, turn);
 }
 
 /* ---------- THE TRACK ---------- */
 
-/** The lattice track along the curve: two rails on top, two chords under, zigzag sides, ties across */
-function buildTrack(parts, curve) {
-    const n = Math.max(8, Math.round(curve.getLength() / TRUSS.panel));
-    const rows = { topL: [], topR: [], botL: [], botR: [] };
-    for (let i = 0; i <= n; i++) {
-        const { p, side, up } = frameAt(curve, i / n);
-        rows.topL.push(p.clone().addScaledVector(side, -TRUSS.half));
-        rows.topR.push(p.clone().addScaledVector(side, TRUSS.half));
-        rows.botL.push(p.clone().addScaledVector(side, -TRUSS.bottomHalf).addScaledVector(up, -TRUSS.depth));
-        rows.botR.push(p.clone().addScaledVector(side, TRUSS.bottomHalf).addScaledVector(up, -TRUSS.depth));
+/** The track's line: round the spiral, rising softly, then straight and level over the road */
+function trackCurve() {
+    const { centre: [cx, cy], radius, from, to, low, high } = SPIRAL;
+    const points = [];
+    for (let deg = from; deg <= to; deg += 10) {
+        const f = (deg - from) / (to - from);
+        const a = THREE.MathUtils.degToRad(deg);
+        points.push(new THREE.Vector3(cx + Math.cos(a) * radius, cy + Math.sin(a) * radius, low + (high - low) * f * f * (3 - 2 * f)));
     }
-    // The four chords
-    for (const [key, r] of [['topL', 0.1], ['topR', 0.1], ['botL', 0.085], ['botR', 0.085]]) {
-        const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rows[key]), n * 2, r, 6, false);
-        parts.push(paint(tube, C.steel));
-    }
-    // The sides: a post at every panel and a diagonal across it, turning the other way each time; ties under and over
-    for (let i = 0; i <= n; i++) {
-        for (const [top, bot] of [['topL', 'botL'], ['topR', 'botR']]) {
-            parts.push(rod(rows[top][i], rows[bot][i], 0.045, C.steel, 5));
-            if (i < n) parts.push(i % 2 ? rod(rows[top][i], rows[bot][i + 1], 0.04, C.steel, 5) : rod(rows[bot][i], rows[top][i + 1], 0.04, C.steel, 5));
-        }
-        parts.push(rod(rows.botL[i], rows.botR[i], 0.04, C.steel, 5));
-        if (i % 2 === 0) parts.push(rod(rows.topL[i], rows.topR[i], 0.05, C.steel, 5));
-    }
+    for (const [x, y] of STRAIGHT) points.push(new THREE.Vector3(x, y, high));
+    return new THREE.CatmullRomCurve3(points, false, 'centripetal');
 }
 
-/** The track's frame at t: the point on the rails, the way along, sideways (level) and up */
+/** The track's frame at t: the point on the rails' line, the way along, sideways (level, to the right) and up */
 function frameAt(curve, t) {
     const p = curve.getPointAt(t);
     const along = curve.getTangentAt(t);
@@ -154,35 +181,78 @@ function frameAt(curve, t) {
     return { p, along, side, up };
 }
 
-/** A column under the track where it passes x: a tapered pole on a footing, a cross-head under the truss */
-function column(parts, curve, x) {
+/** The lattice track along the curve */
+function buildTrack(parts, curve) {
+    const n = Math.max(8, Math.round(curve.getLength() / TRUSS.panel));
+    const fine = n * 3;   // the smooth parts (walkway, rails, handrails) follow the curve more closely
+    const line = (count, across, up) => Array.from({ length: count + 1 }, (_, i) => {
+        const { p, side, up: u } = frameAt(curve, i / count);
+        return p.addScaledVector(side, across).addScaledVector(u, up);
+    });
+    const tube = (points, r, hex) => paint(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), points.length * 2, r, 6, false), hex);
+
+    // The chords: two at the top, under the walkway, and two under them
+    const topL = line(n, -TRUSS.half, -0.12), topR = line(n, TRUSS.half, -0.12);
+    const botL = line(n, -TRUSS.bottomHalf, -TRUSS.depth), botR = line(n, TRUSS.bottomHalf, -TRUSS.depth);
+    for (const row of [topL, topR]) parts.push(tube(row, 0.1, C.steel));
+    for (const row of [botL, botR]) parts.push(tube(row, 0.09, C.steel));
+
+    // Zigzag on both sides and on top, a post at every panel, a tie across underneath
+    for (let i = 0; i <= n; i++) {
+        for (const [top, bot] of [[topL, botL], [topR, botR]]) {
+            parts.push(rod(top[i], bot[i], 0.045, C.steel, 5));
+            if (i < n) parts.push(i % 2 ? rod(top[i], bot[i + 1], 0.045, C.steel, 5) : rod(bot[i], top[i + 1], 0.045, C.steel, 5));
+        }
+        parts.push(rod(botL[i], botR[i], 0.04, C.steel, 5));
+        parts.push(rod(topL[i], topR[i], 0.04, C.steel, 5));
+        if (i < n) parts.push(i % 2 ? rod(topL[i], topR[i + 1], 0.04, C.steel, 5) : rod(topR[i], topL[i + 1], 0.04, C.steel, 5));
+    }
+
+    // On top: the grating walkway, the two rails, the toothed rack beside the middle, a handrail each side
+    parts.push(band(line(fine, -TRUSS.walk, 0), line(fine, TRUSS.walk, 0), 0.06, C.grating));
+    for (const s of [-1, 1]) parts.push(tube(line(fine, s * TRUSS.rail, 0.06), 0.05, C.steel));
+    parts.push(band(line(fine, 0.14, 0.1), line(fine, 0.24, 0.1), 0.1, C.rack));
+    const handL = line(n, -TRUSS.hand, TRUSS.handUp), handR = line(n, TRUSS.hand, TRUSS.handUp);
+    parts.push(tube(line(fine, -TRUSS.hand, TRUSS.handUp), 0.075, C.handrail), tube(line(fine, TRUSS.hand, TRUSS.handUp), 0.075, C.handrail));
+    for (let i = 0; i <= n; i += 2) {
+        parts.push(rod(topL[i], handL[i], 0.035, C.handrail, 5), rod(topR[i], handR[i], 0.035, C.handrail, 5));
+    }
+}
+
+/** A column under the track nearest (x, y): a tapered pole on a footing, a cross-head and two struts up to the truss */
+function column(parts, curve, x, y) {
     let best = 0, bestGap = Infinity;
-    for (let i = 0; i <= 400; i++) {
-        const gap = Math.abs(curve.getPointAt(i / 400).x - x);
-        if (gap < bestGap) { bestGap = gap; best = i / 400; }
+    for (let i = 0; i <= 600; i++) {
+        const q = curve.getPointAt(i / 600);
+        const gap = Math.hypot(q.x - x, q.y - y);
+        if (gap < bestGap) { bestGap = gap; best = i / 600; }
     }
     const { p, side, up } = frameAt(curve, best);
-    const under = p.clone().addScaledVector(up, -TRUSS.depth - 0.1);
-    parts.push(box(1.6, 1.6, 0.35, under.x, under.y, 0, C.foot, 0.12));
-    parts.push(rod(new THREE.Vector3(under.x, under.y, 0.3), new THREE.Vector3(under.x, under.y, under.z - 0.35), 0.44, C.column, 12, 0.32));
-    // the cross-head: a short beam across the track, the truss sits on it
-    parts.push(rod(under.clone().addScaledVector(side, -0.9).setZ(under.z - 0.3), under.clone().addScaledVector(side, 0.9).setZ(under.z - 0.3), 0.16, C.column, 8));
+    const under = p.clone().addScaledVector(up, -TRUSS.depth);
+    const head = new THREE.Vector3(under.x, under.y, under.z - 1.3);
+    parts.push(box(1.6, 1.6, 0.35, head.x, head.y, 0, C.foot, 0.12));
+    parts.push(rod(new THREE.Vector3(head.x, head.y, 0.3), head, 0.42, C.column, 12, 0.3));
+    // the cross-head, and a strut from each end up to the chord above it
+    const left = head.clone().addScaledVector(side, -1.1), right = head.clone().addScaledVector(side, 1.1);
+    parts.push(rod(left, right, 0.13, C.column, 8));
+    for (const [end, s] of [[left, -1], [right, 1]]) parts.push(rod(end, under.clone().addScaledVector(side, s * TRUSS.bottomHalf), 0.09, C.column, 6));
+    parts.push(rod(head, under, 0.12, C.column, 6));
 }
 
 /* ---------- THE CABIN ---------- */
 
-/** The cabin: origin on the rails, travelling along local +x. The carriage (`bogie`) tips with the track */
+/** The cabin: origin on the rails' line, travelling along local +x. The carriage (`bogie`) tips with the track */
 function buildCabin(material) {
     const cabin = new THREE.Group();
     const bogie = new THREE.Group();
     cabin.add(bogie);
 
     const under = [];
-    under.push(box(2.5, 1.85, 0.32, 0, 0, 0.12, C.carriage, 0.08));
+    under.push(box(2.4, 1.4, 0.34, 0, 0, 0.16, C.carriage, 0.08));
     for (const x of [-0.85, 0.85]) {
-        for (const y of [-TRUSS.half, TRUSS.half]) {
+        for (const y of [-TRUSS.rail, TRUSS.rail]) {
             const wheel = new THREE.CylinderGeometry(0.2, 0.2, 0.14, 10);
-            wheel.translate(x, y, 0.16);
+            wheel.translate(x, y, 0.24);
             under.push(paint(wheel, C.wheel));
         }
     }
@@ -192,19 +262,19 @@ function buildCabin(material) {
 
     const body = [];
     // the dark frame under the box, narrower at the bottom
-    const frame = new THREE.CylinderGeometry(1.45, 1.05, 0.55, 4, 1);
+    const frame = new THREE.CylinderGeometry(1.45, 0.95, 0.5, 4, 1);
     frame.rotateY(Math.PI / 4);
     frame.rotateX(Math.PI / 2);
     frame.scale(1.05, 0.9, 1);
-    frame.translate(0, 0, 0.78);
+    frame.translate(0, 0, 0.85);
     body.push(paint(frame, C.carriage));
-    body.push(box(2.9, 2.5, 2.5, 0, 0, 1.05, C.cabin, 0.22));                     // the box
-    body.push(box(2.94, 2.54, 0.95, 0, 0, 2.15, C.glass, 0.2));                  // the band of windows, all round
-    for (const x of [-0.5, 0.5]) for (const y of [-1, 1]) body.push(box(0.12, 0.1, 0.95, x, y * 1.27, 2.15, C.cabin));   // mullions on the sides
-    body.push(box(0.1, 0.1, 0.95, 1.47, 0, 2.15, C.cabin));                       // and one in each end
-    body.push(box(0.1, 0.1, 0.95, -1.47, 0, 2.15, C.cabin));
-    body.push(box(3.04, 2.64, 0.2, 0, 0, 3.5, C.roof, 0.09));                     // the roof, a little over
-    body.push(box(0.9, 0.7, 0.28, -0.4, 0, 3.66, C.roof, 0.08));                  // a vent on it
+    body.push(box(2.9, 2.5, 2.5, 0, 0, 1.1, C.cabin, 0.22));                      // the box
+    body.push(box(2.94, 2.54, 0.95, 0, 0, 2.2, C.glass, 0.2));                   // the band of windows, all round
+    for (const x of [-0.5, 0.5]) for (const y of [-1, 1]) body.push(box(0.12, 0.1, 0.95, x, y * 1.27, 2.2, C.cabin));   // mullions on the sides
+    body.push(box(0.1, 0.1, 0.95, 1.47, 0, 2.2, C.cabin));                        // and one in each end
+    body.push(box(0.1, 0.1, 0.95, -1.47, 0, 2.2, C.cabin));
+    body.push(box(3.04, 2.64, 0.2, 0, 0, 3.55, C.roof, 0.09));                    // the roof, a little over
+    body.push(box(0.9, 0.7, 0.28, -0.4, 0, 3.71, C.roof, 0.08));                  // a vent on it
     const bodyMesh = new THREE.Mesh(mergeGeometries(body), material);
     body.forEach((g) => g.dispose());
     cabin.add(bodyMesh);
@@ -212,11 +282,57 @@ function buildCabin(material) {
     // A small lamp on the roof: on while it rides, blinking when it has stopped on the way
     const lampMaterial = new THREE.MeshStandardMaterial({ color: C.lamp, emissive: C.lamp, emissiveIntensity: 0, roughness: 0.4 });
     const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 8), lampMaterial);
-    lamp.position.set(0.55, 0, 3.78);
+    lamp.position.set(0.55, 0, 3.83);
     cabin.add(lamp);
 
     for (const mesh of [bogieMesh, bodyMesh, lamp]) mesh.castShadow = mesh.receiveShadow = true;
     return { cabin, bogie, body: bodyMesh, lampMaterial };
+}
+
+/* ---------- THE STATIONS ---------- */
+
+/**
+ * The hospital end, built facing -y round the point where the cabin docks and turned to face the
+ * way the track leaves: the grey-clad tower, the yellow-brick shaft beside it, and the grey portal
+ * jutting out of the tower with the dark opening the cabin waits in.
+ */
+function hospitalStation(parts, at, heading) {
+    const local = [];
+    const back = 1.6;                         // the tower's face, behind the cabin's middle
+    const floor = at.z - 1.5;                 // the portal's floor, under the carriage
+    local.push(box(10, 9, 27, 0, back + 4.5, 0, C.clad));
+    for (let z = 3.4; z < 27; z += 3.4) local.push(box(10.1, 9.1, 0.12, 0, back + 4.5, z, C.cladLight));   // seams in the cladding
+    local.push(box(10.3, 9.3, 0.45, 0, back + 4.5, 27, C.parapet));
+    local.push(box(2.2, 0.12, 1.3, -3, back - 0.02, 20, C.ribbon), box(2.2, 0.12, 1.3, 3, back - 0.02, 20, C.ribbon));
+    local.push(box(4.5, 7, 31, -7.2, back + 5.2, 0, C.yellowBrick));
+    local.push(box(4.7, 7.2, 0.4, -7.2, back + 5.2, 31, C.parapet));
+    // the portal: two walls, a roof and a floor round the opening, out from the tower's face
+    const out = 2.6, inner = 3.4, high = 5.6;
+    local.push(box(0.35, out, high, -(inner / 2 + 0.17), back - out / 2, floor, C.clad));
+    local.push(box(0.35, out, high, inner / 2 + 0.17, back - out / 2, floor, C.clad));
+    local.push(box(inner + 0.7, out, 0.35, 0, back - out / 2, floor + high, C.clad));
+    local.push(box(inner + 0.7, out, 0.3, 0, back - out / 2, floor - 0.3, C.clad));
+    local.push(box(inner, 0.1, high, 0, back - 0.05, floor, C.dock));
+    const angle = Math.atan2(Math.cos(heading), -Math.sin(heading));   // local -y along the heading
+    placed(parts, local, at.x, at.y, angle);
+}
+
+/** The other end: the slim dark tower, the white station box on its corner, the long block with balconies */
+function farStation(parts, at) {
+    const x0 = at.x + 1.6;                    // the station box's face, in front of the cabin
+    parts.push(box(9, 12, 28, x0 + 6.4, at.y - 1, 0, C.slate));
+    for (let x = x0 + 2.6; x < x0 + 10.5; x += 1.6) parts.push(box(0.7, 12.12, 26, x, at.y - 1, 0.6, C.slateLight));   // tall windows
+    parts.push(box(9.3, 12.3, 0.45, x0 + 6.4, at.y - 1, 28, C.parapet));
+    // the white box the cabin docks in, with a band of windows like the cabin's own, and the dark opening
+    parts.push(box(6, 7.4, 7.2, x0 + 2.6, at.y - 0.4, at.z - 1.6, C.station, 0.15));
+    parts.push(box(6.04, 7.44, 1.2, x0 + 2.6, at.y - 0.4, at.z + 2.6, C.glass, 0.12));
+    parts.push(box(0.1, 3.4, 4.8, x0 - 0.42, at.y, at.z - 1.4, C.dock));
+    // the long pale block beside it, glass balconies facing the road
+    block(parts, { x0: x0 + 11, x1: x0 + 38, y0: -14, y1: 12, z1: 22, hex: C.pale, windows: { first: 1.3, every: 3.3, height: 1.3, hex: C.window } });
+    for (let z = 3.6; z < 22; z += 3.3) for (let x = x0 + 14.5; x < x0 + 37; x += 6.5) {
+        parts.push(box(4, 1.5, 0.18, x, -14.75, z, C.parapet));
+        parts.push(box(4, 0.08, 1.0, x, -15.45, z + 0.18, C.balcony));
+    }
 }
 
 /* ---------- THE TRAFFIC ---------- */
@@ -266,7 +382,8 @@ export function buildHoejbane() {
     const rand = random(53);
     const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0, flatShading: true });
 
-    const curve = new THREE.CatmullRomCurve3(TRACK.map(([x, y, z]) => new THREE.Vector3(x, y, z)), false, 'centripetal');
+    const curve = trackCurve();
+    const start = frameAt(curve, 0), end = frameAt(curve, 1);
 
     /* The ground, the road and the pavements */
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ color: C.grass, roughness: 1, metalness: 0 }));
@@ -287,40 +404,33 @@ export function buildHoejbane() {
     // the hospital's drive, in from the left
     parts.push(box(rx - rw / 2 - walk + 12, 8, 0.04, (rx - rw / 2 - walk - 12) / 2, -40, 0, C.road));
 
-    /* The hospital, the lift tower in front of it, the low wing and the concrete wall by the road */
-    block(parts, { x0: -66, x1: -24, y0: 8, y1: 36, z1: 13, hex: C.bronze, windows: { first: 1.2, every: 3.6, height: 1.6 }, parapet: false });
-    block(parts, { x0: -66, x1: -24, y0: 8, y1: 36, z0: 13, z1: 34, hex: C.sand, windows: { first: 1.4, every: 3.4, height: 1.3, hex: C.window } });
-    block(parts, { x0: -46, x1: -24, y0: -16, y1: 8, z1: 4.5, hex: C.concrete, parapet: false });
-    block(parts, { x0: -46, x1: -24, y0: -16, y1: 8, z0: 4.5, z1: 12, hex: C.bronze, windows: { first: 0.9, every: 3.4, height: 1.6 }, parapet: false });
-    block(parts, { x0: -46, x1: -24, y0: -16, y1: 8, z0: 12, z1: 19, hex: C.sand, windows: { first: 1.2, every: 3.4, height: 1.3, hex: C.window } });
-    // the lift tower: light glass in white frames, the dock where the cabin stops
-    parts.push(box(8, 7, 22, -18, 9.5, 0, C.tower));
-    for (let x = -21.9; x <= -14; x += 2) parts.push(box(0.16, 7.1, 22, x, 9.5, 0, C.mullion));
-    for (let z = 3; z < 22; z += 3.6) parts.push(box(8.1, 7.1, 0.18, -18, 9.5, z, C.mullion));
-    parts.push(box(8.4, 7.4, 0.5, -18, 9.5, 22, C.parapet));
-    parts.push(box(3.6, 0.3, 5.4, -18, 5.95, 7.9, C.dock));
-    // the wall along the drive, and steps up it
+    /* The hospital: peach and beige panels with grey bands, a tall grey block behind, a low wing to the side */
+    block(parts, { x0: -70, x1: -27, y0: 22, y1: 46, z1: 12, hex: C.peach, windows: { first: 1.1, every: 3.6, height: 1.7 }, parapet: false });
+    parts.push(box(43.2, 24.2, 1.1, -48.5, 34, 12, C.band));
+    block(parts, { x0: -70, x1: -27, y0: 22, y1: 46, z0: 13.1, z1: 30, hex: C.sand, windows: { first: 1.3, every: 3.4, height: 1.4, hex: C.window } });
+    block(parts, { x0: -64, x1: -40, y0: 46, y1: 62, z1: 46, hex: C.greyBlock, windows: { first: 1.4, every: 3.3, height: 1.3 } });
+    block(parts, { x0: -72, x1: -46, y0: -6, y1: 22, z1: 4.5, hex: C.concrete, parapet: false });
+    block(parts, { x0: -72, x1: -46, y0: -6, y1: 22, z0: 4.5, z1: 12, hex: C.peach, windows: { first: 0.9, every: 3.4, height: 1.6 }, parapet: false });
+    parts.push(box(26.2, 28.2, 0.9, -59, 8, 12, C.band));
+    block(parts, { x0: -72, x1: -46, y0: -6, y1: 22, z0: 12.9, z1: 19, hex: C.sand, windows: { first: 1.2, every: 3.4, height: 1.3, hex: C.window } });
+    hospitalStation(parts, start.p, Math.atan2(start.along.y, start.along.x));
+
+    // the wall along the drive, and steps up it; a bit of lawn on the slope in front of the hospital
     parts.push(box(22, 1.2, 3.4, -10, -16.6, 0, C.concrete));
     for (let k = 0; k < 7; k++) parts.push(box(2.4, 0.5, 0.48 * (k + 1), 2.6, -17.8 + k * 0.5, 0, C.concrete));
-    // a bit of lawn on the slope in front of the hospital
     parts.push(box(32, 12, 0.1, -6, -29, 0, C.verge));
 
-    /* The other side: a pale block with glass balconies, its own dock, and red-brick houses behind */
-    block(parts, { x0: 58, x1: 78, y0: -14, y1: 12, z1: 24, hex: C.pale, windows: { first: 1.3, every: 3.3, height: 1.3, hex: C.window } });
-    for (let z = 3.6; z < 22; z += 3.3) for (const x of [61.5, 68, 74.5]) {
-        parts.push(box(4, 1.5, 0.18, x, -14.75, z, C.parapet));
-        parts.push(box(4, 0.08, 1.0, x, -15.45, z + 0.18, C.balcony));
-    }
-    parts.push(box(0.3, 3.6, 5.4, 57.95, -2, 16.4, C.dock));
+    /* The other side, and red-brick houses behind */
+    farStation(parts, end.p);
     house(parts, 46, 34, 14, 9, 6.5, 4.6);
     house(parts, 64, 38, 12, 9, 6.5, 4.8);
-    house(parts, 84, 30, 13, 9, 6.5, 4.6, Math.PI / 2);
     house(parts, 50, 60, 16, 10, 7, 5);
+    house(parts, 96, 30, 13, 9, 6.5, 4.6, Math.PI / 2);
     house(parts, -8, 58, 14, 9, 6.5, 4.6);
 
     /* The track and its columns */
     buildTrack(parts, curve);
-    for (const x of COLUMNS) column(parts, curve, x);
+    for (const [x, y] of COLUMNS) column(parts, curve, x, y);
 
     /* Lamp posts along the road, leaning their arms over it */
     for (const s of [-1, 1]) {
@@ -345,8 +455,8 @@ export function buildHoejbane() {
             tree(rx + s * (rw / 2 + walk + 2.6 + rand() * 2), y, rand.range(11, 15), 'beech');
         }
     }
-    for (const [x, y, h] of [[-4, -11, 12], [5, -13, 12], [-8, -26, 12], [2, -30, 13], [9, -22, 12], [-14, -34, 11], [6, 10, 13], [-4, 14, 12], [12, 20, 14]]) tree(x, y, h, 'beech');
-    for (const [x, y, h] of [[40, 16, 12], [48, 22, 13], [38, -20, 12], [44, -30, 14], [52, -26, 11], [86, -10, 13], [30, 48, 14], [72, 22, 10]]) tree(x, y, h);
+    for (const [x, y, h] of [[-2, -11, 12], [6, -13, 12], [-8, -26, 12], [2, -30, 13], [9, -22, 12], [-16, -32, 11], [-14, 8, 11], [-4, 15, 12], [6, 12, 13], [12, 22, 14]]) tree(x, y, h, 'beech');
+    for (const [x, y, h] of [[40, 16, 12], [36, 26, 13], [38, -20, 12], [44, -30, 14], [52, -26, 11], [100, -18, 13], [30, 48, 14], [76, 22, 10]]) tree(x, y, h);
     for (let k = 0; k < 26; k++) {
         const x = rand.range(-60, 90), y = rand.range(-110, -50);
         if (Math.abs(x - rx) < rw / 2 + walk + 2) continue;
@@ -407,10 +517,10 @@ export function buildHoejbane() {
         }
     };
 
-    const centre = new THREE.Vector3(19, -2, 9);
+    const centre = new THREE.Vector3(12, 3, 9);
     return {
         group,
-        size: 66,
+        size: 72,
         centre,
         cabinAt: (p) => frameAt(curve, THREE.MathUtils.clamp(p, 0, 1)).p,
         setCabin,
