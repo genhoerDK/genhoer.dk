@@ -216,7 +216,9 @@ export function makeHouses({ streets, water = [], squares = [], blocks = [], cle
 
 /**
  * The houses as one geometry: walls a little darker at the foot, pitched roofs with the ridge along
- * the street (flat on a few). Each house's `wall` (0–1) picks its facade from `walls`; its `roof`
+ * the street (flat on a few). Each house is one closed shape: the gable ends are a wall up to the
+ * eaves, shaded exactly as the long walls, and above it a triangle in the eaves' colour, so no seam
+ * shows where the walls end and the gable begins. Each house's `wall` (0–1) picks its facade from `walls`; its `roof`
  * picks from `slates` below 0.5 and from `tiles` above.
  */
 export function houseGeometry(houses, {
@@ -226,7 +228,7 @@ export function houseGeometry(houses, {
 } = {}) {
     const pos = [], nor = [], col = [];
     const pick = (list, t) => new THREE.Color(list[Math.min(list.length - 1, Math.floor(t * list.length))]);
-    let cLow, cHigh, cRoof, cGable;
+    let cLow, cHigh, cRoof;
     const p = new THREE.Vector3(), q = new THREE.Vector3(), r = new THREE.Vector3(), n = new THREE.Vector3(), out = new THREE.Vector3();
     /** A flat face, its normal turned away from the house's middle */
     const face = (verts, colours, middle) => {
@@ -242,7 +244,6 @@ export function houseGeometry(houses, {
         cHigh = pick(walls, wall);
         cLow = cHigh.clone().multiplyScalar(0.72);
         cRoof = roof < 0.5 ? pick(slates, roof * 2) : pick(tiles, (roof - 0.5) * 2);
-        cGable = cHigh.clone().multiplyScalar(0.9);
         const [a, b, c, d] = corners;   // front left, front right, back right, back left
         const at = ([x, z], y) => [x, y, z];
         const depth = Math.hypot(d[0] - a[0], d[1] - a[1]);
@@ -252,9 +253,13 @@ export function houseGeometry(houses, {
         // The long walls, to the street and to the yard
         face([at(a, 0), at(b, 0), at(b, h), at(a, h)], [cLow, cLow, cHigh, cHigh], middle);
         face([at(c, 0), at(d, 0), at(d, h), at(c, h)], [cLow, cLow, cHigh, cHigh], middle);
-        // The ends, up to the ridge
-        face([at(d, 0), at(a, 0), at(a, h), at(mid1, ridge), at(d, h)], [cLow, cLow, cHigh, cGable, cHigh], middle);
-        face([at(b, 0), at(c, 0), at(c, h), at(mid2, ridge), at(b, h)], [cLow, cLow, cHigh, cGable, cHigh], middle);
+        // The ends: a wall up to the eaves, and the gable above it
+        face([at(d, 0), at(a, 0), at(a, h), at(d, h)], [cLow, cLow, cHigh, cHigh], middle);
+        face([at(b, 0), at(c, 0), at(c, h), at(b, h)], [cLow, cLow, cHigh, cHigh], middle);
+        if (pitched) {
+            face([at(d, h), at(a, h), at(mid1, ridge)], [cHigh, cHigh, cHigh], middle);
+            face([at(b, h), at(c, h), at(mid2, ridge)], [cHigh, cHigh, cHigh], middle);
+        }
         if (pitched) {
             face([at(a, h), at(b, h), at(mid2, ridge), at(mid1, ridge)], [cRoof, cRoof, cRoof, cRoof], middle);
             face([at(c, h), at(d, h), at(mid1, ridge), at(mid2, ridge)], [cRoof, cRoof, cRoof, cRoof], middle);

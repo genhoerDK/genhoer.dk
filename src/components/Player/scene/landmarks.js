@@ -153,17 +153,18 @@ export function landmarkGeometry(mark, ring, colours = {}) {
     }
 
     if (mark.kind === 'church') {
-        // The nave, its roof along it, and at the west end a square tower with a tall spire
-        walls(b, ring, 0, mark.height, low, high, middle);
+        // A nave from the tower to the east end with its roof along it, and at the west end a square
+        // tower with a tall spire: two volumes that meet face to face, neither passing into the other
         const west = box.u[0] < 0 ? -1 : 1;   // which end of the long axis is the west one
         const side = Math.min(box.width * 0.5, 11);
         const towerAt = west < 0 ? box.u1 - side / 2 : box.u0 + side / 2;
-        const roofFrom = west < 0 ? box.u0 : box.u0 + side, roofTo = west < 0 ? box.u1 - side : box.u1;
-        flatRoof(b, ring, mark.height, roof);
-        pitchedRoof(b, box, roofFrom, roofTo, mark.height, 0.55, roof, high);
+        const naveFrom = west < 0 ? box.u0 : box.u0 + side, naveTo = west < 0 ? box.u1 - side : box.u1;
+        const nave = [box.at(naveFrom, box.v0), box.at(naveTo, box.v0), box.at(naveTo, box.v1), box.at(naveFrom, box.v1)].flat();
+        walls(b, nave, 0, mark.height, low, high, middle);
+        pitchedRoof(b, box, naveFrom, naveTo, mark.height, 0.55, roof, high);
         const [tx, tz] = box.at(towerAt, (box.v0 + box.v1) / 2);
         const top = mark.height * 2.7, h = side / 2;
-        const corner = (a, c) => { const [x, z] = box.at(towerAt + a * h, (box.v0 + box.v1) / 2 + c * h); return [x, z]; };
+        const corner = (a, c) => box.at(towerAt + a * h, (box.v0 + box.v1) / 2 + c * h);
         const sq = [corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)].flat();
         walls(b, sq, 0, top, low, high, new THREE.Vector3(tx, top / 2, tz));
         flatRoof(b, sq, top, roof);
@@ -171,9 +172,16 @@ export function landmarkGeometry(mark, ring, colours = {}) {
         return b.geometry();
     }
 
-    // Long buildings: walls round the footprint, a pitched roof if it is near enough a box
-    walls(b, ring, 0, mark.height, low, high, middle);
-    if (boxy) pitchedRoof(b, box, box.u0, box.u1, mark.height, mark.kind === 'warehouse' ? 0.6 : 0.42, roof, high);
-    else flatRoof(b, ring, mark.height, roof);
+    // Long buildings: near enough a box, they are built as that box under a pitched roof (walls and
+    // roof from the same rectangle, so they meet exactly); otherwise walls round the footprint and a
+    // flat roof
+    if (boxy) {
+        const rect = [box.at(box.u0, box.v0), box.at(box.u1, box.v0), box.at(box.u1, box.v1), box.at(box.u0, box.v1)].flat();
+        walls(b, rect, 0, mark.height, low, high, middle);
+        pitchedRoof(b, box, box.u0, box.u1, mark.height, mark.kind === 'warehouse' ? 0.6 : 0.42, roof, high);
+    } else {
+        walls(b, ring, 0, mark.height, low, high, middle);
+        flatRoof(b, ring, mark.height, roof);
+    }
     return b.geometry();
 }
