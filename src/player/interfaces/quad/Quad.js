@@ -17,7 +17,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import dynamic from 'next/dynamic';
+import { scenes } from '@/player/vaerker/scenes';
 import { useAudio } from '@/player/AudioContext';
 import { useEngineState } from '@/player/frame/useEngineState';
 import { keyIsTaken } from '@/player/frame/keys';
@@ -27,12 +27,12 @@ import StartButton from '@/player/frame/StartButton';
 import Label from '@/components/UI/Label';
 
 /** three.js is only loaded when the work is opened */
-const QuadScene = dynamic(() => import('@/player/interfaces/quad/QuadScene'), { ssr: false });
 
 export default function QuadPlayer() {
     const { currentTrack, engine, isPlaying, play, pause } = useAudio();
     const state = useEngineState(engine, 4);
     const { speakers, textured, image, look } = currentTrack.player;
+    const Scene = scenes[currentTrack.slug];   // the work's own 3D scene (src/player/vaerker/<slug>/)
     const angles = useMemo(() => speakers.map((s) => s.angle), [speakers]);
     const photo = image ?? currentTrack.coverImageLandscape;
     const ready = isPlaying && state?.loaded;
@@ -88,8 +88,8 @@ export default function QuadPlayer() {
 
     return (
         <PlayerShell track={currentTrack} backdrop={false} model={look === 'dark'}>
-            {engine && (
-                <QuadScene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} look={look} />
+            {engine && Scene && (
+                <Scene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} look={look} />
             )}
 
             {!isPlaying && !engine ? (

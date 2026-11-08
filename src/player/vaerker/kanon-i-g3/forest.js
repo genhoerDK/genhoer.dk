@@ -17,7 +17,7 @@
 
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { GREYS, zinc, greyMaterial, edgeLines, EDGES } from '@/player/scene/style';
+import { GREYS, zinc, greyMaterial, edgeLines, EDGES } from '@/player/kit/style';
 
 const SEED = 1944;
 

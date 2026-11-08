@@ -5,7 +5,7 @@
 import Instrument from './Instrument';
 import Loop from './Loop';
 import Quad from './Quad';
-import { instruments } from '@/player/interfaces/buttons/instruments';
+import { instruments } from '@/player/vaerker/instruments';
 
 export function createEngine(kind, player) {
     switch (kind) {

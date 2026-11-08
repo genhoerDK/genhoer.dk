@@ -26,10 +26,10 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { createStage, PANEL_DISTANCE } from '@/player/scene/stage';
-import { buildHoejbane } from '@/player/interfaces/countdown/hoejbane';
-import { skyTexture } from '@/player/scene/sky';
-import { createRain } from '@/player/interfaces/countdown/weather';
-import { GREYS, LIGHT, zinc, vignette, shadowMapSize } from '@/player/scene/style';
+import { buildHoejbane } from '@/player/vaerker/53-sekunder-til-faelles/hoejbane';
+import { skyTexture } from '@/player/kit/sky';
+import { createRain } from '@/player/kit/weather';
+import { GREYS, LIGHT, zinc, vignette, shadowMapSize } from '@/player/kit/style';
 
 // The two looks. back: behind it all (the sky's horizon, or the dark); haze: the colour the town
 // greys into before it is gone; fog: the distance's haze; storm: the same in a storm, and the light

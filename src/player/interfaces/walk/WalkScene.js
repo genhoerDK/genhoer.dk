@@ -27,11 +27,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { GREYS, LIGHT, EDGES, vignetteMask, pixelRatio, fadeIn } from '@/player/scene/style';
-import { maps } from '@/player/interfaces/walk/maps';
-import { makeHouses, houseGeometry } from '@/player/interfaces/walk/town';
-import { landmarkGeometry } from '@/player/interfaces/walk/landmarks';
-import { makeTrees, treeGeometry } from '@/player/interfaces/walk/trees';
+import { GREYS, LIGHT, EDGES, vignetteMask, pixelRatio, fadeIn } from '@/player/kit/style';
+import { maps } from '@/player/vaerker/maps';
+import { makeHouses, houseGeometry } from '@/player/kit/town';
+import { landmarkGeometry } from '@/player/kit/landmarks';
+import { makeTrees, treeGeometry } from '@/player/kit/townTrees';
 
 /* ---------- THE LOOK: the 3D style (scene/style.js) — greys, the streets muted, only the stations white ---------- */
 

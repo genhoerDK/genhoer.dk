@@ -15,7 +15,7 @@
 
 import * as THREE from 'three';
 import { colors } from '@/styles/colors';
-import { pixelRatio, fadeIn } from '@/player/scene/style';
+import { pixelRatio, fadeIn } from '@/player/kit/style';
 
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift sideways (pointer + by itself), radians

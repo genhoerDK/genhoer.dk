@@ -36,10 +36,10 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { createStage, PANEL_DISTANCE } from '@/player/scene/stage';
-import { buildKanonstilling, groundAt } from '@/player/interfaces/quad/kanonstilling';
-import { createMist } from '@/player/scene/mist';
-import { skyTexture } from '@/player/scene/sky';
-import { GREYS, LIGHT, zinc, vignette, shadowMapSize, styleRenderer } from '@/player/scene/style';
+import { buildKanonstilling, groundAt } from '@/player/vaerker/kanon-i-g3/kanonstilling';
+import { createMist } from '@/player/kit/mist';
+import { skyTexture } from '@/player/kit/sky';
+import { GREYS, LIGHT, zinc, vignette, shadowMapSize, styleRenderer } from '@/player/kit/style';
 
 const TILT_MIN = 0.15, TILT_MAX = 1.3;  // radians the room is tipped towards the viewer: pointer high = flatter, low = steeper
 const LOOK_UP = 0.95, LOOK_DOWN = 1.1;   // standing in the middle: how far up and down you can look, radians from level

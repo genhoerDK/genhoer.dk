@@ -33,8 +33,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { concreteMaterial } from './concrete';
-import { createForest, forestFloorMaterial, BLUEPRINT } from '@/player/scene/forest';
-import { GREYS, edgeLines, EDGES } from '@/player/scene/style';
+import { createForest, forestFloorMaterial, BLUEPRINT } from './forest';
+import { GREYS, edgeLines, EDGES } from '@/player/kit/style';
 
 /* ---------- MEASUREMENTS (metres) ---------- */
 

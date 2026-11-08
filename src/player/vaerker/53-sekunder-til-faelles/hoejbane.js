@@ -43,8 +43,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { random, toyTree } from '@/player/scene/forest';
-import { GREYS, zinc, EDGES } from '@/player/scene/style';
+import { random, toyTree } from '@/player/vaerker/kanon-i-g3/forest';
+import { GREYS, zinc, EDGES } from '@/player/kit/style';
 
 const Z = new THREE.Vector3(0, 0, 1);
 const Y = new THREE.Vector3(0, 1, 0);
