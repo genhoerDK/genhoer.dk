@@ -2,14 +2,14 @@
 
 /**
  * The 3D map for the walk interface (three.js): the town's street net (src/data/maps/), drawn as
- * pale bands on dark ground with the harbour beside it, the town's landmarks in 3D (the church,
+ * pale bands on sandy ground with the harbour beside it, the town's landmarks in 3D (the church,
  * the water tower, Dronningens Pakhus and more, scene/landmarks.js) and houses along the streets
- * (made up from the streets, scene/town.js), seen at a slant from above. Round where you
- * are the streets are clear; further out they grey over and dissolve into a haze, with mist
- * drifting over them, and the map fades out at its own edges too — so it has no edge, only distance.
+ * (made up from the streets, scene/town.js), seen at a slant from above. The town is clear; where
+ * it ends — over the fjord, the open land and past the last streets — it greys over and dissolves
+ * into a haze that lies still there (hazeMap), with mist drifting over it.
  *
  * Each place in the work is a 3D marker, a listening station: a sphere floating over the place on a thin
- * beam of light, with a soft pool of light on the ground under it. The place you are at is white
+ * beam of light, with a soft pool of light on the ground under it. The place you are at is coral
  * and lit; the one that is playing sends rings out over the ground. Walking to another place glides
  * you there.
  *
@@ -51,8 +51,7 @@ const STATION = { here: '#ff6b4a', other: '#ffd7c9' };   // the listening statio
 const POOL = 46;                      // metres across the light on the ground under a marker
 const EDGE = 150;                     // metres over which the map fades out at its own edges
 const HAZE = [0.9, 0.93, 0.94];        // sRGB: the pale haze the distance fades into
-const NEAR = 80, FAR = 400;          // metres from where you are: clear within NEAR, gone at FAR (on the near side, towards
-                                      // you, it reaches further: the haze lies out in the distance, not at your feet)
+const TOWN = [30, 140];               // metres from the nearest street: the town is clear within the first, lost in haze by the second
 const MIST = 0xffffff;
 const REACH = { wide: 560, tall: 720 }; // metres from the camera to where you are, on a wide and a tall screen
 const SCALE_AT = 700;                 // the markers are drawn their true size seen from this far, and grow with the distance
@@ -281,23 +280,52 @@ function mistTexture(seed) {
     return tex;
 }
 
-/* ---------- THE HAZE: every material greys over and fades out with the distance from where you are ---------- */
+/* ---------- THE HAZE: fixed where the town ends, so every material greys over and fades out there ---------- */
 
-/** How far into the haze a point on the ground is: its distance from where you are, the part towards you counted at half */
-const HAZE_GLSL = `
-    uniform vec2 uFocus, uForward;
-    uniform vec4 uExtent;
-    uniform float uNear, uFar, uEdge;
-    uniform vec3 uHaze;
-    float hazeEdge(vec2 at) {
-        float d = min(min(at.x - uExtent.x, uExtent.z - at.x), min(at.y - uExtent.y, uExtent.w - at.y));
-        return smoothstep(0.0, uEdge, d);
+/**
+ * A map of the haze over the ground, made once: 0 in the town, rising with the distance from the
+ * nearest street, and 1 at the map's own edges. It lies still while you walk and look about —
+ * over the fjord, the open land and beyond the last streets.
+ */
+function hazeMap(streets, [x0, z0, x1, z1]) {
+    const W = 160, H = Math.max(2, Math.round((W * (z1 - z0)) / (x1 - x0)));
+    const segments = streets.flatMap(({ lines, half }) => lines.flatMap((l) => {
+        const out = [];
+        for (let i = 2; i < l.length; i += 2) out.push([l[i - 2], l[i - 1], l[i], l[i + 1], half]);
+        return out;
+    }));
+    const data = new Uint8Array(W * H * 4);
+    const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+    for (let j = 0; j < H; j++) {
+        for (let i = 0; i < W; i++) {
+            const x = x0 + ((i + 0.5) / W) * (x1 - x0), z = z0 + ((j + 0.5) / H) * (z1 - z0);
+            let d = Infinity;
+            for (const [ax, az, bx, bz, half] of segments) {
+                const dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz;
+                const t = l ? Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l)) : 0;
+                const ex = ax + dx * t - x, ez = az + dz * t - z;
+                d = Math.min(d, Math.sqrt(ex * ex + ez * ez) - half);
+            }
+            const edge = Math.min(x - x0, x1 - x, z - z0, z1 - z);
+            const v = Math.max(smooth(TOWN[0], TOWN[1], d), 1 - smooth(0, EDGE, edge));
+            data.set([v * 255, v * 255, v * 255, 255], (j * W + i) * 4);
+        }
     }
-    float hazeDistance(vec2 at) {
-        vec2 rel = at - uFocus;
-        float along = dot(rel, uForward);
-        float across = dot(rel, vec2(-uForward.y, uForward.x));
-        return length(vec2(across, along > 0.0 ? along : along * 0.5));
+    const tex = new THREE.DataTexture(data, W, H);
+    tex.magFilter = tex.minFilter = THREE.LinearFilter;
+    tex.needsUpdate = true;
+    return tex;
+}
+
+/** How deep in the haze a point on the ground is (0–1), from the haze map */
+const HAZE_GLSL = `
+    uniform sampler2D uHazeMap;
+    uniform vec4 uExtent;
+    uniform vec3 uHaze;
+    float hazeAt(vec2 at) {
+        vec2 uv = (at - uExtent.xy) / (uExtent.zw - uExtent.xy);
+        if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 1.0;
+        return texture2D(uHazeMap, uv).r;
     }`;
 
 function hazed(material, haze, { fade = true } = {}) {
@@ -310,10 +338,9 @@ function hazed(material, haze, { fade = true } = {}) {
         shader.fragmentShader = shader.fragmentShader
             .replace('#include <common>', `#include <common>\nvarying vec3 vHazeAt;\n${HAZE_GLSL}`)
             .replace('#include <dithering_fragment>', `
-                float hazeD = hazeDistance(vHazeAt.xz);
-                float hazeE = hazeEdge(vHazeAt.xz);
-                gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, max(smoothstep(uNear, uFar, hazeD), 1.0 - hazeE) * ${fade ? '0.95' : '0.45'});
-                ${fade ? 'gl_FragColor.a *= (1.0 - smoothstep(mix(uNear, uFar, 0.45), uFar * 1.05, hazeD)) * hazeE;' : ''}
+                float hazeH = hazeAt(vHazeAt.xz);
+                gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, hazeH * ${fade ? '0.95' : '0.45'});
+                ${fade ? 'gl_FragColor.a *= 1.0 - smoothstep(0.55, 1.0, hazeH);' : ''}
                 #include <dithering_fragment>`);
     };
     return material;
@@ -362,14 +389,11 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(40, 1, 5, 6000);
+        const extent = [...to(0, 0), ...to(map.width, map.height)];
         const haze = {
-            uFocus: { value: spots[state.current.here].clone() },
-            uForward: { value: new THREE.Vector2(0, -1) },
-            uNear: { value: NEAR },
-            uFar: { value: FAR },
+            uHazeMap: { value: null },   // made once the streets are drawn, below
             uHaze: { value: new THREE.Vector3(...HAZE) },
-            uExtent: { value: new THREE.Vector4(...to(0, 0), ...to(map.width, map.height)) },
-            uEdge: { value: EDGE },
+            uExtent: { value: new THREE.Vector4(...extent) },
         };
 
         scene.add(new THREE.HemisphereLight(0xffffff, 0xcfc5b0, 1.9));
@@ -410,6 +434,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         add(bandGeometry(streets[3].lines, PATH.width, 0.09, PATH.color, streets), softMaterial());
         add(bandGeometry(streets[1].lines, SIDE.width, 0.1, SIDE.color, streets), softMaterial());
         add(bandGeometry(streets[0].lines, MAIN.width, 0.12, MAIN.color, streets), softMaterial());
+        haze.uHazeMap.value = hazeMap(streets, extent);
 
         /* ---------- a pool of light on the ground under each place, brighter where you are ---------- */
 
@@ -458,7 +483,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             blocks: marks.map((m) => m.ring),
             houses,
             clear: spots,
-            extent: [...to(0, 0), ...to(map.width, map.height)],
+            extent,
         });
         add(treeGeometry(trees), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
 
@@ -507,10 +532,10 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                     varying vec3 vAt;
                     void main() {
                         float n = texture2D(uTex, vAt.xz / uScale + uShift).r * 0.6 + texture2D(uTex, vAt.xz / (uScale * 0.37) - uShift * 1.7).r * 0.4;
-                        float d = hazeDistance(vAt.xz);
-                        float far = smoothstep(uNear * 0.5, uFar, d);
-                        float edge = (1.0 - smoothstep(uFar * 0.85, uFar * 1.3, d)) * (0.4 + 0.6 * hazeEdge(vAt.xz));
-                        gl_FragColor = vec4(uColor, smoothstep(0.38, 0.8, n) * uAmount * (0.18 + 0.82 * far) * edge);
+                        float h = hazeAt(vAt.xz);
+                        vec2 out2 = max(uExtent.xy - vAt.xz, vAt.xz - uExtent.zw);
+                        float beyond = 1.0 - smoothstep(0.0, 220.0, max(out2.x, out2.y));   // thinning out past the map's edge
+                        gl_FragColor = vec4(uColor, smoothstep(0.38, 0.8, n) * uAmount * (0.12 + 0.88 * h) * beyond);
                     }`,
                 transparent: true,
                 depthWrite: false,
@@ -592,7 +617,6 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             const goal = spots[at];
             if (still) focus.copy(goal);
             else focus.lerp(goal, 1 - Math.exp(-dt * 1.8));
-            haze.uFocus.value.copy(focus);
 
             // The view: the pointer, a drag, the wheel, and a slow drift of its own
             const k = 1 - Math.exp(-dt * 3);
@@ -606,7 +630,6 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             const reach = (size.w < size.h ? REACH.tall : REACH.wide) * eased.zoom;
             camera.position.set(focus.x + Math.sin(yaw) * Math.cos(pitch) * reach, Math.sin(pitch) * reach, focus.y + Math.cos(yaw) * Math.cos(pitch) * reach);
             camera.lookAt(focus.x, 0, focus.y);
-            haze.uForward.value.set(-Math.sin(yaw), -Math.cos(yaw));
 
             // The markers: the one you are at is lit; the playing one rings out
             markers.forEach((m, p) => {
@@ -688,6 +711,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                 (Array.isArray(obj.material) ? obj.material : [obj.material]).forEach((m) => m?.dispose());
             });
             mistTex.forEach((tex) => tex.dispose());
+            haze.uHazeMap.value?.dispose();
             renderer.dispose();
             canvas.remove();
         };
