@@ -2,7 +2,8 @@
 
 /**
  * The 3D map for the walk interface (three.js): the town's street net (src/data/maps/), drawn as
- * pale bands on dark ground with the harbour beside it, seen at a slant from above. Round where you
+ * pale bands on dark ground with the harbour beside it and houses along them (made up from the
+ * streets, scene/town.js), seen at a slant from above. Round where you
  * are the streets are clear; further out they grey over and dissolve into a haze, with mist
  * drifting over them, and the map fades out at its own edges too — so it has no edge, only distance.
  *
@@ -27,6 +28,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { colors } from '@/styles/colors';
 import { maps } from '@/data/maps';
+import { makeHouses, houseGeometry } from '@/components/Player/scene/town';
 
 /* ---------- THE LOOK ---------- */
 
@@ -313,6 +315,20 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             mesh.position.set(spot.x, 0.3, spot.y);
             return material;
         });
+
+        /* ---------- houses along the streets, made up from the streets (scene/town.js) ---------- */
+
+        const houses = makeHouses({
+            streets: [
+                { lines: lines(map.main), half: MAIN.width / 2 },
+                { lines: lines(map.side), half: SIDE.width / 2 },
+                { lines: lines(map.zone), half: (map.zoneWidth ?? 14) / 2 },
+            ],
+            water: lines(map.water),
+            squares: lines(map.squares),
+            clear: spots,
+        });
+        add(houseGeometry(houses), hazed(new THREE.MeshLambertMaterial({ vertexColors: true }), haze));
 
         /* ---------- the markers: a stone floating over each place on a beam of light ---------- */
 
