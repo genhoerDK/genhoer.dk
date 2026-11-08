@@ -45,6 +45,7 @@ const LOOK_UP = 0.95, LOOK_DOWN = 1.1;   // standing in the middle: how far up a
 const EYE_SCALE = 0.5;                  // the room's scale standing inside (keeps the camera's near plane at 10 cm)
 const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
 const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
+const INK = { horizon: 0x18181b, sky: 0x18181b, ground: 0x18181b };     // the blueprint look: everything fades into the dark
 const PALE = { horizon: 0xdcdcd4, sky: 0xebe8e0, ground: 0xc8c6b4 };   // the same, in the stylised look: a pale, warm haze over everything
 const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
 const WAVE_QUIET = 1.6, WAVE_LOUD = 0.45; // seconds between a speaker's wavefronts, when it plays softly and loudly
@@ -121,8 +122,9 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const room = new THREE.Group();            // turns with the listener; metres inside
         tilt.add(room);
 
-        const stylised = look === 'stylised';
-        const haze = stylised ? PALE : HAZE;
+        const blueprint = look === 'blueprint';
+        const stylised = look === 'stylised' || blueprint;   // blueprint shares the stylised scene, drawn in lines on dark
+        const haze = blueprint ? INK : stylised ? PALE : HAZE;
         const emplacement = buildKanonstilling({ textured, look });
         room.add(emplacement.group);
 
@@ -163,7 +165,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 const mesh = new THREE.Mesh(waveGeo, new THREE.ShaderMaterial({
                     ...waveShader,
                     uniforms: { uColor: { value: new THREE.Color(colors.paper) }, uToward: { value: toward }, uOpacity: { value: 0 } },
-                    transparent: true, depthWrite: false, blending: stylised ? THREE.SubtractiveBlending : THREE.AdditiveBlending, premultipliedAlpha: stylised, side: THREE.DoubleSide, toneMapped: false,
+                    transparent: true, depthWrite: false, blending: stylised && !blueprint ? THREE.SubtractiveBlending : THREE.AdditiveBlending, premultipliedAlpha: stylised && !blueprint, side: THREE.DoubleSide, toneMapped: false,
                 }));
                 mesh.position.copy(mouth);
                 mesh.visible = false;
@@ -191,8 +193,8 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         room.add(skyDome);
 
         // Stylised: a sky always round everything, far out — soft blue over the haze, light clouds
-        const skyMap = stylised ? skyTexture() : null;
-        if (stylised) {
+        const skyMap = stylised && !blueprint ? skyTexture() : null;
+        if (skyMap) {
             skyDome.geometry.dispose();
             skyDome.geometry = new THREE.SphereGeometry(110, 64, 32).rotateX(Math.PI / 2);
             skyDome.material = new THREE.MeshBasicMaterial({ map: skyMap, side: THREE.BackSide, depthWrite: false, fog: false });

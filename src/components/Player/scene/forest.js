@@ -20,6 +20,9 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 
 const SEED = 1944;
 
+/** The blueprint look: dark fills, white lines (as the map of Tværveje) */
+export const BLUEPRINT = { fill: 0x1f1f22, line: 0xfafafa, ground: 0x27272a };
+
 /* ---------- RANDOM AND NOISE ---------- */
 
 function random(seed) {
@@ -997,7 +1000,7 @@ function patchCutaway(shader, uniforms) {
  * @param {{ radius: number, inner: number, floor: number }} options.pit  The open pit (plants on its floor)
  * @returns {{ group, update(centre: THREE.Vector3, radius: number), dispose() }}
  */
-export function createForest({ groundAt, distance, radius: R, pit, stylised = false }) {
+export function createForest({ groundAt, distance, radius: R, pit, stylised = false, blueprint = false }) {
     const rand = random(SEED);
     const cover = coverAt(distance);
     const group = new THREE.Group();
@@ -1107,7 +1110,10 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
     /* One geometry for all the wood, one for all the foliage */
     const cut = { uCutCentre: { value: new THREE.Vector3() }, uCutRadius: { value: 0 } };
     const barkMap = barkTexture(rand);
-    const woodMaterial = stylised
+    const woodMaterial = blueprint
+        // blueprint: dark, unlit, drawn in white lines (below)
+        ? new THREE.MeshBasicMaterial({ color: BLUEPRINT.fill, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
+        : stylised
         ? new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0, flatShading: true })
         : new THREE.MeshStandardMaterial({ map: barkMap, vertexColors: true, roughness: 1, metalness: 0 });
     woodMaterial.onBeforeCompile = (shader) => patchCutaway(shader, cut);
@@ -1123,6 +1129,14 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
     const foliage = new THREE.Mesh(cards.build(), foliageMaterial);
     foliage.castShadow = foliage.receiveShadow = true;
     group.add(woodMesh, foliage);
+    if (blueprint) {
+        // The trees as a drawing: their edges in thin white lines, thinning out in front of the emplacement too
+        const lines = new THREE.LineSegments(new THREE.EdgesGeometry(woodMesh.geometry, 28),
+            new THREE.LineBasicMaterial({ color: BLUEPRINT.line, transparent: true, opacity: 0.22 }));
+        lines.material.onBeforeCompile = (shader) => patchCutaway(shader, cut);
+        woodMesh.castShadow = woodMesh.receiveShadow = false;
+        group.add(lines);
+    }
 
     return {
         group,

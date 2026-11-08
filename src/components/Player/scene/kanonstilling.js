@@ -33,7 +33,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { concreteMaterial } from './concrete';
-import { createForest, forestFloorMaterial } from './forest';
+import { createForest, forestFloorMaterial, BLUEPRINT } from './forest';
 
 /* ---------- MEASUREMENTS (metres) ---------- */
 
@@ -390,7 +390,7 @@ export function groundAt(x, y) {
  * forestFloorMaterial (scene/forest.js), from just under the walk's edge out to 40 m, fading out at its far edge so the
  * photo behind shows
  */
-function forestFloor(stylised = false) {
+function forestFloor(stylised = false, blueprint = false) {
     const R0 = LEDGE.outer - 0.05, R1 = stylised ? 90 : 40, steps = 480;   // stylised: out to where the forest fades into the haze
     const radii = [];
     for (let r = R0; r < R1; r += r < 22 ? 0.2 : r < 40 ? 0.6 : 1.5) radii.push(r);
@@ -416,11 +416,50 @@ function forestFloor(stylised = false) {
     g.setAttribute('color', new THREE.Float32BufferAttribute(colour, 4));
     g.setIndex(index);
     g.computeVertexNormals();
-    const mesh = new THREE.Mesh(g, stylised
+    const mesh = new THREE.Mesh(g, blueprint
+        ? blueprintGround(R1)
+        : stylised
         ? new THREE.MeshStandardMaterial({ color: 0x8e9370, roughness: 1, metalness: 0, vertexColors: true, transparent: true })
         : forestFloorMaterial(bunkerDistance));
     mesh.receiveShadow = true;
     return mesh;
+}
+
+/**
+ * The forest floor in the blueprint look: dark, with height contours every 25 cm (a heavier one each
+ * metre) and a faint 2 m grid, fading out towards its edge
+ */
+function blueprintGround(R) {
+    return new THREE.ShaderMaterial({
+        transparent: true, depthWrite: true, fog: true,
+        uniforms: { ...THREE.UniformsLib.fog, uFill: { value: new THREE.Color(BLUEPRINT.ground) }, uLine: { value: new THREE.Color(BLUEPRINT.line) }, uR: { value: R } },
+        vertexShader: `
+            #include <fog_pars_vertex>
+            varying vec3 vPos;
+            void main() {
+                vPos = position;
+                vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+                #include <fog_vertex>
+            }`,
+        fragmentShader: `
+            #include <fog_pars_fragment>
+            uniform vec3 uFill, uLine;
+            uniform float uR;
+            varying vec3 vPos;
+            float lines(float v, float width) {
+                float d = abs(fract(v - 0.5) - 0.5) / fwidth(v);
+                return 1.0 - min(d / width, 1.0);
+            }
+            void main() {
+                float contour = lines(vPos.z / 0.25, 1.0) * 0.22 + lines(vPos.z, 1.2) * 0.3;
+                float grid = max(lines(vPos.x / 2.0, 0.8), lines(vPos.y / 2.0, 0.8)) * 0.07;
+                vec3 colour = mix(uFill, uLine, max(contour, grid));
+                float edge = 1.0 - smoothstep(uR * 0.6, uR, length(vPos.xy));
+                gl_FragColor = vec4(colour, edge);
+                #include <fog_fragment>
+            }`,
+    });
 }
 
 /* ---------- THE PARTS ---------- */
@@ -1068,21 +1107,31 @@ function placedLoudspeaker(angle) {
 /**
  * The emplacement as a group (metres, z up).
  *   textured  true = the weathered concrete; false (default) = plain grey concrete
- *   look      'realistic' (default) or 'stylised': pale, even concrete, a plain green floor and
- *             simple faceted trees, as in a modern indie game
+ *   look      'realistic' (default); 'stylised': pale, even concrete, a plain green floor and
+ *             simple faceted trees, as in a modern indie game; 'blueprint': the stylised scene
+ *             drawn in white lines on dark, its floor in height contours
  */
 export function buildKanonstilling({ textured = false, look = 'realistic' } = {}) {
-    const stylised = look === 'stylised';
+    const blueprint = look === 'blueprint';
+    const stylised = look === 'stylised' || blueprint;
     const group = new THREE.Group();
     // The concrete a little darker than it was, as in the photos
     const model = new THREE.Mesh(emplacementGeometry(), concreteMaterial({
         // stylised: dark granite, one even colour, as in a cartoon
-        textured: textured && !stylised, color: stylised ? 0x7c7c80 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
+        textured: textured && !stylised, color: blueprint ? 0x3a3a3f : stylised ? 0x7c7c80 : 0xa3a29e, floors: [P, CONE.floor, BLOCK.roof], walk: P, sheltered: [WALL.outer, LEDGE.outer + 0.9, WALK.soffit] }));
     model.material.flatShading = stylised;   // faceted, as cut stone in a cartoon
     model.castShadow = true;
     model.receiveShadow = true;
-    const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised });
-    group.add(model, forestFloor(stylised), forest.group);
+    const forest = createForest({ groundAt, distance: bunkerDistance, radius: 30, pit: { radius: PIT.radius, inner: CONE.base, floor: P }, stylised, blueprint });
+    group.add(model, forestFloor(stylised, blueprint), forest.group);
+    if (blueprint) {
+        // drawn: its edges in white lines over the dark faces
+        model.material.polygonOffset = true;
+        model.material.polygonOffsetFactor = 1;
+        model.material.polygonOffsetUnits = 1;
+        group.add(new THREE.LineSegments(new THREE.EdgesGeometry(model.geometry, 25),
+            new THREE.LineBasicMaterial({ color: BLUEPRINT.line, transparent: true, opacity: 0.85 })));
+    }
     return {
         group,
         /** The trees round it: forest.update(centre, radius) each frame, so those in front thin out */

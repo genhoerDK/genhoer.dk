@@ -8,7 +8,8 @@
  * take you down to stand at eye height in the middle, and back up. Space pauses and plays.
  *
  *   player.textured  true = the concrete texture on the emplacement (default: plain grey)
- *   player.look      'realistic' (default) or 'stylised': a pale, simple, modern indie-game look
+ *   player.look      'realistic' (default), 'stylised' (a pale, simple, modern indie-game look) or
+ *                    'blueprint' (the same scene drawn in white lines on dark, as Tværveje's map)
  *   player.image     Photo behind
  *   player.speakers  [{ label, angle, file, channel? }]  angle: degrees clockwise from straight ahead
  *   player.reverb    0–1, the room's echo on top
