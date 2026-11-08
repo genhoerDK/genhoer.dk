@@ -8,7 +8,7 @@
 // A work with an audio file and no entry here gets the timeline. A work with neither has no player.
 //
 //   interface          One of src/player/interfaces/registry.js:
-//                      timeline (default) · circular · buttons · loop · countdown · walk · quad
+//                      timeline (default) · buttons · loop · countdown · walk · quad
 //   image              A photo behind the player instead of the cover (landscape)
 //   ...                The interface's own settings — described in each interface's file
 //

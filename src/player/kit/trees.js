@@ -1,6 +1,6 @@
 /**
  * Trees and bushes: soft, faceted low-poly forms with no texture. Every work draws its trees with
- * these, so a tree changed here changes in every work. Metres, z up; each part goes into `out` as
+ * these, in the style's greys (TREES), so a tree changed here changes in every work. Metres, z up; each part goes into `out` as
  * a painted, non-indexed geometry (merge them all into one, with greyMaterial()).
  *
  *   tree(kind, base, height, rand, out, palette)   one tree or bush standing at base
@@ -23,15 +23,6 @@ export const TREES = {
     spruce: [zinc(725), GREYS.leaves[0]],
     birch: [GREYS.leaves[2], zinc(575)],
     trunk: GREYS.trunk, pineBark: zinc(750), birchBark: zinc(550),
-};
-
-/** The older pale looks (Kanon i G3 'stylised', 53 sekunder 'pale'): muted greens */
-export const TREES_PALE = {
-    leaves: ['#8a9270', '#7d8766', '#949a7a', '#86906c'],
-    pine: ['#7b8466', '#737d60', '#838b6c'],
-    spruce: ['#5f6b57', '#56614f', '#66715c'],
-    birch: ['#a3a77f', '#9aa078'],
-    trunk: '#b3aa9d', pineBark: '#a8998a', birchBark: '#ddd7cb',
 };
 
 const vary = (rand, hex, amount = 0.06) => colour(hex).clone().multiplyScalar(1 - amount + rand() * amount * 2);

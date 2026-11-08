@@ -9,15 +9,12 @@
  */
 
 import * as THREE from 'three';
+import { GREYS } from '@/player/kit/style';
 
 /** Each kind's colours (wall, roof, and the tower's bands and the church's spire); `colours` on a call overrides them */
-const LOOK = {
-    church: { wall: '#b5543b', roof: '#5a646e', spire: '#4f6b66' },
-    tower: { wall: '#b9553c', roof: '#8a3a2a', band: '#f4efe4' },
-    warehouse: { wall: '#f1d58f', roof: '#d4673f' },
-    hall: { wall: '#c45b41', roof: '#da7041' },
-    chapel: { wall: '#f3efe7', roof: '#d36a43' },
-};
+// Every kind in the style (kit/style.js): the landmark's grey, its roof a step lighter
+const LANDMARK = { wall: GREYS.landmark, roof: GREYS.landmarkRoof, band: GREYS.landmarkRoof, spire: GREYS.landmarkRoof };
+const LOOK = { church: LANDMARK, tower: LANDMARK, warehouse: LANDMARK, hall: LANDMARK, chapel: LANDMARK };
 
 /** The footprint's long axis, short axis, middle and size (an oriented box round it) */
 export function boxOf(ring) {

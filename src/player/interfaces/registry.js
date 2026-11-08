@@ -13,7 +13,6 @@
 
 export const INTERFACES = {
     timeline:  { engine: 'file', tone: 'ink', opens: false, loop: true },
-    circular:  { engine: 'file', tone: 'paper', opens: false, loop: true },
     buttons:   { engine: 'instrument', tone: 'ink', opens: true },
     loop:      { engine: 'loop', tone: 'ink', opens: true },
     countdown: { engine: 'file', tone: 'ink', opens: true, silent: true, loop: false },

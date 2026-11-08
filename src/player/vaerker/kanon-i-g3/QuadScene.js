@@ -3,8 +3,8 @@
 /**
  * 3D scene for a work made for four speakers (three.js): the gun emplacement seen from above
  * (kanonstilling.js), in its forest (forest.js), with the four loudspeakers on the ring wall where the work was played;
- * you are in the middle of the pit. The photo (with depth) and smoke lie behind, on the shared
- * stage (scene/stage.js). A low sun stands to one side of the room and turns with it, so the
+ * you are in the middle of the pit, on the shared stage (scene/stage.js), in the 3D style
+ * (STIL.md, kit/style.js). A low sun stands to one side of the room and turns with it, so the
  * shadows stay where they fall as you turn.
  *
  * The sound: from where each speaker stands, wavefronts drift slowly in towards the listener, one
@@ -14,7 +14,8 @@
  * Zoom (the wheel, a pinch, ↑/↓, or zoomRef from outside) takes you from the view from above down
  * into the emplacement, to stand at eye height on the pivot cone in the middle: the trees round
  * you, the walls at full height, the waves coming in from the speakers; up and down then looks up
- * into the trees and down at the floor, and the distance hazes over into a sky round it all.
+ * into the trees and down at the floor, and the distance greys over into the haze, and over you
+ * the dark.
  *
  * The pointer turns you: to the right and you turn right — the room turns anticlockwise under you,
  * so what was on your right comes round to the front, as you hear it. A full turn from one edge of
@@ -22,15 +23,11 @@
  * (src/player/audio/Quad.js) is told which way the listener faces.
  *
  * @param {Quad} engine
- * @param {boolean} [textured=false] The concrete texture (false: plain grey)
  * @param {number[]} angles          Where the speakers stand, degrees clockwise from straight ahead
- * @param {string} cover             Photo URL behind
- * @param {string} [coverDepth]
  * @param {{ current: number }} [turnRef]  Extra turn in radians (the keyboard, the compass), added to the pointer's
  * @param {(yaw: number) => void} [onTurn]
  * @param {{ current: number }} [zoomRef]  Where to be: 0 = above, 1 = standing in the middle
  * @param {(inside: boolean) => void} [onZoom]  Told when you go in or come out
- * @param {'realistic'|'stylised'} [look]  stylised: pale haze instead of the photo, soft light, simple forms
  */
 
 import { useEffect, useRef } from 'react';
@@ -38,21 +35,16 @@ import * as THREE from 'three';
 import { createStage, PANEL_DISTANCE } from '@/player/scene/stage';
 import { buildKanonstilling, groundAt } from '@/player/vaerker/kanon-i-g3/kanonstilling';
 import { createMist } from '@/player/kit/mist';
-import { skyTexture } from '@/player/kit/sky';
 import { GREYS, LIGHT, zinc, vignette, shadowMapSize, styleRenderer } from '@/player/kit/style';
 
 const TILT_MIN = 0.15, TILT_MAX = 1.3;  // radians the room is tipped towards the viewer: pointer high = flatter, low = steeper
 const LOOK_UP = 0.95, LOOK_DOWN = 1.1;   // standing in the middle: how far up and down you can look, radians from level
 const EYE_SCALE = 0.5;                  // the room's scale standing inside (keeps the camera's near plane at 10 cm)
 const EYE_FOV = 50, ABOVE_FOV = 32;     // wider when you stand in it
-const HAZE = { horizon: 0x8e938b, sky: 0xbfc8cf, ground: 0x5a5d55 };   // the sky round you, and the haze the distance fades into
-const GREY = { horizon: GREYS.haze, sky: GREYS.haze, ground: GREYS.haze };   // the dark look, the 3D style: far off it greys over
-const INK = { horizon: 0x18181b, sky: 0x18181b, ground: 0x18181b };     // the blueprint look: everything fades into the dark
-const PALE = { horizon: 0xdcdcd4, sky: 0xebe8e0, ground: 0xc8c6b4 };   // the same, in the stylised look: a pale, warm haze over everything
+const HAZE = { horizon: GREYS.haze, sky: GREYS.back, ground: GREYS.haze };   // round you inside: the haze at the horizon, the dark overhead
 const WAVE_SPEED = 2.4;                 // metres a second (slowed right down from sound's 343, so it can be seen)
 const WAVE_QUIET = 1.6, WAVE_LOUD = 0.45; // seconds between a speaker's wavefronts, when it plays softly and loudly
 const ONSET = 0.12;
-const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;                     // a rise in level this sudden (a note, a hit) sends a wavefront at once
 
 /* A wavefront: a shell round the speaker, bright at its rim and only on the side facing the listener */
 const waveShader = {
@@ -76,7 +68,7 @@ const waveShader = {
         }`,
 };
 
-export default function QuadScene({ engine, textured = false, angles, cover, coverDepth, turnRef, onTurn, zoomRef, onZoom, look = 'realistic' }) {
+export default function QuadScene({ engine, angles, turnRef, onTurn, zoomRef, onZoom }) {
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -89,27 +81,23 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         const room = new THREE.Group();            // turns with the listener; metres inside
         tilt.add(room);
 
-        const blueprint = look === 'blueprint', dark = look === 'dark';
-        const stylised = look === 'stylised' || blueprint || dark;   // blueprint and dark share the stylised scene
-        const haze = dark ? GREY : blueprint ? INK : stylised ? PALE : HAZE;
-        const emplacement = buildKanonstilling({ textured, look });
+        const haze = HAZE;
+        const emplacement = buildKanonstilling();
         room.add(emplacement.group);
 
-        // Smoke drifting through the trees, mist lying over the ground
-        const mist = createMist({ groundAt, radius: 34, amount: dark ? 0.35 : stylised ? 0 : 1.7, colour: dark ? zinc(500) : undefined });   // stylised: clear air; dark: a little mist drifting
+        // A little mist drifting over the ground
+        const mist = createMist({ groundAt, radius: 34, amount: 0.35, colour: zinc(500) });
         room.add(mist.group);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // The sun, from beyond the room on the left; it turns with the room, so the shadows stay where they fall
-        const sun = new THREE.DirectionalLight(dark ? LIGHT.sun : 0xfff1de, dark ? LIGHT.sunStrength : stylised ? 1.7 : 2.5);
+        const sun = new THREE.DirectionalLight(LIGHT.sun, LIGHT.sunStrength);
         const SUN = new THREE.Vector3(-20, 22, 30);
         sun.castShadow = true;
         sun.shadow.mapSize.setScalar(shadowMapSize());
         room.add(sun, sun.target);
-        // Light from the sky and back up from the forest floor: softer shadows, as under real trees
-        tilt.add(dark ? new THREE.HemisphereLight(LIGHT.sky, LIGHT.fromBelow, LIGHT.skyStrength) : stylised ? new THREE.HemisphereLight(0xf4f1e8, 0x8f9473, 0.6) : new THREE.HemisphereLight(0xcdd6de, 0x4a4234, 0.9));
-
-        /* ---------- THE LISTENER: a ball floating over the middle ---------- */
+        // Light from the whole sky (kit/style.js)
+        tilt.add(new THREE.HemisphereLight(LIGHT.sky, LIGHT.fromBelow, LIGHT.skyStrength));
 
         /* ---------- THE LOUDSPEAKERS, where the work was played ---------- */
 
@@ -132,7 +120,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
                 const mesh = new THREE.Mesh(waveGeo, new THREE.ShaderMaterial({
                     ...waveShader,
                     uniforms: { uColor: { value: new THREE.Color(GREYS.sound) }, uToward: { value: toward }, uOpacity: { value: 0 } },
-                    transparent: true, depthWrite: false, blending: look === 'stylised' ? THREE.SubtractiveBlending : THREE.AdditiveBlending, premultipliedAlpha: look === 'stylised', side: THREE.DoubleSide, toneMapped: false,
+                    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, toneMapped: false,
                 }));
                 mesh.position.copy(mouth);
                 mesh.visible = false;
@@ -142,7 +130,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             return { waves, reach, level: 0, fast: 0, since: Math.random() * WAVE_QUIET };
         });
 
-        /* ---------- THE SKY: only seen from inside, round everything ---------- */
+        /* ---------- ROUND YOU INSIDE: the haze at the horizon, the dark overhead ---------- */
 
         const skyGeo = new THREE.SphereGeometry(45, 48, 24);
         const skyColours = [];
@@ -158,15 +146,6 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         skyDome.renderOrder = -0.5;                          // over the photo, under the rest
         skyDome.visible = false;
         room.add(skyDome);
-
-        // Stylised: a sky always round everything, far out — soft blue over the haze, light clouds
-        const skyMap = stylised && !blueprint ? skyTexture() : null;
-        if (skyMap) {
-            skyDome.geometry.dispose();
-            skyDome.geometry = new THREE.SphereGeometry(110, 64, 32).rotateX(Math.PI / 2);
-            skyDome.material = new THREE.MeshBasicMaterial({ map: skyMap, side: THREE.BackSide, depthWrite: false, fog: false });
-            skyDome.visible = true;
-        }
 
         /* ---------- LAYOUT ---------- */
 
@@ -265,15 +244,11 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             const lens = THREE.MathUtils.lerp(ABOVE_FOV, EYE_FOV, u);
             if (Math.abs(stage.camera.fov - lens) > 0.01) { stage.camera.fov = lens; stage.camera.updateProjectionMatrix(); }
 
-            // The distance hazes over into the sky as you come down
-            if (!stylised) {
-                skyDome.visible = u > 0.001;
-                skyDome.material.opacity = smooth(0.35, 0.9, u);
-            }
-            // (stylised: a haze from above too, so what lies further off fades into it)
-            // (stylised: only far off, so the forest fades into it and the near things stay clear)
-            fog.near = THREE.MathUtils.lerp(stylised ? 95 : 400, stylised ? 22 : 14, u) * s;
-            fog.far = THREE.MathUtils.lerp(stylised ? 150 : 800, stylised ? 80 : 70, u) * s;
+            // Coming down, the haze closes round you; from above only what lies far off greys over
+            skyDome.visible = u > 0.001;
+            skyDome.material.opacity = smooth(0.35, 0.9, u);
+            fog.near = THREE.MathUtils.lerp(95, 22, u) * s;
+            fog.far = THREE.MathUtils.lerp(150, 80, u) * s;
 
             if ((u > 0.5) !== inside) { inside = u > 0.5; onZoom?.(inside); }
             return u;
@@ -284,7 +259,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
 
         const cutCentre = new THREE.Vector3();
         const stage = createStage(container, {
-            smoke: stylised ? 0 : 1,
+            smoke: 0,
             light: 0.35,
             shadows: true,
             onResize: layout,
@@ -345,11 +320,7 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
         });
         stage.panel.add(tilt);
         stage.scene.fog = fog;
-        if (dark) {
-            // The 3D style: no colour grading, ink behind, fading into the dark at the top and bottom (overlay below)
-            styleRenderer(stage.renderer);
-        } else if (stylised) stage.renderer.setClearColor(haze.horizon, 1);
-        else stage.setBackdrop(cover, coverDepth);
+        styleRenderer(stage.renderer);   // no colour grading, ink behind (kit/style.js)
         stage.start();
 
         return () => {
@@ -364,24 +335,14 @@ export default function QuadScene({ engine, textured = false, angles, cover, cov
             });
             emplacement.forest.dispose();
             mist.dispose();
-            skyMap?.dispose();
             stage.dispose();
         };
-    }, [engine, textured, angles, cover, coverDepth, turnRef, onTurn, zoomRef, onZoom, look]);
+    }, [engine, angles, turnRef, onTurn, zoomRef, onZoom]);
 
-    // Over the picture: the dark look (the 3D style) fades into the dark at the top and bottom and is clean;
-    // the others as through a lens, the corners a little darker, a fine grain
+    // The picture fades into the dark at the top and the bottom (kit/style.js)
     return (
         <div ref={containerRef} className='absolute inset-0 touch-none'>
-            {look === 'dark' ? (
-                <div className='absolute inset-0 pointer-events-none' style={{ background: vignette }} />
-            ) : look === 'stylised' ? (
-                // pale: only a shade at the top and bottom, so the title and controls can be read
-                <div className='absolute inset-0 pointer-events-none' style={{ background: 'linear-gradient(to bottom, rgba(40,40,34,0.4), transparent 16%, transparent 62%, rgba(40,40,34,0.55))' }} />
-            ) : (
-                <div className='absolute inset-0 pointer-events-none' style={{ background: 'radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(10,10,12,0.5) 100%)' }} />
-            )}
-            {look !== 'dark' && <div className='absolute inset-0 pointer-events-none opacity-[0.09] mix-blend-overlay' style={{ backgroundImage: GRAIN }} />}
+            <div className='absolute inset-0 pointer-events-none' style={{ background: vignette }} />
         </div>
     );
 }

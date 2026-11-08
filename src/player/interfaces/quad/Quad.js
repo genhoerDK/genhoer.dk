@@ -2,16 +2,11 @@
 
 /**
  * Interface: quad — a work made for four speakers around the listener (src/player/audio/Quad.js), shown
- * as a 3D scene (QuadScene.js): the gun emplacement seen from above, the sound travelling in from
+ * as its work's 3D scene (src/player/vaerker/<slug>/, Kanon i G3: the gun emplacement seen from above), the sound travelling in from
  * the speakers towards you. Move the pointer to turn: with headphones each speaker stays where it
  * hangs. ←/→ turn too, and on a phone the compass can turn it. Scroll, pinch, ↑/↓ or the button
  * take you down to stand at eye height in the middle, and back up. Space pauses and plays.
  *
- *   player.textured  true = the concrete texture on the emplacement (default: plain grey)
- *   player.look      'realistic' (default), 'stylised' (a pale, simple, modern indie-game look) or
- *                    'blueprint' (the same scene drawn in white lines on dark) or 'dark' (Tværveje's dark
- *                    design: dark ground, greys, the emplacement a shade lighter, no colour)
- *   player.image     Photo behind
  *   player.speakers  [{ label, angle, file, channel? }]  angle: degrees clockwise from straight ahead
  *   player.reverb    0–1, the room's echo on top
  */
@@ -21,7 +16,6 @@ import { scenes } from '@/player/vaerker/scenes';
 import { useAudio } from '@/player/AudioContext';
 import { useEngineState } from '@/player/frame/useEngineState';
 import { keyIsTaken } from '@/player/frame/keys';
-import { depthMapFor } from '@/player/scene/depth';
 import PlayerShell, { Controls, Status } from '@/player/frame/PlayerShell';
 import StartButton from '@/player/frame/StartButton';
 import Label from '@/components/UI/Label';
@@ -31,10 +25,9 @@ import Label from '@/components/UI/Label';
 export default function QuadPlayer() {
     const { currentTrack, engine, isPlaying, play, pause } = useAudio();
     const state = useEngineState(engine, 4);
-    const { speakers, textured, image, look } = currentTrack.player;
+    const { speakers } = currentTrack.player;
     const Scene = scenes[currentTrack.slug];   // the work's own 3D scene (src/player/vaerker/<slug>/)
     const angles = useMemo(() => speakers.map((s) => s.angle), [speakers]);
-    const photo = image ?? currentTrack.coverImageLandscape;
     const ready = isPlaying && state?.loaded;
 
     /* ---------- TURNING ON TOP OF THE POINTER: the keyboard and the compass ---------- */
@@ -87,9 +80,9 @@ export default function QuadPlayer() {
     const touch = typeof window !== 'undefined' && 'ontouchstart' in window;
 
     return (
-        <PlayerShell track={currentTrack} backdrop={false} model={look === 'dark'}>
+        <PlayerShell track={currentTrack} backdrop={false} model>
             {engine && Scene && (
-                <Scene engine={engine} textured={textured === true} angles={angles} cover={photo} coverDepth={depthMapFor(photo)} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} look={look} />
+                <Scene engine={engine} angles={angles} turnRef={turnRef} onTurn={onTurn} zoomRef={zoomRef} onZoom={onZoom} />
             )}
 
             {!isPlaying && !engine ? (

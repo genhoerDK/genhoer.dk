@@ -4,7 +4,6 @@
 //
 // To add an interface: a component here, a line in registry.js, and its settings in players.js.
 
-import CircularScrubber from '@/player/interfaces/circular/CircularScrubber';
 import TimelinePlayer from '@/player/interfaces/timeline/TimelinePlayer';
 import InstrumentPlayer from '@/player/interfaces/buttons/InstrumentPlayer';
 import LoopPlayer from '@/player/interfaces/loop/LoopPlayer';
@@ -13,7 +12,6 @@ import WalkPlayer from '@/player/interfaces/walk/Walk';
 import QuadPlayer from '@/player/interfaces/quad/Quad';
 
 export const components = {
-    circular: CircularScrubber,
     timeline: TimelinePlayer,
     buttons: InstrumentPlayer,
     loop: LoopPlayer,

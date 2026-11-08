@@ -1,7 +1,5 @@
-// Sound works played with buttons instead of the circular player.
-// Troldetoner's instrument: the work's player.js names it (instrument: 'troldetoner'), and
-// src/player/vaerker/instruments.js finds it by that name.
-// Projects without `player` get the circular player.
+// Troldetoner's instrument: the sounds behind its buttons. The work's player.js names it
+// (instrument: 'troldetoner'), and src/player/vaerker/instruments.js finds it by that name.
 //
 // baseUrl              Folder on the CDN the files below are read from
 // samples              One per button, in order. release = seconds into the file where the tail

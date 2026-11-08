@@ -12,8 +12,8 @@
  * the file ends (as the ring in Under overfladen), whatever the display counts. Space or Enter
  * press the button.
  *
- * With `player.model`, the lift itself is behind it in 3D (src/player/vaerker/53-sekunder-til-faelles/)
- * instead of the photo: the cabin waits at one end, and on each ride glides to the other while the
+ * When the work has a 3D scene (src/player/vaerker/scenes.js), it stands behind instead of the
+ * photo (53 sekunder til fælles: the lift itself): the cabin waits at one end, and on each ride glides to the other while the
  * display counts down — at the count's pace, so a slow variation is a slow ride, and the one that
  * breaks down stops on the way, its lamp blinking. When that ride is over the picture fades out,
  * and fades in on the cabin back at the station it left from. A variation can have weather: in a
@@ -25,9 +25,7 @@
  *   player.from     the number the display starts at (53)
  *   player.delay    seconds before it starts counting
  *   player.tracks   [{ title, file, tempo, stopAt, weather }]  tempo: seconds per count; stopAt: where
- *                   the count stops (the ride breaks down there); weather: 'storm' (the model only)
- *   player.model    true: the lift in 3D behind (default: the photo)
- *   player.look     the model's look: 'dark' (greys on the dark, as Tværveje) or 'pale' (default)
+ *                   the count stops (the ride breaks down there); weather: 'storm' (with a 3D scene only)
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -52,8 +50,9 @@ const FADE = 900;   // ms: the picture fades out, and in again, when the cabin i
 
 export default function CountdownPlayer() {
     const { currentTrack, currentFile, isPlaying, currentTime, duration, ended, play, playFile } = useAudio();
-    const { tracks, from = 53, delay = 6, model = false, look } = currentTrack.player;
-    const Scene = scenes[currentTrack.slug];   // the work's own 3D scene (src/player/vaerker/<slug>/)
+    const { tracks, from = 53, delay = 6 } = currentTrack.player;
+    const Scene = scenes[currentTrack.slug];   // the work's own 3D scene (src/player/vaerker/<slug>/), if it has one
+    const model = Boolean(Scene);
 
     const loaded = tracks.findIndex((t) => t.file === currentFile);   // the variation in the element, -1 before the first ride
     const riding = isPlaying && loaded >= 0;
@@ -144,8 +143,8 @@ export default function CountdownPlayer() {
     });
 
     return (
-        <PlayerShell track={currentTrack} smoke={0.25} backdrop={!model} model={model && look === 'dark'}>
-            {model && Scene && <Scene cabin={cabin} zoomRef={zoomRef} look={look} />}
+        <PlayerShell track={currentTrack} smoke={0.25} backdrop={!model} model={model}>
+            {model && Scene && <Scene cabin={cabin} zoomRef={zoomRef} />}
             {model && <div className='absolute inset-0 bg-ink pointer-events-none transition-opacity ease-in-out' style={{ opacity: resetting ? 1 : 0, transitionDuration: `${FADE}ms` }} />}
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center'>

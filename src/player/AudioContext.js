@@ -4,7 +4,7 @@
  * The site's sound. One track (a project with a player) is current at a time, and it is played
  * either
  *
- *   - through one audio element (file engines: timeline, circular, countdown, walk). A work with
+ *   - through one audio element (file engines: timeline, countdown, walk). A work with
  *     one file (project.audio) loads it; a work with several (player.files) loads nothing until
  *     its interface picks one with playFile(). The element gives lock-screen controls and keeps
  *     playing in the background on phones.

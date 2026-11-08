@@ -18,7 +18,7 @@ src/player/
                        ét bestemt værk
     registry.js        Hvad hvert interface behøver (motor, tone, om det åbner afspilleren)
     index.js           Komponenterne efter navn
-    timeline/ circular/ buttons/ loop/ countdown/ walk/ quad/
+    timeline/ buttons/ loop/ countdown/ walk/ quad/
   kit/                 Byggesættet: det, der går igen i 3D (stilen, træer, buske, huse, biler,
                        veje, dis, tåge, himmel, regn). Se kit/README.md
   vaerker/             Én mappe pr. værk, navngivet efter værket, med det, der kun er dets:
@@ -64,7 +64,6 @@ overlever, at `projects.json` skrives forfra.
 | interface   | værk                    | motor        | hvad man gør |
 |-------------|-------------------------|--------------|--------------|
 | `timeline`  | de fleste               | `file`       | Spoler på en linje med ét stykke pr. kapitel; kapitelmarkøren til venstre åbner kapitellisten; tastatur (mellemrum, pile, 1–9) |
-| `circular`  | (den gamle runde)       | `file`       | Den runde spoler fra før; kan stadig vælges |
 | `buttons`   | Troldetoner             | `instrument` | Trykker på fem 3D-knapper, der spiller toner over et musikloop (`audio/Instrument.js`, `interfaces/buttons/`; instrumentet i `vaerker/troldetoner/`) |
 | `loop`      | Under overfladen        | `loop`       | Et loop kører under overfladen; knappen bringer det op, holder det oppe så længe den holdes nede, og hvert tryk starter de ti sekunder forfra (`audio/Loop.js`) |
 | `countdown` | 53 sekunder til fælles  | `file`       | Elevatorens knap og display: intet spiller, før knappen trykkes; hvert tryk er en tur med den næste af tolv variationer. Med `model: true` står højbanen bagved i 3D i stedet for fotoet (`vaerker/53-sekunder-til-faelles/`: `ElevatorScene.js`, `hoejbane.js`, med huse, træer og dis fra `kit/`; `look: 'dark'` i gråtoner på det mørke som Tværveje, `'pale'` under en himmel som Kanon i G3): kabinen kører fra den ene ende til den anden i nedtællingens tempo, og variationer med `stopAt` går i stå på vejen med blinkende lampe, hvorefter billedet fader ud og ind med kabinen tilbage ved stationen; `weather: 'storm'` giver regn, tåge og lyn under turen (`weather.js`). Til test: variation 1 går i stå halvvejs, variation 2 kører i storm; musen ser sig omkring, rul eller "Følg kabinen" går tæt på og følger den |
