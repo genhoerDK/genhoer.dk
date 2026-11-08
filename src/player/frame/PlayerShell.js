@@ -20,7 +20,7 @@
  * @param {boolean} [backdrop] false: the interface draws its own scene (Troldetoner, Kanon i G3)
  * @param {string} [filter]   CSS filter on the photo, with [filterTransition] (a CSS transition value)
  * @param {boolean} [model]   A 3D model in the 3D style (STIL.md): a clean picture, no grain, and the
- *                            scene's own vignette (scene/style.js) instead of the dark edges here
+ *                            scene's own vignette (kit/style.js) instead of the dark edges here
  */
 
 import dynamic from 'next/dynamic';

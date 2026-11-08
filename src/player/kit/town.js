@@ -1,6 +1,8 @@
 /**
- * Houses for the walk interface's map (WalkScene.js), made up from the streets alone — no
- * building data: rows of houses along both sides of every street and round the squares, gables to
+ * A town made up from its streets alone, for a map (the walk interface, WalkScene.js): where the
+ * houses and the trees stand. Their shapes come from kit/houses.js and kit/trees.js.
+ *
+ * makeHouses: no building data: rows of houses along both sides of every street and round the squares, gables to
  * the side and the ridge along the street as in an old market town, with the yards inside the blocks
  * left open. Nothing is built on a street, on the water, on a square, on a landmark, too near one of
  * the work's places, or on another house. Widths, depths, heights and gaps vary, from a seed, so it
@@ -13,7 +15,6 @@
  * Metres, x to the east and z to the south, as the map is drawn in WalkScene.js.
  */
 
-import * as THREE from 'three';
 
 /** A small seeded random number generator (mulberry32) */
 function random(seed) {
@@ -214,62 +215,127 @@ export function makeHouses({ streets, water = [], squares = [], blocks = [], cle
     return houses;
 }
 
-/**
- * The houses as one geometry: walls a little darker at the foot, pitched roofs with the ridge along
- * the street (flat on a few). Each house is one closed shape: the gable ends are a wall up to the
- * eaves, shaded exactly as the long walls, and above it a triangle in the eaves' colour, so no seam
- * shows where the walls end and the gable begins. Each house's `wall` (0–1) picks its facade from `walls`; its `roof`
- * picks from `slates` below 0.5 and from `tiles` above.
+/* ---------- TREES ---------- */
+
+/*
+ * makeTrees, after drone photos of Nakskov: a row of small trees along the harbour promenade
+ * between the street and the quay, a few on the squares, and gardens of them in the yards inside
+ * the blocks, placed from a seed so the town is the same every time. They keep off the streets, the
+ * water, the houses, the landmarks and the places' markers.
+ *
+ * Metres, x to the east and z to the south.
  */
-export function houseGeometry(houses, {
-    walls = ['#3a3a40', '#4a4a51'],
-    tiles = ['#55555c'],
-    slates = ['#2b2b31'],
-} = {}) {
-    const pos = [], nor = [], col = [];
-    const pick = (list, t) => new THREE.Color(list[Math.min(list.length - 1, Math.floor(t * list.length))]);
-    let cLow, cHigh, cRoof;
-    const p = new THREE.Vector3(), q = new THREE.Vector3(), r = new THREE.Vector3(), n = new THREE.Vector3(), out = new THREE.Vector3();
-    /** A flat face, its normal turned away from the house's middle */
-    const face = (verts, colours, middle) => {
-        p.fromArray(verts[0]); q.fromArray(verts[1]); r.fromArray(verts[2]);
-        n.subVectors(q, p).cross(out.subVectors(r, p)).normalize();
-        const centre = verts.reduce((s, v) => s.add(out.fromArray(v)), new THREE.Vector3()).divideScalar(verts.length);
-        if (n.dot(centre.sub(middle)) < 0) { n.negate(); verts = verts.slice().reverse(); colours = colours.slice().reverse(); }
-        for (let i = 1; i < verts.length - 1; i++) {
-            for (const k of [0, i, i + 1]) { pos.push(...verts[k]); nor.push(n.x, n.y, n.z); col.push(colours[k].r, colours[k].g, colours[k].b); }
+
+/** Distance from p to the segment a–b */
+function distanceToSegment(px, pz, ax, az, bx, bz) {
+    return Math.sqrt(toSegment(px, pz, ax, az, bx, bz));
+}
+
+/**
+ * @param {object} town
+ * @param {{ lines: number[][], half: number }[]} town.streets
+ * @param {number[][]} town.water     Closed lines
+ * @param {number[][]} town.squares   Closed lines
+ * @param {number[][]} town.blocks    Closed lines (the landmarks)
+ * @param {{ corners: number[][] }[]} town.houses
+ * @param {THREE.Vector2[]} town.clear  The places' markers
+ * @param {number[]} town.extent      [x0, z0, x1, z1]
+ * @returns {{ x: number, z: number, size: number, shade: number }[]}
+ */
+export function makeTrees({ streets, water, squares, blocks, houses, clear, extent, seed = 11 }) {
+    const rand = random(seed);
+    const CELL = 30;
+    const key = (x, z) => `${Math.floor(x / CELL)},${Math.floor(z / CELL)}`;
+
+    // The streets' segments and the houses in grids, to find the near ones quickly
+    const segGrid = new Map(), houseGrid = new Map();
+    const put = (grid, x0, z0, x1, z1, item, pad) => {
+        for (let i = Math.floor((Math.min(x0, x1) - pad) / CELL); i <= Math.floor((Math.max(x0, x1) + pad) / CELL); i++) {
+            for (let j = Math.floor((Math.min(z0, z1) - pad) / CELL); j <= Math.floor((Math.max(z0, z1) + pad) / CELL); j++) {
+                const k = `${i},${j}`;
+                if (!grid.has(k)) grid.set(k, []);
+                grid.get(k).push(item);
+            }
         }
     };
-    for (const { corners, height: h, pitched, wall = 0.5, roof = 0.5 } of houses) {
-        cHigh = pick(walls, wall);
-        cLow = cHigh.clone().multiplyScalar(0.72);
-        cRoof = roof < 0.5 ? pick(slates, roof * 2) : pick(tiles, (roof - 0.5) * 2);
-        const [a, b, c, d] = corners;   // front left, front right, back right, back left
-        const at = ([x, z], y) => [x, y, z];
-        const depth = Math.hypot(d[0] - a[0], d[1] - a[1]);
-        const ridge = pitched ? h + depth * 0.38 : h;
-        const middle = new THREE.Vector3((a[0] + c[0]) / 2, h * 0.5, (a[1] + c[1]) / 2);
-        const mid1 = [(a[0] + d[0]) / 2, (a[1] + d[1]) / 2], mid2 = [(b[0] + c[0]) / 2, (b[1] + c[1]) / 2];
-        // The long walls, to the street and to the yard
-        face([at(a, 0), at(b, 0), at(b, h), at(a, h)], [cLow, cLow, cHigh, cHigh], middle);
-        face([at(c, 0), at(d, 0), at(d, h), at(c, h)], [cLow, cLow, cHigh, cHigh], middle);
-        // The ends: a wall up to the eaves, and the gable above it
-        face([at(d, 0), at(a, 0), at(a, h), at(d, h)], [cLow, cLow, cHigh, cHigh], middle);
-        face([at(b, 0), at(c, 0), at(c, h), at(b, h)], [cLow, cLow, cHigh, cHigh], middle);
-        if (pitched) {
-            face([at(d, h), at(a, h), at(mid1, ridge)], [cHigh, cHigh, cHigh], middle);
-            face([at(b, h), at(c, h), at(mid2, ridge)], [cHigh, cHigh, cHigh], middle);
-        }
-        if (pitched) {
-            face([at(a, h), at(b, h), at(mid2, ridge), at(mid1, ridge)], [cRoof, cRoof, cRoof, cRoof], middle);
-            face([at(c, h), at(d, h), at(mid1, ridge), at(mid2, ridge)], [cRoof, cRoof, cRoof, cRoof], middle);
-        } else {
-            face([at(a, h), at(b, h), at(c, h), at(d, h)], [cRoof, cRoof, cRoof, cRoof], middle.set(middle.x, -1, middle.z));
+    for (const { lines, half } of streets) {
+        for (const l of lines) for (let i = 2; i < l.length; i += 2) put(segGrid, l[i - 2], l[i - 1], l[i], l[i + 1], [l[i - 2], l[i - 1], l[i], l[i + 1], half], 20);
+    }
+    for (const h of houses) {
+        const xs = h.corners.map((c) => c[0]), zs = h.corners.map((c) => c[1]);
+        put(houseGrid, Math.min(...xs), Math.min(...zs), Math.max(...xs), Math.max(...zs), h.corners.flat(), 4);
+    }
+    const waterEdges = water.flatMap((r) => { const out = []; for (let i = 2; i < r.length; i += 2) out.push([r[i - 2], r[i - 1], r[i], r[i + 1]]); return out; });
+
+    /** How far a point is from the edge of the nearest street (Infinity: none near) */
+    const fromStreet = (x, z) => Math.min(Infinity, ...(segGrid.get(key(x, z)) ?? []).map(([ax, az, bx, bz, h]) => distanceToSegment(x, z, ax, az, bx, bz) - h));
+    const inHouse = (x, z, pad) => (houseGrid.get(key(x, z)) ?? []).some((ring) => {
+        if (inside(x, z, ring)) return true;
+        for (let i = 0; i < 8; i += 2) if (distanceToSegment(x, z, ring[i], ring[i + 1], ring[(i + 2) % 8], ring[(i + 3) % 8]) < pad) return true;
+        return false;
+    });
+    const nearHouse = (x, z, within) => (houseGrid.get(key(x, z)) ?? []).some((ring) => {
+        for (let i = 0; i < 8; i += 2) if (distanceToSegment(x, z, ring[i], ring[i + 1], ring[(i + 2) % 8], ring[(i + 3) % 8]) < within) return true;
+        return false;
+    });
+    const fromWater = (x, z) => Math.min(Infinity, ...waterEdges.map(([ax, az, bx, bz]) => distanceToSegment(x, z, ax, az, bx, bz)));
+    const wet = (x, z) => water.some((r) => inside(x, z, r));
+    const [x0, z0, x1, z1] = extent;
+    const free = (x, z, size) => x > x0 + 20 && x < x1 - 20 && z > z0 + 20 && z < z1 - 20
+        && !wet(x, z) && !blocks.some((r) => inside(x, z, r)) && !inHouse(x, z, size * 0.8)
+        && !clear.some((c) => Math.hypot(c.x - x, c.y - z) < 12);
+
+    const trees = [];
+    const spaced = (x, z, gap) => !trees.some((t) => Math.abs(t.x - x) < gap && Math.abs(t.z - z) < gap && Math.hypot(t.x - x, t.z - z) < gap);
+    const plant = (x, z, size, shade) => { if (free(x, z, size) && spaced(x, z, size * 1.2)) trees.push({ x, z, size, shade }); };
+
+    // The harbour promenade: a row along each street that has the quay on one side
+    for (const { lines, half } of streets) {
+        if (half < 2.5) continue;
+        for (const l of lines) {
+            for (let i = 2; i < l.length; i += 2) {
+                const [ax, az, bx, bz] = [l[i - 2], l[i - 1], l[i], l[i + 1]];
+                const len = Math.hypot(bx - ax, bz - az);
+                if (len < 8) continue;
+                const ux = (bx - ax) / len, uz = (bz - az) / len;
+                for (const side of [1, -1]) {
+                    const nx = -uz * side, nz = ux * side, off = half + 3.5;
+                    const mx = (ax + bx) / 2 + nx * off, mz = (az + bz) / 2 + nz * off;
+                    if (fromWater(mx, mz) > 14 || wet(mx, mz)) continue;
+                    for (let t = 5; t < len - 3; t += 10 + rand() * 2) {
+                        const x = ax + ux * t + nx * off, z = az + uz * t + nz * off;
+                        if (fromWater(x, z) > 1.8 && fromStreet(x, z) > 1.2) plant(x, z, 2.6 + rand() * 0.6, 0.55 + rand() * 0.2);
+                    }
+                }
+            }
         }
     }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
-    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
-    return g;
+
+    // The squares: a few trees in rows near their edges
+    for (const ring of squares) {
+        for (let i = 2; i < ring.length; i += 2) {
+            const [ax, az, bx, bz] = [ring[i - 2], ring[i - 1], ring[i], ring[i + 1]];
+            const len = Math.hypot(bx - ax, bz - az);
+            for (let t = 6; t < len - 4; t += 11) {
+                const x = ax + ((bx - ax) * t) / len, z = az + ((bz - az) * t) / len;
+                // a little in from the edge
+                for (const step of [5, -5]) {
+                    const px = x + (-(bz - az) / len) * step, pz = z + ((bx - ax) / len) * step;
+                    if (inside(px, pz, ring) && fromStreet(px, pz) > 1) { plant(px, pz, 2.4 + rand() * 0.5, 0.6 + rand() * 0.2); break; }
+                }
+            }
+        }
+    }
+
+    // The yards: gardens inside the blocks, among the houses but off the streets
+    for (let x = x0 + 20; x < x1 - 20; x += 7) {
+        for (let z = z0 + 20; z < z1 - 20; z += 7) {
+            const px = x + (rand() - 0.5) * 6, pz = z + (rand() - 0.5) * 6;
+            if (rand() > 0.16) continue;
+            if (fromStreet(px, pz) < 9 || squares.some((r) => inside(px, pz, r))) continue;
+            if (!nearHouse(px, pz, 14)) continue;   // only in the yards, among the houses, not out on the open ground
+            plant(px, pz, 3 + rand() * 2.4, rand());
+        }
+    }
+    return trees;
 }

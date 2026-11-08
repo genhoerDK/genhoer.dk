@@ -154,7 +154,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(pixelRatio());   // up to 1.5 on a phone, 2 elsewhere (scene/style.js)
+    renderer.setPixelRatio(pixelRatio());   // up to 1.5 on a phone, 2 elsewhere (kit/style.js)
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;

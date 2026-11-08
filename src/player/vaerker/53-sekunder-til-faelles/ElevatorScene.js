@@ -3,7 +3,7 @@
 /**
  * 3D scene for 53 sekunder til fælles (three.js): højbanen in Viborg — the horizontal lift over
  * Heibergs Allé between the hospital's buildings — in the pale, simple look of Kanon i G3
- * (scene/hoejbane.js), on the shared stage (scene/stage.js) under the shared sky (scene/sky.js).
+ * (hoejbane.js), on the shared stage (scene/stage.js) under the shared sky (kit/sky.js).
  *
  * The cabin goes where `cabin()` says: the interface knows the ride, the scene asks it every
  * frame where the cabin is, so the cabin glides along with the countdown.
@@ -41,7 +41,7 @@ const LOOKS = {
         storm: { back: 0x9ca2a5, haze: 0x9ca2a5, fog: 0x9ca2a5, sky: 0x8a9196, light: 0xc9cfd3, sun: 0.25, lit: 0.8 },
         shade: 'linear-gradient(to bottom, rgba(40,40,34,0.4), transparent 16%, transparent 50%, rgba(40,40,34,0.78))',
     },
-    // dark, the 3D style (scene/style.js): greys, the town greys over at its edges and is gone into the dark
+    // dark, the 3D style (kit/style.js): greys, the town greys over at its edges and is gone into the dark
     dark: {
         back: GREYS.back, haze: GREYS.haze, fog: GREYS.back, sky: false, toneMapped: false,
         sun: [LIGHT.sun, LIGHT.sunStrength], light: [LIGHT.sky, LIGHT.fromBelow, LIGHT.skyStrength], panel: 0, rain: zinc(400),

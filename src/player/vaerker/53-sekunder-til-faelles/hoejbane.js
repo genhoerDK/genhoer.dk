@@ -1,7 +1,7 @@
 /**
  * Højbanen in Viborg — the horizontal lift between the hospital's buildings, over Heibergs Allé —
- * built in code for 53 sekunder til fælles: soft low-poly forms, faceted, no textures, the trees
- * from scene/forest.js. Two looks: 'pale' (muted colours under a sky, as Kanon i G3) and 'dark'
+ * built in code for 53 sekunder til fælles: soft low-poly forms, faceted, no textures; the trees,
+ * houses, blocks, cars and the haze from the kit (src/player/kit/). Two looks: 'pale' (muted colours under a sky, as Kanon i G3) and 'dark'
  * (in greys on the dark, as Tværveje's map).
  *
  * Built from photos, not from drawings, so the sizes are guesses at the right proportions:
@@ -42,12 +42,15 @@
 
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import { random, toyTree } from '@/player/vaerker/kanon-i-g3/forest';
+import { random } from '@/player/kit/random';
+import { box, rod, band, paint, placed, colour } from '@/player/kit/shapes';
+import { tree as kitTree, TREES, TREES_PALE } from '@/player/kit/trees';
+import { houses, houseAt, block as kitBlock } from '@/player/kit/houses';
+import { car } from '@/player/kit/cars';
+import { createHazeAround, hazedAround as hazed } from '@/player/kit/haze';
 import { GREYS, zinc, EDGES } from '@/player/kit/style';
 
 const Z = new THREE.Vector3(0, 0, 1);
-const Y = new THREE.Vector3(0, 1, 0);
 
 /* ---------- THE PLACE ---------- */
 
@@ -82,13 +85,13 @@ const PALE = {
     paleCool: '#d6d8d8', pale: '#e4e0d8', balcony: '#b7c7cd', brick: '#b7735d', tiles: '#6f5a52', trim: '#efe9df',
     pole: '#a5aaad', signBlue: '#3f6fa6', arrival: '#e3e6e7', arrivalSeam: '#cfd3d5',
     glassLow: '#34404a', glassHigh: '#8796a2', cars: ['#5b6168', '#ece9e2', '#7c8fa0', '#a8574a', '#cbbf9d'],
-    leaves: null,   // the trees keep their own colours (scene/forest.js)
+    leaves: null,   // the trees keep the pale look's greens (kit/trees.js)
 };
 
 // The dark look, as Tværveje's map: dark ground, the buildings in dark greys, the hospital a shade
 // lighter, the streets and the track pale, the cabin white — no colour at all
 const DARK = {
-    // the 3D style (scene/style.js): the ground, the streets muted (no markings), the track a step lighter as
+    // the 3D style (kit/style.js): the ground, the streets muted (no markings), the track a step lighter as
     // the landmark, the buildings in the walls' and roofs' steps, the cabin white as the sound
     grass: GREYS.ground, verge: zinc(825), road: GREYS.streets, line: GREYS.streets, walk: GREYS.paths, curb: GREYS.sideStreets,
     steel: GREYS.landmarkRoof, grating: GREYS.landmark, rack: zinc(650), handrail: GREYS.landmarkRoof, column: GREYS.landmark, foot: zinc(650),
@@ -104,108 +107,21 @@ const DARK = {
 };
 
 let C = PALE;   // the look being built (set by buildHoejbane)
-const colour = (hex) => new THREE.Color(hex);
 
 /* ---------- BUILDING BLOCKS ---------- */
 
-/** Every part as one faceted, vertex-coloured, non-indexed geometry, so they can all be merged */
-function paint(g, hex) {
-    const out = g.index ? g.toNonIndexed() : g;
-    if (out !== g) g.dispose();
-    const c = colour(hex), list = [];
-    for (let i = 0; i < out.attributes.position.count; i++) list.push(c.r, c.g, c.b);
-    out.setAttribute('color', new THREE.Float32BufferAttribute(list, 3));
-    return out;
-}
+/* ---------- FROM THE KIT, IN THIS LOOK ---------- */
 
-/** A box w × d × h standing on z at (x, y); round > 0 softens its edges */
-function box(w, d, h, x, y, z, hex, round = 0) {
-    const g = round > 0 ? new RoundedBoxGeometry(w, d, h, 2, Math.min(round, w / 2.01, d / 2.01, h / 2.01)) : new THREE.BoxGeometry(w, d, h);
-    g.translate(x, y, z + h / 2);
-    return paint(g, hex);
-}
-
-/** A round rod from a to b */
-function rod(a, b, r, hex, sides = 6, r1 = r) {
-    const dir = new THREE.Vector3().subVectors(b, a);
-    const g = new THREE.CylinderGeometry(r1, r, dir.length(), sides, 1);
-    g.translate(0, dir.length() / 2, 0);
-    g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(Y, dir.normalize()));
-    g.translate(a.x, a.y, a.z);
-    return paint(g, hex);
-}
-
-/** A flat band between two lines of points (left and right, as seen going along), `thick` deep */
-function band(left, right, thick, hex) {
-    const pos = [];
-    const down = (v) => [v.x, v.y, v.z - thick];
-    for (let i = 0; i < left.length - 1; i++) {
-        const a = left[i], b = right[i], c = left[i + 1], d = right[i + 1];
-        pos.push(...a.toArray(), ...b.toArray(), ...d.toArray(), ...a.toArray(), ...d.toArray(), ...c.toArray());   // the top, facing up
-        pos.push(...down(a), ...down(d), ...down(b), ...down(a), ...down(c), ...down(d));                           // the underside
-    }
-    // the two long edges
-    for (const [line, flip] of [[left, false], [right, true]]) {
-        for (let i = 0; i < line.length - 1; i++) {
-            const a = line[i], c = line[i + 1];
-            const quad = [a.toArray(), down(a), down(c), a.toArray(), down(c), c.toArray()];
-            if (flip) quad.reverse();
-            quad.forEach((p) => pos.push(...p));
-        }
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('uv', new THREE.Float32BufferAttribute(new Array((pos.length / 3) * 2).fill(0), 2));
-    g.computeVertexNormals();
-    return paint(g, hex);
-}
-
-/** Parts built round their own origin (facing -y), turned by `angle` and moved to (x, y) */
-function placed(parts, local, x, y, angle = 0) {
-    for (const g of local) { g.rotateZ(angle); g.translate(x, y, 0); parts.push(g); }
-}
-
-/** A block of a building from x0..x1, y0..y1, z0..z1, with ribbon windows every `every` metres */
-function block(parts, { x0, x1, y0, y1, z0 = 0, z1, hex, windows, parapet = true }) {
-    const w = x1 - x0, d = y1 - y0, x = (x0 + x1) / 2, y = (y0 + y1) / 2;
-    parts.push(box(w, d, z1 - z0, x, y, z0, hex));
-    if (windows) {
-        const { first = 1.1, every = 3.5, height = 1.4, hex: glass = C.ribbon } = windows;
-        for (let z = z0 + first; z + height < z1 - 0.6; z += every) parts.push(box(w + 0.12, d + 0.12, height, x, y, z, glass));
-    }
-    if (parapet) parts.push(box(w + 0.25, d + 0.25, 0.45, x, y, z1, C.parapet));
-}
-
-/** A gabled house, its ridge along x */
+/** A gabled house (kit/houses.js), its ridge along x unless turned, in this look's brick and tiles */
 function house(parts, x, y, w, d, h, roof, turn = 0, wall = C.brick, tiles = C.tiles) {
-    const local = [];
-    local.push(box(w, d, h, 0, 0, 0, wall));
-    const shape = new THREE.Shape([new THREE.Vector2(-d / 2 - 0.4, 0), new THREE.Vector2(d / 2 + 0.4, 0), new THREE.Vector2(0, roof)]);
-    const prism = new THREE.ExtrudeGeometry(shape, { depth: w + 0.6, bevelEnabled: false });
-    prism.rotateX(Math.PI / 2);             // the triangle stands up; extruded along -y
-    prism.rotateZ(Math.PI / 2);             // ridge along x
-    prism.translate(-(w + 0.6) / 2, 0, h);
-    local.push(paint(prism, tiles));
-    // two rows of small windows on the long sides
-    for (const side of [-1, 1]) {
-        for (let k = 0; k < Math.floor(w / 2.6); k++) {
-            const wx = -w / 2 + 1.4 + k * 2.6;
-            for (const wz of [0.9, h - 2]) local.push(box(1.1, 0.12, 1.2, wx, side * (d / 2 + 0.02), wz, k % 2 ? C.ribbon : C.window));
-        }
-    }
-    placed(parts, local, x, y, turn);
+    parts.push(houses([houseAt({ x, y, w, d, turn, height: h, ridge: roof, wall, roof: tiles })]));
 }
 
-/** The dark look: a tree's colours (green leaves, pale bark) turned into its greys */
-function greyTree(g, rand) {
-    const c = g.attributes.color;
-    const leaf = colour(C.leaves[Math.floor(rand() * C.leaves.length)]), trunk = colour(C.trunk);
-    for (let i = 0; i < c.count; i++) {
-        const green = c.getY(i) > c.getX(i) * 1.02;   // the leaves are greener than red; bark is not
-        const to = green ? leaf : trunk;
-        c.setXYZ(i, to.r, to.g, to.b);
-    }
-}
+/** A block of flats (kit/houses.js) with this look's parapet */
+const block = (parts, options) => kitBlock(parts, { parapetHex: C.parapet, ...options });
+
+/** A tree or a bush (kit/trees.js) in this look's colours */
+const toyTree = (kind, base, h, rand, out) => kitTree(kind, base, h, rand, out, C === DARK ? TREES : TREES_PALE);
 
 /* ---------- THE TOWN ROUND IT, AND THE HAZE IT FADES INTO ---------- */
 
@@ -253,34 +169,6 @@ function outskirts(parts, wood, rand) {
             }
         }
     }
-}
-
-/**
- * The haze, put into a material: whatever it draws is mixed into the haze's colour the further it
- * stands from the town's middle — from HAZE.near to HAZE.far metres out — after the light, so at
- * the far edge it is exactly the colour of what lies behind — the sky's horizon, or the dark — and
- * the town fades out into it. The uniforms are shared: the haze's and the background's colours
- * (the scene changes them with the weather) and `toPlace` (the inverse
- * of the place's world matrix, set every frame, so the distance is measured in the place's metres).
- */
-function hazed(material, haze) {
-    material.onBeforeCompile = (shader) => {
-        Object.assign(shader.uniforms, haze.uniforms);
-        shader.vertexShader = shader.vertexShader
-            .replace('#include <common>', '#include <common>\nuniform mat4 uToPlace;\nvarying vec2 vPlace;')
-            .replace('#include <project_vertex>', '#include <project_vertex>\nvPlace = (uToPlace * modelMatrix * vec4(transformed, 1.0)).xy;');
-        shader.fragmentShader = shader.fragmentShader
-            .replace('#include <common>', '#include <common>\nuniform vec3 uHaze, uBack;\nuniform vec2 uHazeCentre, uHazeRange;\nvarying vec2 vPlace;')
-            .replace('#include <fog_fragment>', `{
-                // eased in only at the start, then an even greying out over the whole range, long drawn out
-                float k = clamp((length(vPlace - uHazeCentre) - uHazeRange.x) / (uHazeRange.y - uHazeRange.x), 0.0, 1.0);
-                k = (k < 0.15 ? k * k / 0.3 : k - 0.075) / 0.925;
-                gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, k * 0.7);                  // a grey veil, thickening evenly all the way
-                gl_FragColor.rgb = mix(gl_FragColor.rgb, uBack, smoothstep(0.3, 1.0, k));    // and slowly gone into what is behind
-            }
-            #include <fog_fragment>`);
-    };
-    return material;
 }
 
 /* ---------- THE TRACK ---------- */
@@ -557,9 +445,9 @@ function hospital(parts, rand) {
     parts.push(box(32.4, 34.4, 0.6, -18, 62, 4.2, C.concrete));
     for (let k = 0; k < 9; k++) parts.push(box(0.15, 5, 0.04, -30 + k * 3, 52, 4.8, C.line), box(0.15, 5, 0.04, -30 + k * 3, 72, 4.8, C.line));
     if (C.cars) for (const [x, y, k] of [[-28.5, 52, 0], [-22.5, 52, 2], [-13.5, 52, 4], [-25.5, 72, 1], [-10.5, 72, 3], [-4.5, 72, 0]]) {
-        const car = carGeometry(C.cars[k]);
-        car.translate(x, y, 4.8);
-        parts.push(car);
+        const parked = car(C.cars[k], { glass: C.glass, wheel: C.wheel });
+        parked.translate(x, y, 4.8);
+        parts.push(parked);
     }
     parts.push(box(6, 14, 0.5, 2.5, 62, 0, C.road));   // the ramp
     // the old yellow house: walls, a mansard roof, dormers
@@ -622,24 +510,6 @@ function farStation(parts, face, at) {
 /* ---------- THE TRAFFIC ---------- */
 
 
-/** A small, rounded car pointing along +y */
-function carGeometry(hex) {
-    const parts = [
-        box(1.8, 3.9, 0.78, 0, 0, 0.3, hex, 0.28),
-        box(1.6, 2.1, 0.68, 0, -0.2, 0.98, C.glass, 0.24),
-        box(1.64, 1.7, 0.1, 0, -0.2, 1.62, hex, 0.04),
-    ];
-    for (const x of [-0.82, 0.82]) for (const y of [-1.25, 1.25]) {
-        const wheel = new THREE.CylinderGeometry(0.34, 0.34, 0.26, 10);
-        wheel.rotateZ(Math.PI / 2);
-        wheel.translate(x, y, 0.34);
-        parts.push(paint(wheel, C.wheel));
-    }
-    const g = mergeGeometries(parts);
-    parts.forEach((p) => p.dispose());
-    return g;
-}
-
 /* ---------- THE SIGN ---------- */
 
 function signTexture() {
@@ -664,15 +534,7 @@ export function buildHoejbane({ look = 'pale' } = {}) {
     C = look === 'dark' ? DARK : PALE;
     const group = new THREE.Group();
     const rand = random(53);
-    const haze = {
-        uniforms: {
-            uHaze: { value: new THREE.Color('#dcdcd4') },
-            uBack: { value: new THREE.Color('#dcdcd4') },
-            uToPlace: { value: new THREE.Matrix4() },
-            uHazeCentre: { value: new THREE.Vector2(...HAZE.centre) },
-            uHazeRange: { value: new THREE.Vector2(HAZE.near, HAZE.far) },
-        },
-    };
+    const haze = createHazeAround({ ...HAZE, colour: '#dcdcd4', back: '#dcdcd4' });   // the scene sets its colours with the look and the weather
     const dark = look === 'dark';
     const material = hazed(dark
         ? new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true })   // the 3D style's one material
@@ -762,7 +624,6 @@ export function buildHoejbane({ look = 'pale' } = {}) {
     /* The town round it all, out into the haze */
     outskirts(parts, wood, rand);
 
-    if (C.leaves) wood.forEach((g) => greyTree(g, rand));
     const built = mergeGeometries(parts);
     const merged = mergeGeometries([built, ...wood]);
     parts.forEach((g) => g.dispose());
@@ -807,7 +668,7 @@ export function buildHoejbane({ look = 'pale' } = {}) {
 
     /* The traffic: a few small cars up and down the road */
     const cars = Array.from({ length: C.cars ? 7 : 0 }, (_, i) => {
-        const mesh = new THREE.Mesh(carGeometry(C.cars[i % C.cars.length]), material);
+        const mesh = new THREE.Mesh(car(C.cars[i % C.cars.length], { glass: C.glass, wheel: C.wheel }), material);
         mesh.castShadow = mesh.receiveShadow = true;
         const way = i % 2 ? 1 : -1;                   // drive on the right
         mesh.position.set(rx + way * 2.9, -300 + rand() * 600, 0);

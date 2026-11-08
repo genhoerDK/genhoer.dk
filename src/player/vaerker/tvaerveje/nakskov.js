@@ -4,7 +4,7 @@
 // Indrefjord, Axeltorv, the old ferry berth's piers and six landmark buildings), under the 100 the
 // OSM Foundation counts as insubstantial — so keep it to this one drawing, and don't add more
 // extracts to it. Lines are thinned to within a few metres and rounded to whole metres. The other
-// houses on the map are made up (src/player/interfaces/walk/town.js).
+// houses on the map are made up (src/player/kit/town.js).
 //
 // Units are metres on a 960 × 630 sheet (x to the east, y to the south); the places' `at`
 // in src/player/players.js use the same.

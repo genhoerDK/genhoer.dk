@@ -5,14 +5,14 @@
  * at each. The files play through the audio element, one at a time.
  *
  * The town lies behind as a 3D map (WalkScene.js, three.js, loaded when the work is opened): its
- * street net and harbour (src/player/interfaces/walk/maps/), clear round where you are and dissolving into haze
+ * street net and harbour (src/player/vaerker/maps.js), clear round where you are and dissolving into haze
  * further out. Each place is a 3D marker with its name; the one you are
  * at is lit. No photo behind: the map is the room. Under the map, the stories at the place: a button
  * per character, with the playing one filled and a line running under it. When a story ends, the
  * next one at the same place follows, so you can hear a whole place and walk on. Keys 1–3 pick a
  * story, ←/→ walk, space pauses and plays.
  *
- *   player.map         A map in src/player/interfaces/walk/maps/
+ *   player.map         A map named in src/player/vaerker/maps.js
  *   player.characters  [{ id, name, year }]
  *   player.places      [{ name, at: [x, y], label, stories: [{ character, file }] }]  at: on the map,
  *                      label: where its name stands

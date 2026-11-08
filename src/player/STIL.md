@@ -9,7 +9,7 @@ https://claude.ai/artifact/X7Z4P38MDqWgmMQejeN467
 Kort fortalt: en grå arkitektmodel med dæmpede gader, meget svage kanter og hvid lyd, i et rent
 billede uden raster, korn eller andre effekter.
 
-Tallene ligger i ét modul, `scene/style.js`, som alle tre scener henter fra: gråtonerne (`GREYS`,
+Tallene ligger i ét modul, `kit/style.js`, som alle tre scener og hele byggesættet (`kit/`) henter fra: gråtonerne (`GREYS`,
 `zinc()`), lyset (`LIGHT`, `lights()`), materialet (`greyMaterial()`), kanterne (`EDGES`,
 `edgeLines()`), vignetten (`vignette`, `vignetteMask`), opløsningen (`pixelRatio()`,
 `shadowMapSize()`) og rendereren (`styleRenderer()`). En scene skriver ingen gråtoner selv.
@@ -63,7 +63,7 @@ Alle kanter tegnes med en tynd linje i paper. Den skal kun lige kunne ses, som e
 model: 0,06 på huse, 0,04 på træer og 0,18 på pejlemærket (40 % af "let" i labbet). Linjerne går i
 disen med resten.
 
-Stregen er `EdgesGeometry` (kanter over 30°, `edgeLines()` i `scene/style.js`) på pejlemærket, husene
+Stregen er `EdgesGeometry` (kanter over 30°, `edgeLines()` i `kit/style.js`) på pejlemærket, husene
 og træerne. Den er 1 pixel bred; viser den sig for tynd på telefoner, kan den senere bygges som et
 efterbehandlet lag ud fra dybde og normaler (Sobel), så den har samme tykkelse på alle skærme.
 
@@ -72,7 +72,7 @@ efterbehandlet lag ud fra dybde og normaler (Sobel), så den har samme tykkelse 
 Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skygger.
 
 - `HemisphereLight(0xe8e8ec, 0x202024, 1.6)` og en hvid sol `DirectionalLight(0xffffff, 1.5)`, lav
-  fra sydvest (`LIGHT` i `scene/style.js`). Alle tre værker bruger det samme lyssæt. (Labbet bruger
+  fra sydvest (`LIGHT` i `kit/style.js`). Alle tre værker bruger det samme lyssæt. (Labbet bruger
   en ældre three.js med andre lysenheder, så dets tal kan ikke flyttes direkte.)
 - Skygger kun fra solen. Skyggekortet er 2048 på computer og 1024 på telefon (`shadowMapSize()`).
 - Ler (intet sollys, alt mørkere ned mod jorden) er det lette alternativ, hvis en scene er for tung
@@ -84,8 +84,12 @@ Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skyg
 
 - Low-poly og facetteret (`flatShading`), uden teksturer. Ét materiale til alt: `MeshLambertMaterial`
   med `vertexColors` (`greyMaterial()`).
-- Træerne er klumper af ikosaedre med facetter: `toyTree` i `scene/forest.js` (Kanon i G3,
-  53 sekunder) og `interfaces/walk/trees.js` (Tværveje).
+- Træer, buske, huse, blokke, biler, veje og dis kommer fra byggesættet (`kit/`, se
+  `kit/README.md`), så de ser ens ud i alle værker. Træerne er klumper af ikosaedre med facetter
+  (`kit/trees.js`: løvtræ, birk, fyr, gran, busk og hæk). Husene bygges ud fra et fodaftryk med
+  saddeltag eller fladt tag og uden vinduer (`kit/houses.js`).
+- Det, der er unikt for et værk (bunkeren i Kanon i G3, højbanen og sygehuset i 53 sekunder,
+  kortet over Nakskov), bygges i værkets egen mappe under `vaerker/`.
 - Detaljer, der ikke fortæller noget på kameraets afstand, udelades: biler (53 sekunder har ingen
   biler i stilen, så kun kabinen bevæger sig) og vejstriber (samme farve som vejen).
 
@@ -96,10 +100,10 @@ Som en arkitektmodel på et bord: blødt himmellys og en lav sol med bløde skyg
   hvor byen slutter, 53 sekunder i en ring om højbanen, Kanon i G3 som tåge efter afstand. En ny
   scene lægger den lige bag det, man ser på (omkring 0,95 × kameraafstanden), så den har slugt alt
   ved omkring 1,9 ×.
-- Én vignet (`vignette` i `scene/style.js`): ink 0 % → gennemsigtig 15 %, gennemsigtig 60 % → ink
+- Én vignet (`vignette` i `kit/style.js`): ink 0 % → gennemsigtig 15 %, gennemsigtig 60 % → ink
   92 %. Kanon i G3 og 53 sekunder lægger den over billedet; Tværveje bruger den som maske på sit
   lærred (`vignetteMask`).
-- Lidt drivende tåge (`scene/mist.js`) er tilladt. Den må ikke ligge som skyer over det, man skal
+- Lidt drivende tåge (`kit/mist.js`) er tilladt. Den må ikke ligge som skyer over det, man skal
   se; Tværvejes er skruet ned til omkring halvdelen.
 - Får disen eller vignetten synlige trin (banding) på en skærm, rettes det i farverne eller med
   længere gradienter, ikke med et effektlag.
@@ -135,7 +139,7 @@ og three.js hentes først, når afspilleren åbnes. Det, der koster, er pixels o
 ## Ind og ud af rummet
 
 - En toning: når scenen er klar, toner 3D-billedet frem fra det mørke på 0,7 sekund (`fadeIn()` og
-  `FADE_IN` i `scene/style.js`; med "reducér bevægelse" er det der med det samme). På sigt kommer
+  `FADE_IN` i `kit/style.js`; med "reducér bevægelse" er det der med det samme). På sigt kommer
   stregen før fladerne.
 - Mens scenen hentes, vises den lette streg alene.
 
@@ -157,7 +161,7 @@ Reglerne ovenfor gælder, men disse dele af dem er ikke bygget endnu:
 
 ## Når en ny scene laves
 
-1. Hent farver, lys, materiale, kanter, vignet og opløsning fra `scene/style.js`; skriv ingen
+1. Hent farver, lys, materiale, kanter, vignet og opløsning fra `kit/style.js`; skriv ingen
    gråtoner selv.
 2. Vælg ét pejlemærke, som står et trin lysere.
 3. Gør det, der lyder, til det eneste, der lyser og bevæger sig.

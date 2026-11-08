@@ -1,6 +1,6 @@
 /**
  * The town's landmark buildings for the walk interface's map (WalkScene.js), from their footprints
- * in the map (src/player/interfaces/walk/maps/): a church with a tower and a tall spire at its west end, a round
+ * in the map (src/player/vaerker/maps.js): a church with a tower and a tall spire at its west end, a round
  * tower in banded brick with a cone (the water tower by Axeltorv), and long buildings with pitched
  * roofs (Dronningens Pakhus, the harbour building, the museum, the small church), each in the
  * colours it has in the photos of the town.

@@ -17,7 +17,9 @@
 
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { GREYS, zinc, greyMaterial, edgeLines, EDGES } from '@/player/kit/style';
+import { greyMaterial, edgeLines, EDGES } from '@/player/kit/style';
+import { random } from '@/player/kit/random';
+import { tree as kitTree, TREES, TREES_PALE } from '@/player/kit/trees';
 
 const SEED = 1944;
 
@@ -25,19 +27,6 @@ const SEED = 1944;
 export const BLUEPRINT = { fill: 0x1f1f22, line: 0xfafafa, ground: 0x27272a };
 
 /* ---------- RANDOM AND NOISE ---------- */
-
-export function random(seed) {
-    let s = seed;
-    const next = () => {
-        s = (s + 0x6d2b79f5) | 0;
-        let t = Math.imul(s ^ (s >>> 15), 1 | s);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-    next.range = (a, b) => a + (b - a) * next();
-    next.pick = (list) => list[Math.floor(next() * list.length)];
-    return next;
-}
 
 /** Smooth fractal 2D noise, 0–1 */
 function noise(seed) {
@@ -873,95 +862,6 @@ function tree(kind, base, h, rand, wood, cards) {
     }
 }
 
-/* ---------- TREES, SIMPLIFIED ---------- */
-
-// The stylised look: soft low-poly forms in muted colours, faceted, no texture
-const TOY = {
-    leaves: ['#8a9270', '#7d8766', '#949a7a', '#86906c'],
-    pine: ['#7b8466', '#737d60', '#838b6c'],
-    spruce: ['#5f6b57', '#56614f', '#66715c'],
-    birch: ['#a3a77f', '#9aa078'],
-    trunk: linear('#b3aa9d'), pineBark: linear('#a8998a'), birchBark: linear('#ddd7cb'),
-};
-
-// The dark look, the 3D style (scene/style.js): the trees in zinc greys, their trunks darker
-const TOY_DARK = {
-    leaves: GREYS.leaves,
-    pine: [GREYS.leaves[0], GREYS.leaves[1]],
-    spruce: [zinc(725), GREYS.leaves[0]],
-    birch: [GREYS.leaves[2], zinc(575)],
-    trunk: linear(GREYS.trunk), pineBark: linear(zinc(750)), birchBark: linear(zinc(550)),
-};
-
-/** A lumpy, faceted ball of foliage */
-function toyBlob(centre, r, colour, rand, flat = 1) {
-    const g = new THREE.IcosahedronGeometry(1, 1);
-    const pos = g.attributes.position;
-    const seen = new Map();
-    for (let i = 0; i < pos.count; i++) {
-        // the same jitter for a corner wherever it repeats, so the ball stays closed
-        const key = `${pos.getX(i).toFixed(3)},${pos.getY(i).toFixed(3)},${pos.getZ(i).toFixed(3)}`;
-        if (!seen.has(key)) seen.set(key, 0.85 + rand() * 0.3);
-        const k = seen.get(key);
-        pos.setXYZ(i, centre.x + pos.getX(i) * r * k, centre.y + pos.getY(i) * r * k, centre.z + pos.getZ(i) * r * k * flat);
-    }
-    g.computeVertexNormals();
-    return paint(g, colour);
-}
-
-function paint(g, colour) {
-    const c = [];
-    for (let i = 0; i < g.attributes.position.count; i++) c.push(colour.r, colour.g, colour.b);
-    g.setAttribute('color', new THREE.Float32BufferAttribute(c, 3));
-    return g;
-}
-
-/** One simplified tree into `wood` (one faceted mesh for everything) */
-export function toyTree(kind, base, h, rand, wood, toy = TOY) {
-    const top = (t) => base.clone().add(new THREE.Vector3(0, 0, t * h));
-    const shade = (list) => vary(rand, rand.pick(list), 0.06);
-    if (kind === 'pine') {
-        wood.push(limb(base, top(0.8), h * 0.022, h * 0.01, toy.pineBark, toy.pineBark, 6).toNonIndexed());
-        const crown = 2 + Math.floor(rand() * 3);
-        for (let i = 0; i < crown; i++) {
-            const a = rand() * Math.PI * 2, out = rand() * h * 0.08;
-            const c = top(rand.range(0.74, 0.92)).add(new THREE.Vector3(Math.cos(a) * out, Math.sin(a) * out, 0));
-            wood.push(toyBlob(c, h * rand.range(0.1, 0.15), shade(toy.pine), rand, 0.55));
-        }
-    } else if (kind === 'spruce') {
-        wood.push(limb(base, top(0.3), h * 0.02, h * 0.015, toy.trunk, toy.trunk, 6).toNonIndexed());
-        const colour = shade(toy.spruce);
-        const tiers = 3 + Math.floor(rand() * 2);
-        for (let k = 0; k < tiers; k++) {
-            const t0 = 0.15 + (k / tiers) * 0.6, r = h * 0.22 * (1 - k / (tiers + 0.6));
-            const cone = new THREE.ConeGeometry(r, h * 0.42, 7, 1).toNonIndexed();
-            cone.rotateX(Math.PI / 2);
-            cone.rotateZ(rand() * Math.PI);
-            const c = top(t0 + 0.21);
-            cone.translate(c.x, c.y, c.z);
-            cone.computeVertexNormals();
-            wood.push(paint(cone, colour.clone().multiplyScalar(0.9 + k * 0.06)));
-        }
-    } else if (kind === 'beech' || kind === 'birch') {
-        const birch = kind === 'birch';
-        const bark = birch ? toy.birchBark : toy.trunk;
-        wood.push(limb(base, top(0.55), h * (birch ? 0.016 : 0.024), h * 0.012, bark, bark, 6).toNonIndexed());
-        const blobs = birch ? 2 : 3 + Math.floor(rand() * 2);
-        for (let i = 0; i < blobs; i++) {
-            const a = rand() * Math.PI * 2, out = rand() * h * (birch ? 0.06 : 0.12);
-            const c = top(rand.range(0.6, 0.78)).add(new THREE.Vector3(Math.cos(a) * out, Math.sin(a) * out, 0));
-            wood.push(toyBlob(c, h * rand.range(birch ? 0.13 : 0.17, birch ? 0.17 : 0.24), shade(birch ? toy.birch : toy.leaves), rand, birch ? 1.2 : 0.85));
-        }
-    } else {
-        const blobs = 1 + Math.floor(rand() * 2);
-        for (let i = 0; i < blobs; i++) {
-            const a = rand() * Math.PI * 2, out = rand() * h * 0.3;
-            const c = base.clone().add(new THREE.Vector3(Math.cos(a) * out, Math.sin(a) * out, h * 0.4));
-            wood.push(toyBlob(c, h * rand.range(0.4, 0.55), shade(toy.leaves), rand, 0.75));
-        }
-    }
-}
-
 /* ---------- SHADER TWEAKS ---------- */
 
 /** Foliage lit by its rounded normals on both sides (no flipping for back faces) */
@@ -1011,7 +911,7 @@ function patchCutaway(shader, uniforms) {
  * @returns {{ group, update(centre: THREE.Vector3, radius: number), dispose() }}
  */
 export function createForest({ groundAt, distance, radius: R, pit, stylised = false, blueprint = false, dark = false }) {
-    const palette = dark ? TOY_DARK : TOY;
+    const palette = dark ? TREES : TREES_PALE;   // the kit's trees (kit/trees.js): the style's greys, or the pale look's greens
     const rand = random(SEED);
     const cover = coverAt(distance);
     const group = new THREE.Group();
@@ -1032,7 +932,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             const room = h * (kind === 'shrub' ? 0.12 : kind === 'spruce' ? 0.13 : 0.1);
             if (!free(x, y, room)) continue;
             placed.push({ x, y, room });
-            if (stylised) toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood, palette);
+            if (stylised) kitTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood, palette);
             else tree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), h, rand, wood, cards);
             return true;
         }
@@ -1053,7 +953,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             const a = rand() * Math.PI * 2, r = R + Math.sqrt(rand()) * (78 - R);
             const x = Math.sin(a) * r, y = Math.cos(a) * r;
             const kind = rand.pick(kindsFar);
-            toyTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), rand.range(...heights[kind]), rand, wood, palette);
+            kitTree(kind, new THREE.Vector3(x, y, groundAt(x, y) - 0.1), rand.range(...heights[kind]), rand, wood, palette);
         }
     }
 
@@ -1069,7 +969,7 @@ export function createForest({ groundAt, distance, radius: R, pit, stylised = fa
             const thick = i < 4 ? rand.range(0.15, 0.3) : rand.range(0.04, 0.08);
             const from = new THREE.Vector3(x, y, groundAt(x, y) + thick * 0.6), to = new THREE.Vector3(ex, ey, groundAt(ex, ey) + thick * 0.5);
             const colour = i < 4 ? linear('#5a4d40') : linear('#4a3d32');
-            const log = limb(from, to, thick, thick * 0.7, stylised ? palette.trunk : colour, stylised ? palette.trunk : colour.clone().multiplyScalar(0.8), 8);
+            const log = limb(from, to, thick, thick * 0.7, stylised ? linear(palette.trunk) : colour, stylised ? linear(palette.trunk) : colour.clone().multiplyScalar(0.8), 8);
             wood.push(stylised ? log.toNonIndexed() : log);
             break;
         }

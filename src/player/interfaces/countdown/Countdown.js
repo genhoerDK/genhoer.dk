@@ -12,7 +12,7 @@
  * the file ends (as the ring in Under overfladen), whatever the display counts. Space or Enter
  * press the button.
  *
- * With `player.model`, the lift itself is behind it in 3D (ElevatorScene.js, scene/hoejbane.js)
+ * With `player.model`, the lift itself is behind it in 3D (src/player/vaerker/53-sekunder-til-faelles/)
  * instead of the photo: the cabin waits at one end, and on each ride glides to the other while the
  * display counts down — at the count's pace, so a slow variation is a slow ride, and the one that
  * breaks down stops on the way, its lamp blinking. When that ride is over the picture fades out,

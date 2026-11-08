@@ -1,10 +1,10 @@
 'use client';
 
 /**
- * The 3D map for the walk interface (three.js): the town's street net (src/player/interfaces/walk/maps/), drawn as
+ * The 3D map for the walk interface (three.js): the town's street net (src/player/vaerker/maps.js), drawn as
  * pale bands on dark ground with the harbour beside it, the town's landmarks in 3D (the church,
- * the water tower, Dronningens Pakhus and more, scene/landmarks.js) and houses along the streets
- * (made up from the streets, scene/town.js), seen at a slant from above. The town is clear; where
+ * the water tower, Dronningens Pakhus and more, kit/landmarks.js) and houses along the streets
+ * (made up from the streets, kit/town.js), seen at a slant from above. The town is clear; where
  * it ends — over the fjord, the open land and past the last streets — it greys over and dissolves
  * into a haze that lies still there (hazeMap), with mist drifting over it.
  *
@@ -17,7 +17,7 @@
  * and the wheel goes nearer or further. The places' names are buttons over their markers; one that is
  * out of view waits at the edge of the screen, pointing the way.
  *
- * @param {string} map           The name of a map in src/player/interfaces/walk/maps/
+ * @param {string} map           The name of a map in src/player/vaerker/maps.js
  * @param {object[]} places      [{ name, at, label? }]  at: [x, y] in the map's units
  * @param {number} here          The place you are at
  * @param {number|null} sounding The place whose story is playing
@@ -26,14 +26,16 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { GREYS, LIGHT, EDGES, vignetteMask, pixelRatio, fadeIn } from '@/player/kit/style';
 import { maps } from '@/player/vaerker/maps';
-import { makeHouses, houseGeometry } from '@/player/kit/town';
+import { makeHouses, makeTrees } from '@/player/kit/town';
+import { houses as houseShapesOf } from '@/player/kit/houses';
+import { trees as treeShapesOf } from '@/player/kit/trees';
 import { landmarkGeometry } from '@/player/kit/landmarks';
-import { makeTrees, treeGeometry } from '@/player/kit/townTrees';
+import { pathLines, fillGeometry, bandGeometry } from '@/player/kit/roads';
+import { hazeMap, hazedOverMap as hazed, HAZE_GLSL } from '@/player/kit/haze';
 
-/* ---------- THE LOOK: the 3D style (scene/style.js) — greys, the streets muted, only the stations white ---------- */
+/* ---------- THE LOOK: the 3D style (kit/style.js) — greys, the streets muted, only the stations white ---------- */
 
 const GROUND = GREYS.ground;
 const WATER = GREYS.water;
@@ -42,9 +44,7 @@ const QUAY = GREYS.sideStreets;       // the quay's edge
 const PATH = { width: 1.8, color: GREYS.paths };   // widths with the soft edges; the solid middle is about 0.8 of it
 const SIDE = { width: 5.5, color: GREYS.sideStreets };
 const MAIN = { width: 9, color: GREYS.streets };
-const HOUSES = { walls: GREYS.walls, tiles: [GREYS.roofs[1]], slates: [GREYS.roofs[0]] };
 const LANDMARK = { wall: GREYS.landmark, roof: GREYS.landmarkRoof, band: GREYS.landmarkRoof, spire: GREYS.landmarkRoof };   // a step lighter than the houses
-const TREES = { trunk: GREYS.trunk, greens: GREYS.leaves };
 const STATION = { here: GREYS.sound, other: GREYS.soundAway };   // the listening stations: white where you are
 const POOL = 46;                      // metres across the light on the ground under a marker
 const EDGE = 150;                     // metres over which the map fades out at its own edges
@@ -58,196 +58,6 @@ const BEAM = 30, BALL_AT = 37;        // metres: the marker's beam, and where it
 const TILT = 0.92, TILT_RANGE = 0.22; // radians above the horizon the view looks down from, and how far the pointer tips it
 const TURN_RANGE = 0.32;              // radians the pointer turns it either way
 const LABEL_TOP = 72;                 // px kept free at the top (the header)
-
-/* ---------- GEOMETRY ---------- */
-
-/**
- * An SVG path (absolute M, L, H, V, C, Q and Z, as the maps are written) as lines of points,
- * [[x, y, x, y, ...], ...], one per subpath, with the curves broken into short straight pieces.
- * `to` turns the map's units into metres.
- */
-function pathLines(d, to) {
-    const tokens = d.match(/[MLHVCQZ]|-?\d*\.?\d+(?:e-?\d+)?/gi) ?? [];
-    const lines = [];
-    let line = null, cmd = null, i = 0, x = 0, y = 0, sx = 0, sy = 0;
-    const num = () => Number(tokens[i++]);
-    const put = (px, py) => { const [mx, my] = to(px, py); line.push(mx, my); };
-    while (i < tokens.length) {
-        if (/[A-Z]/i.test(tokens[i])) cmd = tokens[i++].toUpperCase();
-        if (cmd === 'M') { line = []; lines.push(line); x = sx = num(); y = sy = num(); put(x, y); cmd = 'L'; continue; }
-        if (cmd === 'L') { x = num(); y = num(); put(x, y); continue; }
-        if (cmd === 'H') { x = num(); put(x, y); continue; }
-        if (cmd === 'V') { y = num(); put(x, y); continue; }
-        if (cmd === 'Z') { x = sx; y = sy; put(x, y); continue; }
-        if (cmd === 'C' || cmd === 'Q') {
-            const pts = cmd === 'C' ? [num(), num(), num(), num(), num(), num()] : [num(), num(), num(), num()];
-            const [x0, y0] = [x, y];
-            for (let k = 1; k <= 12; k++) {
-                const t = k / 12, u = 1 - t;
-                if (cmd === 'C') {
-                    put(u * u * u * x0 + 3 * u * u * t * pts[0] + 3 * u * t * t * pts[2] + t * t * t * pts[4],
-                        u * u * u * y0 + 3 * u * u * t * pts[1] + 3 * u * t * t * pts[3] + t * t * t * pts[5]);
-                } else {
-                    put(u * u * x0 + 2 * u * t * pts[0] + t * t * pts[2], u * u * y0 + 2 * u * t * pts[1] + t * t * pts[3]);
-                }
-            }
-            [x, y] = cmd === 'C' ? [pts[4], pts[5]] : [pts[2], pts[3]];
-            continue;
-        }
-        i++;   // anything else: skip it
-    }
-    return lines.filter((l) => l.length >= 4);
-}
-
-/** Closed lines lying flat on the ground at height y */
-function fillGeometry(lines, y) {
-    const parts = lines.filter((l) => l.length >= 6).map((l) => {
-        const pts = [];
-        for (let i = 0; i < l.length; i += 2) pts.push(new THREE.Vector2(l[i], l[i + 1]));
-        const g = new THREE.ShapeGeometry(new THREE.Shape(pts));
-        g.rotateX(Math.PI / 2);
-        g.translate(0, y, 0);
-        return g;
-    });
-    return parts.length > 1 ? mergeGeometries(parts) : parts[0] ?? null;
-}
-
-/** Lines that meet end to end, and only two of them at that point, joined into one */
-function joinChains(lines) {
-    const k = (x, z) => `${Math.round(x * 10)},${Math.round(z * 10)}`;
-    let chains = lines.map((l) => l.slice());
-    for (let changed = true; changed;) {
-        changed = false;
-        const ends = new Map();
-        chains.forEach((l, i) => {
-            for (const key of [k(l[0], l[1]), k(l.at(-2), l.at(-1))]) ends.set(key, [...(ends.get(key) ?? []), i]);
-        });
-        for (const [key, at] of ends) {
-            if (at.length !== 2 || at[0] === at[1]) continue;
-            let [a, b] = at.map((i) => chains[i]);
-            if (k(a[0], a[1]) === key) a = reverse(a);          // a ends here
-            if (k(b.at(-2), b.at(-1)) === key) b = reverse(b);  // b starts here
-            chains[at[0]] = a.concat(b.slice(2));
-            chains[at[1]] = null;
-            chains = chains.filter(Boolean);
-            changed = true;
-            break;
-        }
-    }
-    return chains;
-}
-function reverse(l) {
-    const out = [];
-    for (let i = l.length - 2; i >= 0; i -= 2) out.push(l[i], l[i + 1]);
-    return out;
-}
-
-/**
- * Lines as flat bands with soft edges, so streets fade into one another rather than ending in round
- * caps: across, the band fades out at its sides; along, an end that meets another street runs on
- * a little past it, fading as it goes, and a dead end fades away into the ground.
- *
- * @param {number[][]} lines
- * @param {number} width
- * @param {number} y
- * @param {string} color
- * @param {{ lines: number[][], half: number }[]} all  Every street, to tell a crossing from a dead end
- */
-function bandGeometry(lines, width, y, color, all = []) {
-    const half = width / 2;
-    const c = new THREE.Color(color);
-    const pos = [], col = [], idx = [];
-    const ACROSS = [[-1, 0], [-0.8, 1], [0.8, 1], [1, 0]];     // offset (× half) and opacity across the band: a crisp edge
-    const DEAD_END = 9;                                         // metres a dead end fades over
-
-    /** How wide the street is that a point meets (0: none); the line's own pieces don't count */
-    const key = (x, z) => `${Math.round(x * 10)},${Math.round(z * 10)}`;
-    const meets = (x, z, self) => {
-        const own = new Set();
-        for (let i = 0; i < self.length; i += 2) own.add(key(self[i], self[i + 1]));
-        let widest = 0;
-        for (const { lines: ls, half: h } of all) {
-            for (const l of ls) {
-                for (let i = 2; i < l.length; i += 2) {
-                    if (own.has(key(l[i - 2], l[i - 1])) && own.has(key(l[i], l[i + 1]))) continue;
-                    const ax = l[i - 2], az = l[i - 1], dx = l[i] - ax, dz = l[i + 1] - az;
-                    const len = dx * dx + dz * dz;
-                    const t = len ? Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / len)) : 0;
-                    const ex = ax + dx * t - x, ez = az + dz * t - z;
-                    if (ex * ex + ez * ez < (h + 1.5) ** 2) widest = Math.max(widest, h);
-                }
-            }
-        }
-        return widest;
-    };
-
-    for (const flat of joinChains(lines)) {
-        if (flat.length < 4) continue;
-        // The points along it, with how opaque the band is at each
-        let pts = [];
-        for (let i = 0; i < flat.length; i += 2) pts.push({ x: flat[i], z: flat[i + 1], a: 1 });
-        const first = meets(pts[0].x, pts[0].z, flat), last = meets(pts.at(-1).x, pts.at(-1).z, flat);
-        const along = (list) => { let d = 0; return list.map((q, i) => (d += i ? Math.hypot(q.x - list[i - 1].x, q.z - list[i - 1].z) : 0)); };
-        /** A point added at distance d along, so a fade can start exactly there */
-        const insertAt = (list, d) => {
-            const s = along(list);
-            const i = s.findIndex((v) => v >= d);
-            if (i <= 0 || s[i] === d) return list;
-            const t = (d - s[i - 1]) / (s[i] - s[i - 1]);
-            return [...list.slice(0, i), { x: list[i - 1].x + (list[i].x - list[i - 1].x) * t, z: list[i - 1].z + (list[i].z - list[i - 1].z) * t, a: 1 }, ...list.slice(i)];
-        };
-        const length = along(pts).at(-1);
-        const fade = Math.min(DEAD_END, length / 3);
-        // A dead end fades away over its last stretch
-        if (!first) pts = insertAt(pts, fade);
-        if (!last) pts = insertAt(pts, length - fade);
-        const s = along(pts);
-        pts.forEach((q, i) => {
-            if (!first) q.a = Math.min(q.a, s[i] / fade);
-            if (!last) q.a = Math.min(q.a, (length - s[i]) / fade);
-        });
-        // An end that meets another street runs on into it a little, fading
-        const tip = (p0, p1, other) => {
-            const dx = p0.x - p1.x, dz = p0.z - p1.z, l = Math.hypot(dx, dz) || 1;
-            const run = Math.max(3, other + half * 0.5);
-            return { x: p0.x + (dx / l) * run, z: p0.z + (dz / l) * run, a: 0 };
-        };
-        if (first) pts.unshift(tip(pts[0], pts[1], first));
-        if (last) pts.push(tip(pts.at(-1), pts.at(-2), last));
-        // The band, four vertices across
-        const base = pos.length / 3;
-        const n = pts.length;
-        for (let i = 0; i < n; i++) {
-            const { x, z, a } = pts[i];
-            const dir = (i0, i1) => {
-                const ddx = pts[i1].x - pts[i0].x, ddz = pts[i1].z - pts[i0].z;
-                const dl = Math.hypot(ddx, ddz) || 1;
-                return [ddx / dl, ddz / dl];
-            };
-            const d1 = i > 0 ? dir(i - 1, i) : dir(i, i + 1);
-            const d2 = i < n - 1 ? dir(i, i + 1) : d1;
-            let tx = d1[0] + d2[0], tz = d1[1] + d2[1];
-            const tl = Math.hypot(tx, tz);
-            if (tl < 1e-3) { tx = d1[0]; tz = d1[1]; } else { tx /= tl; tz /= tl; }
-            const mx = -tz, mz = tx;                                         // the miter's direction
-            const miter = half / Math.max(0.35, mx * -d1[1] + mz * d1[0]);   // longer at sharp bends, within reason
-            for (const [o, alpha] of ACROSS) {
-                pos.push(x + mx * miter * o, y, z + mz * miter * o);
-                col.push(c.r, c.g, c.b, alpha * a);
-            }
-            if (i) {
-                const r0 = base + (i - 1) * 4, r1 = base + i * 4;
-                for (let k = 0; k < 3; k++) idx.push(r0 + k, r0 + k + 1, r1 + k, r0 + k + 1, r1 + k + 1, r1 + k);
-            }
-        }
-    }
-    if (!idx.length) return null;
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 4));
-    g.setIndex(idx);
-    return g;
-}
 
 /** Tileable soft noise for the mist, as a texture */
 function mistTexture(seed) {
@@ -276,72 +86,6 @@ function mistTexture(seed) {
     tex.magFilter = tex.minFilter = THREE.LinearFilter;
     tex.needsUpdate = true;
     return tex;
-}
-
-/* ---------- THE HAZE: fixed where the town ends, so every material greys over and fades out there ---------- */
-
-/**
- * A map of the haze over the ground, made once: 0 in the town, rising with the distance from the
- * nearest street, and 1 at the map's own edges. It lies still while you walk and look about —
- * over the fjord, the open land and beyond the last streets.
- */
-function hazeMap(streets, [x0, z0, x1, z1]) {
-    const W = 160, H = Math.max(2, Math.round((W * (z1 - z0)) / (x1 - x0)));
-    const segments = streets.flatMap(({ lines, half }) => lines.flatMap((l) => {
-        const out = [];
-        for (let i = 2; i < l.length; i += 2) out.push([l[i - 2], l[i - 1], l[i], l[i + 1], half]);
-        return out;
-    }));
-    const data = new Uint8Array(W * H * 4);
-    const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
-    for (let j = 0; j < H; j++) {
-        for (let i = 0; i < W; i++) {
-            const x = x0 + ((i + 0.5) / W) * (x1 - x0), z = z0 + ((j + 0.5) / H) * (z1 - z0);
-            let d = Infinity;
-            for (const [ax, az, bx, bz, half] of segments) {
-                const dx = bx - ax, dz = bz - az, l = dx * dx + dz * dz;
-                const t = l ? Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l)) : 0;
-                const ex = ax + dx * t - x, ez = az + dz * t - z;
-                d = Math.min(d, Math.sqrt(ex * ex + ez * ez) - half);
-            }
-            const edge = Math.min(x - x0, x1 - x, z - z0, z1 - z);
-            const v = Math.max(smooth(TOWN[0], TOWN[1], d), 1 - smooth(0, EDGE, edge));
-            data.set([v * 255, v * 255, v * 255, 255], (j * W + i) * 4);
-        }
-    }
-    const tex = new THREE.DataTexture(data, W, H);
-    tex.magFilter = tex.minFilter = THREE.LinearFilter;
-    tex.needsUpdate = true;
-    return tex;
-}
-
-/** How deep in the haze a point on the ground is (0–1), from the haze map */
-const HAZE_GLSL = `
-    uniform sampler2D uHazeMap;
-    uniform vec4 uExtent;
-    uniform vec3 uHaze;
-    float hazeAt(vec2 at) {
-        vec2 uv = (at - uExtent.xy) / (uExtent.zw - uExtent.xy);
-        if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 1.0;
-        return texture2D(uHazeMap, uv).r;
-    }`;
-
-function hazed(material, haze, { fade = true } = {}) {
-    material.transparent = true;
-    material.onBeforeCompile = (shader) => {
-        Object.assign(shader.uniforms, haze);
-        shader.vertexShader = shader.vertexShader
-            .replace('#include <common>', '#include <common>\nvarying vec3 vHazeAt;')
-            .replace('#include <project_vertex>', '#include <project_vertex>\nvHazeAt = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-        shader.fragmentShader = shader.fragmentShader
-            .replace('#include <common>', `#include <common>\nvarying vec3 vHazeAt;\n${HAZE_GLSL}`)
-            .replace('#include <dithering_fragment>', `
-                float hazeH = hazeAt(vHazeAt.xz);
-                gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, hazeH * ${fade ? '0.95' : '0.45'});
-                ${fade ? 'gl_FragColor.a *= 1.0 - smoothstep(0.55, 1.0, hazeH);' : ''}
-                #include <dithering_fragment>`);
-    };
-    return material;
 }
 
 /* ---------- THE SCENE ---------- */
@@ -410,7 +154,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             scene.add(mesh);
             return mesh;
         };
-        // The faint edges (scene/style.js): lines in the haze like the rest
+        // The faint edges (kit/style.js): lines in the haze like the rest
         const edgeMaterial = (strength) => new THREE.LineBasicMaterial({ color: GREYS.edge, transparent: true, opacity: strength, depthWrite: false });
         const flatMaterial = (color, opacity = 1) => hazed(new THREE.MeshBasicMaterial({ color, opacity, side: THREE.DoubleSide, depthWrite: false }), haze);
         const lines = (paths) => [paths ?? []].flat().flatMap((d) => pathLines(d, to));
@@ -434,7 +178,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
         add(bandGeometry(streets[3].lines, PATH.width, 0.09, PATH.color, streets), softMaterial());
         add(bandGeometry(streets[1].lines, SIDE.width, 0.1, SIDE.color, streets), softMaterial());
         add(bandGeometry(streets[0].lines, MAIN.width, 0.12, MAIN.color, streets), softMaterial());
-        haze.uHazeMap.value = hazeMap(streets, extent);
+        haze.uHazeMap.value = hazeMap(streets, extent, { town: TOWN, edge: EDGE });
 
         /* ---------- a pool of light on the ground under each place, brighter where you are ---------- */
 
@@ -452,7 +196,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             return material;
         });
 
-        /* ---------- the landmarks (scene/landmarks.js); one named like a place lights up when you are there ---------- */
+        /* ---------- the landmarks (kit/landmarks.js); one named like a place lights up when you are there ---------- */
 
         const marks = Object.entries(map.landmarks ?? {}).map(([name, mark]) => {
             const ring = lines(mark.ring)[0];
@@ -464,7 +208,7 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             return { place: places.findIndex((place) => place.name === name), ring, material };
         });
 
-        /* ---------- houses along the streets, made up from the streets (scene/town.js) ---------- */
+        /* ---------- houses along the streets, made up from the streets (kit/town.js) ---------- */
 
         const houses = makeHouses({
             // The houses keep to the solid middle of each street's band
@@ -474,11 +218,11 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             blocks: marks.map((m) => m.ring),
             clear: spots.filter((_, p) => !marks.some((m) => m.place === p)),
         });
-        const houseShapes = houseGeometry(houses, HOUSES);
+        const houseShapes = houseShapesOf(houses, { up: 'y' });   // kit/houses.js, in the style's greys
         add(houseShapes, hazed(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), haze));
         if (houseShapes) add(new THREE.EdgesGeometry(houseShapes, EDGES.angle), hazed(edgeMaterial(EDGES.buildings), haze));
 
-        /* ---------- trees on the promenade, on Axeltorv and in the yards (scene/trees.js) ---------- */
+        /* ---------- trees on the promenade, on Axeltorv and in the yards (kit/trees.js, placed by kit/town.js) ---------- */
 
         const trees = makeTrees({
             streets: streets.map((st) => ({ lines: st.lines, half: st.half * 0.85 })),
@@ -489,7 +233,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
             clear: spots,
             extent,
         });
-        const treeShapes = treeGeometry(trees, TREES);
+        // kit/trees.js: the style's broad leafy tree, as tall as the old round ones; ground (x, z) is (x, −y) z up
+        const treeShapes = treeShapesOf(trees.map((t) => ({ x: t.x, y: -t.z, height: t.size * 2.6, kind: 'beech' })), { seed: 11, up: 'y' });
         add(treeShapes, hazed(new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true }), haze));
 
         /* ---------- the markers, the listening stations: a sphere floating over each place on a beam of light ---------- */

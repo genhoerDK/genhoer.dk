@@ -388,7 +388,7 @@ export function groundAt(x, y) {
 
 /**
  * The forest floor round the emplacement: one surface shaped by groundAt and painted by
- * forestFloorMaterial (scene/forest.js), from just under the walk's edge out to 40 m, fading out at its far edge so the
+ * forestFloorMaterial (forest.js), from just under the walk's edge out to 40 m, fading out at its far edge so the
  * photo behind shows
  */
 function forestFloor(stylised = false, blueprint = false, dark = false) {

@@ -35,7 +35,7 @@ const SAMPLE_FADE = 0.005;
 
 export default class Instrument {
     /**
-     * @param {object} config  An entry from src/player/interfaces/buttons/instruments.js
+     * @param {object} config  An entry from src/player/vaerker/troldetoner/instrument.js
      */
     constructor(config) {
         this.config = config;

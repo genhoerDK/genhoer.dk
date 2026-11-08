@@ -2,7 +2,7 @@
 
 /**
  * 3D scene for a work made for four speakers (three.js): the gun emplacement seen from above
- * (scene/kanonstilling.js), in its forest (scene/forest.js), with the four loudspeakers on the ring wall where the work was played;
+ * (kanonstilling.js), in its forest (forest.js), with the four loudspeakers on the ring wall where the work was played;
  * you are in the middle of the pit. The photo (with depth) and smoke lie behind, on the shared
  * stage (scene/stage.js). A low sun stands to one side of the room and turns with it, so the
  * shadows stay where they fall as you turn.
