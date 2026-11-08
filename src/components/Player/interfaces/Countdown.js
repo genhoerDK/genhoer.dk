@@ -8,7 +8,9 @@
  * after a few seconds counts down, one count per `tempo` seconds — some rides count slower or
  * faster, and one breaks down on the way. When the ride ends the display goes dark; the next
  * press takes the next variation. A press during a ride does nothing, like the button in the
- * elevator. Space or Enter press the button.
+ * elevator. The ring round the button runs down with the ride's sound file, from the press until
+ * the file ends (as the ring in Under overfladen), whatever the display counts. Space or Enter
+ * press the button.
  *
  * With `player.model`, the lift itself is behind it in 3D (ElevatorScene.js, scene/hoejbane.js)
  * instead of the photo: the cabin waits at one end, and on each ride glides to the other while the
@@ -42,10 +44,13 @@ const pad = (n) => String(n).padStart(2, '0');
 /** Mostly an even pace, softly away and softly in */
 const glide = (f) => f - 0.3 * (Math.sin(2 * Math.PI * f) / (2 * Math.PI));
 
+const RADIUS = 47;                       // the ring round the button (as Under overfladen's)
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
 const FADE = 900;   // ms: the picture fades out, and in again, when the cabin is put back after a breakdown
 
 export default function CountdownPlayer() {
-    const { currentTrack, currentFile, isPlaying, currentTime, ended, play, playFile } = useAudio();
+    const { currentTrack, currentFile, isPlaying, currentTime, duration, ended, play, playFile } = useAudio();
     const { tracks, from = 53, delay = 6, model = false, look } = currentTrack.player;
 
     const loaded = tracks.findIndex((t) => t.file === currentFile);   // the variation in the element, -1 before the first ride
@@ -54,6 +59,10 @@ export default function CountdownPlayer() {
     const on = riding || paused;
     const track = tracks[loaded];
     const nextIndex = loaded >= 0 ? (loaded + 1) % tracks.length : 0;
+
+    // The ring: what is left of the ride's sound file, full at the press and empty when it ends
+    // (whatever the display counts)
+    const left = on ? (duration > 0 ? Math.max(0, 1 - currentTime / duration) : 1) : 0;
 
     // The display: `from`, and after `delay` seconds one count less per `tempo` seconds, down to stopAt
     const count = on ? Math.max(track.stopAt ?? 0, from - Math.floor(Math.max(0, currentTime - delay) / (track.tempo || 1))) : from;
@@ -156,8 +165,18 @@ export default function CountdownPlayer() {
                         onClick={press}
                         aria-label={riding ? 'Turen er i gang' : 'Kør'}
                         aria-disabled={riding}
-                        className={`flex items-center justify-center size-20 shrink-0 rounded-full border transition-colors group ${riding ? 'border-paper/60 cursor-default' : 'border-paper/30 cursor-pointer md:hover:border-paper'}`}
+                        className={`relative flex items-center justify-center size-20 shrink-0 rounded-full transition-colors group ${riding ? 'cursor-default' : 'cursor-pointer'}`}
                     >
+                        {/* The ring: the ride's sound running down, from the press until the file ends */}
+                        <svg viewBox='0 0 100 100' className='absolute inset-0 size-full -rotate-90' aria-hidden='true'>
+                            <circle cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.5' className={`transition-opacity ${riding ? 'opacity-20' : 'opacity-30 md:group-hover:opacity-100'}`} />
+                            <circle
+                                cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round'
+                                strokeDasharray={CIRCUMFERENCE}
+                                strokeDashoffset={CIRCUMFERENCE * (1 - left)}
+                                style={{ transition: 'stroke-dashoffset 0.3s linear' }}
+                            />
+                        </svg>
                         <span className={`block size-14 rounded-full transition-colors ${riding ? 'bg-paper/20' : 'bg-paper md:group-hover:bg-muted'}`} />
                     </button>
                 </div>
