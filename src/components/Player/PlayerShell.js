@@ -19,8 +19,6 @@
  * @param {number} [smoke]    0–1: how much smoke drifts in front of the photo
  * @param {boolean} [backdrop] false: the interface draws its own scene (Troldetoner, Kanon i G3)
  * @param {string} [filter]   CSS filter on the photo, with [filterTransition] (a CSS transition value)
- * @param {string} [light]    A light room instead of the dark one: this CSS background behind, dark text, no dark
- *                            edges (Tværveje's town in daylight)
  */
 
 import dynamic from 'next/dynamic';
@@ -31,11 +29,11 @@ const DepthBackdrop = dynamic(() => import('@/components/Player/scene/DepthBackd
 
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, backdrop = true, filter, filterTransition, light, children }) {
+export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, backdrop = true, filter, filterTransition, children }) {
     const photo = image ?? track?.player?.image ?? track?.coverImageLandscape;
 
     return (
-        <div className={`relative w-full h-svh overflow-hidden select-none ${light ? 'text-ink' : 'bg-ink text-paper'}`} style={light ? { background: light } : undefined}>
+        <div className='relative w-full h-svh bg-ink text-paper overflow-hidden select-none'>
             {/* The photo, black and white like the covers so a gallery photo fits in too */}
             {backdrop && (
                 <div className='absolute inset-0' style={{ filter: ['grayscale(1)', filter].filter(Boolean).join(' '), transition: filterTransition }}>
@@ -45,8 +43,8 @@ export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, b
             )}
 
             {/* Grain and the dark edges */}
-            <div className={`absolute inset-0 pointer-events-none ${light ? 'opacity-5' : 'opacity-10'}`} style={{ backgroundImage: GRAIN, backgroundRepeat: 'repeat', backgroundSize: '128px' }} />
-            {!light && <div className='absolute inset-x-0 top-0 h-40 bg-linear-to-b from-ink/80 to-transparent pointer-events-none' />}
+            <div className='absolute inset-0 pointer-events-none opacity-10' style={{ backgroundImage: GRAIN, backgroundRepeat: 'repeat', backgroundSize: '128px' }} />
+            <div className='absolute inset-x-0 top-0 h-40 bg-linear-to-b from-ink/80 to-transparent pointer-events-none' />
             {backdrop && <div className='absolute inset-x-0 bottom-0 h-80 bg-linear-to-t from-ink via-ink/70 to-transparent pointer-events-none' />}
 
             {children}
