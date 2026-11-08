@@ -187,7 +187,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
             room.position.copy(focus).multiplyScalar(-s);
             // close to the cabin at the hospital and round the bend, the view comes round to look at it
             // from the front left, past the bend rather than through it; over the road, straight on again
-            turn.rotation.z = yaw + BEND_TURN * u * (1 - smooth(0.12, 0.42, at));
+            turn.rotation.z = yaw + BEND_TURN * u * (1 - smooth(0.2, 0.5, at));
             const far = THREE.MathUtils.lerp(TILT.far[0], TILT.far[1], look);
             const near = THREE.MathUtils.lerp(TILT.close[0], TILT.close[1], look);
             tilt.rotation.x = -THREE.MathUtils.lerp(far, near, u);
