@@ -242,6 +242,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom }) {
                 place.setCabin(at, lamp, t);
                 place.update(dt, reducedMotion);
                 frame(current.zoom, current.look, current.yaw, at, dt);
+                place.haze(haze);   // after the place has been moved for this frame
             },
         });
         stage.panel.add(tilt);

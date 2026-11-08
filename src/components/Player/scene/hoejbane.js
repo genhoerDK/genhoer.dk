@@ -17,6 +17,9 @@
  *  - The other end: a tall, slim, dark grey tower with the white station box on its corner, where
  *    the cabin docks, and pale point blocks with balconies round it.
  *  - The cabin: a white box with a band of windows on a dark carriage.
+ *  - Round it all a town of houses, low blocks of flats and trees, thinning out and fading into the
+ *    haze (`hazed`): the further from the middle, the more it takes the haze's colour, so at the edge
+ *    the ground and the town meet the sky's horizon and there is no end to see.
  *
  * Metres, z up. The track crosses the road along x; the road runs along y, away from the viewer
  * (who stands on the -y side, as in the photos taken from the road).
@@ -28,6 +31,7 @@
  *   cabinAt(p): THREE.Vector3,  where the cabin is at p (0 = the hospital, 1 = the other side), for the camera
  *   setCabin(p, lamp, t),       put the cabin at p; lamp 0 = off, 1 = on, 2 = blinking (stuck)
  *   update(dt, still),          the traffic on the road
+ *   haze(colour),               the haze's colour; also tells it where the place is (every frame)
  *   dispose()
  * }}
  */
@@ -141,15 +145,15 @@ function block(parts, { x0, x1, y0, y1, z0 = 0, z1, hex, windows, parapet = true
 }
 
 /** A gabled house, its ridge along x */
-function house(parts, x, y, w, d, h, roof, turn = 0) {
+function house(parts, x, y, w, d, h, roof, turn = 0, wall = C.brick, tiles = C.tiles) {
     const local = [];
-    local.push(box(w, d, h, 0, 0, 0, C.brick));
+    local.push(box(w, d, h, 0, 0, 0, wall));
     const shape = new THREE.Shape([new THREE.Vector2(-d / 2 - 0.4, 0), new THREE.Vector2(d / 2 + 0.4, 0), new THREE.Vector2(0, roof)]);
     const prism = new THREE.ExtrudeGeometry(shape, { depth: w + 0.6, bevelEnabled: false });
     prism.rotateX(Math.PI / 2);             // the triangle stands up; extruded along -y
     prism.rotateZ(Math.PI / 2);             // ridge along x
     prism.translate(-(w + 0.6) / 2, 0, h);
-    local.push(paint(prism, C.tiles));
+    local.push(paint(prism, tiles));
     // two rows of small windows on the long sides
     for (const side of [-1, 1]) {
         for (let k = 0; k < Math.floor(w / 2.6); k++) {
@@ -158,6 +162,78 @@ function house(parts, x, y, w, d, h, roof, turn = 0) {
         }
     }
     placed(parts, local, x, y, turn);
+}
+
+/* ---------- THE TOWN ROUND IT, AND THE HAZE IT FADES INTO ---------- */
+
+// Where the town thins into the haze: everything is haze-coloured by HAZE.far metres from HAZE.centre
+const HAZE = { centre: [18, 20], near: 115, far: 300 };
+// The part already built by hand (the hospital, the road's two sides), which the town leaves alone
+const BUILT = { x0: -100, x1: 112, y0: -60, y1: 112 };
+const STREETS = { across: [-120, 152, 240], along: [-150, 172, -262] };   // side streets: y = …, x = …
+
+/**
+ * The town round the hospital, out into the haze: houses in red and yellow brick, a few low blocks
+ * of flats, clumps of trees, side streets — on a loose grid, thinning towards the edge
+ */
+function outskirts(parts, wood, rand) {
+    const { x: rx, width: rw } = ROAD;
+    const span = 760;
+    for (const y of STREETS.across) parts.push(box(span, 7, 0.04, HAZE.centre[0], y, 0, C.road));
+    for (const x of STREETS.along) parts.push(box(7, span, 0.04, x, HAZE.centre[1], 0, C.road));
+    const onStreet = (x, y) => STREETS.across.some((v) => Math.abs(y - v) < 11) || STREETS.along.some((v) => Math.abs(x - v) < 11);
+
+    const step = 24;
+    for (let gx = -330; gx <= 360; gx += step) {
+        for (let gy = -330; gy <= 380; gy += step) {
+            const x = gx + rand.range(-5, 5), y = gy + rand.range(-5, 5);
+            const r = Math.hypot(x - HAZE.centre[0], y - HAZE.centre[1]);
+            if (r > HAZE.far + 40) continue;
+            if (x > BUILT.x0 && x < BUILT.x1 && y > BUILT.y0 && y < BUILT.y1) continue;
+            if (Math.abs(x - rx) < rw / 2 + 14 || onStreet(x, y)) continue;
+            const pick = rand();
+            const turn = (rand() < 0.5 ? 0 : Math.PI / 2) + rand.range(-0.06, 0.06);
+            if (pick < 0.5) {
+                const yellow = rand() < 0.3;
+                house(parts, x, y, rand.range(9, 14), rand.range(7.5, 9.5), rand.range(5.5, 7), rand.range(3.8, 5),
+                    turn, yellow ? C.yellow : C.brick, rand() < 0.25 ? C.slate : C.tiles);
+                if (rand() < 0.6) toyTree('beech', new THREE.Vector3(x + rand.range(-9, 9), y + rand.range(-9, 9), 0), rand.range(8, 12), rand, wood);
+            } else if (pick < 0.62) {
+                // a low block of flats
+                const long = rand.range(24, 34), deep = rand.range(10, 12), high = rand.range(9, 13);
+                const [w, d] = turn < 1 ? [long, deep] : [deep, long];
+                block(parts, { x0: x - w / 2, x1: x + w / 2, y0: y - d / 2, y1: y + d / 2, z1: high, hex: rand() < 0.5 ? C.yellow : C.pale, windows: { first: 1.2, every: 3, height: 1.3, hex: C.window } });
+            } else {
+                // a clump of trees
+                const n = 2 + Math.floor(rand() * 3);
+                for (let k = 0; k < n; k++) toyTree(rand() < 0.8 ? 'beech' : 'birch', new THREE.Vector3(x + rand.range(-9, 9), y + rand.range(-9, 9), 0), rand.range(9, 15), rand, wood);
+            }
+        }
+    }
+}
+
+/**
+ * The haze, put into a material: whatever it draws is mixed into the haze's colour the further it
+ * stands from the town's middle — from HAZE.near to HAZE.far metres out — after the light, so at
+ * the far edge it is exactly the colour of the sky's horizon and the town fades out into it. The
+ * uniforms are shared: `colour` (the scene changes it with the weather) and `toPlace` (the inverse
+ * of the place's world matrix, set every frame, so the distance is measured in the place's metres).
+ */
+function hazed(material, haze) {
+    material.onBeforeCompile = (shader) => {
+        Object.assign(shader.uniforms, haze.uniforms);
+        shader.vertexShader = shader.vertexShader
+            .replace('#include <common>', '#include <common>\nuniform mat4 uToPlace;\nvarying vec2 vPlace;')
+            .replace('#include <project_vertex>', '#include <project_vertex>\nvPlace = (uToPlace * modelMatrix * vec4(transformed, 1.0)).xy;');
+        shader.fragmentShader = shader.fragmentShader
+            .replace('#include <common>', '#include <common>\nuniform vec3 uHaze;\nuniform vec2 uHazeCentre, uHazeRange;\nvarying vec2 vPlace;')
+            .replace('#include <fog_fragment>', `{
+                float k = smoothstep(uHazeRange.x, uHazeRange.y, length(vPlace - uHazeCentre));
+                gl_FragColor.rgb = mix(gl_FragColor.rgb, uHaze, k * k * (3.0 - 2.0 * k));
+            }
+            #include <fog_fragment>`);
+    };
+    return material;
 }
 
 /* ---------- THE TRACK ---------- */
@@ -294,9 +370,9 @@ function glassBox(w, d, h, z) {
  * The cabin: origin on the rails' line, travelling along local +x. The box (`body`) stays level;
  * the carriage under it (`bogie`) tips with the track.
  *
- *  - the box: light aluminium panels with real openings. The ends, facing along the rails, are the
- *    doors: three tall, narrow windows. The sides are closed below, with a window in two panes over
- *    the upper half and a small vent window over one. Rounded
+ *  - the box: light aluminium panels with real openings, closed below and windows over the upper
+ *    half: three on each long side with a small top-hung vent window over the middle one, four
+ *    smaller ones in each end. Rounded
  *    posts at the corners, a dark seal along the roof's edge, a flat roof with a low hatch.
  *  - under it: a dark tray, narrower at the bottom, then the carriage with a bracket at each corner
  *    reaching round the rail, a wheel on top of the rail and a guide wheel under it.
@@ -339,12 +415,18 @@ function buildCabin(material) {
     parts.push(paint(tray, C.carriage));
     parts.push(box(L - 0.02, W - 0.02, 0.06, 0, 0, B, C.panelDark));   // the floor's edge
 
-    // the ends, facing along the rails: the doors, three tall, narrow windows
-    const door = 0.56, post = 0.14, doorStart = -(3 * door + 2 * post) / 2;
-    const ends = [0, 1, 2].map((k) => [doorStart + k * (door + post), doorStart + k * (door + post) + door, 0.5, 2.02]);
-    // the sides: closed below, a window in two panes over the upper half, a small top-hung vent over one
-    const pane = (L - 0.12 - 0.36 - 0.07) / 2, left = -(L - 0.12) / 2 + 0.18, right = (L - 0.12) / 2 - 0.18;
-    const sides = [[left, left + pane, 1.05, 1.72], [left, left + pane, 1.78, 2.0], [right - pane, right, 1.05, 2.0]];
+    // the long sides: closed below, three windows over the upper half, a small top-hung vent over the middle one
+    const sideW = L - 0.12, pane = (sideW - 0.36 - 2 * 0.07) / 3;
+    const sides = [0, 1, 2].flatMap((k) => {
+        const u0 = -sideW / 2 + 0.18 + k * (pane + 0.07), u1 = u0 + pane;
+        return k === 1 ? [[u0, u1, 1.05, 1.72], [u0, u1, 1.78, 2.02]] : [[u0, u1, 1.05, 2.02]];
+    });
+    // the ends: four smaller windows, also only over the upper half
+    const endW = W - 0.12, small = (endW - 0.32 - 3 * 0.07) / 4;
+    const ends = [0, 1, 2, 3].map((k) => {
+        const u0 = -endW / 2 + 0.16 + k * (small + 0.07);
+        return [u0, u0 + small, 1.05, 2.02];
+    });
     parts.push(faceTo(wallPanel(W - 0.12, H, ends, C.panel), '+x', B));
     parts.push(faceTo(wallPanel(W - 0.12, H, ends, C.panel), '-x', B));
     parts.push(faceTo(wallPanel(L - 0.12, H, sides, C.panel), '-y', B));
@@ -513,13 +595,21 @@ function signTexture() {
 export function buildHoejbane() {
     const group = new THREE.Group();
     const rand = random(53);
-    const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0, flatShading: true });
+    const haze = {
+        uniforms: {
+            uHaze: { value: new THREE.Color('#dcdcd4') },
+            uToPlace: { value: new THREE.Matrix4() },
+            uHazeCentre: { value: new THREE.Vector2(...HAZE.centre) },
+            uHazeRange: { value: new THREE.Vector2(HAZE.near, HAZE.far) },
+        },
+    };
+    const material = hazed(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95, metalness: 0, flatShading: true }), haze);
 
     const curve = trackCurve();
     const start = frameAt(curve, 0), end = frameAt(curve, 1);
 
     /* The ground, the road and the pavements */
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ color: C.grass, roughness: 1, metalness: 0 }));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), hazed(new THREE.MeshStandardMaterial({ color: C.grass, roughness: 1, metalness: 0 }), haze));
     ground.receiveShadow = true;
     group.add(ground);
 
@@ -593,6 +683,9 @@ export function buildHoejbane() {
     // low hedges along the hospital's drive and the wall
     for (let x = -30; x < 12; x += 2.4) toyTree('bush', new THREE.Vector3(x, -18.6 - rand() * 0.6, 0), 2.2, rand, wood);
 
+    /* The town round it all, out into the haze */
+    outskirts(parts, wood, rand);
+
     const merged = mergeGeometries([...parts, ...wood]);
     parts.forEach((g) => g.dispose());
     wood.forEach((g) => g.dispose());
@@ -653,6 +746,12 @@ export function buildHoejbane() {
         cabinAt: (p) => frameAt(curve, THREE.MathUtils.clamp(p, 0, 1)).p,
         setCabin,
         update,
+        /** The haze's colour, and where the place is now (call after it has been moved, before drawing) */
+        haze(colour) {
+            haze.uniforms.uHaze.value.copy(colour);
+            group.updateWorldMatrix(true, false);
+            haze.uniforms.uToPlace.value.copy(group.matrixWorld).invert();
+        },
         dispose() {
             sign.dispose();
         },
