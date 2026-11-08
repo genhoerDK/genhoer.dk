@@ -66,9 +66,8 @@ export default function InstrumentPlayer() {
                                     onPointerUp={letGo(i)}
                                     onPointerCancel={letGo(i)}
                                     ariaLabel={`Tone ${i + 1}`}
-                                    label={String(i + 1)}
                                 >
-                                    {sample.name}
+                                    {i + 1}
                                 </SoundButton>
                             ))}
                         </div>
