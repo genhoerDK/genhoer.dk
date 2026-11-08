@@ -8,10 +8,10 @@
  * The cabin goes where `cabin()` says: the interface knows the ride, the scene asks it every
  * frame where the cabin is, so the cabin glides along with the countdown.
  *
- * The pointer looks round: to the side and the place turns a little under you, up and down and it
- * is seen more from above or more from the side. The wheel, a pinch, ↑/↓ or zoomRef from outside
- * take you from the whole place (0) in close to the cabin (1), which the view then follows. ←/→
- * turn too.
+ * The view is fixed (VIEW): turned and tipped as it was chosen, it does not follow the pointer or
+ * drift. Only the distance can change: the wheel, a pinch, ↑/↓ or zoomRef from outside take you
+ * from the whole place (0) in close to the cabin (1), which the view then follows — close in, from
+ * the angles that look past the bend and the buildings rather than through them.
  *
  * Weather: when `cabin()` says 'storm', it comes over the place in a few seconds — a grey fog
  * close in, the sky darkens, the sun goes, rain falls on a slant and now and then lightning
@@ -52,10 +52,11 @@ const LOOKS = {
 };
 const ABOVE_FOV = 32, CLOSE_FOV = 42;
 const TILT = { far: [0.95, 1.32], close: [1.1, 1.45] };   // radians from straight down: pointer at the top, at the bottom
-const TURN = 0.75;                               // how far the pointer turns the place either way, radians
+// The fixed view, from the whole place: turned (radians) and tipped (0 = most from above, 1 = most
+// from the side; see TILT) as with the pointer at the top right. Close to the cabin: tipped this far
+const VIEW = { turn: 0.75, look: 0, closeLook: 0.45 };
 const BEND_TURN = 0.7;                           // close in, at the hospital end: turned this far, to look into the bend
-const PORTRAIT_SHIFT = new THREE.Vector3(-9, 4, 0);  // and look a little further towards the hospital, so the spiral is in
-const PORTRAIT_TURN = -0.45;                      // upright screens start turned this far, the track on a slant
+const PORTRAIT_SHIFT = new THREE.Vector3(12, -12, 0);  // upright screens look at the middle of the track (the fixed view puts it on a slant)
 const CLOSE_SIZE = 10;                           // metres across the view, close to the cabin
 const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
@@ -122,7 +123,7 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
             const across = Math.min(height * view.aspect * 0.95, height * 1.05);
             // Upright screens: closer, and turned a little, so the track crosses the screen on a slant
             portrait = view.aspect < 0.8;
-            farScale = across / (place.size * (portrait ? 0.9 : 1));
+            farScale = across / (place.size * (portrait ? 0.85 : 1));
             closeScale = (2 * PANEL_DISTANCE * Math.tan(THREE.MathUtils.degToRad(CLOSE_FOV / 2)) * Math.min(1, view.aspect)) / CLOSE_SIZE;
             aboveY = view.aspect < 1 ? height * 0.14 : height * 0.1;   // up, clear of the count and the button
             closeY = height * 0.2;
@@ -130,37 +131,27 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
 
         /* ---------- POINTER ---------- */
 
-        const target = { yaw: 0, look: 0.45 };
-        const current = { yaw: 0, look: 0.45, zoom: zoomRef?.current ?? 0 };
-        const keyTurn = { value: 0 };
+        const current = { zoom: zoomRef?.current ?? 0 };
         const touches = new Map();
         let pinch = null;
         const zoomBy = (amount) => {
             const z = THREE.MathUtils.clamp((zoomRef?.current ?? current.zoom) + amount, 0, 1);
             if (zoomRef) zoomRef.current = z; else current.zoom = z;
         };
+        // Two fingers: spread them to go in, pinch to come out (the only thing the pointer does)
         const onPointerMove = (e) => {
             if (touches.has(e.pointerId)) touches.set(e.pointerId, [e.clientX, e.clientY]);
-            if (touches.size >= 2) {
-                const [[ax, ay], [bx, by]] = [...touches.values()];
-                const spread = Math.hypot(ax - bx, ay - by);
-                if (pinch) zoomBy((spread - pinch) * 0.004);
-                pinch = spread;
-                return;
-            }
-            const rect = container.getBoundingClientRect();
-            const fx = THREE.MathUtils.clamp((e.clientX - rect.left) / rect.width, 0, 1);
-            const fy = THREE.MathUtils.clamp((e.clientY - rect.top) / rect.height, 0, 1);
-            target.yaw = (fx - 0.5) * 2 * TURN;
-            target.look = fy;
+            if (touches.size < 2) return;
+            const [[ax, ay], [bx, by]] = [...touches.values()];
+            const spread = Math.hypot(ax - bx, ay - by);
+            if (pinch) zoomBy((spread - pinch) * 0.004);
+            pinch = spread;
         };
         const onPointerDown = (e) => { if (e.pointerType === 'touch') touches.set(e.pointerId, [e.clientX, e.clientY]); };
         const onPointerUp = (e) => { touches.delete(e.pointerId); if (touches.size < 2) pinch = null; };
         const onWheel = (e) => { e.preventDefault(); zoomBy(-e.deltaY * (e.deltaMode === 1 ? 0.03 : 0.0012)); };
         const onKey = (e) => {
             if (keyIsTaken(e)) return;
-            if (e.key === 'ArrowLeft') keyTurn.value = Math.max(-TURN, keyTurn.value - 0.2);
-            if (e.key === 'ArrowRight') keyTurn.value = Math.min(TURN, keyTurn.value + 0.2);
             if (e.key === 'ArrowUp') { e.preventDefault(); zoomBy(0.25); }
             if (e.key === 'ArrowDown') { e.preventDefault(); zoomBy(-0.25); }
         };
@@ -178,18 +169,19 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
         const focus = new THREE.Vector3(), cabinFocus = new THREE.Vector3();
         const fog = new THREE.Fog(L.fog, 1e6, 2e6);
         let close = current.zoom > 0.5;
-        const frame = (zoom, look, yaw, at, dt) => {
+        const frame = (zoom, at, dt) => {
             const u = zoom * zoom * (3 - 2 * zoom);
             const s = Math.exp(THREE.MathUtils.lerp(Math.log(farScale), Math.log(closeScale), u));
             cabinFocus.copy(place.cabinAt(at)).add({ x: 0, y: 0, z: 2 });
             focus.copy(place.centre).addScaledVector(PORTRAIT_SHIFT, portrait ? 1 : 0).lerp(cabinFocus, smooth(0, 0.6, u));
             room.scale.setScalar(s);
             room.position.copy(focus).multiplyScalar(-s);
-            // close to the cabin at the hospital and round the bend, the view comes round to look at it
-            // from the front left, past the bend rather than through it; over the road, straight on again
-            turn.rotation.z = yaw + BEND_TURN * u * (1 - smooth(0.2, 0.5, at));
-            const far = THREE.MathUtils.lerp(TILT.far[0], TILT.far[1], look);
-            const near = THREE.MathUtils.lerp(TILT.close[0], TILT.close[1], look);
+            // From afar, the fixed view. Close to the cabin at the hospital and round the bend, the view
+            // comes round to look at it from the front left, past the bend rather than through it; over
+            // the road, straight on
+            turn.rotation.z = THREE.MathUtils.lerp(VIEW.turn, BEND_TURN * (1 - smooth(0.2, 0.5, at)), u);
+            const far = THREE.MathUtils.lerp(TILT.far[0], TILT.far[1], VIEW.look);
+            const near = THREE.MathUtils.lerp(TILT.close[0], TILT.close[1], VIEW.closeLook);
             tilt.rotation.x = -THREE.MathUtils.lerp(far, near, u);
             tilt.position.set(0, THREE.MathUtils.lerp(aboveY, closeY, u), 0);
 
@@ -250,20 +242,18 @@ export default function ElevatorScene({ cabin, zoomRef, onZoom, look = 'pale' })
 
         const stage = createStage(container, {
             smoke: 0,
+            still: true,      // the camera holds still: no drifting, no following the pointer
             light: L.panel,   // the stage's own light, fixed to the camera
             shadows: true,
             onResize: layout,
             onFrame: (dt, t, elapsed) => {
-                const ease = 1 - Math.exp(-elapsed * 5);
-                current.yaw += (THREE.MathUtils.clamp(target.yaw + keyTurn.value + (portrait ? PORTRAIT_TURN : 0), -TURN, TURN) - current.yaw) * ease;
-                current.look += (target.look - current.look) * ease;
                 if (zoomRef) current.zoom += (zoomRef.current - current.zoom) * (1 - Math.exp(-elapsed * 2.5));
 
                 const { at, lamp, weather: forecast } = cabin?.() ?? { at: 0, lamp: 0 };
                 stormy(forecast === 'storm' ? 1 : 0, dt, elapsed);
                 place.setCabin(at, lamp, t);
                 place.update(dt, reducedMotion);
-                frame(current.zoom, current.look, current.yaw, at, dt);
+                frame(current.zoom, at, dt);
                 place.haze(haze, back);   // after the place has been moved for this frame
             },
         });
