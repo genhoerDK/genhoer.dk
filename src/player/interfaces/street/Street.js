@@ -16,7 +16,7 @@
  * to where that event happens.
  *
  *   player.street   A street named in src/player/vaerker/streets.js
- *   player.pairs    The stereo files, one per pair of speakers (see speakers.js), and player.stretch, reach, quietest
+ *   player.pairs    The stereo files, one per pair of speakers (see speakers.js), and player.stretch, hear, reverb
  *   player.events   [{ title, start, pair }]  the events on the timeline: from `start` seconds, at pair 1, 2 …
  */
 
