@@ -18,7 +18,7 @@ import { GREYS, zinc } from '@/player/kit/style';
 
 export const SPEAKER = {
     at: 5,              // metres up the wall
-    ball: 1.1,          // the sphere's radius
+    ball: 0.75,         // the sphere's radius
     out: 1.4,           // metres out from the wall
     pool: 16,           // metres across the light on the street
 };
