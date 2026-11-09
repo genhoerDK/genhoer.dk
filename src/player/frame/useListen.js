@@ -10,21 +10,33 @@
  *    elevator button, Tværveje's stories) is only opened: you are taken to it, and nothing sounds
  *    until you press in it.
  *
+ * A work chosen in the overview of works also takes you to its project page, with the player open on
+ * it, so closing the player leaves you on the page of the work you chose (not the one you came from):
+ *
  *   const listen = useListen();
  *   listen(project);
+ *   listen(project, { toProjectPage: true });   // the overview of works
  */
 
 import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAudio } from '@/player/AudioContext';
 import { settingsFor } from '@/player/interfaces/registry';
 
 export function useListen() {
     const { play, setTrack } = useAudio();
     const router = useRouter();
-    return useCallback((project) => {
+    const pathname = usePathname();
+    return useCallback((project, { toProjectPage = false } = {}) => {
         const settings = settingsFor(project);
         if (settings.silent) setTrack(project); else play(project);
-        if (settings.opens) router.replace('?lyt', { scroll: false });
-    }, [play, setTrack, router]);
+        if (toProjectPage) {
+            // A new page in the history, like a project on the map; back is the page you came from
+            const page = `/${project.slug}`;
+            if (pathname === page) router.replace('?lyt', { scroll: false });
+            else router.push(`${page}?lyt`, { scroll: false });
+        } else if (settings.opens) {
+            router.replace('?lyt', { scroll: false });
+        }
+    }, [play, setTrack, router, pathname]);
 }

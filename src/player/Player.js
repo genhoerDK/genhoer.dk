@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useScrollLock } from "@/hooks/useScrollLock";
 import Overlay from '@/components/Layout/Overlay';
 import TracksOverview from '@/player/frame/TracksOverview';
@@ -18,9 +18,7 @@ export default function Player() {
     useScrollLock(isOpen);
 
     /** The overview of works is part of the address (?lyt=vaerker); its button is in the toolbar */
-    const router = useRouter();
     const tracksOverviewOpen = searchParams.get('lyt') === 'vaerker';
-    const closeTracksOverview = () => router.replace('?lyt', { scroll: false });
 
     /** Dark for the overview, otherwise what the interface asks for */
     const tone = tracksOverviewOpen ? 'ink' : settingsFor(currentTrack).tone;
@@ -33,7 +31,7 @@ export default function Player() {
     return (
         <Overlay active={isOpen} tone={tone}>
             {tracksOverviewOpen
-                ? <TracksOverview toggleOverview={closeTracksOverview} />
+                ? <TracksOverview />
                 : currentTrack && <Interface key={currentTrack.slug} />}
         </Overlay>
     );
