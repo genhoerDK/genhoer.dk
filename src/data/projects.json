@@ -17,7 +17,7 @@
     },
     "kommune": "Næstved Kommune",
     "komkode": "0370",
-    "startDate": "2026-11-19",
+    "startDate": "2026-12-03",
     "endDate": "2027-04-04",
     "partners": "Næstved Musikskole, Næstved Ungdomsskole, NæstvedArkiverne og Grønnegades Kaserne Kulturcenter",
     "sponsorLogos": [
@@ -45,7 +45,7 @@
   },
   {
     "slug": "kolding",
-    "title": "Kolding",
+    "title": "Slotsmøllen",
     "location": "Kolding Bibliotek",
     "coordinates": [
       9.4776,
