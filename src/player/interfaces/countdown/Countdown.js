@@ -20,6 +20,11 @@
  * over, the picture fades out and in on the cabin at the far station, where the next ride sets off.
  * A variation can have weather: in a storm, rain and fog come over the place while it rides, and
  * lift again after. As in the Bela patch, the button wakes again a second after a ride's end.
+ * Over the button, the variation (number / 12 and its title) opens the list of all twelve, as the
+ * timeline's chapters (frame/Picker.js): the one picked is the next ride, which the button then
+ * starts — a pick during a ride waits for it to end. When the cabin stands at the other station than
+ * the picked variation sets off from, the picture fades while it is moved there, in the seconds
+ * before the count begins.
  * The view is fixed and cannot be zoomed by hand: while a ride plays, it glides 3/4 of the way in
  * to follow the cabin (RIDE_ZOOM), and when the ride's sound has ended it glides out again.
  *
@@ -35,6 +40,7 @@ import { useAudio } from '@/player/AudioContext';
 import { keyIsTaken } from '@/player/frame/keys';
 import PlayerShell, { Controls } from '@/player/frame/PlayerShell';
 import SoundButton from '@/player/frame/SoundButton';
+import { PickerMarker, PickerList } from '@/player/frame/Picker';
 
 /** three.js is only loaded when the work is opened */
 
@@ -58,7 +64,9 @@ export default function CountdownPlayer() {
     const paused = !isPlaying && loaded >= 0 && currentTime > 0;       // stopped on the way (the mini player)
     const on = riding || paused;
     const track = tracks[loaded];
-    const nextIndex = loaded >= 0 ? (loaded + 1) % tracks.length : 0;
+    // The next ride: the one picked in the list, else the one after the last (the first to begin with)
+    const [picked, setPicked] = useState(null);
+    const nextIndex = picked ?? (loaded >= 0 ? (loaded + 1) % tracks.length : 0);
 
     // The ring: what is left of the ride's sound file, full at the press and empty when it ends
     // (whatever the display counts)
@@ -81,7 +89,8 @@ export default function CountdownPlayer() {
     /** Where the cabin is now, its lamp (0 off, 1 riding, 2 stopped on the way: blinking), and the weather */
     const cabin = useCallback(() => {
         const r = ride.current;
-        if (!r) return { at: where.current, lamp: 0, weather: null };
+        // (a picked ride that sets off from the other station: the cabin is moved while the picture is dark)
+        if (!r || r.hidden) return { at: where.current, lamp: 0, weather: null };
         const c = clock.current;
         const live = c.file === r.file;
         const moving = live && c.playing;
@@ -126,19 +135,43 @@ export default function CountdownPlayer() {
         if (riding || resetting || resting) return;
         if (paused) return play();
         const next = tracks[nextIndex];
-        // Odd variations go from the hospital (0) to the hotel (1), even ones back
+        // Odd variations go from the hospital (0) to the hotel (1), even ones back. When the cabin
+        // stands at the other end (a variation was picked), fade while it is moved there
         const side = nextIndex % 2 === 0 ? 0 : 1;
-        where.current = side;
+        const move = model && Math.abs(where.current - side) > 0.01;
         ride.current = {
-            file: next.file, from: side, to: 1 - side,
+            file: next.file, from: side, to: 1 - side, hidden: move,
             count: from, delay, tempo: next.tempo, stopAt: next.stopAt ?? 0, weather: next.weather ?? null, reached: 0,
         };
+        if (move) {
+            const r = ride.current;
+            setResetting(true);
+            setTimeout(() => { r.hidden = false; }, FADE);   // dark now: the cabin is at its station
+            setTimeout(() => setResetting(false), FADE + 300);
+        } else {
+            where.current = side;
+        }
+        setPicked(null);
+        setListOpen(false);
         playFile(next.file);
     };
 
-    /** Space or Enter press the button */
+    /* ---------- THE VARIATIONS: the marker over the button and the list it opens ---------- */
+
+    const [listOpen, setListOpen] = useState(false);
+    const listRef = useRef(null);
+    const shown = on ? loaded : nextIndex;   // during a ride the one that plays, else the next
+    useEffect(() => {
+        if (!listOpen) return;
+        const onPointer = (e) => { if (!listRef.current?.contains(e.target)) setListOpen(false); };
+        window.addEventListener('pointerdown', onPointer);
+        return () => window.removeEventListener('pointerdown', onPointer);
+    }, [listOpen]);
+
+    /** Space or Enter press the button; Escape closes the list */
     useEffect(() => {
         const onKey = (e) => {
+            if (e.key === 'Escape') return setListOpen(false);
             if (e.repeat || keyIsTaken(e)) return;
             if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); press(); }
         };
@@ -152,6 +185,23 @@ export default function CountdownPlayer() {
             {model && <div className='absolute inset-0 bg-ink pointer-events-none transition-opacity ease-in-out' style={{ opacity: resetting ? 1 : 0, transitionDuration: `${FADE}ms` }} />}
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center'>
+                {/* ---------- THE VARIATION (frame/Picker.js) — the list opens upwards from here ---------- */}
+                <div className='relative flex justify-center w-full mb-5 h-7'>
+                    {listOpen ? (
+                        <PickerList
+                            ref={listRef}
+                            heading='Variationer'
+                            className='left-1/2 -translate-x-1/2 w-[min(22rem,calc(100vw-2rem))]'
+                            items={tracks.map((t, i) => ({ index: i, title: t.title, detail: on && i === nextIndex && picked != null ? 'Næste' : null }))}
+                            current={shown}
+                            onPick={(i) => { setPicked(i); setListOpen(false); }}
+                            onClose={() => setListOpen(false)}
+                        />
+                    ) : (
+                        <PickerMarker number={shown + 1} count={tracks.length} title={tracks[shown].title} what='Variation' list='variationerne' onClick={() => setListOpen(true)} />
+                    )}
+                </div>
+
                 {/* ---------- THE BUTTON (frame/SoundButton.js), with the display in it ---------- */}
                 <SoundButton
                     size='lg'
@@ -160,7 +210,7 @@ export default function CountdownPlayer() {
                     onClick={press}
                     ariaLabel={riding ? `Turen er i gang, ${count}` : `Kør, ${count}`}
                     aria-disabled={riding}
-                    label={on ? `${track.title} af ${tracks.length}` : 'Tryk, og kør med'}
+                    label={on ? (picked != null ? `Næste: ${tracks[picked].title}` : 'Turen er i gang') : 'Tryk, og kør med'}
                 >
                     <span aria-live='polite'>{pad(count)}</span>
                 </SoundButton>

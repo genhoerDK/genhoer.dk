@@ -10,12 +10,18 @@ import { cdn } from '@/player/vaerker/files';
    hotel and then they go back and forth: odd variations from the hospital, even from the hotel —
    after 7 has broken down, 8 sets off from the hotel.
    The lift itself stands behind in 3D (hoejbane.js here), the cabin riding with the count */
+// The variations' titles, in their order (1–12)
+const TITLES = [
+    'Lykkerus', 'Januarnat', 'Stormen Egon', 'Højdeskræk', 'Træthed', 'Angst for et styrt',
+    'Teknisk fejl', 'Begejstrede børn', 'Nostalgisk tur 1', 'Nostalgisk tur 2', 'Nervøsitet', 'Standard',
+];
+
 export const player = {
     interface: 'countdown',
     from: 53,
     delay: 6,
     tracks: Array.from({ length: 12 }, (_, i) => ({
-        title: `Variation ${i + 1}`,
+        title: TITLES[i],
         file: cdn('viborg-2026', `audio/${i + 1}.mp3`),
         tempo: { 5: 1.2, 8: 0.68 }[i + 1] ?? 1,   // seconds per count
         stopAt: { 7: 25 }[i + 1] ?? 0,             // where the count stops: the breakdown

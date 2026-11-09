@@ -18,19 +18,18 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { PlayIcon, PauseIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { PlayIcon, PauseIcon } from '@heroicons/react/20/solid';
 import { useAudio } from '@/player/AudioContext';
 import Label from '@/components/UI/Label';
 import { Controls } from '@/player/frame/PlayerShell';
 import SoundButton from '@/player/frame/SoundButton';
 import { keyIsTaken } from '@/player/frame/keys';
+import { PickerMarker, PickerList } from '@/player/frame/Picker';
 
 const formatTime = (sec) => {
     const s = Math.max(0, Math.floor(sec || 0));
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
-
-const pad = (n) => String(n).padStart(2, '0');
 
 export default function Timeline({ track, hint, before }) {
     const { isPlaying, buffering, currentTime, duration, play, pause, seek } = useAudio();
@@ -132,9 +131,16 @@ export default function Timeline({ track, hint, before }) {
             {/* ---------- MARKER / LIST (the list opens upwards from the marker's place) ---------- */}
             <div className='relative mb-3 h-7'>
                 {listOpen ? (
-                    <ChapterList ref={listRef} pieces={pieces} current={current} onPick={(i) => { jumpTo(i); setListOpen(false); }} onClose={() => setListOpen(false)} />
+                    <PickerList
+                        ref={listRef}
+                        heading='Kapitler'
+                        items={pieces.map((p) => ({ index: p.index, title: p.title, detail: formatTime(p.start) }))}
+                        current={current}
+                        onPick={(i) => { jumpTo(i); setListOpen(false); }}
+                        onClose={() => setListOpen(false)}
+                    />
                 ) : (
-                    <ChapterMarker
+                    <PickerMarker
                         number={shown.index + 1}
                         count={segments.length}
                         title={segments[shown.index].title}
@@ -198,51 +204,5 @@ export default function Timeline({ track, hint, before }) {
             </Label>
             </div>
         </Controls>
-    );
-}
-
-/** Number and title of a chapter. Opens the list when there are chapters */
-function ChapterMarker({ number, count, title, hovering, onClick }) {
-    const Tag = onClick ? 'button' : 'div';
-    return (
-        <Tag
-            onClick={onClick}
-            aria-haspopup={onClick ? 'listbox' : undefined}
-            aria-label={onClick ? `Kapitel ${number} af ${count}: ${title}. Vis kapitlerne` : undefined}
-            className={`flex items-stretch max-w-full group/marker ${onClick ? 'cursor-pointer' : 'pointer-events-none'}`}
-        >
-            <span className={`flex items-center px-1.5 tabular-nums transition-colors ${hovering ? 'bg-muted' : 'bg-paper'} text-ink`}>
-                <Label size='lg'>{pad(number)}<span className='opacity-50'>/{pad(count)}</span></Label>
-            </span>
-            <span className='flex items-center gap-1 min-w-0 pl-2 pr-1.5 py-1.5 bg-ink/70 backdrop-blur-sm text-paper transition-colors md:group-hover/marker:bg-shade'>
-                <Label size='lg' className='truncate'>{title}</Label>
-                {onClick && <ChevronUpIcon className='size-3.5 shrink-0 text-faint' />}
-            </span>
-        </Tag>
-    );
-}
-
-/** The chapters, to jump between */
-function ChapterList({ ref, pieces, current, onPick, onClose }) {
-    return (
-        <div ref={ref} role='listbox' aria-label='Kapitler' className='absolute bottom-0 left-0 w-full max-w-sm max-h-[55svh] overflow-y-auto bg-ink/85 backdrop-blur-md text-paper'>
-            <div className='flex items-center justify-between pl-3 pr-1 py-1 border-b border-paper/10'>
-                <Label size='lg' className='text-faint'>Kapitler</Label>
-                <button onClick={onClose} aria-label='Luk' className='p-1.5 cursor-pointer text-faint md:hover:text-paper'><XMarkIcon className='size-4' /></button>
-            </div>
-            {pieces.map((p) => (
-                <button
-                    key={p.index}
-                    role='option'
-                    aria-selected={p.index === current}
-                    onClick={() => onPick(p.index)}
-                    className={`flex w-full items-center gap-3 px-3 py-2.5 text-left cursor-pointer transition-colors md:hover:bg-shade ${p.index === current ? 'bg-paper/10' : ''}`}
-                >
-                    <Label size='lg' className='w-5 tabular-nums text-faint'>{pad(p.index + 1)}</Label>
-                    <Label size='lg' className='flex-1 truncate'>{p.title}</Label>
-                    <Label size='lg' className='tabular-nums text-faint'>{formatTime(p.start)}</Label>
-                </button>
-            ))}
-        </div>
     );
 }
