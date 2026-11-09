@@ -33,7 +33,9 @@ function layout(width, height, isPortrait) {
 }
 
 // Front page: upcoming projects on a map of Denmark. Each project zooms the map to its kommune,
-// filled with its cover image. Title and dates sit in the bottom left corner.
+// filled with its cover image. The project's name and dates sit in the bottom left corner.
+// Upcoming projects go by the project's name (name, e.g. Kolding), never the work's title: the title
+// only becomes the project's name once the exhibition opens and it moves to the grid.
 export default function UpcomingMap({ projects }) {
     const isPortrait = useIsPortrait();
     const containerRef = useRef(null);
@@ -237,13 +239,13 @@ export default function UpcomingMap({ projects }) {
                     {count > 1 && <Label size="lg" className="opacity-60 tabular-nums" as="span">{active + 1} / {count}</Label>}
                 </div>
 
-                {/* ── Title and dates, bottom left ── */}
+                {/* ── Name and dates, bottom left ── */}
                 <div
                     className="absolute w-2/3 left-4 bottom-24 pointer-events-none md:left-6 md:bottom-16 md:w-[40vw] md:max-w-xl"
                     aria-live="polite"
                 >
                     <div className={`transition-[opacity,translate] duration-500 ease-out ${cardVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                        <h3 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.title}</h3>
+                        <h3 className="font-black uppercase leading-none" style={{ fontSize: 'clamp(1rem, 5vw, 2rem)' }}>{project.name}</h3>
                         <Text size="small" className="mt-1">{formatDates(project.startDate, project.endDate)}</Text>
                     </div>
                 </div>
@@ -253,7 +255,7 @@ export default function UpcomingMap({ projects }) {
                         {/* ── Pagination lines ── */}
                         <div className="absolute left-4 bottom-[60px] md:bottom-[18px] flex gap-2">
                             {projects.map((p, i) => (
-                                <button key={p.slug} onClick={() => go(i)} aria-label={`Vis ${p.title}`} aria-current={i === active} className="py-3 cursor-pointer">
+                                <button key={p.slug} onClick={() => go(i)} aria-label={`Vis ${p.name}`} aria-current={i === active} className="py-3 cursor-pointer">
                                     <span className={`block h-px transition-all duration-300 ${i === active ? 'w-8 bg-paper/80' : 'w-4 bg-paper/25'}`} />
                                 </button>
                             ))}

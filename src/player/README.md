@@ -84,6 +84,10 @@ heller ikke på minispillerens bjælke: ingen fremdrift dér, og minispillerens 
 genoptager en tur eller fortælling, der står på pause halvvejs, og ellers åbner den værket.
 Tidslinjen og de andre almindelige afspilninger kører som før.
 
+**Oversigten over værker** (`?lyt=vaerker`, `frame/TracksOverview.js`): et værk valgt dér fører også
+til værkets projektside med afspilleren åben (`/<slug>?lyt`), så man står på det valgte værks side,
+når man lukker afspilleren, og ikke på den side, man kom fra.
+
 **Motorerne.** `file` er lydelementet i `AudioContext.js`: ét spor ad gangen, låseskærm og
 baggrundsafspilning på telefoner. Værker med flere filer (countdown, walk) vælger selv en fil med
 `playFile()`. De øvrige motorer er klasser i `audio/` med samme overflade: `start()`, `pause()`,

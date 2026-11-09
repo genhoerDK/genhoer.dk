@@ -2,6 +2,7 @@
   {
     "slug": "naestved",
     "title": "Næstved",
+    "name": "Næstved",
     "location": "Næstved",
     "coordinates": [
       11.7489,
@@ -46,6 +47,7 @@
   {
     "slug": "kolding",
     "title": "Slotsmøllen",
+    "name": "Kolding",
     "location": "Kolding Bibliotek",
     "coordinates": [
       9.4776,
@@ -89,6 +91,7 @@
   {
     "slug": "tvaerveje",
     "title": "Tværveje",
+    "name": "Nakskov",
     "location": "Nakskov",
     "coordinates": [
       11.1381,
@@ -147,6 +150,7 @@
   {
     "slug": "53-sekunder-til-faelles",
     "title": "53 sekunder til fælles",
+    "name": "Viborg",
     "location": "Viborg",
     "coordinates": [
       9.4061,
@@ -203,6 +207,7 @@
   {
     "slug": "guldminebyen-paa-doedens-kyst",
     "title": "Guldminebyen på dødens kyst",
+    "name": "Hvide Sande",
     "location": "Hvide Sande",
     "coordinates": [
       8.1308,
@@ -290,6 +295,7 @@
   {
     "slug": "troldetoner",
     "title": "Troldetoner",
+    "name": "Odsherred",
     "location": "Esterhøj",
     "coordinates": [
       11.484,
@@ -346,6 +352,7 @@
   {
     "slug": "kanon-i-g3",
     "title": "Kanon i G3",
+    "name": "Bornholm",
     "location": "Kanonstilling G3",
     "coordinates": [
       15.0806,
@@ -403,6 +410,7 @@
   {
     "slug": "under-overfladen",
     "title": "Under overfladen",
+    "name": "Esbjerg",
     "location": "Huset",
     "coordinates": [
       8.4554,
@@ -460,6 +468,7 @@
   {
     "slug": "bulows-kaserne",
     "title": "Bülows Kaserne",
+    "name": "Fredericia",
     "location": "Kulturkasernen",
     "coordinates": [
       9.7482,
@@ -592,6 +601,7 @@
   {
     "slug": "kirkestraede",
     "title": "Kirkestræde",
+    "name": "Køge",
     "location": "Kirkestræde",
     "coordinates": [
       12.1821,
@@ -680,6 +690,7 @@
   {
     "slug": "unge-stemmer",
     "title": "Unge stemmer",
+    "name": "Holbæk",
     "location": "Gangtunnelen",
     "coordinates": [
       11.7167,
@@ -795,6 +806,7 @@
   {
     "slug": "vi-vokser-og-flytter-os",
     "title": "Vi vokser og flytter os",
+    "name": "Faaborg",
     "location": "Slagteribygningen",
     "coordinates": [
       10.2394,
@@ -878,6 +890,7 @@
   {
     "slug": "slotsgade-20",
     "title": "Slotsgade 20",
+    "name": "Haderslev",
     "location": "Ehlers Samlingen",
     "coordinates": [
       9.4891,
@@ -960,6 +973,7 @@
   {
     "slug": "vordingborg-station",
     "title": "Vordingborg Station",
+    "name": "Vordingborg",
     "location": "Vordingborg Station",
     "coordinates": [
       11.9167,
@@ -1063,6 +1077,7 @@
   {
     "slug": "grindsted-station",
     "title": "Grindsted Station",
+    "name": "Grindsted",
     "location": "Grindsted Station",
     "coordinates": [
       8.9222,

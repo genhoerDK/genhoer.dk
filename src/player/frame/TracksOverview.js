@@ -3,7 +3,8 @@
 /**
  * The works (?lyt=vaerker): a row of round covers to swipe through, starting at the work that
  * plays. A click on a cover to the side brings it to the middle; a click on the one in the middle
- * plays it and closes the overview — or, when it is the work that plays, pauses it (the button
+ * plays it, closes the overview and goes to its project page with the player open on it (so closing
+ * the player leaves you on that page) — or, when it is the work that plays, pauses it (the button
  * shows pause then, like the other play buttons). Mouse wheel and ←/→ move it too.
  */
 
@@ -16,7 +17,7 @@ import { useAudio } from '@/player/AudioContext';
 import { useListen } from '@/player/frame/useListen';
 import Label from '@/components/UI/Label';
 
-export default function TracksOverview({ toggleOverview }) {
+export default function TracksOverview() {
     const { projectsWithAudio, pause, currentTrack, isPlaying } = useAudio();
     const listen = useListen();
     const swiperRef = useRef(null);
@@ -27,8 +28,7 @@ export default function TracksOverview({ toggleOverview }) {
         const swiper = swiperRef.current;
         if (swiper && swiper.activeIndex !== i) return swiper.slideTo(i);
         if (project.slug === playingSlug) return pause();
-        listen(project);   // a work that only its own buttons start is only opened (frame/useListen.js)
-        toggleOverview();
+        listen(project, { toProjectPage: true });   // a work that only its own buttons start is only opened (frame/useListen.js)
     };
 
     return (

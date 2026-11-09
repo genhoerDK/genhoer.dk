@@ -8,7 +8,6 @@ import TracksOverview from '@/player/frame/TracksOverview';
 import { components } from '@/player/interfaces';
 import { settingsFor, DEFAULT_INTERFACE } from '@/player/interfaces/registry';
 import { useAudio } from '@/player/AudioContext';
-import { setOverlay } from '@/hooks/setOverlay';
 
 /** The player overlay (?lyt): the current work in its interface, or the overview of works (?lyt=vaerker) */
 export default function Player() {
@@ -20,7 +19,6 @@ export default function Player() {
 
     /** The overview of works is part of the address (?lyt=vaerker); its button is in the toolbar */
     const tracksOverviewOpen = searchParams.get('lyt') === 'vaerker';
-    const closeTracksOverview = () => setOverlay('?lyt');
 
     /** Dark for the overview, otherwise what the interface asks for */
     const tone = tracksOverviewOpen ? 'ink' : settingsFor(currentTrack).tone;
@@ -33,7 +31,7 @@ export default function Player() {
     return (
         <Overlay active={isOpen} tone={tone}>
             {tracksOverviewOpen
-                ? <TracksOverview toggleOverview={closeTracksOverview} />
+                ? <TracksOverview />
                 : currentTrack && <Interface key={currentTrack.slug} />}
         </Overlay>
     );

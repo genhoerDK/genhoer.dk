@@ -4,7 +4,9 @@
 //
 // slug                 URL of the project page (genhoer.dk/<slug>)
 // previousSlugs        Old URLs that redirect to slug (e.g. the town name before the work had a title)
-// title, location      Shown on cards, project page and map
+// title, location      Shown on cards, project page and map. title is the work's title (else the name)
+// name                 The project's name in genhoer-data (e.g. Kolding). Upcoming projects on the front
+//                      page show only this: the title is the project's name once the exhibition opens
 // coordinates          [longitude, latitude] of the marker on the map
 // labelOffsetSmall/-Large  Where the map label sits relative to the marker (mobile / desktop).
 //                      Desktop only uses the sign of x: label right (+) or left (-) of the kommune
