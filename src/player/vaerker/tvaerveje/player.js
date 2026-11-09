@@ -20,7 +20,7 @@ export const player = {
         { id: 'kirstine', name: 'Kirstine', year: 1620 },
     ],
     places: [
-        { name: 'Det Gamle Færgeleje', slug: 'det-gamle-faergeleje', at: [256, 171], label: 'left' },   // on the quay by the old ferry berth, not out on the water
+        { name: 'Det Gamle Færgeleje', slug: 'det-gamle-faergeleje', at: [244, 183], label: 'left' },   // at the quay's edge by the old ferry berth, on land
         { name: 'Axeltorv', slug: 'axeltorv', at: [590, 320], label: 'right' },
         { name: 'Dronningens Pakhus', slug: 'dronningens-pakhus', at: [750, 512], label: 'right' },   // the stand on the corner of Havnegade, across Dronningensstræde from the warehouse
     ].map(({ slug, ...place }) => ({
