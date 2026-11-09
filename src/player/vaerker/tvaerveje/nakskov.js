@@ -3,7 +3,8 @@
 // small extract of OpenStreetMap: 99 objects (the streets, a few footpaths, the coastline,
 // Indrefjord, Axeltorv, the old ferry berth's piers and six landmark buildings), under the 100 the
 // OSM Foundation counts as insubstantial — so keep it to this one drawing, and don't add more
-// extracts to it. Lines are thinned to within a few metres and rounded to whole metres. The other
+// extracts to it. Lines are thinned to within a few metres and rounded to whole metres (Dronningens
+// Pakhus moved by hand to the east side of Dronningensstræde, where it stands). The other
 // houses on the map are made up (src/player/kit/town.js).
 //
 // Units are metres on a 960 × 630 sheet (x to the east, y to the south); the places' `at`
@@ -127,7 +128,7 @@ export const nakskov = {
     landmarks: {
         "Sankt Nikolaj Kirke": {"kind": "church", "height": 16, "ring": "M546,272 L590,267 L596,258 L595,248 L589,241 L543,247 L543,253 L541,253 L542,255 L543,255 L544,264 L543,264 L543,266 L545,265 Z"},
         "Vandt\u00e5rnet": {"kind": "tower", "height": 38, "ring": "M641,286 L644,285 L644,281 L643,280 L640,279 L638,281 L638,284 L639,285 Z"},
-        "Dronningens Pakhus": {"kind": "warehouse", "height": 10, "ring": "M753,467 L762,469 L752,512 L743,510 Z"},
+        "Dronningens Pakhus": {"kind": "warehouse", "height": 10, "ring": "M769,468 L778,470 L768,513 L759,511 Z"},
         "Havnebygningen": {"kind": "hall", "height": 10, "ring": "M301,220 L302,216 L306,212 L310,213 L341,252 L340,252 L362,282 L361,286 L357,289 L353,289 Z"},
         "Skibs- og S\u00f8fartsmuseet": {"kind": "hall", "height": 9, "ring": "M586,116 L590,127 L580,131 L581,133 L570,136 L565,125 L562,126 L559,117 L561,116 L556,104 L564,101 L569,113 L581,107 L585,116 Z"},
         "Sankt Franciscus Kirke": {"kind": "chapel", "height": 9, "ring": "M746,117 L745,118 L742,113 L751,109 L754,107 L757,112 L755,113 L764,130 L755,134 Z"},

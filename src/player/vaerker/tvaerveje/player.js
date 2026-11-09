@@ -22,7 +22,7 @@ export const player = {
     places: [
         { name: 'Det Gamle Færgeleje', slug: 'det-gamle-faergeleje', at: [256, 171], label: 'left' },   // on the quay by the old ferry berth, not out on the water
         { name: 'Axeltorv', slug: 'axeltorv', at: [590, 320], label: 'right' },
-        { name: 'Dronningens Pakhus', slug: 'dronningens-pakhus', at: [753, 485], label: 'right' },
+        { name: 'Dronningens Pakhus', slug: 'dronningens-pakhus', at: [750, 512], label: 'right' },   // the stand on the corner of Havnegade, across Dronningensstræde from the warehouse
     ].map(({ slug, ...place }) => ({
         ...place,
         stories: ['aksel', 'knud', 'kirstine'].map((character) => ({   // in this order at every place, as the files are numbered

@@ -84,11 +84,8 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
 
         /* ---------- the town: streets, landmarks, houses, trees, haze and mist (kit/townmap.js) ---------- */
 
-        const placesOnMarks = new Set(places.map((place, p) => (map.landmarks?.[place.name] ? p : -1)));
-        const town = buildTownMap({
-            scene, map, to,
-            clear: { houses: spots.filter((_, p) => !placesOnMarks.has(p)), trees: spots },
-        });
+        // The houses and the trees keep a little space round every listening stand
+        const town = buildTownMap({ scene, map, to, clear: { houses: spots, trees: spots } });
 
         /* ---------- the listening stations (kit/station.js): a sphere over each place, a pool of light under it ---------- */
 
