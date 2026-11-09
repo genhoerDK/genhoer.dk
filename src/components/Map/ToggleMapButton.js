@@ -1,17 +1,17 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Button from "@/components/UI/Button";
 import Label from "@/components/UI/Label";
 import { XMarkIcon, MapIcon } from "@heroicons/react/20/solid";
+import { setOverlay } from '@/hooks/setOverlay';
 
 export default function ToggleMapButton() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const isOpen = searchParams.has('kort');
 
     const handleToggle = () => {
-        isOpen ? router.replace('?', { scroll: false }) : router.replace('?kort', { scroll: false });
+        isOpen ? setOverlay('?') : setOverlay('?kort');
     }
 
     return (

@@ -1,18 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useAudio } from '@/player/AudioContext';
 import { settingsFor } from '@/player/interfaces/registry';
 import { PauseCircleIcon, PlayCircleIcon, ChevronUpIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import Label from "@/components/UI/Label";
 import ListenButton from '@/player/frame/ListenButton';
 import MiniPlayerProgress from '@/player/frame/MiniPlayerProgress';
+import { setOverlay } from '@/hooks/setOverlay';
 
 export default function PlayerControls() {
     const { play, pause, isPlaying, currentTrack, currentTime } = useAudio();
     const [showMiniPlayer, setShowMiniPlayer] = useState(false);
-    const router = useRouter();
     const searchParams = useSearchParams();
     const isPlayerOpen = searchParams.has('lyt');
 
@@ -21,14 +21,14 @@ export default function PlayerControls() {
     const silent = settingsFor(currentTrack).silent;
     const togglePlayback = () => {
         if (isPlaying) return pause();
-        if (silent && !(currentTime > 0)) return router.replace('?lyt', { scroll: false });
+        if (silent && !(currentTime > 0)) return setOverlay('?lyt');
         play();
     }
 
     const togglePlayer = () => {
         isPlayerOpen
-            ? router.replace('?', { scroll: false })
-            : router.replace('?lyt', { scroll: false });
+            ? setOverlay('?')
+            : setOverlay('?lyt');
     }
 
     useEffect(() => {
