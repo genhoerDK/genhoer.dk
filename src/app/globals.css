@@ -76,6 +76,16 @@
     --chrome-soft: var(--color-shade);   /* opaque, so overlapping pieces (the mini player's icon and pill) don't show */
 }
 
+/* The same, only on wide screens (md and up): the toolbar, which follows the header there, where it
+   sits in it, but on phones stays the solid white bar at the bottom */
+[data-chrome-wide="light"] {
+    @variant md {
+        --chrome: var(--color-paper);
+        --chrome-bg: var(--color-ink);
+        --chrome-soft: var(--color-shade);
+    }
+}
+
 /*
  * Page height: the visible height of the browser window. Use h-page / min-h-page, not h-svh / min-h-svh.
  * iOS 26 Safari (floating address bar) sizes 100svh like the whole screen, so the bottom of a full-height
