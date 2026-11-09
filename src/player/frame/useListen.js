@@ -19,24 +19,24 @@
  */
 
 import { useCallback } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAudio } from '@/player/AudioContext';
 import { settingsFor } from '@/player/interfaces/registry';
+import { setOverlay } from '@/hooks/setOverlay';
 
 export function useListen() {
     const { play, setTrack } = useAudio();
     const router = useRouter();
-    const pathname = usePathname();
     return useCallback((project, { toProjectPage = false } = {}) => {
         const settings = settingsFor(project);
         if (settings.silent) setTrack(project); else play(project);
-        if (toProjectPage) {
-            // A new page in the history, like a project on the map; back is the page you came from
-            const page = `/${project.slug}`;
-            if (pathname === page) router.replace('?lyt', { scroll: false });
-            else router.push(`${page}?lyt`, { scroll: false });
-        } else if (settings.opens) {
-            router.replace('?lyt', { scroll: false });
+        const page = `/${project.slug}`;
+        if (toProjectPage && window.location.pathname !== page) {
+            // Another page: a real navigation through Next.js (the page has to be loaded), and a new
+            // entry in the history, like a project on the map; back is the page you came from
+            router.push(`${page}?lyt`, { scroll: false });
+        } else if (toProjectPage || settings.opens) {
+            setOverlay('?lyt');
         }
-    }, [play, setTrack, router, pathname]);
+    }, [play, setTrack, router]);
 }
