@@ -124,6 +124,7 @@ export function AudioProvider({ children }) {
 
     /** The running engine (created in play() so the click unlocks sound) */
     const engineRef = useRef(null);
+    const pendingSeekRef = useRef(null);   // a time asked for before the engine was made
     const [engine, setEngine] = useState(null);
 
     const disposeEngine = useCallback(() => {
@@ -158,6 +159,19 @@ export function AudioProvider({ children }) {
 
         if (settings.engine !== 'file') {
             audio.pause();
+            // its own engine (made at the first play) has its own time: not the element's, which lets
+            // go of any file it had (it would report that file's length when it had loaded)
+            if (!engineRef.current) {
+                pendingSeekRef.current = null;
+                if (audio.getAttribute('src')) {
+                    audio.removeAttribute('src');
+                    audio.load();
+                    currentFileRef.current = null;
+                    setCurrentFile(null);
+                }
+                setCurrentTime(0);
+                setDuration(0);
+            }
             return;
         }
         audio.loop = settings.loop !== false;
@@ -204,8 +218,12 @@ export function AudioProvider({ children }) {
                 engineRef.current = createEngine(settings.engine, track.player);
                 engineRef.current.slug = track.slug;
                 setEngine(engineRef.current);
-                setCurrentTime(0);
                 setDuration(0);
+                // a time picked before it could play (a chapter on the timeline) is where it starts
+                const from = pendingSeekRef.current;
+                pendingSeekRef.current = null;
+                if (from != null && engineRef.current.seek) engineRef.current.seek(from);
+                setCurrentTime(from ?? 0);
             }
             engineRef.current.start();
         } else {
@@ -235,17 +253,29 @@ export function AudioProvider({ children }) {
         if (audioRef.current) audioRef.current.volume = Math.min(1, Math.max(0, volume));
     }, []);
 
-    /** Seek to a specific playback time (file engines) */
+    /** Seek to a specific playback time (file engines, and engines that can: the street's) */
     const seek = useCallback((time) => {
         const audio = audioRef.current;
-        if (!audio || engineRef.current) return;
+        if (engineRef.current) {
+            if (!engineRef.current.seek) return;
+            engineRef.current.seek(time);
+            setCurrentTime(Math.max(0, time));
+            return;
+        }
+        // an engine that is not made yet (nothing has played): it starts there when it is
+        if (currentTrack && settingsFor(currentTrack).engine !== 'file') {
+            pendingSeekRef.current = Math.max(0, time);
+            setCurrentTime(Math.max(0, time));
+            return;
+        }
+        if (!audio) return;
 
         // Clamp slightly below duration to avoid edge-case lockups
         const safeTime = Math.max(0, Math.min(time, (audio.duration || duration) - 0.05));
 
         audio.currentTime = safeTime;
         setCurrentTime(safeTime);
-    }, [duration]);
+    }, [duration, currentTrack]);
 
     /* ---------- MEDIA SESSION ---------- */
 

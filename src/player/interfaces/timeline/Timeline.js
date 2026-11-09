@@ -14,7 +14,8 @@
  *    Escape closes the list
  *
  * An interface can put a line on how it's played under the title (hint) and something of its own
- * over the line (before) — the street puts its walk there.
+ * over the line (before) — the street puts its walk there — and be told when you go somewhere on
+ * the line (onSeek: the time) — the street walks you to where that chapter happens.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -31,8 +32,9 @@ const formatTime = (sec) => {
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
 
-export default function Timeline({ track, hint, before }) {
-    const { isPlaying, buffering, currentTime, duration, play, pause, seek } = useAudio();
+export default function Timeline({ track, hint, before, onSeek }) {
+    const { isPlaying, buffering, currentTime, duration, play, pause, seek: seekSound } = useAudio();
+    const seek = (time) => { seekSound(time); onSeek?.(time); };
     const segments = track.segments?.length ? track.segments : [{ title: track.title, start: 0 }];
     const hasChapters = segments.length > 1;
     const lineRef = useRef(null);

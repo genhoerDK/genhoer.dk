@@ -16,6 +16,7 @@
  * @param {{ s: number, side: number }[]} speakers  Metres along the street, and the side: −1 left, 1 right walking on
  * @param {boolean} sounding      The work is playing
  * @param {(where: { s: number, f: number }) => void} onMove   Where you are: metres along, and 0–1 of the walk
+ * @param {{ current: ((s: number) => void) | null }} [walkRef]  Set to a function that walks you to a place (metres along)
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -35,7 +36,7 @@ const WALL = 3.6;                         // metres from the middle of the stree
 const NEAR = 24;                          // metres along the street over which a speaker lights as you come
 const HAZE = { town: [36, 150], edge: 120 };   // metres from the nearest street: clear, lost; the map's edge
 
-export default function StreetScene({ data, speakers, sounding, onMove }) {
+export default function StreetScene({ data, speakers, sounding, onMove, walkRef }) {
     const containerRef = useRef(null);
     const state = useRef({ sounding, onMove });
     const [failed, setFailed] = useState(false);
@@ -122,6 +123,8 @@ export default function StreetScene({ data, speakers, sounding, onMove }) {
 
         const walk = { target: w0, s: w0 };
         const go = (metres) => { walk.target = THREE.MathUtils.clamp(walk.target + metres, w0, w1); };
+        // From outside: walk to a place (the timeline's chapters happen at places in the street)
+        if (walkRef) walkRef.current = (s) => { walk.target = THREE.MathUtils.clamp(s, w0, w1); };
         let drag = null;
         const onWheel = (e) => {
             e.preventDefault();
@@ -202,6 +205,7 @@ export default function StreetScene({ data, speakers, sounding, onMove }) {
 
         return () => {
             cancelAnimationFrame(frame);
+            if (walkRef) walkRef.current = null;
             resizeObserver.disconnect();
             canvas.removeEventListener('wheel', onWheel);
             canvas.removeEventListener('pointerdown', onDown);
@@ -220,7 +224,7 @@ export default function StreetScene({ data, speakers, sounding, onMove }) {
             renderer.dispose();
             canvas.remove();
         };
-    }, [data, speakers]);
+    }, [data, speakers, walkRef]);
 
     return (
         <div ref={containerRef} className='absolute inset-0'>

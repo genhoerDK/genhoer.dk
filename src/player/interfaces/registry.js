@@ -6,6 +6,7 @@
 //            instrument   src/player/audio/Instrument.js — buttons that play samples over a music loop
 //            loop         src/player/audio/Loop.js — two layers of a loop, crossfaded by a button
 //            quad         src/player/audio/Quad.js — four speakers around the listener (HRTF)
+//            street       src/player/audio/Street.js — speakers in pairs along a street, heard from where you walk
 //   tone     ink (dark, the photo behind) or paper (light) — the overlay's background
 //   opens    true: playing it from outside (its project page, the overview, Lyt) opens the player,
 //            because it needs its interface
@@ -22,7 +23,7 @@ export const INTERFACES = {
     countdown: { engine: 'file', tone: 'ink', opens: true, silent: true, loop: false },
     walk:      { engine: 'file', tone: 'ink', opens: true, silent: true, loop: false },
     quad:      { engine: 'quad', tone: 'ink', opens: true },
-    street:    { engine: 'file', tone: 'ink', opens: true, loop: true },
+    street:    { engine: 'street', tone: 'ink', opens: true, loop: true },
 };
 
 export const DEFAULT_INTERFACE = 'timeline';
