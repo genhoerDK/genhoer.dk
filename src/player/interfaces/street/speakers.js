@@ -5,8 +5,9 @@
 //   player.pairs     The stereo files, one per pair of speakers, in the order of the pairs along the street
 //                    (not `files`: players.js fills that with the project's one file)
 //   player.stretch   [from, to] metres along the street where the speakers hang (default: the whole walk)
-//   player.reach     Metres over which a speaker falls towards its quietest (default 9)
-//   player.quietest  0–1: how loud the speakers furthest away still are (default 0.08)
+//   player.hear      Metres along the street at which a speaker has gone silent (default: 1.5 pairs apart,
+//                    so you hear your own pair and the neighbouring ones)
+//   player.reverb    0–1: how much of the street's echo, heard everywhere (default 0.35)
 
 import { streets } from '@/player/vaerker/streets';
 
@@ -33,8 +34,8 @@ export function streetConfig(player) {
     return {
         files: player.pairs ?? [],
         speakers: speakersOf(player),
-        reach: player.reach,
-        quietest: player.quietest,
+        hear: player.hear,
+        reverb: player.reverb,
         loop: player.loop,
     };
 }
