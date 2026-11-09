@@ -13,7 +13,7 @@ export default function Header() {
     return (
         <header
             data-chrome={tone ?? undefined}
-            className={`fixed top-0 inset-x-0 h-10 px-gutter z-20 text-chrome transition-colors duration-300 ${tone ? 'bg-transparent' : 'bg-paper'}`}
+            className={`fixed top-0 inset-x-0 h-10 px-gutter z-20 text-chrome transition-chrome ${tone ? 'bg-transparent' : 'bg-paper'}`}
         >
             <nav className="flex items-center justify-between h-full">
                 <Link href="/">

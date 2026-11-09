@@ -42,7 +42,22 @@
  * Classes: text-chrome, bg-chrome, bg-chrome-bg, bg-chrome-soft, fill-chrome …
  * data-chrome="light" on an element switches everything inside it to light on dark
  * (src/hooks/useChrome.js decides when, from what is under the header).
+ *
+ * The colours are registered (@property), so they fade themselves: transition-chrome on the header and
+ * the toolbar fades everything inside them in one step, also pieces with their own chrome colour (the
+ * mini player's pill, the underline of an open button) that would otherwise jump at once.
  */
+@property --chrome { syntax: '<color>'; inherits: true; initial-value: #27272a; }
+@property --chrome-bg { syntax: '<color>'; inherits: true; initial-value: #fafafa; }
+@property --chrome-soft { syntax: '<color>'; inherits: true; initial-value: #e4e4e7; }
+
+/* Not `color`: text-chrome follows --chrome, a transition of its own would lag behind */
+@utility transition-chrome {
+    transition-property: --chrome, --chrome-bg, --chrome-soft, background-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
 @theme inline {
     --color-chrome: var(--chrome);
     --color-chrome-bg: var(--chrome-bg);
