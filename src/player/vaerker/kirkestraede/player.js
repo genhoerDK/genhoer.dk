@@ -7,15 +7,14 @@ import { cdn } from '@/player/vaerker/files';
    names at either end. Four pairs of speakers, facing each other across the street, hang on the
    stretch where the work stood (metres along the street); each pair plays one stereo file
    (gks-1 the pair nearest Torvet … gks-4), its left channel from the speaker on the left walking
-   towards the church. You hear the pair you stand by and its neighbours, never the far end,
-   and the street's echo everywhere (see interfaces/street/speakers.js, audio/Street.js). The timeline shows the events in the street, each at a pair. */
+   towards the church. You hear the pair you stand by and its neighbours, never the far end (see
+   interfaces/street/speakers.js, audio/Street.js). The timeline shows the events in the street, each at a pair. */
 export const player = {
     interface: 'street',
     street: 'kirkestraede',
     ends: ['Torvet', 'Sankt Nicolai Kirke'],
     pairs: [1, 2, 3, 4].map((n) => cdn('koege-2025', `audio/gks-${n}.mp3`)),   // a stereo file per pair
     stretch: [12.5, 95.5],   // the stretch the speakers hang on, from the screenshot
-    reverb: 0.35,            // the street's echo, heard all along it (the speakers themselves only by their neighbours)
     // PROVISIONAL, until the real list comes: where each pair is loudest in the files
     events: [
         { title: 'Par 1', start: 0, pair: 1 },

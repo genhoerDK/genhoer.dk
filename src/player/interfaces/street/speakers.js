@@ -7,7 +7,6 @@
 //   player.stretch   [from, to] metres along the street where the speakers hang (default: the whole walk)
 //   player.hear      Metres along the street at which a speaker has gone silent (default: 1.5 pairs apart,
 //                    so you hear your own pair and the neighbouring ones)
-//   player.reverb    0–1: how much of the street's echo, heard everywhere (default 0.35)
 
 import { streets } from '@/player/vaerker/streets';
 
@@ -35,7 +34,6 @@ export function streetConfig(player) {
         files: player.pairs ?? [],
         speakers: speakersOf(player),
         hear: player.hear,
-        reverb: player.reverb,
         loop: player.loop,
     };
 }
