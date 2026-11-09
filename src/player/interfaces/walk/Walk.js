@@ -31,8 +31,6 @@ import SoundButton from '@/player/frame/SoundButton';
 /** three.js and the map only load when the work is opened */
 const WalkScene = dynamic(() => import('@/player/interfaces/walk/WalkScene'), { ssr: false });
 
-const pad = (n) => String(n).padStart(2, '0');
-
 export default function WalkPlayer() {
     const { currentTrack, currentFile, isPlaying, progress, play, pause, playFile, ended } = useAudio();
     const { places, characters } = currentTrack.player;
@@ -85,13 +83,14 @@ export default function WalkPlayer() {
 
             <Controls title={currentTrack.title} align='center' className='flex flex-col items-center gap-4 w-full'>
                 {/* ---------- THE STORIES HERE: the works' button (frame/SoundButton.js), one per character ---------- */}
-                {/* Where you are, with arrows to walk to the others */}
+                {/* Where you are, with arrows to walk to the others. An arrow with nowhere to go is hidden,
+                    but keeps its room, so the name stays in the middle */}
                 <div className='flex items-center justify-center gap-1'>
-                    <button type='button' onClick={() => walkTo(here - 1)} disabled={here === 0} aria-label='Forrige sted' className='flex items-center justify-center size-10 text-paper cursor-pointer disabled:opacity-20 disabled:cursor-default'>
+                    <button type='button' onClick={() => walkTo(here - 1)} disabled={here === 0} aria-label='Forrige sted' className='flex items-center justify-center size-10 text-paper cursor-pointer disabled:invisible'>
                         <ChevronLeftIcon className='size-5' />
                     </button>
-                    <Label size='lg' className='text-faint tabular-nums'>{pad(here + 1)}/{pad(places.length)} · {place.name}</Label>
-                    <button type='button' onClick={() => walkTo(here + 1)} disabled={here === places.length - 1} aria-label='Næste sted' className='flex items-center justify-center size-10 text-paper cursor-pointer disabled:opacity-20 disabled:cursor-default'>
+                    <Label size='lg' className='text-faint'>{place.name}</Label>
+                    <button type='button' onClick={() => walkTo(here + 1)} disabled={here === places.length - 1} aria-label='Næste sted' className='flex items-center justify-center size-10 text-paper cursor-pointer disabled:invisible'>
                         <ChevronRightIcon className='size-5' />
                     </button>
                 </div>
