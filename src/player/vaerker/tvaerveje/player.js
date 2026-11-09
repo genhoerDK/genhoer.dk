@@ -15,9 +15,9 @@ export const player = {
     interface: 'walk',
     map: 'nakskov',
     characters: [
-        { id: 'kirstine', name: 'Kirstine', year: 1620 },
-        { id: 'knud', name: 'Knud', year: 1808 },
         { id: 'aksel', name: 'Aksel', year: 1931 },
+        { id: 'knud', name: 'Knud', year: 1808 },
+        { id: 'kirstine', name: 'Kirstine', year: 1620 },
     ],
     places: [
         { name: 'Det Gamle Færgeleje', slug: 'det-gamle-faergeleje', at: [256, 171], label: 'left' },   // on the quay by the old ferry berth, not out on the water
@@ -25,7 +25,7 @@ export const player = {
         { name: 'Dronningens Pakhus', slug: 'dronningens-pakhus', at: [753, 485], label: 'right' },
     ].map(({ slug, ...place }) => ({
         ...place,
-        stories: ['kirstine', 'knud', 'aksel'].map((character) => ({
+        stories: ['aksel', 'knud', 'kirstine'].map((character) => ({   // in this order at every place, as the files are numbered
             character,
             file: cdn('nakskov-2026', `audio/${slug}-${FILE_NUMBER[character]}.mp3`),
         })),
