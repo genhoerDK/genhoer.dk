@@ -56,7 +56,7 @@ export default function LoopPlayer() {
             {!isPlaying ? (
                 <StartButton onClick={() => play()} />
             ) : (
-                <Controls title={currentTrack.title} hint={running ? 'Tryk — eller hold nede' : undefined} align='center' className='flex flex-col items-center'>
+                <Controls title={currentTrack.title} align='center' className='flex flex-col items-center'>
                     {state?.error ? (
                         <Status>Lydfilerne kunne ikke hentes</Status>
                     ) : !running ? (

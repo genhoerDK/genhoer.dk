@@ -48,7 +48,7 @@ export default function InstrumentPlayer() {
             {!isPlaying ? (
                 <StartButton onClick={() => play()} />
             ) : (
-                <Controls title={currentTrack.title} hint={state?.error ? undefined : 'Tryk på knapperne — hold for lange toner'} align='center' className='flex flex-col items-center'>
+                <Controls title={currentTrack.title} align='center' className='flex flex-col items-center'>
                     {state?.error ? (
                         <Status>Lydfilerne kunne ikke hentes</Status>
                     ) : !ready ? (

@@ -210,7 +210,7 @@ export default function CountdownPlayer() {
                     onClick={press}
                     ariaLabel={riding ? `Turen er i gang, ${count}` : `Kør, ${count}`}
                     aria-disabled={riding}
-                    label={on ? (picked != null ? `Næste: ${tracks[picked].title}` : 'Turen er i gang') : 'Tryk, og kør med'}
+                    label={on ? (picked != null ? `Næste: ${tracks[picked].title}` : 'Turen er i gang') : undefined}
                 >
                     <span aria-live='polite'>{pad(count)}</span>
                 </SoundButton>
