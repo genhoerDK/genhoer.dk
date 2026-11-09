@@ -15,10 +15,11 @@
  * When the work has a 3D scene (src/player/vaerker/scenes.js), it stands behind instead of the
  * photo (53 sekunder til fælles: the lift itself): the cabin waits at one end, and on each ride glides to the other while the
  * display counts down — at the count's pace, so a slow variation is a slow ride, and the one that
- * breaks down stops on the way, its lamp blinking. When that ride is over the picture fades out,
- * and fades in on the cabin back at the station it left from. A variation can have weather: in a
- * storm, rain and fog come over the place while it rides, and lift again after. The next ride
- * goes from the end the cabin stands at to the other.
+ * breaks down stops on the way, its lamp blinking. The rides go back and forth: the first (and
+ * every odd one) from the hospital to the hotel, the even ones back. When a ride that broke down is
+ * over, the picture fades out and in on the cabin at the far station, where the next ride sets off.
+ * A variation can have weather: in a storm, rain and fog come over the place while it rides, and
+ * lift again after. As in the Bela patch, the button wakes again a second after a ride's end.
  * The view is fixed and cannot be zoomed by hand: while a ride plays, it glides 3/4 of the way in
  * to follow the cabin (RIDE_ZOOM), and when the ride's sound has ended it glides out again.
  *
@@ -96,22 +97,25 @@ export default function CountdownPlayer() {
         };
     }, []);
 
-    /* After a breakdown: when the ride is over, fade out, put the cabin back at the station it left
-       from, and fade in */
+    /* After a breakdown: when the ride is over, fade out, put the cabin at the far station, and fade
+       in. And after every ride, the button rests a second before it can be pressed again (main.pd) */
     const [resetting, setResetting] = useState(false);
+    const [resting, setResting] = useState(false);
     const endedRef = useRef(ended);
     useEffect(() => {
         if (ended === endedRef.current) return;
         endedRef.current = ended;
+        setResting(true);
+        const rest = setTimeout(() => setResting(false), 1000);
         const r = ride.current;
-        if (!model || !r?.stopAt) return;
+        if (!model || !r?.stopAt) return () => clearTimeout(rest);
         setResetting(true);
         const back = setTimeout(() => {
-            where.current = r.from < 0.5 ? 0 : 1;
+            where.current = r.to;   // at the far station, where the next ride sets off
             if (ride.current === r) ride.current = null;
             setResetting(false);
         }, FADE + 300);
-        return () => clearTimeout(back);
+        return () => { clearTimeout(rest); clearTimeout(back); };
     }, [ended, model]);
 
     // While the ride plays — from the press until its sound ends — the view goes in towards the cabin
@@ -119,12 +123,14 @@ export default function CountdownPlayer() {
     useEffect(() => { zoomRef.current = on ? RIDE_ZOOM : 0; }, [on]);
 
     const press = () => {
-        if (riding || resetting) return;
+        if (riding || resetting || resting) return;
         if (paused) return play();
         const next = tracks[nextIndex];
-        // From where the cabin stands to the far end
+        // Odd variations go from the hospital (0) to the hotel (1), even ones back
+        const side = nextIndex % 2 === 0 ? 0 : 1;
+        where.current = side;
         ride.current = {
-            file: next.file, from: where.current, to: where.current < 0.5 ? 1 : 0,
+            file: next.file, from: side, to: 1 - side,
             count: from, delay, tempo: next.tempo, stopAt: next.stopAt ?? 0, weather: next.weather ?? null, reached: 0,
         };
         playFile(next.file);
