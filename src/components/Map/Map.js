@@ -35,7 +35,7 @@ export default function Map() {
     const handleMarkerNavigate = () => setExitVariant('fade'); // Fade out overlay on marker click
 
     return (
-        <Overlay active={isOpen} exit={exitVariant}>
+        <Overlay active={isOpen} exit={exitVariant} tone={activeProject ? 'ink' : 'paper'}>
             <BackgroundImage visible={!!activeProject} portrait={focusedProject?.coverImagePortrait} landscape={focusedProject?.coverImageLandscape} />
             {isPortrait
                 ? <MapSmall activeProject={activeProject} setActiveProject={setActiveProject} onMarkerNavigate={handleMarkerNavigate} />

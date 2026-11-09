@@ -11,9 +11,11 @@ import { useState, useEffect, useRef } from 'react';
  *
  * @param {boolean} active - Whether the overlay is visible
  * @param {'slide'|'fade'} exit - How the overlay animates when closing
+ * @param {'paper'|'ink'} tone - Light or dark background (the header follows: dark chrome on paper, light on ink)
  */
 
-export default function Overlay({ active, exit = 'slide', children }) {
+export default function Overlay({ active, exit = 'slide', tone = 'paper', children }) {
+    const header = tone === 'ink' ? 'light' : 'dark';
     const ref = useRef(null);
     const [resetting, setResetting] = useState(false);
     const [instant, setInstant] = useState(false);
@@ -45,8 +47,8 @@ export default function Overlay({ active, exit = 'slide', children }) {
         : 'translate-y-full opacity-100';
 
     return (
-        <article ref={ref} onTransitionEnd={handleTransitionEnd} style={instant ? { transitionDuration: '0ms' } : undefined} className={`fixed inset-0 transition-all duration-300 z-10 ${active ? 'translate-y-0 opacity-100' : closedClasses}`}>
-            <section className="relative flex justify-center items-center w-screen min-h-page bg-paper">
+        <article ref={ref} data-header={active ? header : undefined} onTransitionEnd={handleTransitionEnd} style={instant ? { transitionDuration: '0ms' } : undefined} className={`fixed inset-0 transition-all duration-300 z-10 ${active ? 'translate-y-0 opacity-100' : closedClasses}`}>
+            <section className={`relative flex justify-center items-center w-screen min-h-page ${tone === 'ink' ? 'bg-ink text-paper' : 'bg-paper text-ink'}`}>
                 {children}
             </section>
         </article>

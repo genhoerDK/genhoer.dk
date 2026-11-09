@@ -18,7 +18,7 @@ export default function ToggleMapButton() {
         <Button variant="ghost" onClick={handleToggle} className="relative gap-1 h-10 px-2">
             {isOpen ? <XMarkIcon className="size-5" /> : <MapIcon className="size-5" />}
             <Label size="lg">Kort</Label>
-            {isOpen && <div className="absolute inset-0 h-0.5 w-full bg-ink"></div>}
+            {isOpen && <div className="absolute inset-0 h-0.5 w-full bg-chrome"></div>}
         </Button>
     );
 }
