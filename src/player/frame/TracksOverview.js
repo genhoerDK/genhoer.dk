@@ -13,10 +13,12 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Mousewheel, Keyboard } from 'swiper/modules';
 import { PlayIcon, PauseIcon } from '@heroicons/react/20/solid';
 import { useAudio } from '@/player/AudioContext';
+import { useListen } from '@/player/frame/useListen';
 import Label from '@/components/UI/Label';
 
 export default function TracksOverview({ toggleOverview }) {
-    const { projectsWithAudio, play, pause, currentTrack, isPlaying } = useAudio();
+    const { projectsWithAudio, pause, currentTrack, isPlaying } = useAudio();
+    const listen = useListen();
     const swiperRef = useRef(null);
     const start = Math.max(0, projectsWithAudio.findIndex((p) => p.slug === currentTrack?.slug));
     const playingSlug = isPlaying ? currentTrack?.slug : null;
@@ -25,7 +27,7 @@ export default function TracksOverview({ toggleOverview }) {
         const swiper = swiperRef.current;
         if (swiper && swiper.activeIndex !== i) return swiper.slideTo(i);
         if (project.slug === playingSlug) return pause();
-        play(project);
+        listen(project);   // a work that only its own buttons start is only opened (frame/useListen.js)
         toggleOverview();
     };
 

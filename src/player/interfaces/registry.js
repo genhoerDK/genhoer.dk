@@ -7,8 +7,12 @@
 //            loop         src/player/audio/Loop.js — two layers of a loop, crossfaded by a button
 //            quad         src/player/audio/Quad.js — four speakers around the listener (HRTF)
 //   tone     ink (dark, the photo behind) or paper (light) — the overlay's background
-//   opens    true: playing it from the project page opens the player, because it needs its interface
-//   silent   true: opening it from the project page starts nothing — its own button does (the elevator)
+//   opens    true: playing it from outside (its project page, the overview, Lyt) opens the player,
+//            because it needs its interface
+//   silent   true: only its own buttons start it (53 sekunder's elevator button, Tværveje's stories).
+//            From outside it is only opened — nothing sounds until you press in it (frame/useListen.js) —
+//            and it is not on the mini player's bar: no progress there, and its play button opens
+//            the work unless a ride or a story stands paused half way
 //   loop     file engines: the file starts over when it ends (false: it stops, and the interface decides)
 
 export const INTERFACES = {
@@ -16,7 +20,7 @@ export const INTERFACES = {
     buttons:   { engine: 'instrument', tone: 'ink', opens: true },
     loop:      { engine: 'loop', tone: 'ink', opens: true },
     countdown: { engine: 'file', tone: 'ink', opens: true, silent: true, loop: false },
-    walk:      { engine: 'file', tone: 'ink', opens: true, loop: false },
+    walk:      { engine: 'file', tone: 'ink', opens: true, silent: true, loop: false },
     quad:      { engine: 'quad', tone: 'ink', opens: true },
     street:    { engine: 'file', tone: 'ink', opens: true, loop: true },
 };

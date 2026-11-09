@@ -3,20 +3,26 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAudio } from '@/player/AudioContext';
+import { settingsFor } from '@/player/interfaces/registry';
 import { PauseCircleIcon, PlayCircleIcon, ChevronUpIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import Label from "@/components/UI/Label";
 import ListenButton from '@/player/frame/ListenButton';
 import MiniPlayerProgress from '@/player/frame/MiniPlayerProgress';
 
 export default function PlayerControls() {
-    const { play, pause, isPlaying, currentTrack } = useAudio();
+    const { play, pause, isPlaying, currentTrack, currentTime } = useAudio();
     const [showMiniPlayer, setShowMiniPlayer] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
     const isPlayerOpen = searchParams.has('lyt');
 
+    // A work that only its own buttons start (the elevator, the walk) is not run from here: the
+    // button pauses it, resumes a ride or a story that stands paused half way, and otherwise opens it
+    const silent = settingsFor(currentTrack).silent;
     const togglePlayback = () => {
-        isPlaying ? pause() : play();
+        if (isPlaying) return pause();
+        if (silent && !(currentTime > 0)) return router.replace('?lyt', { scroll: false });
+        play();
     }
 
     const togglePlayer = () => {
@@ -45,7 +51,7 @@ export default function PlayerControls() {
                     <div className="relative flex gap-0.5 items-center min-w-0 pl-4 pr-1.25 py-1 -ml-4 rounded-r-full bg-chrome-soft overflow-hidden md:group-hover:opacity-80">
                         <Label size="lg" className="truncate">{currentTrack.title}</Label>
                         {isPlayerOpen ? <XMarkIcon className="size-4 shrink-0" /> : <ChevronUpIcon className="size-4 shrink-0" />}
-                        <MiniPlayerProgress />
+                        {!silent && <MiniPlayerProgress />}
                     </div>
                 </button>
             </div>

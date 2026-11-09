@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAudio } from '@/player/AudioContext';
-import { settingsFor } from '@/player/interfaces/registry';
+import { useListen } from '@/player/frame/useListen';
 import { getProjectInfo } from "@/utilities/projectInfo";
 import BackgroundImage from '@/components/Layout/BackgroundImage';
 import ProjectDescription from '@/components/Project/ProjectDescription';
@@ -11,11 +10,11 @@ import ProjectPlayButton from '@/components/Project/ProjectPlayButton';
 import ProjectSponsors from '@/components/Project/ProjectSponsors';
 
 export default function ProjectHeroSection({ project }) {
-    const { initialized, setTrack, currentTrack, play, pause, isPlaying } = useAudio();
+    const { initialized, setTrack, currentTrack, pause, isPlaying } = useAudio();
     const { title, slug, description, player, sponsorLogos } = project;
     const isProjectPlaying = isPlaying && currentTrack?.slug === slug;
     const hasAudio = !!player;
-    const router = useRouter();
+    const listen = useListen();
 
     useEffect(() => {
         if (!isPlaying && !initialized && hasAudio) setTrack(project);
@@ -24,11 +23,9 @@ export default function ProjectHeroSection({ project }) {
     const togglePlayback = () => {
         if (!hasAudio) return;
         if (isProjectPlaying) return pause();
-        const settings = settingsFor(project);
-        // A work with its own start button (the elevator) only opens; the others start playing
-        if (settings.silent) setTrack(project); else play(project);
-        // A work that is played with its interface (buttons, a walk …) opens the player
-        if (settings.opens) router.replace('?lyt', { scroll: false });
+        // Most works start; one played with its interface opens the player; one that only its own
+        // buttons start (the elevator, the walk) is only opened (frame/useListen.js)
+        listen(project);
     };
 
     return (

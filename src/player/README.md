@@ -76,6 +76,14 @@ overlever, at `projects.json` skrives forfra.
 `interfaces/registry.js` siger, hvad hvert interface behøver (motor, lys eller mørk baggrund, om det
 åbner afspilleren fra projektsiden, om filen looper). `interfaces/index.js` peger på komponenterne.
 
+**Værker, der kun startes indefra** (`silent`: 53 sekunder til fælles og Tværveje) har deres egne
+knapper til at starte lyden: elevatorknappen og fortællingerne. Udefra — play-knappen på projektsiden,
+et cover i oversigten over værker, Lyt i værktøjslinjen — bliver man derfor kun ført ind i værket,
+og intet spiller, før man trykker derinde (`frame/useListen.js`, som alle de steder bruger). De er
+heller ikke på minispillerens bjælke: ingen fremdrift dér, og minispillerens knap sætter på pause,
+genoptager en tur eller fortælling, der står på pause halvvejs, og ellers åbner den værket.
+Tidslinjen og de andre almindelige afspilninger kører som før.
+
 **Motorerne.** `file` er lydelementet i `AudioContext.js`: ét spor ad gangen, låseskærm og
 baggrundsafspilning på telefoner. Værker med flere filer (countdown, walk) vælger selv en fil med
 `playFile()`. De øvrige motorer er klasser i `audio/` med samme overflade: `start()`, `pause()`,

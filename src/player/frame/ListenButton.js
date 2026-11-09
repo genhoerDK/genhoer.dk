@@ -1,13 +1,16 @@
 import { useAudio } from '@/player/AudioContext';
+import { useListen } from '@/player/frame/useListen';
 import Button from "@/components/UI/Button";
 import Label from "@/components/UI/Label";
 import { PlayCircleIcon } from "@heroicons/react/20/solid";
 
 export default function ListenButton() {
-    const { play } = useAudio();
+    const { currentTrack } = useAudio();
+    const listen = useListen();
 
+    // The current work, as from its project page: a work that only its own buttons start is opened
     const handleClick = () => {
-        play();
+        if (currentTrack) listen(currentTrack);
     }
 
     return (
