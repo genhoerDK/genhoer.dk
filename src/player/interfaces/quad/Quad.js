@@ -6,7 +6,8 @@
  * the speakers towards you. Move the pointer to turn: with headphones each speaker stays where it
  * hangs. ←/→ turn too. Scroll, pinch or ↑/↓ take you down to stand at eye height in the middle, and
  * back up. Space pauses and plays. No text tells you so: the work is found by moving in it.
- * Under it, a line shows how far into the loop you are, and the time; it starts over with the loop.
+ * Under it, as in the timeline: the play / pause button, a line showing how far into the loop you
+ * are, and the time; it starts over with the loop.
  *
  *   player.speakers  [{ label, angle, file, channel? }]  angle: degrees clockwise from straight ahead
  *   player.reverb    0–1, the room's echo on top
@@ -20,6 +21,8 @@ import { keyIsTaken } from '@/player/frame/keys';
 import PlayerShell, { Controls, Status } from '@/player/frame/PlayerShell';
 import StartButton from '@/player/frame/StartButton';
 import Label from '@/components/UI/Label';
+import SoundButton from '@/player/frame/SoundButton';
+import { PlayIcon, PauseIcon } from '@heroicons/react/20/solid';
 
 /** three.js is only loaded when the work is opened */
 
@@ -29,16 +32,20 @@ const formatTime = (sec) => {
 };
 
 /**
- * How far into the loop: a line as the timeline's (filled, with a needle) and the time. Only to see
- * by, not to seek on. It reads the engine itself, so the scene isn't drawn again with it.
+ * As the timeline's: the play / pause button (its ring the loop's progress), a line (filled, with a
+ * needle) and the time. The line is only to see by, not to seek on. It reads the engine itself, so
+ * the scene isn't drawn again with it.
  */
-function LoopProgress({ engine, isPlaying }) {
+function LoopProgress({ engine, isPlaying, onToggle }) {
     const state = useEngineState(engine, 15);
     const position = state?.position ?? 0;
     const duration = state?.duration ?? 0;
     const f = duration ? Math.min(position / duration, 1) : 0;
     return (
         <div className='flex flex-1 min-w-0 items-center gap-3 md:gap-4'>
+            <SoundButton size='sm' on={isPlaying} ring={isPlaying && duration ? f : null} onClick={onToggle} ariaLabel={isPlaying ? 'Pause' : 'Afspil'}>
+                {isPlaying ? <PauseIcon className='size-5' /> : <PlayIcon className='size-5 ml-0.5' />}
+            </SoundButton>
             <div
                 role='progressbar'
                 aria-label='Hvor langt værket er'
@@ -54,7 +61,7 @@ function LoopProgress({ engine, isPlaying }) {
                 <div className='absolute top-1/2 w-0.5 h-4 -translate-y-1/2 bg-paper rounded-full' style={{ left: `calc(${f * 100}% - 1px)` }} />
             </div>
             <Label size='lg' className='shrink-0 tabular-nums text-muted'>
-                {!isPlaying && <>Pause · </>}{formatTime(position)} <span className='text-hard'>/ {formatTime(duration)}</span>
+                {formatTime(position)} <span className='text-hard'>/ {formatTime(duration)}</span>
             </Label>
         </div>
     );
@@ -108,7 +115,7 @@ export default function QuadPlayer() {
                     ) : (
                         <div className='flex items-center gap-4'>
                             <span role='slider' aria-label='Hvilken vej du vender' aria-valuenow={heading} aria-valuemin={0} aria-valuemax={359} className='sr-only'>{heading}°</span>
-                            <LoopProgress engine={engine} isPlaying={isPlaying} />
+                            <LoopProgress engine={engine} isPlaying={isPlaying} onToggle={() => (isPlaying ? pause() : play())} />
                         </div>
                     )}
                 </Controls>
