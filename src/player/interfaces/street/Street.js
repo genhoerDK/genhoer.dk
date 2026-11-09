@@ -71,7 +71,6 @@ export default function StreetPlayer() {
             <Timeline
                 track={track}
                 onSeek={onSeek}
-                hint='Rul eller stryg til næste højttalerpar'
             />
         </PlayerShell>
     );
