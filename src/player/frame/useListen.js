@@ -15,16 +15,15 @@
  */
 
 import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAudio } from '@/player/AudioContext';
 import { settingsFor } from '@/player/interfaces/registry';
+import { setOverlay } from '@/hooks/setOverlay';
 
 export function useListen() {
     const { play, setTrack } = useAudio();
-    const router = useRouter();
     return useCallback((project) => {
         const settings = settingsFor(project);
         if (settings.silent) setTrack(project); else play(project);
-        if (settings.opens) router.replace('?lyt', { scroll: false });
-    }, [play, setTrack, router]);
+        if (settings.opens) setOverlay('?lyt');
+    }, [play, setTrack]);
 }
