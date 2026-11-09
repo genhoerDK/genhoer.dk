@@ -20,7 +20,6 @@ import { player as troldetoner } from '@/player/vaerker/troldetoner/player';
 import { player as w53_sekunder_til_faelles } from '@/player/vaerker/53-sekunder-til-faelles/player';
 import { player as tvaerveje } from '@/player/vaerker/tvaerveje/player';
 import { player as kanon_i_g3 } from '@/player/vaerker/kanon-i-g3/player';
-import { player as kirkestraede } from '@/player/vaerker/kirkestraede/player';
 
 export const players = {
     'grindsted-station': grindsted_station,
@@ -28,7 +27,6 @@ export const players = {
     '53-sekunder-til-faelles': w53_sekunder_til_faelles,
     'tvaerveje': tvaerveje,
     'kanon-i-g3': kanon_i_g3,
-    'kirkestraede': kirkestraede,
 };
 
 /** Every sound file a multi-file player can put in the audio element, in order (the first is what plain play() starts) */

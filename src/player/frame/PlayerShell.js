@@ -55,20 +55,21 @@ export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, b
 }
 
 /**
- * The bar at the bottom where an interface's controls go (above the toolbar on phones), with the
- * work's title over them and, if given, one line on how it's played.
+ * The bar at the bottom where an interface's controls go (above the toolbar on phones). The work's
+ * title is not shown — only to screen readers — and, if given, one line over the controls (hint).
  *
- * @param {string} [title]
+ * @param {string} [title]  For screen readers
  * @param {string} [hint]
- * @param {'left'|'center'} [align]  Title and hint to the left, or centred over centred controls
+ * @param {'left'|'center'} [align]  The hint to the left, or centred over centred controls
  */
 export function Controls({ title, hint, align = 'left', className = '', children }) {
     return (
         <div className={`absolute z-10 inset-x-gutter bottom-16 md:bottom-10 ${align === 'center' ? 'flex flex-col items-center' : ''}`}>
-            {(title || hint) && (
+            {/* The work's title is not shown (it stands in the mini player); it is there for screen readers */}
+            {title && <h2 className='sr-only'>{title}</h2>}
+            {hint && (
                 <div className={`mb-3 md:mb-4 ${align === 'center' ? 'text-center' : ''}`}>
-                    {title && <h2 className='leading-none font-extralight text-lg md:text-xl'>{title}</h2>}
-                    {hint && <Label size='lg' className={`text-faint ${title ? 'mt-1.5' : ''}`}>{hint}</Label>}
+                    <Label size='lg' className='text-faint'>{hint}</Label>
                 </div>
             )}
             <div className={className}>{children}</div>
