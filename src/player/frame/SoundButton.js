@@ -16,6 +16,8 @@
  * @param {boolean} [held]     Held down right now (pressed a little in)
  * @param {number|null} [ring] 0–1: how much of the ring is drawn (null: only the faint track)
  * @param {boolean} [ringTrack=true]  The faint full circle under the ring
+ * @param {boolean} [loading]  The sound is being fetched: a short arc runs round the ring instead
+ *                             of it (with reduced motion it stands still and breathes)
  * @param {React.ReactNode} [label]   A line under it (uppercase), [detail] a second, fainter line
  * @param {string} ariaLabel   What it does, in Danish
  * Other props (onClick, onPointerDown, aria-*, disabled …) go to the <button>.
@@ -32,7 +34,7 @@ const SIZES = {
     sm: { box: 'size-12 md:size-12', text: 'text-base', stroke: 3, gap: 'mt-2' },
 };
 
-export default function SoundButton({ size = 'md', on = false, held = false, ring = null, ringTrack = true, label, detail, ariaLabel, className = '', children, ...button }) {
+export default function SoundButton({ size = 'md', on = false, held = false, ring = null, ringTrack = true, loading = false, label, detail, ariaLabel, className = '', children, ...button }) {
     const s = SIZES[size] ?? SIZES.md;
     const waiting = !on;
     return (
@@ -40,6 +42,7 @@ export default function SoundButton({ size = 'md', on = false, held = false, rin
             <button
                 type='button'
                 aria-label={ariaLabel}
+                aria-busy={loading || undefined}
                 onContextMenu={(e) => e.preventDefault()}
                 {...button}
                 className={`relative flex items-center justify-center ${s.box} shrink-0 rounded-full group touch-none select-none ${button.disabled || button['aria-disabled'] ? 'cursor-default' : 'cursor-pointer'}`}
@@ -49,7 +52,7 @@ export default function SoundButton({ size = 'md', on = false, held = false, rin
                     {ringTrack && (
                         <circle cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth={s.stroke} className={`transition-opacity ${on ? 'opacity-20' : 'opacity-30 md:group-hover:opacity-100'}`} />
                     )}
-                    {ring != null && (
+                    {ring != null && !loading && (
                         <circle
                             cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth={s.stroke} strokeLinecap='round'
                             strokeDasharray={CIRCUMFERENCE}
@@ -58,6 +61,15 @@ export default function SoundButton({ size = 'md', on = false, held = false, rin
                         />
                     )}
                 </svg>
+                {/* Fetching: a quarter of the ring running round */}
+                {loading && (
+                    <svg viewBox='0 0 100 100' className='absolute inset-0 size-full animate-spin [animation-duration:1.4s] motion-reduce:animate-pulse' aria-hidden='true'>
+                        <circle
+                            cx='50' cy='50' r={RADIUS} fill='none' stroke='currentColor' strokeWidth={s.stroke} strokeLinecap='round'
+                            strokeDasharray={`${CIRCUMFERENCE / 4} ${CIRCUMFERENCE}`}
+                        />
+                    </svg>
+                )}
                 {/* The disc: white and waiting, or dark and sounding */}
                 <span
                     className={`flex items-center justify-center size-[84%] rounded-full font-extralight tabular-nums leading-none ${s.text} transition-[background-color,color,transform] duration-300 ${

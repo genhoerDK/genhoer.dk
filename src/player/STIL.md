@@ -158,6 +158,7 @@ rund, fordi rund og hvid er lyd på genhoer.dk.
 - **Ringen** om den løber med lyden, eller tæller ned: elevatorturen i 53 sekunder, tiden ved
   overfladen i Under overfladen, fortællingen i Tværveje, tonen i Troldetoner, hele værket i
   tidslinjen.
+- **Mens lyden hentes,** løber en kort bue rundt i ringen i stedet (`loading`; Kanon i G3).
 - **I midten** står det, værket har brug for: et tal (53 sekunders display), et ikon (afspil,
   pause) eller en tone (Troldetoner).
 - **Tre størrelser:** stor (én knap: 53 sekunder, Under overfladen, starten), mellem (en række:

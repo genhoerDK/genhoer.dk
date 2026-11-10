@@ -33,17 +33,19 @@ const formatTime = (sec) => {
 
 /**
  * As the timeline's: the play / pause button (its ring the loop's progress), a line (filled, with a
- * needle) and the time. The line is only to see by, not to seek on. It reads the engine itself, so
- * the scene isn't drawn again with it.
+ * needle) and the time. The line is only to see by, not to seek on. While the sound is fetched,
+ * the button's ring runs round instead. It reads the engine itself, so the scene isn't drawn
+ * again with it.
  */
 function LoopProgress({ engine, isPlaying, onToggle }) {
     const state = useEngineState(engine, 15);
     const position = state?.position ?? 0;
     const duration = state?.duration ?? 0;
     const f = duration ? Math.min(position / duration, 1) : 0;
+    const loading = !state?.loaded;
     return (
         <div className='flex flex-1 min-w-0 items-center gap-3 md:gap-4'>
-            <SoundButton size='sm' on={isPlaying} ring={isPlaying && duration ? f : null} onClick={onToggle} ariaLabel={isPlaying ? 'Pause' : 'Afspil'}>
+            <SoundButton size='sm' on={isPlaying} loading={loading} ring={isPlaying && duration ? f : null} onClick={onToggle} ariaLabel={isPlaying ? 'Pause' : 'Afspil'}>
                 {isPlaying ? <PauseIcon className='size-5' /> : <PlayIcon className='size-5 ml-0.5' />}
             </SoundButton>
             <div
@@ -61,7 +63,7 @@ function LoopProgress({ engine, isPlaying, onToggle }) {
                 <div className='absolute top-1/2 w-0.5 h-4 -translate-y-1/2 bg-paper rounded-full' style={{ left: `calc(${f * 100}% - 1px)` }} />
             </div>
             <Label size='lg' className='shrink-0 tabular-nums text-muted'>
-                {formatTime(position)} <span className='text-hard'>/ {formatTime(duration)}</span>
+                {loading ? 'Henter lyd …' : <>{formatTime(position)} <span className='text-hard'>/ {formatTime(duration)}</span></>}
             </Label>
         </div>
     );
@@ -110,8 +112,6 @@ export default function QuadPlayer() {
                 <Controls title={currentTrack.title}>
                     {state?.error ? (
                         <Status>Lydfilerne kunne ikke hentes</Status>
-                    ) : !state?.loaded ? (
-                        <Status pulse>Henter lyd …</Status>
                     ) : (
                         <div className='flex items-center gap-4'>
                             <span role='slider' aria-label='Hvilken vej du vender' aria-valuenow={heading} aria-valuemin={0} aria-valuemax={359} className='sr-only'>{heading}°</span>
