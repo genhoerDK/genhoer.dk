@@ -79,7 +79,7 @@
     "coverImagePortrait": "https://cdn.genhoer.dk/media/kolding-2026/cover-image-portrait.webp",
     "coverImageLandscape": "https://cdn.genhoer.dk/media/kolding-2026/cover-image-landscape.webp",
     "coverImageSmall": "https://cdn.genhoer.dk/media/kolding-2026/cover-image-small.webp",
-    "coverVideo": null,
+    "coverVideo": "https://cdn.genhoer.dk/media/kolding-2026/cover-video.mp4",
     "artwork": null,
     "media": [
       "https://cdn.genhoer.dk/media/kolding-2026/image-01.webp",
