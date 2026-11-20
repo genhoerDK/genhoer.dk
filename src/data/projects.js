@@ -21,7 +21,6 @@
 // audio, segments      Sound work and its chapters (start in seconds). null = project without sound
 // player               How the work is played — not from genhoer-data yet: laid over from players.js
 //                      ({ interface, files, ... } or null; a chapter may get an imageLandscape)
-// composer             Not shown on the site at the moment
 import data from './projects.json';
 import { withPlayer } from '@/player/players';
 
