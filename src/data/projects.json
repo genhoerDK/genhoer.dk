@@ -36,7 +36,6 @@
     "coverVideo": null,
     "artwork": null,
     "media": null,
-    "audio": null,
     "segments": null,
     "previousSlugs": []
   },
@@ -90,7 +89,6 @@
       "https://cdn.genhoer.dk/media/kolding-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/kolding-2026/image-07.webp"
     ],
-    "audio": null,
     "segments": null,
     "previousSlugs": [
       "kolding"
@@ -147,7 +145,6 @@
       "https://cdn.genhoer.dk/media/nakskov-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/nakskov-2026/image-07.webp"
     ],
-    "audio": null,
     "segments": null,
     "previousSlugs": []
   },
@@ -200,7 +197,6 @@
       "https://cdn.genhoer.dk/media/viborg-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/viborg-2026/image-07.webp"
     ],
-    "audio": null,
     "segments": null,
     "previousSlugs": []
   },
@@ -253,7 +249,6 @@
       "https://cdn.genhoer.dk/media/hvide-sande-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/hvide-sande-2026/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/hvide-sande-2026/track-v1.mp3",
     "segments": [
       {
         "title": "Tyskerhavnen",
@@ -337,7 +332,6 @@
       "https://cdn.genhoer.dk/media/odsherred-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/odsherred-2026/image-07.webp"
     ],
-    "audio": null,
     "segments": null,
     "previousSlugs": []
   },
@@ -391,7 +385,6 @@
       "https://cdn.genhoer.dk/media/bornholm-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/bornholm-2026/image-07.webp"
     ],
-    "audio": null,
     "segments": null,
     "previousSlugs": []
   },
@@ -445,7 +438,6 @@
       "https://cdn.genhoer.dk/media/esbjerg-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/esbjerg-2026/image-07.webp"
     ],
-    "audio": null,
     "segments": null,
     "previousSlugs": []
   },
@@ -498,7 +490,6 @@
       "https://cdn.genhoer.dk/media/fredericia-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/fredericia-2025/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/fredericia-2025/track-v1.mp3",
     "segments": [
       {
         "title": "Angreb på ubåde",
@@ -627,7 +618,6 @@
       "https://cdn.genhoer.dk/media/koege-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/koege-2025/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/koege-2025/track-v1.mp3",
     "segments": [
       {
         "title": "Bødkermester Reerslev",
@@ -714,7 +704,6 @@
       "https://cdn.genhoer.dk/media/holbaek-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/holbaek-2025/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/holbaek-2025/track-v1.mp3",
     "segments": [
       {
         "title": "Isefjorden og Buena Vista",
@@ -824,7 +813,6 @@
       "https://cdn.genhoer.dk/media/faaborg-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/faaborg-2025/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/faaborg-2025/track-v1.mp3",
     "segments": [
       {
         "title": "Udvikling",
@@ -902,7 +890,6 @@
       "https://cdn.genhoer.dk/media/haderslev-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/haderslev-2025/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/haderslev-2025/track-v1.mp3",
     "segments": [
       {
         "title": "Huset opføres af Philip af Neuss",
@@ -982,7 +969,6 @@
       "https://cdn.genhoer.dk/media/vordingborg-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/vordingborg-2025/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/vordingborg-2025/track-v1.mp3",
     "segments": [
       {
         "title": "Frihed under ansvar",
@@ -1081,7 +1067,6 @@
       "https://cdn.genhoer.dk/media/grindsted-2024/video-02.mp4",
       "https://cdn.genhoer.dk/media/grindsted-2024/image-07.webp"
     ],
-    "audio": "https://cdn.genhoer.dk/media/grindsted-2024/track-v1.mp3",
     "segments": [
       {
         "title": "Ankomst",
