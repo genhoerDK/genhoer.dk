@@ -16,13 +16,14 @@
 // sponsorLogos         Names of files in public/logos/<name>-logo.svg
 // description          Paragraphs on the project page. The last one is also the search engine description
 // coverImage*/coverVideo  Images/video for page background (portrait/landscape), cards and hover video
-// artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
 // media                Full URLs shown in the gallery. The 4th file becomes the big tile and the 11th the wide tile
-// segments             The sound work's chapters (start in seconds)
-// audio, player        The sound file and how the work is played — not from genhoer-data: laid over
-//                      from src/player/players.js (audio: one file per work, by slug)
+// Not from genhoer-data, laid over here:
+// audio, artwork, segments   src/data/media.js: the sound file, the lock screen image while playing
+//                      (null = public/fallback-artwork.jpg) and the chapters (start in seconds)
+// player               How the work is played: src/player/players.js
 //                      ({ interface, files, ... } or null; a chapter may get an imageLandscape)
 import data from './projects.json';
+import { withMedia } from './media';
 import { withPlayer } from '@/player/players';
 
-export const projects = data.map(withPlayer);
+export const projects = data.map((p) => withPlayer(withMedia(p)));
