@@ -1,16 +1,17 @@
 'use client';
 
 import { projects } from "@/data/projects";
+import { upcomingProjects } from "@/data/upcoming";
 import { useToday } from "@/hooks/useToday";
 import { getProjectsByStatus } from "@/utilities/projectsByStatus";
 import UpcomingMap from "@/components/Project/UpcomingMap";
 import ProjectGrid from "@/components/Project/ProjectGrid";
 
-// Front page: upcoming projects on the map, opened projects in the grid.
+// Front page: upcoming projects on the map (also the year's unpublished ones), opened projects in the grid.
 // Split by the visitor's date, so a project moves to the grid on its opening day without a new deploy.
 export default function HomeProjects() {
     const today = useToday();
-    const { upcoming, opened } = getProjectsByStatus(projects, today);
+    const { upcoming, opened } = getProjectsByStatus(projects, today, upcomingProjects);
 
     return (
         <>

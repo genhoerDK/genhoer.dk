@@ -133,12 +133,14 @@ export default function UpcomingMap({ projects }) {
                 .style('transition', 'opacity 700ms ease')
                 .on('error', function () { d3.select(this).attr('display', 'none'); }); // keep the white fill, not a broken image
 
+            // An unpublished project may not have coordinates yet: the marker sits in the middle of its kommune
+            const marker = (d) => (d.coordinates ? projection(mapCoordinates(d)) : path.centroid(kommuneOf(d)));
             const markers = g.selectAll('circle.marker')
                 .data(projects, (d) => d.slug)
                 .join('circle')
                 .attr('class', 'marker')
-                .attr('cx', (d) => projection(mapCoordinates(d))[0])
-                .attr('cy', (d) => projection(mapCoordinates(d))[1])
+                .attr('cx', (d) => marker(d)[0])
+                .attr('cy', (d) => marker(d)[1])
                 .attr('fill', colors.ink)
                 .attr('stroke', colors.paper)
                 .attr('stroke-width', 2)
