@@ -13,7 +13,7 @@ export default function Participate() {
             <TextSection
                 label="Deltag i Genhør"
                 largeText={[
-                    "Vær med til at skabe en stedspecifik kulturoplevelse, der åbner et lydligt vindue til fortidens lokalsamfund. Vi vil meget gerne høre fra dig, hvis du eller din organisation har lyst til at opstarte et projekt."
+                    "Vær med til at skabe en stedspecifik kulturoplevelse der åbner et lydligt vindue til fortidens lokalsamfund. Vi vil meget gerne høre fra dig hvis du eller din organisation har lyst til at opstarte et projekt."
                 ]}
                 smallText={[
                     "Genhør samarbejder med lokale aktører om at udvikle offentligt tilgængelige lydinstallationer. Samarbejdet tager afsæt i lokale muligheder, behov og stedbundne potentialer og realiseres gennem en fælles indsats.",

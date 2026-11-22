@@ -18,12 +18,12 @@ export default function Info() {
             <TextSection
                 label="Om os"
                 largeText={[
-                    "Genhør er en nonprofitorganisation, der i samarbejde med lokale aktører engagerer unge i kulturskabelse og udstiller offentlig tilgængelig lydkunst, der styrker kendskabet til den stedbundne kulturarv og den nære danmarkshistorie."
+                    "Genhør er en nonprofitorganisation der i samarbejde med lokale aktører engagerer unge i kulturskabelse og udstiller offentligt tilgængelig lydkunst der styrker kendskabet til den stedbundne kulturarv og den nære danmarkshistorie."
                 ]}
                 smallText={[
-                    "Danmark er en mosaik af lokalsamfund med hver deres særegne historie. Genhør sætter spot på lokalhistorien ved at fortolke fortiden gennem lydkunst, der udstilles netop der hvor den har fundet sted.",
-                    "Ved hvert projekt afholdes der workshops for lokale unge mellem 12-24 år. Her udforsker vi historien og gør den levende for publikum gennem lydlige virkemidler.",
-                    "Værkerne – kompositoriske forløb sammensat af musik, reallyde,  anekdoter og arkivmateriale – udstilles offentligt tilgængeligt og lader de besøgende træde ind i et lydligt erindringsbillede.",
+                    "Danmark er en mosaik af lokalsamfund med hver deres særegne historie. Genhør sætter spot på lokalhistorien ved at fortolke fortiden gennem lydkunst der udstilles netop der hvor den har fundet sted.",
+                    "Ved hvert projekt afholdes der workshops for lokale unge mellem 12 og 24 år. Her udforsker vi historien og gør den levende for publikum gennem lydlige virkemidler.",
+                    "Værkerne – kompositoriske forløb sammensat af musik, reallyde, anekdoter og arkivmateriale – udstilles offentligt tilgængeligt og lader de besøgende træde ind i et lydligt erindringsbillede.",
                     ]}
             />
 

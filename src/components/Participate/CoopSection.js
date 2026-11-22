@@ -28,7 +28,7 @@ export default function CoopSection() {
 
             <TextImageSection
                 label="Kunstner"
-                text="Arbejder du med lyd og har du lyst til at skabe stedspecifik lydkunst i fællesskab med unge? Drømmer du om at gøre alvor af et lydværk som udforsker og fortolker stedbunden kulturarv? Vi er åbne over for nye idéer, kunstneriske eksperimenter og projektforslag."
+                text="Arbejder du med lyd, og har du lyst til at skabe stedspecifik lydkunst i fællesskab med unge? Drømmer du om at gøre alvor af et lydværk som udforsker og fortolker stedbunden kulturarv? Vi er åbne over for nye idéer, kunstneriske eksperimenter og projektforslag."
                 image="https://cdn.genhoer.dk/media/kunstner-image.webp"
             >
                 <Button variant="soft" onClick={() => setContactFormOpen(true)} className="gap-1.5 px-3 py-1.5 mt-2">
