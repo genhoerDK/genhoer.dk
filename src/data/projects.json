@@ -1,7 +1,7 @@
 [
   {
-    "slug": "naestved",
-    "title": "Næstved",
+    "slug": "saa-traeder-vi-an",
+    "title": "Så træder vi an!",
     "name": "Næstved",
     "location": "Det Historiske Hjørne",
     "coordinates": [
@@ -37,7 +37,9 @@
     "coverImageSmall": "https://cdn.genhoer.dk/media/naestved-2026/cover-image-small.webp",
     "coverVideo": null,
     "media": null,
-    "previousSlugs": []
+    "previousSlugs": [
+      "naestved"
+    ]
   },
   {
     "slug": "slotsmoellen",
