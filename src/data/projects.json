@@ -5,8 +5,8 @@
     "name": "Næstved",
     "location": "Det Historiske Hjørne",
     "coordinates": [
-      11.7489,
-      55.2231
+      11.761,
+      55.232
     ],
     "labelOffsetSmall": {
       "x": 0,
@@ -47,8 +47,8 @@
     "name": "Kolding",
     "location": "Kolding Bibliotek",
     "coordinates": [
-      9.4776,
-      55.4899
+      9.4801,
+      55.4915
     ],
     "labelOffsetSmall": {
       "x": -120,
@@ -100,8 +100,8 @@
     "name": "Nakskov",
     "location": "Nakskov",
     "coordinates": [
-      11.1381,
-      54.8297
+      11.1353,
+      54.8304
     ],
     "labelOffsetSmall": {
       "x": -100,
@@ -404,8 +404,8 @@
     "name": "Fredericia",
     "location": "Kulturkasernen",
     "coordinates": [
-      9.7482,
-      55.5657
+      9.7661,
+      55.5663
     ],
     "labelOffsetSmall": {
       "x": 0,
@@ -504,8 +504,8 @@
     "name": "Holbæk",
     "location": "Gangtunnelen",
     "coordinates": [
-      11.7167,
-      55.7167
+      11.708,
+      55.7155
     ],
     "labelOffsetSmall": {
       "x": -80,
@@ -557,8 +557,8 @@
     "name": "Faaborg",
     "location": "Slagteribygningen",
     "coordinates": [
-      10.2394,
-      55.0958
+      10.2361,
+      55.0963
     ],
     "labelOffsetSmall": {
       "x": -80,
@@ -657,8 +657,8 @@
     "name": "Vordingborg",
     "location": "Vordingborg Station",
     "coordinates": [
-      11.9167,
-      55.0167
+      11.9003,
+      55.0123
     ],
     "labelOffsetSmall": {
       "x": -80,
@@ -708,8 +708,8 @@
     "name": "Grindsted",
     "location": "Grindsted Station",
     "coordinates": [
-      8.9222,
-      55.7579
+      8.9315,
+      55.7589
     ],
     "labelOffsetSmall": {
       "x": -120,

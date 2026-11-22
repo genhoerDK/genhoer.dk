@@ -20,8 +20,8 @@
     "kommune": "Nyborg Kommune",
     "komkode": "0450",
     "coordinates": [
-      10.7977,
-      55.3098
+      10.793,
+      55.3115
     ],
     "startDate": "2027-04-29",
     "endDate": "2027-08-23",
@@ -35,8 +35,8 @@
     "kommune": "Guldborgsund Kommune",
     "komkode": "0376",
     "coordinates": [
-      11.871,
-      54.7646
+      11.8684,
+      54.7621
     ],
     "startDate": "2027-06-04",
     "endDate": "2027-08-29",
@@ -50,8 +50,8 @@
     "kommune": "Herning Kommune",
     "komkode": "0657",
     "coordinates": [
-      8.9747,
-      56.138
+      8.9633,
+      56.1363
     ],
     "startDate": "2027-06-12",
     "endDate": "2027-09-05",
@@ -110,8 +110,8 @@
     "kommune": "Kalundborg Kommune",
     "komkode": "0326",
     "coordinates": [
-      11.0994,
-      55.6834
+      11.0839,
+      55.6804
     ],
     "startDate": "2027-11-06",
     "endDate": "2027-12-28",
