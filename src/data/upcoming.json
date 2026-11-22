@@ -1,1 +1,122 @@
-[]
+[
+  {
+    "slug": "thisted-2027",
+    "name": "Thisted",
+    "kommune": "Thisted Kommune",
+    "komkode": "0787",
+    "coordinates": [
+      8.6908,
+      56.9566
+    ],
+    "startDate": "2027-03-25",
+    "endDate": "2027-07-31",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/thisted-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/thisted-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/thisted-2027/cover-image-small.webp"
+  },
+  {
+    "slug": "nyborg-2027",
+    "name": "Nyborg",
+    "kommune": "Nyborg Kommune",
+    "komkode": "0450",
+    "coordinates": [
+      10.7977,
+      55.3098
+    ],
+    "startDate": "2027-04-29",
+    "endDate": "2027-08-23",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/nyborg-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/nyborg-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/nyborg-2027/cover-image-small.webp"
+  },
+  {
+    "slug": "nykoebing-falster-2027",
+    "name": "Nykøbing Falster",
+    "kommune": "Guldborgsund Kommune",
+    "komkode": "0376",
+    "coordinates": [
+      11.871,
+      54.7646
+    ],
+    "startDate": "2027-06-04",
+    "endDate": "2027-08-29",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/nykoebing-falster-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/nykoebing-falster-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/nykoebing-falster-2027/cover-image-small.webp"
+  },
+  {
+    "slug": "herning-2027",
+    "name": "Herning",
+    "kommune": "Herning Kommune",
+    "komkode": "0657",
+    "coordinates": [
+      8.9747,
+      56.138
+    ],
+    "startDate": "2027-06-12",
+    "endDate": "2027-09-05",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/herning-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/herning-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/herning-2027/cover-image-small.webp"
+  },
+  {
+    "slug": "middelfart-2027",
+    "name": "Middelfart",
+    "kommune": "Middelfart Kommune",
+    "komkode": "0410",
+    "coordinates": [
+      9.7392,
+      55.4993
+    ],
+    "startDate": "2027-09-18",
+    "endDate": "2027-12-19",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/middelfart-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/middelfart-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/middelfart-2027/cover-image-small.webp"
+  },
+  {
+    "slug": "hinnerup-2027",
+    "name": "Hinnerup",
+    "kommune": "Favrskov Kommune",
+    "komkode": "0710",
+    "coordinates": [
+      10.0689,
+      56.2678
+    ],
+    "startDate": "2027-09-25",
+    "endDate": "2027-11-28",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/hinnerup-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/hinnerup-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/hinnerup-2027/cover-image-small.webp"
+  },
+  {
+    "slug": "varde-2027",
+    "name": "Varde",
+    "kommune": "Varde Kommune",
+    "komkode": "0573",
+    "coordinates": [
+      8.4812,
+      55.6177
+    ],
+    "startDate": "2027-10-14",
+    "endDate": "2027-12-21",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/varde-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/varde-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/varde-2027/cover-image-small.webp"
+  },
+  {
+    "slug": "kalundborg-2027",
+    "name": "Kalundborg",
+    "kommune": "Kalundborg Kommune",
+    "komkode": "0326",
+    "coordinates": [
+      11.0994,
+      55.6834
+    ],
+    "startDate": "2027-11-06",
+    "endDate": "2027-12-28",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/kalundborg-2027/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/kalundborg-2027/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/kalundborg-2027/cover-image-small.webp"
+  }
+]
