@@ -1,5 +1,20 @@
 [
   {
+    "slug": "naestved-2026",
+    "name": "Næstved",
+    "kommune": "Næstved Kommune",
+    "komkode": "0370",
+    "coordinates": [
+      11.761,
+      55.232
+    ],
+    "startDate": "2026-12-03",
+    "endDate": "2027-04-04",
+    "coverImagePortrait": "https://cdn.genhoer.dk/media/naestved-2026/cover-image-portrait.webp",
+    "coverImageLandscape": "https://cdn.genhoer.dk/media/naestved-2026/cover-image-landscape.webp",
+    "coverImageSmall": "https://cdn.genhoer.dk/media/naestved-2026/cover-image-small.webp"
+  },
+  {
     "slug": "thisted-2027",
     "name": "Thisted",
     "kommune": "Thisted Kommune",

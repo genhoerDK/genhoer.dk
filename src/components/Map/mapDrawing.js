@@ -43,14 +43,17 @@ export function drawMap(g, geoData, projection, { upcoming, opened, position, la
         .attr("stroke-width", 0.25)
         .attr("stroke-opacity", 1);
 
-    // Upcoming projects: dashed outline, not clickable
+    // Upcoming projects: dashed outline, not clickable. A project may not have coordinates yet: the marker
+    // sits in the middle of its kommune
+    const upcomingPosition = (d) => (d.coordinates ? position(d)
+        : path.centroid({ type: "FeatureCollection", features: geoData.features.filter((f) => f.properties.KOMKODE === d.komkode) }));
     const upcomingMarkers = g.selectAll(".upcoming-marker")
         .data(upcoming)
         .enter()
         .append("circle")
         .attr("class", "upcoming-marker")
-        .attr("cx", (d) => position(d)[0])
-        .attr("cy", (d) => position(d)[1])
+        .attr("cx", (d) => upcomingPosition(d)[0])
+        .attr("cy", (d) => upcomingPosition(d)[1])
         .attr("r", MARKER_RADIUS)
         .attr("fill", colors.ink)
         .attr("stroke", colors.paper)
