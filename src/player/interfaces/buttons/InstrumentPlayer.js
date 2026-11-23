@@ -2,7 +2,7 @@
 
 /**
  * Interface: buttons — a work played with buttons (src/player/audio/Instrument.js): a row of the
- * works' button (frame/SoundButton.js), one per sound, over the work's photo with depth. Press and
+ * works' button (frame/SoundButton.js), one per sound, over the work's photo. Press and
  * hold like the physical buttons — several at once on a touch screen; the ring runs with the
  * button's sound. Keys 1–5 work too.
  */
@@ -44,7 +44,7 @@ export default function InstrumentPlayer() {
     const letGo = (i) => () => { instrument.release(i); setHeld((h) => h.filter((j) => j !== i)); };
 
     return (
-        <PlayerShell track={currentTrack} depth={instrument?.config.coverDepth} focus={instrument?.config.coverFocus}>
+        <PlayerShell track={currentTrack} focus={instrument?.config.coverFocus}>
             {!isPlaying ? (
                 <StartButton onClick={() => play()} />
             ) : (

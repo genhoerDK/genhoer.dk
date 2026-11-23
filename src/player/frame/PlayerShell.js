@@ -3,7 +3,7 @@
 /**
  * The frame every interface sits in — the listening room:
  *
- *  - the work's photo behind (with depth, see scene/DepthBackdrop.js), black and white, dimmed,
+ *  - the work's photo behind (scene/PhotoBackdrop.js), black and white, dimmed,
  *    with grain, darker towards the top and the bottom. `filter` puts a CSS filter on the photo
  *    (Under overfladen blurs it under the surface).
  *  - the interface's controls as children. <Controls> is the bar at the bottom they go in, with
@@ -14,7 +14,6 @@
  *
  * @param {object} track      The project
  * @param {string} [image]    Photo URL (default: the player's image, then the landscape cover)
- * @param {string} [depth]    Depth map URL (default: the one made for the photo, if any)
  * @param {number} [focus]    0–1 across the photo: what stays in view on narrow screens
  * @param {number} [smoke]    0–1: how much smoke drifts in front of the photo
  * @param {boolean} [backdrop] false: the interface draws its own scene (Troldetoner, Kanon i G3)
@@ -25,13 +24,12 @@
 
 import dynamic from 'next/dynamic';
 import Label from '@/components/UI/Label';
-import { depthMapFor } from '@/player/scene/depth';
 
-const DepthBackdrop = dynamic(() => import('@/player/scene/DepthBackdrop'), { ssr: false });
+const PhotoBackdrop = dynamic(() => import('@/player/scene/PhotoBackdrop'), { ssr: false });
 
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
-export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, backdrop = true, filter, filterTransition, model = false, children }) {
+export default function PlayerShell({ track, image, focus, smoke = 0.4, backdrop = true, filter, filterTransition, model = false, children }) {
     const photo = image ?? track?.player?.image ?? track?.coverImageLandscape;
 
     return (
@@ -39,7 +37,7 @@ export default function PlayerShell({ track, image, depth, focus, smoke = 0.4, b
             {/* The photo, black and white like the covers so a gallery photo fits in too */}
             {backdrop && (
                 <div className='absolute inset-0' style={{ filter: ['grayscale(1)', filter].filter(Boolean).join(' '), transition: filterTransition }}>
-                    <DepthBackdrop image={photo} depth={depth ?? depthMapFor(photo)} focus={focus} smoke={smoke} />
+                    <PhotoBackdrop image={photo} focus={focus} smoke={smoke} />
                     <div className='absolute inset-0 bg-ink/30' />
                 </div>
             )}
