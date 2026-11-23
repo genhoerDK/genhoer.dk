@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Timeline interface in the listening room, with the playing chapter's photo (with depth) behind it.
+ * Timeline interface in the listening room, with the playing chapter's photo behind it.
  */
 
 import { useSyncExternalStore } from 'react';

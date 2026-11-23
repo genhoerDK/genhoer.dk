@@ -1,16 +1,15 @@
 /**
  * The shared 3D stage behind the 3D players (three.js):
  *
- *  - a photo far behind, shifted per pixel by a depth map (light = near) as the camera drifts, so
- *    near things move more than far ones — a multiplane look from one photo. Without a depth map
- *    the lower part of the photo counts as near and the top as far. Changing the photo
+ *  - a photo far behind, shifted per pixel as the camera drifts: the lower part of the photo counts
+ *    as near and the top as far, so the ground moves a little more than the sky. Changing the photo
  *    cross-fades. Fades out at its edges so no edge ever shows.
  *  - smoke drifting between the photo and the viewer.
  *  - a camera that drifts a little by itself and with the pointer (up = look up at the sky).
  *  - a `panel` that rides along with the camera: whatever is put on it sits on the screen, as if
  *    mounted on the glass, while the photo and smoke move behind it. Lit by its own fixed light.
  *
- * Used by the works' 3D scenes (Kanon i G3, 53 sekunder til fælles) and by DepthBackdrop (the
+ * Used by the works' 3D scenes (Kanon i G3, 53 sekunder til fælles) and by PhotoBackdrop (the
  * photo behind the other interfaces).
  */
 
@@ -22,7 +21,7 @@ import { frameLoop } from '@/player/scene/loop';
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift sideways (pointer + by itself), radians
 const MAX_ORBIT_Y = 0.13;             // up/down: pointer up = look up, towards the sky
-const PARALLAX = 0.16;                // how much near parts of the photo move extra
+const PARALLAX = 0.16;                // how much the lower (near) part of the photo moves extra
 export const PANEL_DISTANCE = 0.6;    // the panel's distance in front of the camera
 
 /* ---------- TEXTURES ---------- */
@@ -95,9 +94,9 @@ function edgeFadeTexture() {
 
 /* ---------- BACKDROP SHADER ---------- */
 
-// Two photo + depth pairs, so a new photo can cross-fade over the old one. Each pair has its own
-// scale so a photo of any shape covers the plane (like object-fit: cover). A few fixed-point steps
-// find which pixel ends up where after the depth shift, which keeps edges from smearing.
+// Two photos, so a new one can cross-fade over the old one. Each has its own scale so a photo of
+// any shape covers the plane (like object-fit: cover). A few fixed-point steps find which pixel ends
+// up where after the shift, which keeps edges from smearing.
 const backdropShader = {
     vertexShader: `
         varying vec2 vUv;
@@ -106,30 +105,26 @@ const backdropShader = {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }`,
     fragmentShader: `
-        uniform sampler2D uMapA, uDepthA, uMapB, uDepthB, uFade;
+        uniform sampler2D uMapA, uMapB, uFade;
         uniform vec2 uScaleA, uScaleB, uShift;
-        uniform float uHasDepthA, uHasDepthB, uMix, uOpacity, uMono;
+        uniform float uMix, uOpacity, uMono;
         varying vec2 vUv;
 
-        // Without a depth map: the ground (the lower part of the photo) is near, the sky is far
-        float guessedDepth(vec2 uv) {
+        // How near a point of the photo is: the ground (the lower part) is near, the sky is far
+        float nearness(vec2 uv) {
             return pow(clamp(1.0 - uv.y, 0.0, 1.0), 1.7) * 0.8;
         }
 
-        vec3 sampleShifted(sampler2D map, sampler2D depth, float hasDepth, vec2 scale) {
+        vec3 sampleShifted(sampler2D map, vec2 scale) {
             vec2 base = (vUv - 0.5) * scale + 0.5;
             vec2 uv = base;
-            if (hasDepth > 0.5) {
-                for (int i = 0; i < 4; i++) uv = base + uShift * texture2D(depth, uv).r;
-            } else {
-                for (int i = 0; i < 4; i++) uv = base + uShift * guessedDepth(uv);
-            }
+            for (int i = 0; i < 4; i++) uv = base + uShift * nearness(uv);
             return texture2D(map, uv).rgb;
         }
 
         void main() {
-            vec3 a = sampleShifted(uMapA, uDepthA, uHasDepthA, uScaleA);
-            vec3 b = uMix > 0.0 ? sampleShifted(uMapB, uDepthB, uHasDepthB, uScaleB) : a;
+            vec3 a = sampleShifted(uMapA, uScaleA);
+            vec3 b = uMix > 0.0 ? sampleShifted(uMapB, uScaleB) : a;
             vec3 colour = mix(a, b, uMix);
             float grey = dot(colour, vec3(0.299, 0.587, 0.114));
             gl_FragColor = vec4(mix(colour, vec3(grey), uMono), texture2D(uFade, vUv).g * uOpacity);
@@ -186,8 +181,8 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     /* ---------- BACKDROP ---------- */
 
     const uniforms = {
-        uMapA: { value: null }, uDepthA: { value: null }, uScaleA: { value: new THREE.Vector2(1, 1) }, uHasDepthA: { value: 0 },
-        uMapB: { value: null }, uDepthB: { value: null }, uScaleB: { value: new THREE.Vector2(1, 1) }, uHasDepthB: { value: 0 },
+        uMapA: { value: null }, uScaleA: { value: new THREE.Vector2(1, 1) },
+        uMapB: { value: null }, uScaleB: { value: new THREE.Vector2(1, 1) },
         uMix: { value: 0 },
         uOpacity: { value: 0 },
         uMono: { value: mono ? 1 : 0 },
@@ -206,7 +201,7 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     const loader = new THREE.TextureLoader().setCrossOrigin('anonymous');
     const loadTexture = (url) => new Promise((resolve) => {
         if (!url) return resolve(null);
-        loader.load(url, resolve, undefined, () => resolve(null));   // a missing depth map just means no parallax
+        loader.load(url, resolve, undefined, () => resolve(null));   // a photo that can't load keeps the one before
     });
 
     /** Cover-fit scale for a photo of this aspect on the plane */
@@ -215,11 +210,11 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
         : new THREE.Vector2(1, aspect / planeAspect));
 
     let latest = 0;
-    /** Show a photo (with an optional depth map); cross-fades from the one before */
-    const setBackdrop = async (image, depth) => {
+    /** Show a photo; cross-fades from the one before */
+    const setBackdrop = async (image) => {
         const request = ++latest;
-        const [map, depthMap] = await Promise.all([loadTexture(image), loadTexture(depth)]);
-        if (disposed || request !== latest || !map) { map?.dispose(); depthMap?.dispose(); return; }
+        const map = await loadTexture(image);
+        if (disposed || request !== latest || !map) { map?.dispose(); return; }
         map.colorSpace = THREE.SRGBColorSpace;
         const aspect = map.image.width / map.image.height;
 
@@ -227,8 +222,6 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
             planeAspect = aspect;
             fit();
             Object.assign(uniforms.uMapA, { value: map });
-            uniforms.uDepthA.value = depthMap;
-            uniforms.uHasDepthA.value = depthMap ? 1 : 0;
             uniforms.uScaleA.value = coverScale(aspect);
             return;
         }
@@ -236,8 +229,6 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
         // A cross-fade still running finishes instantly, then the new photo fades in over it
         if (fading) settle();
         uniforms.uMapB.value = map;
-        uniforms.uDepthB.value = depthMap;
-        uniforms.uHasDepthB.value = depthMap ? 1 : 0;
         uniforms.uScaleB.value = coverScale(aspect);
         uniforms.uMix.value = 0;
         fading = true;
@@ -246,9 +237,8 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     /** Make B the current photo */
     const settle = () => {
         uniforms.uMapA.value?.dispose();
-        uniforms.uDepthA.value?.dispose();
-        for (const k of ['Map', 'Depth', 'Scale', 'HasDepth']) uniforms[`u${k}A`].value = uniforms[`u${k}B`].value;
-        uniforms.uMapB.value = uniforms.uDepthB.value = null;
+        for (const k of ['Map', 'Scale']) uniforms[`u${k}A`].value = uniforms[`u${k}B`].value;
+        uniforms.uMapB.value = null;
         uniforms.uMix.value = 0;
         fading = false;
     };

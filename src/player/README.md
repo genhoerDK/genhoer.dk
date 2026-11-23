@@ -32,8 +32,8 @@ src/player/
     kirkestraede/      Køge omkring gaden fra OpenStreetMap (koege.js), til gade-interfacet
     files.js           cdn() og placeholder()
     scenes.js maps.js instruments.js streets.js   Finder et værks scene, kort, instrument og gade ud fra navnet
-  scene/               Scenen alle 3D-interfaces står på: kamera og lys (stage.js), fotoet med
-                       dybde bag 2D-interfacene (DepthBackdrop.js, depth.js)
+  scene/               Scenen alle 3D-interfaces står på: kamera og lys (stage.js), fotoet
+                       bag 2D-interfacene (PhotoBackdrop.js)
   audio/               Lydmotorerne (det man hører)
 ```
 
@@ -100,17 +100,15 @@ klikket låser lyden op (iOS).
 
 ## Rammen
 
-Alle interfaces står i `frame/PlayerShell.js`: værkets foto bagved med dybde (`scene/DepthBackdrop.js`,
+Alle interfaces står i `frame/PlayerShell.js`: værkets foto bagved (`scene/PhotoBackdrop.js`,
 three.js hentes først når afspilleren åbnes), dæmpet og i sort-hvid, mørkere i top og bund;
 interfacets knapper i baren nederst (`<Controls>`) med værkets titel (lille) og, hvor der er brug for
 det, én linje om, hvordan værket spilles. Knapperne er værkernes ene knap, `frame/SoundButton.js`
 (se `STIL.md`, Knappen). Afspilleren er mørk ligesom projektsidens hero, så man går
 fra siden ind i rummet, hvor værket spiller. Headeren og værktøjslinjen bliver lyse ovenpå (`useChrome`).
 
-**Dybden.** Fotoet forskydes pixel for pixel efter et dybdekort (lyst = nær), mens kameraet driver og
-følger musen eller en finger. Dybdekortene ligger i `public/depth/<mappe>/<navn>.webp`, ét for hvert
-foto afspilleren viser, lavet med `scripts/depth-map.py` (Depth Anything V2). Et foto uden dybdekort
-får et gæt: det nederste er nær, det øverste fjernt.
+**Fotoet.** Fotoet forskydes lidt, mens kameraet driver og følger musen eller en finger: det nederste
+regnes for nært og det øverste for fjernt, så jorden bevæger sig lidt mere end himlen (`scene/stage.js`).
 
 **Kun når den ses.** Et værks interface bygges først, når afspilleren åbnes på det (`Player.js`), og
 bliver stående, når den lukkes, så en tur eller en gåtur fortsætter, hvor den var. En lukket afspiller
