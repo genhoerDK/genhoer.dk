@@ -657,38 +657,38 @@
       {
         "title": "Bødkermester Reerslev",
         "start": 0,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/koege-2025/segment-landscape-01.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/koege-2025/segment-portrait-01.webp"
       },
       {
         "title": "Enkefru Ahlers, Hr. Svendsen og Pastoren",
         "start": 90,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/koege-2025/segment-landscape-02.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/koege-2025/segment-portrait-02.webp"
       },
       {
         "title": "Anton og tøndebåndet",
         "start": 165,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/koege-2025/segment-landscape-03.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/koege-2025/segment-portrait-03.webp"
       },
       {
         "title": "Fingerpolka i avistrykkeriet",
         "start": 200,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/koege-2025/segment-landscape-04.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/koege-2025/segment-portrait-04.webp"
       },
       {
         "title": "Smedjen",
         "start": 272,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/koege-2025/segment-landscape-05.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/koege-2025/segment-portrait-05.webp"
       },
       {
         "title": "Fællessang",
         "start": 396,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/koege-2025/segment-landscape-06.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/koege-2025/segment-portrait-06.webp"
       }
     ],
     "previousSlugs": []
