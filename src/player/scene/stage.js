@@ -94,9 +94,10 @@ function edgeFadeTexture() {
 
 /* ---------- BACKDROP SHADER ---------- */
 
-// Two photos, so a new one can cross-fade over the old one. Each has its own scale so a photo of
-// any shape covers the plane (like object-fit: cover). A few fixed-point steps find which pixel ends
-// up where after the shift, which keeps edges from smearing.
+// Two photos, so a new one can cross-fade over the old one. The plane has the view's shape, and each
+// photo has its own scale and offset so a photo of any shape covers it (like object-fit: cover, slid
+// towards the focus point). A few fixed-point steps find which pixel ends up where after the shift,
+// which keeps edges from smearing.
 const backdropShader = {
     vertexShader: `
         varying vec2 vUv;
@@ -106,7 +107,7 @@ const backdropShader = {
         }`,
     fragmentShader: `
         uniform sampler2D uMapA, uMapB, uFade;
-        uniform vec2 uScaleA, uScaleB, uShift;
+        uniform vec2 uScaleA, uScaleB, uOffsetA, uOffsetB, uShift;
         uniform float uMix, uOpacity, uMono;
         varying vec2 vUv;
 
@@ -115,16 +116,16 @@ const backdropShader = {
             return pow(clamp(1.0 - uv.y, 0.0, 1.0), 1.7) * 0.8;
         }
 
-        vec3 sampleShifted(sampler2D map, vec2 scale) {
-            vec2 base = (vUv - 0.5) * scale + 0.5;
+        vec3 sampleShifted(sampler2D map, vec2 scale, vec2 offset) {
+            vec2 base = (vUv - 0.5) * scale + 0.5 + offset;
             vec2 uv = base;
             for (int i = 0; i < 4; i++) uv = base + uShift * nearness(uv);
             return texture2D(map, uv).rgb;
         }
 
         void main() {
-            vec3 a = sampleShifted(uMapA, uScaleA);
-            vec3 b = uMix > 0.0 ? sampleShifted(uMapB, uScaleB) : a;
+            vec3 a = sampleShifted(uMapA, uScaleA, uOffsetA);
+            vec3 b = uMix > 0.0 ? sampleShifted(uMapB, uScaleB, uOffsetB) : a;
             vec3 colour = mix(a, b, uMix);
             float grey = dot(colour, vec3(0.299, 0.587, 0.114));
             gl_FragColor = vec4(mix(colour, vec3(grey), uMono), texture2D(uFade, vUv).g * uOpacity);
@@ -181,8 +182,8 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     /* ---------- BACKDROP ---------- */
 
     const uniforms = {
-        uMapA: { value: null }, uScaleA: { value: new THREE.Vector2(1, 1) },
-        uMapB: { value: null }, uScaleB: { value: new THREE.Vector2(1, 1) },
+        uMapA: { value: null }, uScaleA: { value: new THREE.Vector2(1, 1) }, uOffsetA: { value: new THREE.Vector2() },
+        uMapB: { value: null }, uScaleB: { value: new THREE.Vector2(1, 1) }, uOffsetB: { value: new THREE.Vector2() },
         uMix: { value: 0 },
         uOpacity: { value: 0 },
         uMono: { value: mono ? 1 : 0 },
@@ -196,7 +197,11 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     backdrop.renderOrder = -1;
     scene.add(backdrop);
 
-    let planeAspect = null;            // set by the first photo
+    // The plane follows the view (fit), not the photo, so a photo of another shape (portrait after
+    // landscape, a chapter without a photo of its own showing the cover) is cropped no more than the
+    // view needs, whichever photo came first
+    let planeAspect = 1;
+    const photoAspect = { A: null, B: null };
     let fading = false;
     const loader = new THREE.TextureLoader().setCrossOrigin('anonymous');
     const loadTexture = (url) => new Promise((resolve) => {
@@ -204,10 +209,15 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
         loader.load(url, resolve, undefined, () => resolve(null));   // a photo that can't load keeps the one before
     });
 
-    /** Cover-fit scale for a photo of this aspect on the plane */
-    const coverScale = (aspect) => (aspect > planeAspect
-        ? new THREE.Vector2(planeAspect / aspect, 1)
-        : new THREE.Vector2(1, aspect / planeAspect));
+    /** Photo A or B covering the plane: its scale, and on narrow screens slid so the focus point is in view */
+    const cover = (k) => {
+        const aspect = photoAspect[k], scale = uniforms[`uScale${k}`].value;
+        if (!aspect) return;
+        if (aspect > planeAspect) scale.set(planeAspect / aspect, 1);
+        else scale.set(1, aspect / planeAspect);
+        const slack = (1 - scale.x) / 2;
+        uniforms[`uOffset${k}`].value.set(camera.aspect < 1 ? THREE.MathUtils.clamp(focus - 0.5, -slack, slack) : 0, 0);
+    };
 
     let latest = 0;
     /** Show a photo; cross-fades from the one before */
@@ -219,17 +229,17 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
         const aspect = map.image.width / map.image.height;
 
         if (!uniforms.uMapA.value) {
-            planeAspect = aspect;
-            fit();
-            Object.assign(uniforms.uMapA, { value: map });
-            uniforms.uScaleA.value = coverScale(aspect);
+            uniforms.uMapA.value = map;
+            photoAspect.A = aspect;
+            cover('A');
             return;
         }
 
         // A cross-fade still running finishes instantly, then the new photo fades in over it
         if (fading) settle();
         uniforms.uMapB.value = map;
-        uniforms.uScaleB.value = coverScale(aspect);
+        photoAspect.B = aspect;
+        cover('B');
         uniforms.uMix.value = 0;
         fading = true;
     };
@@ -237,8 +247,12 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     /** Make B the current photo */
     const settle = () => {
         uniforms.uMapA.value?.dispose();
-        for (const k of ['Map', 'Scale']) uniforms[`u${k}A`].value = uniforms[`u${k}B`].value;
+        uniforms.uMapA.value = uniforms.uMapB.value;
+        uniforms.uScaleA.value.copy(uniforms.uScaleB.value);
+        uniforms.uOffsetA.value.copy(uniforms.uOffsetB.value);
+        photoAspect.A = photoAspect.B;
         uniforms.uMapB.value = null;
+        photoAspect.B = null;
         uniforms.uMix.value = 0;
         fading = false;
     };
@@ -277,7 +291,6 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
 
     /** Hang the photo along the camera's view, big enough to cover the view while it drifts */
     const fit = () => {
-        if (!planeAspect) return;
         const from = lookAt.clone().addScaledVector(baseDirection, distance);
         backdrop.position.copy(from).addScaledVector(baseDirection, -(distance + BACKDROP_DISTANCE));
         backdrop.position.y -= 0.6;   // a bit low, for more sky
@@ -290,14 +303,10 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
         // looks fine and keeps the photo from being enlarged more than needed
         const needW = viewW + 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_X) * 0.6;
         const needH = viewH + 2 * BACKDROP_DISTANCE * Math.tan(MAX_ORBIT_Y) * 0.5;
-        const height = Math.max(needW / planeAspect, needH);
-        backdrop.scale.set(height * planeAspect, height, 1);
-
-        // Narrow screens only see a slice of a wide photo: slide it so the focus point is in it
-        if (camera.aspect < 1) {
-            const slack = Math.max(0, (backdrop.scale.x - needW) / 2);
-            backdrop.translateX(-THREE.MathUtils.clamp((focus - 0.5) * backdrop.scale.x, -slack, slack));
-        }
+        backdrop.scale.set(needW, needH, 1);
+        planeAspect = needW / needH;
+        cover('A');
+        cover('B');
     };
 
     const resize = () => {
