@@ -262,38 +262,38 @@
       {
         "title": "Tyskerhavnen",
         "start": 0,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-landscape-01.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-portrait-01.webp"
       },
       {
         "title": "Fjord og hav",
         "start": 60,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-landscape-02.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-portrait-02.webp"
       },
       {
         "title": "Sand, legende børn og jernaffald",
         "start": 140,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-landscape-03.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-portrait-03.webp"
       },
       {
         "title": "Profiler af en by",
         "start": 268,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-landscape-04.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-portrait-04.webp"
       },
       {
         "title": "Mager er jorden",
         "start": 315,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-landscape-05.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-portrait-05.webp"
       },
       {
         "title": "Ingen forbindelse",
         "start": 400,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-landscape-06.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/hvide-sande-2026/segment-portrait-06.webp"
       }
     ],
     "previousSlugs": []
