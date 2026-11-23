@@ -77,10 +77,23 @@ export default function CountdownPlayer() {
 
     /* ---------- THE CABIN (with the model) ---------- */
 
+    /** Ride number i: odd variations (even i) go from the hospital (0) to the hotel (1), even ones back */
+    const rideFor = (i) => {
+        const side = i % 2 === 0 ? 0 : 1;
+        const t = tracks[i];
+        return {
+            file: t.file, from: side, to: 1 - side, hidden: false,
+            count: from, delay, tempo: t.tempo, stopAt: t.stopAt ?? 0, weather: t.weather ?? null, reached: 0,
+        };
+    };
+
     // Where the cabin stands along the track (0 = the hospital, 1 = the other side), the ride it is
-    // on, and the audio's clock as last heard, so the scene can move it smoothly between time updates
-    const where = useRef(0);
-    const ride = useRef(null);
+    // on, and the audio's clock as last heard, so the scene can move it smoothly between time updates.
+    // Built again during a ride (after the overview of works, which takes the interface's place), it
+    // picks the ride up from the sound; after one, the cabin stands where that ride ended
+    const ride = useRef(undefined);
+    if (ride.current === undefined) ride.current = on ? rideFor(loaded) : null;
+    const where = useRef(loaded < 0 ? 0 : on ? rideFor(loaded).from : rideFor(loaded).to);
     const clock = useRef({ file: null, time: 0, stamp: 0, playing: false });
     useEffect(() => {
         clock.current = { file: currentFile, time: currentTime, stamp: performance.now(), playing: isPlaying };
@@ -117,6 +130,12 @@ export default function CountdownPlayer() {
         setResting(true);
         const rest = setTimeout(() => setResting(false), 1000);
         const r = ride.current;
+        // The ride is over: the cabin has got as far as it goes, also if nothing drew it on the way
+        // (a hidden tab, a closed player: the scene stops drawing, and the sound's time is 0 again now)
+        if (r) {
+            r.reached = (r.count - r.stopAt) / r.count;
+            where.current = r.from + (r.to - r.from) * r.reached;
+        }
         if (!model || !r?.stopAt) return () => clearTimeout(rest);
         setResetting(true);
         const back = setTimeout(() => {
@@ -135,14 +154,10 @@ export default function CountdownPlayer() {
         if (riding || resetting || resting) return;
         if (paused) return play();
         const next = tracks[nextIndex];
-        // Odd variations go from the hospital (0) to the hotel (1), even ones back. When the cabin
-        // stands at the other end (a variation was picked), fade while it is moved there
-        const side = nextIndex % 2 === 0 ? 0 : 1;
+        // When the cabin stands at the other end (a variation was picked), fade while it is moved there
+        const side = rideFor(nextIndex).from;
         const move = model && Math.abs(where.current - side) > 0.01;
-        ride.current = {
-            file: next.file, from: side, to: 1 - side, hidden: move,
-            count: from, delay, tempo: next.tempo, stopAt: next.stopAt ?? 0, weather: next.weather ?? null, reached: 0,
-        };
+        ride.current = { ...rideFor(nextIndex), hidden: move };
         if (move) {
             const r = ride.current;
             setResetting(true);
