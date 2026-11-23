@@ -513,92 +513,92 @@
       {
         "title": "Angreb på ubåde",
         "start": 0,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-01.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-01.webp"
       },
       {
         "title": "Indkvartering",
         "start": 126,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-02.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-02.webp"
       },
       {
         "title": "Træning",
         "start": 240,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-03.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-03.webp"
       },
       {
         "title": "\"Kommunikation I\"",
         "start": 346,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-04.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-04.webp"
       },
       {
         "title": "\"Kommunikation II\"",
         "start": 380,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-05.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-05.webp"
       },
       {
         "title": "Skydetræning",
         "start": 503.5,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-06.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-06.webp"
       },
       {
         "title": "\"Langsom march I\"",
         "start": 540.1,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-07.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-07.webp"
       },
       {
         "title": "\"March I\"",
         "start": 604.2,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-08.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-08.webp"
       },
       {
         "title": "FUT",
         "start": 653,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-09.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-09.webp"
       },
       {
         "title": "\"Langsom march II\"",
         "start": 695.2,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-10.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-10.webp"
       },
       {
         "title": "Morgenstund",
         "start": 828,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-11.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-11.webp"
       },
       {
         "title": "\"March II\"",
         "start": 878,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-12.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-12.webp"
       },
       {
         "title": "Kommandanten",
         "start": 904,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-13.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-13.webp"
       },
       {
         "title": "\"March III\"",
         "start": 930.2,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-14.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-14.webp"
       },
       {
         "title": "Kontoret",
         "start": 1009,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/fredericia-2025/segment-landscape-15.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/fredericia-2025/segment-portrait-15.webp"
       }
     ],
     "previousSlugs": []
