@@ -23,6 +23,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { pixelRatio, vignetteMask, fadeIn } from '@/player/kit/style';
+import { frameLoop } from '@/player/scene/loop';
 import { buildTownMap, alongLine } from '@/player/kit/townmap';
 import { pathLines } from '@/player/kit/roads';
 import { createSpeaker } from '@/player/interfaces/street/speaker';
@@ -182,10 +183,9 @@ export default function StreetScene({ data, speakers, stops, sounding, onMove, w
         const focus = new THREE.Vector2(...path.at(walk.s));
         const facing = new THREE.Vector2(...path.direction(walk.s, 30));
         const here = new THREE.Vector2(), ahead = new THREE.Vector2();
-        let frame, last = performance.now(), t = 0, reported = { s: -1, at: 0 };
+        let last = performance.now(), t = 0, reported = { s: -1, at: 0 };
 
         const tick = (time) => {
-            frame = requestAnimationFrame(tick);
             const dt = Math.min((time - last) / 1000, 0.1);
             last = time;
             t += dt;
@@ -216,11 +216,11 @@ export default function StreetScene({ data, speakers, stops, sounding, onMove, w
                 state.current.onMove({ s: walk.s, f: (walk.s - w0) / (w1 - w0) });
             }
         };
-        frame = requestAnimationFrame(tick);
+        const stopLoop = frameLoop(container, tick);   // only while the street is on the screen
         fadeIn(canvas);   // the way into the room: a toning (STIL.md)
 
         return () => {
-            cancelAnimationFrame(frame);
+            stopLoop();
             if (walkRef) walkRef.current = null;
             resizeObserver.disconnect();
             canvas.removeEventListener('wheel', onWheel);

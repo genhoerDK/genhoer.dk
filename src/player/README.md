@@ -108,11 +108,18 @@ følger musen eller en finger. Dybdekortene ligger i `public/depth/<mappe>/<navn
 foto afspilleren viser, lavet med `scripts/depth-map.py` (Depth Anything V2). Et foto uden dybdekort
 får et gæt: det nederste er nær, det øverste fjernt.
 
+**Kun når den ses.** Et værks interface bygges først, når afspilleren åbnes på det (`Player.js`), og
+bliver stående, når den lukkes, så en tur eller en gåtur fortsætter, hvor den var. En lukket afspiller
+ligger lige under skærmen, og der tegner en 3D-scene ikke: `scene/loop.js` (`frameLoop`) holder
+billederne an, til scenen er på skærmen igen. Tasterne hører også kun til afspilleren, mens den er
+åben (`keyIsTaken`). Alt, en scene viser, skal derfor regnes ud fra lyden, ikke fra hvor længe scenen
+har tegnet: den kan have holdt pause et stykke tid, eller være bygget på ny midt i et værk.
+
 ## Et nyt interface
 
 1. En mappe i `interfaces/` med en komponent, der bruger `PlayerShell`, `Controls` og `useAudio()`
    (og `useEngineState()` for en motor). Intet, der hører til ét bestemt værk: et værks scene
-   findes gennem `vaerker/scenes.js`. Tastatur: lad `keyIsTaken(e)` afgøre, hvad der ikke skal røres.
+   findes gennem `vaerker/scenes.js`. Tastatur: lad `keyIsTaken(e)` afgøre, hvad der ikke skal røres. En 3D-scene tegner med `frameLoop`.
 2. En linje i `interfaces/registry.js` og i `interfaces/index.js`.
 3. Skal det have sin egen lyd, en klasse i `audio/` og en linje i `audio/engines.js`.
 
