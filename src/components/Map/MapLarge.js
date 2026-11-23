@@ -3,7 +3,6 @@
 import { useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import * as d3 from "d3";
-import { projects } from "@/data/projects";
 import { getProjectsByStatus } from "@/utilities/projectsByStatus";
 import { loadKommuner, drawMap, highlightProject, resetHighlight, ZOOM_SCALE, HIGHLIGHT_DELAY, DURATION } from "@/components/Map/mapDrawing";
 
@@ -13,7 +12,7 @@ export default function MapLarge({ setActiveProject, onMarkerNavigate }) {
     const router = useRouter();
 
     useEffect(() => {
-        const { upcoming, opened } = getProjectsByStatus(projects);
+        const { upcoming, opened } = getProjectsByStatus();
         let geoData = null;
 
         const renderMap = () => {

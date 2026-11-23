@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import * as d3 from "d3";
-import { projects } from "@/data/projects";
 import { getProjectsByStatus } from "@/utilities/projectsByStatus";
 import { loadKommuner, drawMap, highlightProject, resetHighlight, ZOOM_SCALE, MARKER_RADIUS, MARKER_STROKE_WIDTH, DURATION } from "@/components/Map/mapDrawing";
 
@@ -20,7 +19,7 @@ export default function MapSmall({ activeProject, setActiveProject }) {
     }, [activeProject]);
 
     useEffect(() => {
-        const { upcoming, opened } = getProjectsByStatus(projects);
+        const { upcoming, opened } = getProjectsByStatus();
         let geoData = null;
 
         const renderMap = () => {
