@@ -8,11 +8,16 @@
 // Whatever covers the header's middle wins; when several do, the last in the page wins (the
 // overlays come after the page). Nothing marked under the header: the usual solid header.
 //
-// Returns 'light', 'dark' or null (solid).
+// Returns { tone, snap }: tone is 'light', 'dark' or null (solid). snap is true just after a new page
+// has come in: the header then changes in the same frame as the page, without fading, so it doesn't
+// look like it is still loading. Scrolling and the overlays fade as usual.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
-const PROBE_Y = 20;   // px from the top: the middle of the 40 px header
+const PROBE_Y = 20;    // px from the top: the middle of the 40 px header
+const SNAP_MS = 150;   // how long after a page change the header follows without fading (Next.js scrolls
+                       // the new page to the top just after it has come in)
 
 function underHeader() {
     let tone = null;
@@ -24,7 +29,17 @@ function underHeader() {
 }
 
 export function useChrome() {
+    const pathname = usePathname();
     const [tone, setTone] = useState(null);
+    const [snap, setSnap] = useState(true);
+
+    // A new page (and the first one): read it before it is drawn
+    useLayoutEffect(() => {
+        setSnap(true);
+        setTone(underHeader());
+        const timer = setTimeout(() => setSnap(false), SNAP_MS);
+        return () => clearTimeout(timer);
+    }, [pathname]);
 
     useEffect(() => {
         let frame;
@@ -32,7 +47,6 @@ export function useChrome() {
             cancelAnimationFrame(frame);
             frame = requestAnimationFrame(() => setTone(underHeader()));
         };
-        update();
 
         // Scrolling, resizing, overlays sliding in and out, and pages / overlays changing
         window.addEventListener('scroll', update, { passive: true });
@@ -50,5 +64,5 @@ export function useChrome() {
         };
     }, []);
 
-    return tone;
+    return { tone, snap };
 }

@@ -8,11 +8,12 @@ import { useChrome } from "@/hooks/useChrome";
 // The logo is not a heading: each page sets its own <h1>.
 // See-through, in light or dark, over parts of the page that ask for it (useChrome)
 export default function Header() {
-    const tone = useChrome();
+    const { tone, snap } = useChrome();
 
     return (
         <header
             data-chrome={tone ?? undefined}
+            style={snap ? { transitionDuration: '0ms' } : undefined}
             className={`fixed top-0 inset-x-0 h-10 px-gutter z-20 text-chrome transition-chrome ${tone ? 'bg-transparent' : 'bg-paper'}`}
         >
             <nav className="flex items-center justify-between h-full">
