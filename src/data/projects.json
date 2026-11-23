@@ -750,68 +750,68 @@
       {
         "title": "Isefjorden og Buena Vista",
         "start": 0,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-01.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-01.webp"
       },
       {
         "title": "Efterår",
         "start": 165,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-02.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-02.webp"
       },
       {
         "title": "Tidsrejse",
         "start": 228,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-03.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-03.webp"
       },
       {
         "title": "Jazzklub",
         "start": 326,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-04.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-04.webp"
       },
       {
         "title": "Her i Østre Anlæg",
         "start": 410,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-05.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-05.webp"
       },
       {
         "title": "Forårskomsammen",
         "start": 502,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-06.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-06.webp"
       },
       {
         "title": "Vi er mange unge i Holbæk",
         "start": 604,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-07.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-07.webp"
       },
       {
         "title": "Oprør",
         "start": 756,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-08.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-08.webp"
       },
       {
         "title": "Isoleret i offentligheden",
         "start": 835,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-09.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-09.webp"
       },
       {
         "title": "Ahlgade",
         "start": 1026,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-10.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-10.webp"
       },
       {
         "title": "Holbæks kommunale modborgerhus",
         "start": 1120,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/holbaek-2025/segment-landscape-11.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/holbaek-2025/segment-portrait-11.webp"
       }
     ],
     "previousSlugs": []
