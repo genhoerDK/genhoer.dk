@@ -30,7 +30,6 @@ src/player/
     tvaerveje/         player.js; kortet over Nakskov (nakskov.js)
     troldetoner/       player.js; instrumentet (instrument.js)
     kirkestraede/      Køge omkring gaden fra OpenStreetMap (koege.js), til gade-interfacet
-    grindsted-station/   player.js
     files.js           cdn() og placeholder()
     scenes.js maps.js instruments.js streets.js   Finder et værks scene, kort, instrument og gade ud fra navnet
   scene/               Scenen alle 3D-interfaces står på: kamera og lys (stage.js), fotoet med
@@ -52,8 +51,13 @@ samler dem og lægger et `player`-objekt på projektet fra genhoer-data (`projec
 export const player = { interface: 'walk', map: 'nakskov', places: [...], characters: [...] };
 ```
 
-Et værk med en lydfil (`audio` fra genhoer-data) og ingen linje her får **tidslinjen**. Et værk uden
-lyd får ingen afspiller. Lydfiler, der endnu ikke ligger på CDN'et, skrives som
+Et værk med en lydfil (`audio` fra genhoer-data) og ingen linje her får **tidslinjen**. Lydfilen, artwork til
+låseskærmen og kapitlerne (`segments`: titel, start og et billede i landskab og portræt) sættes i dashboardets
+medievindue Lyd og kommer med `projects.json`. Tidslinjen viser kapitlets portræt op til 768 px bredde og ellers
+landskabet, samme grænse som coverbillederne (`interfaces/timeline/TimelinePlayer.js`); et kapitel uden billede viser
+coveret. Et værk med sin egen linje her og et andet interface end tidslinjen spiller sine egne filer, så lydfil og
+kapitler fra genhoer-data gælder ikke for det, og `/afspillere.json` (`src/app/afspillere.json/route.js`) fortæller
+dashboardet, hvilke værker det er. Et værk uden lyd får ingen afspiller. Lydfiler, der endnu ikke ligger på CDN'et, skrives som
 `placeholder:<navn>?s=<sekunder>&seed=<tal>` og syntetiseres i browseren (`placeholder()` i `vaerker/files.js`, `audio/placeholder.js`);
 byt strengen ud med filens URL, og intet andet ændrer sig.
 

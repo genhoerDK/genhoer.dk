@@ -17,13 +17,14 @@
 // description          Paragraphs on the project page. The last one is also the search engine description
 // coverImage*/coverVideo  Images/video for page background (portrait/landscape), cards and hover video
 // media                Full URLs shown in the gallery. The 4th file becomes the big tile and the 11th the wide tile
+// audio                The sound work, when it is one file (set in the dashboard's media window Lyd); null = none
+// artwork              Lock screen image while playing (null = public/fallback-artwork.jpg)
+// segments             The chapters on the player's timeline: [{ title, start (seconds), imageLandscape,
+//                      imagePortrait }] or null. The images are segment-landscape-NN.webp and
+//                      segment-portrait-NN.webp, or null (the player shows the cover)
 // Not from genhoer-data, laid over here:
-// audio, artwork, segments   src/data/media.js: the sound file, the lock screen image while playing
-//                      (null = public/fallback-artwork.jpg) and the chapters (start in seconds)
-// player               How the work is played: src/player/players.js
-//                      ({ interface, files, ... } or null; a chapter may get an imageLandscape)
+// player               How the work is played: src/player/players.js ({ interface, files, ... } or null)
 import data from './projects.json';
-import { withMedia } from './media';
 import { withPlayer } from '@/player/players';
 
-export const projects = data.map((p) => withPlayer(withMedia(p)));
+export const projects = data.map(withPlayer);

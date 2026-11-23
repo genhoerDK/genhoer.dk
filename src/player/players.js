@@ -5,8 +5,11 @@
 // it (an `afspiller` block under hjemmeside in the project file), the settings live in each work's
 // own folder, src/player/vaerker/<slug>/player.js, and are gathered here.
 //
-// A work with an audio file (audio in src/data/media.js) and no entry in players gets the timeline. A
-// work with neither has no player.
+// A work with an audio file (audio from genhoer-data, set in the dashboard's media window Lyd) and no entry in
+// players gets the timeline, with its segments (chapters) from genhoer-data too. A work with neither has no player.
+// A work with its own interface plays the files in its player.js: a sound file and segments from genhoer-data
+// don't apply to it (the dashboard doesn't offer them; it reads which works these are from /afspillere.json,
+// src/app/afspillere.json/route.js).
 //
 //   interface          One of src/player/interfaces/registry.js:
 //                      timeline (default) · buttons · loop · countdown · walk · quad · street
@@ -16,14 +19,13 @@
 // Files on the CDN and placeholder sound: cdn() and placeholder() in src/player/vaerker/files.js.
 // Placeholder photos are the works' gallery images.
 
-import { player as grindsted_station } from '@/player/vaerker/grindsted-station/player';
+import { DEFAULT_INTERFACE } from '@/player/interfaces/registry';
 import { player as troldetoner } from '@/player/vaerker/troldetoner/player';
 import { player as w53_sekunder_til_faelles } from '@/player/vaerker/53-sekunder-til-faelles/player';
 import { player as tvaerveje } from '@/player/vaerker/tvaerveje/player';
 import { player as kanon_i_g3 } from '@/player/vaerker/kanon-i-g3/player';
 
 export const players = {
-    'grindsted-station': grindsted_station,
     'troldetoner': troldetoner,
     '53-sekunder-til-faelles': w53_sekunder_til_faelles,
     'tvaerveje': tvaerveje,
@@ -40,16 +42,12 @@ function filesOf(player) {
 /** The project with its player laid over it: project.player = { interface, files, ... } or null */
 export function withPlayer(project) {
     const settings = players[project.slug];
-    if (!settings && !project.audio) return { ...project, player: null };
+    // Its own interface: its own files, and no sound file or segments from genhoer-data
+    const p = settings && (settings.interface ?? DEFAULT_INTERFACE) !== DEFAULT_INTERFACE ? { ...project, audio: null, segments: null } : project;
+    if (!settings && !p.audio) return { ...p, player: null };
 
-    const player = { interface: 'timeline', ...settings };
-    player.files = project.audio ? [project.audio] : filesOf(player);
+    const player = { interface: DEFAULT_INTERFACE, ...settings };
+    player.files = p.audio ? [p.audio] : filesOf(player);
 
-    // Each chapter also has a landscape photo, named like its square one with
-    // "segment-" → "segment-landscape-" (segment-01.webp → segment-landscape-01.webp)
-    const segments = player.landscapeSegments && project.segments
-        ? project.segments.map((s) => ({ ...s, imageLandscape: s.image?.replace(/\/segment-(?=[^/]+$)/, '/segment-landscape-') }))
-        : project.segments;
-
-    return { ...project, player, segments };
+    return { ...p, player };
 }
