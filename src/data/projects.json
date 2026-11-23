@@ -37,6 +37,9 @@
     "coverImageSmall": "https://cdn.genhoer.dk/media/naestved-2026/cover-image-small.webp",
     "coverVideo": null,
     "media": null,
+    "audio": null,
+    "artwork": null,
+    "segments": null,
     "previousSlugs": [
       "naestved"
     ]
@@ -90,6 +93,9 @@
       "https://cdn.genhoer.dk/media/kolding-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/kolding-2026/image-07.webp"
     ],
+    "audio": null,
+    "artwork": null,
+    "segments": null,
     "previousSlugs": [
       "kolding"
     ]
@@ -144,6 +150,9 @@
       "https://cdn.genhoer.dk/media/nakskov-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/nakskov-2026/image-07.webp"
     ],
+    "audio": null,
+    "artwork": null,
+    "segments": null,
     "previousSlugs": []
   },
   {
@@ -194,6 +203,9 @@
       "https://cdn.genhoer.dk/media/viborg-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/viborg-2026/image-07.webp"
     ],
+    "audio": null,
+    "artwork": null,
+    "segments": null,
     "previousSlugs": []
   },
   {
@@ -243,6 +255,46 @@
       "https://cdn.genhoer.dk/media/hvide-sande-2026/image-06.webp",
       "https://cdn.genhoer.dk/media/hvide-sande-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/hvide-sande-2026/image-07.webp"
+    ],
+    "audio": "https://cdn.genhoer.dk/media/hvide-sande-2026/track-v1.mp3",
+    "artwork": null,
+    "segments": [
+      {
+        "title": "Tyskerhavnen",
+        "start": 0,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Fjord og hav",
+        "start": 60,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Sand, legende børn og jernaffald",
+        "start": 140,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Profiler af en by",
+        "start": 268,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Mager er jorden",
+        "start": 315,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Ingen forbindelse",
+        "start": 400,
+        "imageLandscape": null,
+        "imagePortrait": null
+      }
     ],
     "previousSlugs": []
   },
@@ -294,6 +346,9 @@
       "https://cdn.genhoer.dk/media/odsherred-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/odsherred-2026/image-07.webp"
     ],
+    "audio": null,
+    "artwork": null,
+    "segments": null,
     "previousSlugs": []
   },
   {
@@ -345,6 +400,9 @@
       "https://cdn.genhoer.dk/media/bornholm-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/bornholm-2026/image-07.webp"
     ],
+    "audio": null,
+    "artwork": null,
+    "segments": null,
     "previousSlugs": []
   },
   {
@@ -396,6 +454,9 @@
       "https://cdn.genhoer.dk/media/esbjerg-2026/video-02.mp4",
       "https://cdn.genhoer.dk/media/esbjerg-2026/image-07.webp"
     ],
+    "audio": null,
+    "artwork": null,
+    "segments": null,
     "previousSlugs": []
   },
   {
@@ -446,6 +507,100 @@
       "https://cdn.genhoer.dk/media/fredericia-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/fredericia-2025/image-07.webp"
     ],
+    "audio": "https://cdn.genhoer.dk/media/fredericia-2025/track-v1.mp3",
+    "artwork": "https://cdn.genhoer.dk/media/fredericia-2025/artwork.jpg",
+    "segments": [
+      {
+        "title": "Angreb på ubåde",
+        "start": 0,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Indkvartering",
+        "start": 126,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Træning",
+        "start": 240,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "\"Kommunikation I\"",
+        "start": 346,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "\"Kommunikation II\"",
+        "start": 380,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Skydetræning",
+        "start": 503.5,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "\"Langsom march I\"",
+        "start": 540.1,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "\"March I\"",
+        "start": 604.2,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "FUT",
+        "start": 653,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "\"Langsom march II\"",
+        "start": 695.2,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Morgenstund",
+        "start": 828,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "\"March II\"",
+        "start": 878,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Kommandanten",
+        "start": 904,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "\"March III\"",
+        "start": 930.2,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Kontoret",
+        "start": 1009,
+        "imageLandscape": null,
+        "imagePortrait": null
+      }
+    ],
     "previousSlugs": []
   },
   {
@@ -495,6 +650,46 @@
       "https://cdn.genhoer.dk/media/koege-2025/image-06.webp",
       "https://cdn.genhoer.dk/media/koege-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/koege-2025/image-07.webp"
+    ],
+    "audio": "https://cdn.genhoer.dk/media/koege-2025/track-v1.mp3",
+    "artwork": "https://cdn.genhoer.dk/media/koege-2025/artwork.jpg",
+    "segments": [
+      {
+        "title": "Bødkermester Reerslev",
+        "start": 0,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Enkefru Ahlers, Hr. Svendsen og Pastoren",
+        "start": 90,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Anton og tøndebåndet",
+        "start": 165,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Fingerpolka i avistrykkeriet",
+        "start": 200,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Smedjen",
+        "start": 272,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Fællessang",
+        "start": 396,
+        "imageLandscape": null,
+        "imagePortrait": null
+      }
     ],
     "previousSlugs": []
   },
@@ -549,6 +744,76 @@
       "https://cdn.genhoer.dk/media/holbaek-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/holbaek-2025/image-07.webp"
     ],
+    "audio": "https://cdn.genhoer.dk/media/holbaek-2025/track-v1.mp3",
+    "artwork": "https://cdn.genhoer.dk/media/holbaek-2025/artwork.jpg",
+    "segments": [
+      {
+        "title": "Isefjorden og Buena Vista",
+        "start": 0,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Efterår",
+        "start": 165,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Tidsrejse",
+        "start": 228,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Jazzklub",
+        "start": 326,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Her i Østre Anlæg",
+        "start": 410,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Forårskomsammen",
+        "start": 502,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Vi er mange unge i Holbæk",
+        "start": 604,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Oprør",
+        "start": 756,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Isoleret i offentligheden",
+        "start": 835,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Ahlgade",
+        "start": 1026,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Holbæks kommunale modborgerhus",
+        "start": 1120,
+        "imageLandscape": null,
+        "imagePortrait": null
+      }
+    ],
     "previousSlugs": []
   },
   {
@@ -600,6 +865,40 @@
       "https://cdn.genhoer.dk/media/faaborg-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/faaborg-2025/image-07.webp"
     ],
+    "audio": "https://cdn.genhoer.dk/media/faaborg-2025/track-v1.mp3",
+    "artwork": "https://cdn.genhoer.dk/media/faaborg-2025/artwork.jpg",
+    "segments": [
+      {
+        "title": "Udvikling",
+        "start": 0,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Arbejde",
+        "start": 379,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Maskiner I",
+        "start": 648,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Stemmer",
+        "start": 895,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Maskiner II",
+        "start": 1137,
+        "imageLandscape": null,
+        "imagePortrait": null
+      }
+    ],
     "previousSlugs": []
   },
   {
@@ -648,6 +947,40 @@
       "https://cdn.genhoer.dk/media/haderslev-2025/image-06.webp",
       "https://cdn.genhoer.dk/media/haderslev-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/haderslev-2025/image-07.webp"
+    ],
+    "audio": "https://cdn.genhoer.dk/media/haderslev-2025/track-v1.mp3",
+    "artwork": "https://cdn.genhoer.dk/media/haderslev-2025/artwork.jpg",
+    "segments": [
+      {
+        "title": "Huset opføres af Philip af Neuss",
+        "start": 0,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Torstenssonfejden og plettyfys-epidemi",
+        "start": 150,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Hestevogne og herberg",
+        "start": 295,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Treårskrigen og Hans Nielsens krigsvise",
+        "start": 450,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Industrialisering, arbejdere og de mange børn",
+        "start": 602,
+        "imageLandscape": null,
+        "imagePortrait": null
+      }
     ],
     "previousSlugs": []
   },
@@ -700,6 +1033,64 @@
       "https://cdn.genhoer.dk/media/vordingborg-2025/video-02.mp4",
       "https://cdn.genhoer.dk/media/vordingborg-2025/image-07.webp"
     ],
+    "audio": "https://cdn.genhoer.dk/media/vordingborg-2025/track-v1.mp3",
+    "artwork": "https://cdn.genhoer.dk/media/vordingborg-2025/artwork.jpg",
+    "segments": [
+      {
+        "title": "Frihed under ansvar",
+        "start": 0,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Sådan var det jo dengang",
+        "start": 74,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Kiosk, billetter, støj og damp",
+        "start": 101,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Eksport af tømmer",
+        "start": 166,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Devantiers ankomst",
+        "start": 250,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Når soldaterne skulle hjem",
+        "start": 318,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Det gik stille og roligt ned",
+        "start": 415,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Nogen til kasernen?",
+        "start": 442,
+        "imageLandscape": null,
+        "imagePortrait": null
+      },
+      {
+        "title": "Man vænner sig til alting",
+        "start": 523.5,
+        "imageLandscape": null,
+        "imagePortrait": null
+      }
+    ],
     "previousSlugs": []
   },
   {
@@ -749,6 +1140,40 @@
       "https://cdn.genhoer.dk/media/grindsted-2024/image-06.webp",
       "https://cdn.genhoer.dk/media/grindsted-2024/video-02.mp4",
       "https://cdn.genhoer.dk/media/grindsted-2024/image-07.webp"
+    ],
+    "audio": "https://cdn.genhoer.dk/media/grindsted-2024/track-v1.mp3",
+    "artwork": "https://cdn.genhoer.dk/media/grindsted-2024/artwork.jpg",
+    "segments": [
+      {
+        "title": "Ankomst",
+        "start": 0,
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-01.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/grindsted-2024/segment-portrait-01.webp"
+      },
+      {
+        "title": "Godshåndtering",
+        "start": 154,
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-02.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/grindsted-2024/segment-portrait-02.webp"
+      },
+      {
+        "title": "Togfløjtesynth",
+        "start": 310,
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-03.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/grindsted-2024/segment-portrait-03.webp"
+      },
+      {
+        "title": "Ventetid",
+        "start": 426,
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-04.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/grindsted-2024/segment-portrait-04.webp"
+      },
+      {
+        "title": "Afgang",
+        "start": 548,
+        "imageLandscape": "https://cdn.genhoer.dk/media/grindsted-2024/segment-landscape-05.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/grindsted-2024/segment-portrait-05.webp"
+      }
     ],
     "previousSlugs": []
   }
