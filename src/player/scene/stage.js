@@ -17,6 +17,7 @@
 import * as THREE from 'three';
 import { colors } from '@/styles/colors';
 import { pixelRatio, fadeIn } from '@/player/kit/style';
+import { frameLoop } from '@/player/scene/loop';
 
 const BACKDROP_DISTANCE = 14;         // photo's distance behind the focus point
 const MAX_ORBIT_X = 0.16;             // camera drift sideways (pointer + by itself), radians
@@ -360,10 +361,10 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
     const sideways = new THREE.Vector3();
     let last = performance.now();
     let t = 0;
-    let frame;
+    let stopLoop = null;
 
+    // Only while the stage is on the screen (scene/loop.js)
     const tick = () => {
-        frame = requestAnimationFrame(tick);
         const now = performance.now();
         const elapsed = (now - last) / 1000;      // wall time, for the fades
         const dt = Math.min(elapsed, 0.05);       // capped, for the motion (no jumps after a stall)
@@ -413,12 +414,12 @@ export function createStage(container, { focus = 0.5, smoke: smokeLevel = 1, mon
         start() {
             resizeObserver.observe(container);
             resize();
-            tick();
+            stopLoop = frameLoop(container, tick);
             fadeIn(canvas);   // the way into the room: a toning (STIL.md)
         },
         dispose() {
             disposed = true;
-            cancelAnimationFrame(frame);
+            stopLoop?.();
             resizeObserver.disconnect();
             canvas.removeEventListener('pointermove', onPointerMove);
             canvas.removeEventListener('pointerleave', onPointerLeave);

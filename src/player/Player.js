@@ -23,6 +23,14 @@ export default function Player() {
     /** Dark for the overview, otherwise what the interface asks for */
     const tone = tracksOverviewOpen ? 'ink' : settingsFor(currentTrack).tone;
 
+    /** A work's interface (and its 3D scene) is only built once the player has been opened on it, and
+     *  then stays while it is closed, so a ride or a walk goes on where it was. Every page has a
+     *  current work, so without this every page would load three.js and build a scene nobody sees */
+    const [shown, setShown] = useState(null);
+    const openOnWork = Boolean(isOpen && !tracksOverviewOpen && currentTrack);
+    if (openOnWork && shown !== currentTrack.slug) setShown(currentTrack.slug);
+    const showInterface = currentTrack && (openOnWork || shown === currentTrack.slug);
+
     /** Track if component has mounted to prevent hydration errors */
     const [mounted, setMounted] = useState(false);
     useEffect(() => { setMounted(true); }, []);
@@ -32,7 +40,7 @@ export default function Player() {
         <Overlay active={isOpen} tone={tone}>
             {tracksOverviewOpen
                 ? <TracksOverview />
-                : currentTrack && <Interface key={currentTrack.slug} />}
+                : showInterface && <Interface key={currentTrack.slug} />}
         </Overlay>
     );
 }

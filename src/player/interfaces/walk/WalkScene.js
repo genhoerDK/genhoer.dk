@@ -27,6 +27,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { pixelRatio, vignetteMask, fadeIn } from '@/player/kit/style';
+import { frameLoop } from '@/player/scene/loop';
 import { maps } from '@/player/vaerker/maps';
 import { buildTownMap } from '@/player/kit/townmap';
 import { createStation } from '@/player/kit/station';
@@ -133,10 +134,9 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
 
         const focus = spots[state.current.here].clone();
         const reach = () => (size.w < size.h ? REACH.tall : REACH.wide);
-        let frame, last = performance.now(), t = 0;
+        let last = performance.now(), t = 0;
 
         const tick = (time) => {
-            frame = requestAnimationFrame(tick);
             const dt = Math.min((time - last) / 1000, 0.1);
             last = time;
             t += dt;
@@ -178,11 +178,11 @@ export default function WalkScene({ map: mapName, places, here, sounding, onWalk
                 el.dataset.side = side;
             });
         };
-        frame = requestAnimationFrame(tick);
+        const stopLoop = frameLoop(container, tick);   // only while the map is on the screen
         fadeIn(canvas);   // the way into the room: a toning (STIL.md)
 
         return () => {
-            cancelAnimationFrame(frame);
+            stopLoop();
             resizeObserver.disconnect();
             scene.traverse((obj) => {
                 obj.geometry?.dispose();
