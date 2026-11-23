@@ -257,7 +257,7 @@
       "https://cdn.genhoer.dk/media/hvide-sande-2026/image-07.webp"
     ],
     "audio": "https://cdn.genhoer.dk/media/hvide-sande-2026/track-v1.mp3",
-    "artwork": null,
+    "artwork": "https://cdn.genhoer.dk/media/hvide-sande-2026/artwork.jpg",
     "segments": [
       {
         "title": "Tyskerhavnen",
