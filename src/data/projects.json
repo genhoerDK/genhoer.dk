@@ -871,32 +871,32 @@
       {
         "title": "Udvikling",
         "start": 0,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/faaborg-2025/segment-landscape-01.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/faaborg-2025/segment-portrait-01.webp"
       },
       {
         "title": "Arbejde",
         "start": 379,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/faaborg-2025/segment-landscape-02.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/faaborg-2025/segment-portrait-02.webp"
       },
       {
         "title": "Maskiner I",
         "start": 648,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/faaborg-2025/segment-landscape-03.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/faaborg-2025/segment-portrait-03.webp"
       },
       {
         "title": "Stemmer",
         "start": 895,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/faaborg-2025/segment-landscape-04.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/faaborg-2025/segment-portrait-04.webp"
       },
       {
         "title": "Maskiner II",
         "start": 1137,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/faaborg-2025/segment-landscape-05.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/faaborg-2025/segment-portrait-05.webp"
       }
     ],
     "previousSlugs": []
