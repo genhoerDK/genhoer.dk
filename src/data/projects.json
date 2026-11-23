@@ -347,7 +347,7 @@
       "https://cdn.genhoer.dk/media/odsherred-2026/image-07.webp"
     ],
     "audio": null,
-    "artwork": null,
+    "artwork": "https://cdn.genhoer.dk/media/odsherred-2026/artwork.jpg",
     "segments": null,
     "previousSlugs": []
   },
