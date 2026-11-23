@@ -954,32 +954,32 @@
       {
         "title": "Huset opføres af Philip af Neuss",
         "start": 0,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/haderslev-2025/segment-landscape-01.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/haderslev-2025/segment-portrait-01.webp"
       },
       {
         "title": "Torstenssonfejden og plettyfys-epidemi",
         "start": 150,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/haderslev-2025/segment-landscape-02.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/haderslev-2025/segment-portrait-02.webp"
       },
       {
         "title": "Hestevogne og herberg",
         "start": 295,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/haderslev-2025/segment-landscape-03.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/haderslev-2025/segment-portrait-03.webp"
       },
       {
         "title": "Treårskrigen og Hans Nielsens krigsvise",
         "start": 450,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/haderslev-2025/segment-landscape-04.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/haderslev-2025/segment-portrait-04.webp"
       },
       {
         "title": "Industrialisering, arbejdere og de mange børn",
         "start": 602,
-        "imageLandscape": null,
-        "imagePortrait": null
+        "imageLandscape": "https://cdn.genhoer.dk/media/haderslev-2025/segment-landscape-05.webp",
+        "imagePortrait": "https://cdn.genhoer.dk/media/haderslev-2025/segment-portrait-05.webp"
       }
     ],
     "previousSlugs": []
